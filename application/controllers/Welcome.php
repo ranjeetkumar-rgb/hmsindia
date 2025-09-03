@@ -17,6 +17,8 @@ class Welcome extends CI_Controller {
 	
 	public function index()
 	{
+		var_dump($_SESSION,'session');
+		die;
 		$logg = checklogin();
 		if($logg['status'] == true){
 			header("location:" .base_url(). "dashboard");
