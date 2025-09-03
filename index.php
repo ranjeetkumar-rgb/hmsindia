@@ -52,7 +52,28 @@
  *
  * NOTE: If you change these, also change the error_reporting() code below
  */
-	define('ENVIRONMENT', isset($_SERVER['CI_ENV']) ? $_SERVER['CI_ENV'] : 'development');
+	// Environment detection with multiple fallbacks
+	$environment = 'development'; // Default fallback
+	
+	// Check for CI_ENV server variable
+	if (isset($_SERVER['CI_ENV'])) {
+		$environment = $_SERVER['CI_ENV'];
+	}
+	// Check for environment variable
+	elseif (getenv('CI_ENV')) {
+		$environment = getenv('CI_ENV');
+	}
+	// Check for HTTP_HOST to detect production
+	elseif (isset($_SERVER['HTTP_HOST'])) {
+		$host = $_SERVER['HTTP_HOST'];
+		if (strpos($host, '139.84.175.208') !== false || 
+			strpos($host, 'indiaivf.website') !== false ||
+			strpos($host, 'hmsindia') !== false) {
+			$environment = 'production';
+		}
+	}
+	
+	define('ENVIRONMENT', $environment);
 
 /*
  *---------------------------------------------------------------
