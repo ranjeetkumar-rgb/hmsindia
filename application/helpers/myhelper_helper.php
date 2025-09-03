@@ -2,15 +2,15 @@
 function checklogin(){
   $return = array();
   // Debug: Log session check
-  log_message('info', 'checklogin() called - checking session variables');
-  log_message('info', 'Available session variables: ' . print_r(array_keys($_SESSION), true));
-  echo "<pre>";
-  var_dump($_SESSION['logged_administrator']); 
-  echo "<br>";
-  var_dump($_SESSION['logged_viewer']); 
-  echo "<br>";
-  var_dump($_SESSION); 
-  echo "</pre>";
+//   log_message('info', 'checklogin() called - checking session variables');
+//   log_message('info', 'Available session variables: ' . print_r(array_keys($_SESSION), true));
+//   echo "<pre>";
+//   var_dump($_SESSION['logged_administrator']); 
+//   echo "<br>";
+//   var_dump($_SESSION['logged_viewer']); 
+//   echo "<br>";
+//   var_dump($_SESSION); 
+//   echo "</pre>";
   if(isset($_SESSION['logged_administrator'])){
     $return = array('status' => true, 'role'=>$_SESSION['logged_administrator']['role']);
     log_message('info', 'Found logged_administrator session');
