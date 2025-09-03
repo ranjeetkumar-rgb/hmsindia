@@ -16,6 +16,7 @@ class User_model extends CI_Model
 		   $new_sql = "Select * from ".$this->config->item('db_prefix')."employees as emp, ".$this->config->item('db_prefix')."centers as center WHERE emp.username='".$data['email']."' AND emp.password ='".md5($data['password'])."' AND emp.status='1' ".$sql_condition."";
 	 	   $new_q = $this->db->query($new_sql); 
 		   $affected_rows = $new_q->result_array();
+		   var_dump($affected_rows); die;
 		   if (count($affected_rows) > 0)
 	       {
 	            if(isset($data['rememberme']))
