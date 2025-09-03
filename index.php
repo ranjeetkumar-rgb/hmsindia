@@ -75,9 +75,6 @@ ini_set('display_errors', 1);
 			$environment = 'production';
 		}
 	}
-	var_dump($environment);
-	die;
-	
 	define('ENVIRONMENT', $environment);
 
 /*
@@ -91,11 +88,10 @@ ini_set('display_errors', 1);
 switch (ENVIRONMENT)
 {
 	case 'development':
-		error_reporting(0);
+		// error_reporting(0);
+		error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED & ~E_STRICT & ~E_USER_NOTICE & ~E_USER_DEPRECATED);
 		ini_set('display_errors', 1);
 	break;
-
-	case 'testing':
 	case 'production':
 		ini_set('display_errors', 0);
 		if (version_compare(PHP_VERSION, '5.3', '>='))
