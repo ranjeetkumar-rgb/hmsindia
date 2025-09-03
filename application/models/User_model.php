@@ -18,6 +18,7 @@ class User_model extends CI_Model
 		   $affected_rows = $new_q->result_array();
 		   if (count($affected_rows) > 0)
 	       {
+				var_dump($affected_rows,'affected_rows');
 	            if(isset($data['rememberme']))
 				{
 					setcookie( "femail", $data['email'], time() + 36000 );
@@ -33,6 +34,10 @@ class User_model extends CI_Model
 				
 				$role = $affected_rows[0]['role'];
 				if($role == 'administrator'){
+					echo "administrator user_model";
+					echo "<pre>";
+					var_dump($_SESSION['logged_administrator']);
+					echo "</pre>";
 					$_SESSION['logged_administrator'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number']);
 				}
 				if($role == 'accountant'){
