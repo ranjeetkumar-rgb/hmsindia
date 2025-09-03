@@ -33,7 +33,7 @@ echo "===============================\n";
 
 $start_time = microtime(true);
 
-try {
+// try {
     // Single optimized connection with timeouts
     $dsn = "mysql:host=$host;port=$port;dbname=$database;charset=utf8";
     $pdo = new PDO($dsn, $username, $password, [
@@ -61,15 +61,15 @@ try {
     $table_count = $stmt->fetch(PDO::FETCH_ASSOC)['table_count'];
     echo "✅ Tables found: $table_count\n";
 
-} catch (PDOException $e) {
-    $end_time = microtime(true);
-    $execution_time = round(($end_time - $start_time) * 1000, 2);
+// } catch (PDOException $e) {
+//     $end_time = microtime(true);
+//     $execution_time = round(($end_time - $start_time) * 1000, 2);
 
-    echo "❌ Connection FAILED!\n";
-    echo "❌ Error: " . $e->getMessage() . "\n";
-    echo "❌ Code: " . $e->getCode() . "\n";
-    echo "❌ Time: {$execution_time}ms\n";
-}
+//     echo "❌ Connection FAILED!\n";
+//     echo "❌ Error: " . $e->getMessage() . "\n";
+//     echo "❌ Code: " . $e->getCode() . "\n";
+//     echo "❌ Time: {$execution_time}ms\n";
+// }
 
 echo "\n=== Test Complete ===\n";
 ?>
