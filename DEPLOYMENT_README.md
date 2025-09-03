@@ -8,7 +8,9 @@ This guide will help you deploy your HMS India application to your Vultr server.
 - **Username**: root
 - **Password**: bM}5rh5Q[rmyJzba
 - **OS**: Ubuntu 25.04 x64
-
+GRANT ALL PRIVILEGES ON stagin_hms_db.* TO 'hmaadmin'@'localhost' IDENTIFIED BY 'Admin@2025!';
+FLUSH PRIVILEGES;
+EXIT;
 ## 🚀 Quick Start
 
 ### Step 1: Initial Server Setup (Run Once)

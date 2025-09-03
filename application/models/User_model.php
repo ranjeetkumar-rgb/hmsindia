@@ -5,27 +5,62 @@ class User_model extends CI_Model
 {
 	function userlogin($data)
     {
+		// DEBUG: Log login attempt
+		error_log("=== LOGIN DEBUG START ===");
+		error_log("Login attempt for username: " . (isset($data['email']) ? $data['email'] : 'NOT_SET'));
+		error_log("Password provided: " . (isset($data['password']) ? 'YES' : 'NO'));
+		error_log("Remember me: " . (isset($data['rememberme']) ? 'YES' : 'NO'));
+		
 		$result = array();
 		$sql_condition = '';
 		$sql = "Select * from " . $this->config->item('db_prefix') . "employees WHERE username='".$data['email']."' AND status='1'";
+		
+		// DEBUG: Log first query
+		error_log("First query: " . $sql);
+		
         $q = $this->db->query($sql);
         $user_result = $q->result_array();
+        
+        // DEBUG: Log first query result
+        error_log("First query result count: " . count($user_result));
+        if (count($user_result) > 0) {
+        	error_log("User found - Center ID: " . $user_result[0]['center_id']);
+        	error_log("User role: " . $user_result[0]['role']);
+        	error_log("User status: " . $user_result[0]['status']);
+        } else {
+        	error_log("No user found with username: " . $data['email']);
+        }
+        
         if (count($user_result) > 0)
         {
 		   if($user_result[0]['center_id'] != 0){ $sql_condition = ' and emp.center_id = center.center_number and center.status="1"'; }
 		   $new_sql = "Select * from ".$this->config->item('db_prefix')."employees as emp, ".$this->config->item('db_prefix')."centers as center WHERE emp.username='".$data['email']."' AND emp.password ='".md5($data['password'])."' AND emp.status='1' ".$sql_condition."";
 
+		   // DEBUG: Log second query
+		   error_log("Second query: " . $new_sql);
+		   error_log("MD5 password: " . md5($data['password']));
+
 	 	   $new_q = $this->db->query($new_sql);
 		   $affected_rows = $new_q->result_array();
 		   
+		   // DEBUG: Log second query result
+		   error_log("Second query result count: " . count($affected_rows));
+		   
 		   if (count($affected_rows) > 0)
 	       {
+	       		// DEBUG: Log successful authentication
+	       		error_log("Authentication SUCCESS for user: " . $data['email']);
+	       		error_log("User role: " . $affected_rows[0]['role']);
+	       		error_log("User name: " . $affected_rows[0]['name']);
+	       		
 	            if(isset($data['rememberme']))
 				{
+					error_log("Setting remember me cookies");
 					setcookie( "femail", $data['email'], time() + 36000 );
 					setcookie( "lpsswrd", $data['password'], time() + 36000 );
 					setcookie( "rememberme", 'yes', time() + 36000 );
 				}else{
+					error_log("Clearing remember me cookies");
 					setcookie( "femail", '', time() + 36000 );
 					setcookie( "lpsswrd", '', time() + 36000 );
 					setcookie( "rememberme", '', time() + 36000 );
@@ -35,8 +70,11 @@ class User_model extends CI_Model
 				unset($_SESSION['logged_billing_manager']);unset($_SESSION['logged_central_stock_manager']);unset($_SESSION['logged_counselor']);
 				
 				$role = $affected_rows[0]['role'];
+				error_log("Setting session for role: " . $role);
+				
 				if($role == 'administrator'){
 					$_SESSION['logged_administrator'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number']);
+					error_log("Administrator session set");
 				}
 				if($role == 'accountant'){
 					$center = $this->get_center($affected_rows[0]['username']);
