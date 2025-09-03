@@ -18,6 +18,7 @@ class User_model extends CI_Model
 	 	   $new_q = $this->db->query($new_sql);
 		   $affected_rows = $new_q->result_array();
 		   var_dump($affected_rows); 
+		   die;
 		   
 		   if (count($affected_rows) > 0)
 	       {
