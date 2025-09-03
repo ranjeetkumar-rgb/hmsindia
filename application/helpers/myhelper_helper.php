@@ -4,7 +4,23 @@ function checklogin(){
   // Debug: Log session check
   log_message('info', 'checklogin() called - checking session variables');
   log_message('info', 'Available session variables: ' . print_r(array_keys($_SESSION), true));
-  var_dump($_SESSION); die;
+  var_dump($_SESSION['logged_administrator']); 
+  var_dump($_SESSION['logged_accountant']); 
+  var_dump($_SESSION['logged_stock_manager']); 
+  var_dump($_SESSION['logged_billing_manager']); 
+  var_dump($_SESSION['logged_telecaller']); 
+  var_dump($_SESSION['logged_central_stock_manager']); 
+  var_dump($_SESSION['logged_doctor']); 
+  var_dump($_SESSION['logged_investigation_manager']); 
+  var_dump($_SESSION['logged_embryologist']); 
+  var_dump($_SESSION['logged_counselor']); 
+  var_dump($_SESSION['logged_liason']); 
+  var_dump($_SESSION['logged_mrd']); 
+  var_dump($_SESSION['logged_embryologist']); 
+  var_dump($_SESSION['logged_viewer']); 
+  var_dump($_SESSION); 
+
+  die;
    die;
   if(isset($_SESSION['logged_administrator'])){
     $return = array('status' => true, 'role'=>$_SESSION['logged_administrator']['role']);
