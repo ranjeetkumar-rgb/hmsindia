@@ -4,7 +4,7 @@
 .DS_Store
 Thumbs.db
 *.tmp
-*.log
+# *.log
 
 # IDE files
 .vscode/
@@ -29,9 +29,9 @@ Thumbs.db
 .env.production
 
 # Logs
-application/logs/*
-!application/logs/index.html
-*.log
+# application/logs/*
+# !application/logs/index.html
+# *.log
 
 # Cache
 application/cache/*
