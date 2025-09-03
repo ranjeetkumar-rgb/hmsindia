@@ -13,30 +13,12 @@ services:
       - ./index.php:/var/www/html/index.php
       - ./.htaccess:/var/www/html/.htaccess
     environment:
-      - DB_HOST=db
+      - DB_HOST=host.docker.internal
       - DB_PORT=3306
       - DB_USER=root
       - DB_PASSWORD=
-      - DB_NAME=hmsindiaivf_dev
+      - DB_NAME=hmsindiaivf
       - ENVIRONMENT=development
-    depends_on:
-      - db
-    networks:
-      - hmsindia_network
-
-  db:
-    image: mysql:8.0
-    container_name: hmsindia_db
-    restart: unless-stopped
-    ports:
-      - "3307:3306"
-    volumes:
-      - dbdata_dev:/var/lib/mysql
-      - ./backups:/docker-entrypoint-initdb.d
-    environment:
-      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
-      - MYSQL_DATABASE=hmsindiaivf_dev
-    command: --default-authentication-plugin=mysql_native_password
     networks:
       - hmsindia_network
 
@@ -47,16 +29,11 @@ services:
     ports:
       - "8081:80"
     environment:
-      - PMA_HOST=db
+      - PMA_HOST=host.docker.internal
       - PMA_USER=root
       - PMA_PASSWORD=
-    depends_on:
-      - db
     networks:
       - hmsindia_network
-
-volumes:
-  dbdata_dev:
 
 networks:
   hmsindia_network:

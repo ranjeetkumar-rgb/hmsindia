@@ -50,7 +50,7 @@ switch ($environment) {
             'hostname' => getenv('DB_HOST') ?: 'localhost',
             'username' => getenv('DB_USER') ?: 'root',
             'password' => getenv('DB_PASSWORD') ?: '',
-            'database' => getenv('DB_NAME') ?: 'hmsindiaivf_dev',
+            'database' => getenv('DB_NAME') ?: 'hmsindiaivf',
             'dbdriver' => 'mysqli',
             'dbprefix' => '',
             'pconnect' => FALSE,
