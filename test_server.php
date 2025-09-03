@@ -9,7 +9,7 @@ echo "<p>Script Path: " . __FILE__ . "</p>";
 // Test database connection
 echo "<h2>Database Test</h2>";
 try {
-    $host = '139.84.175.208';
+    $host = 'localhost';
     $username = 'root';
     $password = 'root';
     $database = 'stagin_hms_db';
