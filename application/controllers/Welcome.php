@@ -28,6 +28,7 @@ class Welcome extends CI_Controller {
 				echo "<pre>";
 				print_r($this->user_model->userlogin($_POST),'userlogin');
 				echo "</pre>";
+				die;
 				$logged = $this->user_model->userlogin($_POST);
 				if($logged['status'] == 1){
 					header("location:" .base_url(). "dashboard");
