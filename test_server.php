@@ -8,13 +8,14 @@ echo "<p>Script Path: " . __FILE__ . "</p>";
 // Test database connection
 echo "<h2>Database Test</h2>";
     $host = 'localhost';
-    $username = 'root';
-    $password = 'root';
+    $port = '3306';
+    $username = 'hmaadmin';
+    $password =  'Admin@2025!';
     $database = 'stagin_hms_db';
     
     $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
     echo "<p style='color: green;'>Database connection successful!</p>";
-    
+
 try {
     $host = 'localhost';
     $username = 'root';
