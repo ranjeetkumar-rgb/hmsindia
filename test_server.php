@@ -10,11 +10,7 @@ echo "<p>Script Path: " . __FILE__ . "</p>";
     $port = '3306';
     $username = 'hmaadmin';
     $password =  'Admin@2025!';
-    $database = 'hma_hms_db';
-    
-    $pdo = new PDO("mysql:host=$host;port=$port;dbname=$database", $username, $password);
-    echo "<p style='color: green;'>Database connection successful!</p>";
-
+    $database = 'stagin_hms_db';
 
 // Test file permissions
 echo "<h2>File Permissions Test</h2>";

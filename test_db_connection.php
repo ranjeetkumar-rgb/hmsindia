@@ -42,28 +42,29 @@ try {
         PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION wait_timeout=5",
         PDO::ATTR_PERSISTENT => false, // No persistent connections
     ]);
-    
-    // Quick test query
-    $stmt = $pdo->query("SELECT 1 as test, NOW() as current_time");
-    $result = $stmt->fetch();
-    
+
+    // Quick test query (escape reserved keyword)
+    $stmt = $pdo->query("SELECT 1 AS test, NOW() AS `current_time`");
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
     $end_time = microtime(true);
     $execution_time = round(($end_time - $start_time) * 1000, 2);
-    
+
     echo "✅ Connection SUCCESS!\n";
     echo "✅ Query test: " . $result['test'] . "\n";
     echo "✅ Server time: " . $result['current_time'] . "\n";
     echo "✅ Execution time: {$execution_time}ms\n";
-    
+
     // Quick table count (limit to 1 for speed)
-    $stmt = $pdo->query("SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema = '$database'");
-    $table_count = $stmt->fetch()['table_count'];
+    $stmt = $pdo->query("SELECT COUNT(*) AS table_count FROM information_schema.tables WHERE table_schema = :db");
+    $stmt->execute(['db' => $database]);
+    $table_count = $stmt->fetch(PDO::FETCH_ASSOC)['table_count'];
     echo "✅ Tables found: $table_count\n";
-    
+
 } catch (PDOException $e) {
     $end_time = microtime(true);
     $execution_time = round(($end_time - $start_time) * 1000, 2);
-    
+
     echo "❌ Connection FAILED!\n";
     echo "❌ Error: " . $e->getMessage() . "\n";
     echo "❌ Code: " . $e->getCode() . "\n";
