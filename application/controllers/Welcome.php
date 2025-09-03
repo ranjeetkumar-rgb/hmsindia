@@ -25,13 +25,13 @@ class Welcome extends CI_Controller {
 			if(isset($_POST['login']) && !empty($_POST['login']) && $_POST['login'] == 'login'){
 				unset($_POST['login']);
 				$logged = $this->user_model->userlogin($_POST);
-				var_dump($logged,'logged');
-				die;
 				if($logged['status'] == 1){
 					// Debug: Log successful login
 					log_message('info', 'Login successful for user: ' . $_POST['email']);
 					// Debug: Check session after login
 					log_message('info', 'Session data after login: ' . print_r($_SESSION, true));
+					var_dump($_SESSION,'session');
+					die;
 					header("location:" .base_url(). "dashboard");
 					die();
 				}else{
