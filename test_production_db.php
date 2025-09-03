@@ -1,97 +1,92 @@
 <?php
-/**
- * Production Database Connection Test
- * This script tests the database connection using the same configuration
- * that your CodeIgniter application will use.
- */
-
-echo "=== Production Database Connection Test ===\n";
-
-// Load environment variables
-if (file_exists('.env')) {
-    $lines = file('.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
-            list($key, $value) = explode('=', $line, 2);
-            putenv(trim($key) . '=' . trim($value));
-        }
-    }
-}
-
-// Load production environment variables
-if (file_exists('env.production')) {
-    $lines = file('env.production', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-    foreach ($lines as $line) {
-        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
-            list($key, $value) = explode('=', $line, 2);
-            putenv(trim($key) . '=' . trim($value));
-        }
-    }
-}
+// Test database connection for production
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 // Set environment to production
 putenv('ENVIRONMENT=production');
+putenv('DB_HOST=localhost');
+putenv('DB_USER=hmaadmin');
+putenv('DB_PASSWORD=Admin@2025!');
+putenv('DB_NAME=stagin_hms_db');
 
-// Get database configuration
-$hostname = getenv('DB_HOST') ?: '139.84.175.208';
-$username = getenv('DB_USER') ?: 'hmaadmin';
-$password = getenv('DB_PASSWORD') ?: 'Admin@2025!';
-$database = getenv('DB_NAME') ?: 'stagin_hms_db';
-$environment = getenv('ENVIRONMENT') ?: 'production';
+echo "<h2>Database Connection Test</h2>";
 
-echo "Environment: " . $environment . "\n";
-echo "Host: " . $hostname . "\n";
-echo "Username: " . $username . "\n";
-echo "Database: " . $database . "\n";
-echo "Password: " . (empty($password) ? '(empty)' : '****') . "\n";
-echo "===============================\n";
+// Test 1: Direct MySQL connection
+echo "<h3>Test 1: Direct MySQL Connection</h3>";
+$host = 'localhost';
+$username = 'hmaadmin';
+$password = 'Admin@2025!';
+$database = 'stagin_hms_db';
 
-// Test database connection
 try {
-    echo "1. Testing MySQL connection...\n";
-    
-    $mysqli = new mysqli($hostname, $username, $password, $database);
-    
-    if ($mysqli->connect_error) {
-        throw new Exception("Connection failed: " . $mysqli->connect_error);
-    }
-    
-    echo "✓ Database connection successful!\n";
+    $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    echo "✅ Direct PDO connection successful!<br>";
     
     // Test a simple query
-    echo "2. Testing database query...\n";
-    $result = $mysqli->query("SELECT 1 as test");
-    if ($result) {
-        $row = $result->fetch_assoc();
-        echo "✓ Query test successful! Result: " . $row['test'] . "\n";
-    } else {
-        throw new Exception("Query failed: " . $mysqli->error);
-    }
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM information_schema.tables WHERE table_schema = '$database'");
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    echo "✅ Database '$database' has {$result['count']} tables<br>";
     
-    // Check if database.php exists
-    echo "3. Checking database.php file...\n";
-    $db_config_path = 'application/config/database.php';
-    if (file_exists($db_config_path)) {
-        echo "✓ database.php file exists at: " . $db_config_path . "\n";
-        
-        // Check if the file is readable
-        if (is_readable($db_config_path)) {
-            echo "✓ database.php file is readable\n";
-        } else {
-            echo "✗ database.php file is not readable (permission issue)\n";
-        }
-    } else {
-        echo "✗ database.php file does NOT exist at: " . $db_config_path . "\n";
-        echo "  Current working directory: " . getcwd() . "\n";
-        echo "  Files in application/config/: " . implode(', ', scandir('application/config/')) . "\n";
-    }
-    
-    $mysqli->close();
-    
-} catch (Exception $e) {
-    echo "✗ Error: " . $e->getMessage() . "\n";
-    exit(1);
+} catch (PDOException $e) {
+    echo "❌ Direct PDO connection failed: " . $e->getMessage() . "<br>";
 }
 
-echo "\n=== Test completed successfully! ===\n";
+// Test 2: MySQLi connection
+echo "<h3>Test 2: MySQLi Connection</h3>";
+try {
+    $mysqli = new mysqli($host, $username, $password, $database);
+    
+    if ($mysqli->connect_error) {
+        echo "❌ MySQLi connection failed: " . $mysqli->connect_error . "<br>";
+    } else {
+        echo "✅ MySQLi connection successful!<br>";
+        
+        // Test a simple query
+        $result = $mysqli->query("SELECT COUNT(*) as count FROM information_schema.tables WHERE table_schema = '$database'");
+        if ($result) {
+            $row = $result->fetch_assoc();
+            echo "✅ Database '$database' has {$row['count']} tables<br>";
+        }
+        $mysqli->close();
+    }
+} catch (Exception $e) {
+    echo "❌ MySQLi connection failed: " . $e->getMessage() . "<br>";
+}
+
+// Test 3: Environment variables
+echo "<h3>Test 3: Environment Variables</h3>";
+echo "ENVIRONMENT: " . getenv('ENVIRONMENT') . "<br>";
+echo "DB_HOST: " . getenv('DB_HOST') . "<br>";
+echo "DB_USER: " . getenv('DB_USER') . "<br>";
+echo "DB_PASSWORD: " . (getenv('DB_PASSWORD') ? '[SET]' : '[NOT SET]') . "<br>";
+echo "DB_NAME: " . getenv('DB_NAME') . "<br>";
+
+// Test 4: CodeIgniter Database Config
+echo "<h3>Test 4: CodeIgniter Database Configuration</h3>";
+$environment = getenv('ENVIRONMENT') ?: 'development';
+echo "Current environment: $environment<br>";
+
+if ($environment === 'production') {
+    $db_config = array(
+        'hostname' => getenv('DB_HOST') ?: 'localhost',
+        'username' => getenv('DB_USER') ?: 'hmaadmin',
+        'password' => getenv('DB_PASSWORD') ?: 'Admin@2025!',
+        'database' => getenv('DB_NAME') ?: 'stagin_hms_db',
+    );
+} else {
+    $db_config = array(
+        'hostname' => getenv('DB_HOST') ?: 'localhost',
+        'username' => getenv('DB_USER') ?: 'root',
+        'password' => getenv('DB_PASSWORD') ?: '',
+        'database' => getenv('DB_NAME') ?: 'hmsindiaivf',
+    );
+}
+
+echo "Database config being used:<br>";
+echo "Hostname: " . $db_config['hostname'] . "<br>";
+echo "Username: " . $db_config['username'] . "<br>";
+echo "Password: " . ($db_config['password'] ? '[SET]' : '[NOT SET]') . "<br>";
+echo "Database: " . $db_config['database'] . "<br>";
 ?>
