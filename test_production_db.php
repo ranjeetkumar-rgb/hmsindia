@@ -34,8 +34,8 @@ putenv('ENVIRONMENT=production');
 
 // Get database configuration
 $hostname = getenv('DB_HOST') ?: '139.84.175.208';
-$username = getenv('DB_USER') ?: 'root';
-$password = getenv('DB_PASSWORD') ?: 'root';
+$username = getenv('DB_USER') ?: 'hmaadmin';
+$password = getenv('DB_PASSWORD') ?: 'Admin@2025!';
 $database = getenv('DB_NAME') ?: 'stagin_hms_db';
 $environment = getenv('ENVIRONMENT') ?: 'production';
 

@@ -6,18 +6,15 @@ echo "<p>Document Root: " . $_SERVER['DOCUMENT_ROOT'] . "</p>";
 echo "<p>Script Path: " . __FILE__ . "</p>";
 
 // Test database connection
-echo "<h2>Database Test</h2>";
     $host = 'localhost';
     $port = '3306';
     $username = 'hmaadmin';
     $password =  'Admin@2025!';
-    $database = 'stagin_hms_db';
+    $database = 'hma_hms_db';
     
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$database", $username, $password);
     echo "<p style='color: green;'>Database connection successful!</p>";
-} catch (PDOException $e) {
-    echo "<p style='color: red;'>Database connection failed: " . $e->getMessage() . "</p>";
-}
+
 
 // Test file permissions
 echo "<h2>File Permissions Test</h2>";
