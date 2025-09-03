@@ -6,7 +6,8 @@ class User_model extends CI_Model
 	function userlogin($data)
     {
 		// DEBUG: Log login attempt
-		error_log("=== LOGIN DEBUG START ===");
+		error_log("=== LOGIN DEBUG START ===");	
+		var_dump($data);die;
 		error_log("Login attempt for username: " . (isset($data['email']) ? $data['email'] : 'NOT_SET'));
 		error_log("Password provided: " . (isset($data['password']) ? 'YES' : 'NO'));
 		error_log("Remember me: " . (isset($data['rememberme']) ? 'YES' : 'NO'));
