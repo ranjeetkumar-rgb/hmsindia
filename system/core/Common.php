@@ -238,8 +238,6 @@ if ( ! function_exists('get_config'))
 	function &get_config(Array $replace = array())
 	{
 		static $config;
-         var_dump(ENVIRONMENT);
-         exit;
 		if (empty($config))
 		{
 			$file_path = APPPATH.'config/config.php';

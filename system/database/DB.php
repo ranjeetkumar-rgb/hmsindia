@@ -54,6 +54,9 @@ function &DB($params = '', $query_builder_override = NULL)
 	if (is_string($params) && strpos($params, '://') === FALSE)
 	{
 		// Is the config file in the environment folder?
+		var_dump(APPPATH.'config/'.ENVIRONMENT.'/database.php');
+		var_dump(APPPATH.'config/database.php');
+		die;
 		if ( ! file_exists($file_path = APPPATH.'config/'.ENVIRONMENT.'/database.php')
 			&& ! file_exists($file_path = APPPATH.'config/database.php'))
 		{
