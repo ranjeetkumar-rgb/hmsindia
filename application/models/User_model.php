@@ -17,6 +17,7 @@ class User_model extends CI_Model
 
 	 	   $new_q = $this->db->query($new_sql);
 		   $affected_rows = $new_q->result_array();
+		   var_dump($affected_rows); 
 		   
 		   if (count($affected_rows) > 0)
 	       {
@@ -30,6 +31,7 @@ class User_model extends CI_Model
 					setcookie( "lpsswrd", '', time() + 36000 );
 					setcookie( "rememberme", '', time() + 36000 );
 				}
+				var_dump($affected_rows); die;
 	           
 				unset($_SESSION['logged_administrator']);unset($_SESSION['logged_accountant']);unset($_SESSION['logged_stock_manager']);
 				unset($_SESSION['logged_billing_manager']);unset($_SESSION['logged_central_stock_manager']);unset($_SESSION['logged_counselor']);
@@ -94,6 +96,7 @@ class User_model extends CI_Model
         }
         else
         {
+			var_dump($result); die;
 			$result = array('status' => 0);
             return $result;		
         }
