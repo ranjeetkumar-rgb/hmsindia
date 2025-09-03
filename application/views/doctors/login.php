@@ -6,6 +6,7 @@
             <div class="body">
                 <form action="" class="login-form"  method="post">
                      <input type="hidden" class="form-control" name="login" value="login">
+                     <input type="hidden" name="<?php echo $this->security->get_csrf_token_name(); ?>" value="<?php echo $this->security->get_csrf_hash(); ?>">
                     <div class="msg">Sign in to start your account</div>
                     <div class="input-group">
                         <span class="input-group-addon">
