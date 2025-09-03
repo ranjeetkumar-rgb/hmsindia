@@ -21,11 +21,11 @@ if (file_exists($env_file)) {
 }
 
 // Database configuration
-$host = $_ENV['DB_HOST'] ?? '139.84.175.208';
-$port = $_ENV['DB_PORT'] ?? '3306';
-$username = $_ENV['DB_USER'] ?? 'root';
-$password = $_ENV['DB_PASSWORD'] ?? 'root';
-$database = $_ENV['DB_NAME'] ?? 'stagin_hms_db';
+$host = 'localhost';
+$port = '3306';
+$username = 'hmaadmin';
+$password =  'Admin@2025!';
+$database = 'stagin_hms_db';
 
 echo "=== Fast DB Connection Test ===\n";
 echo "Host: $host | DB: $database\n";

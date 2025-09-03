@@ -22,8 +22,8 @@ switch ($environment) {
         $db['default'] = array(
             'dsn'	=> '',
             'hostname' => getenv('DB_HOST') ?: 'localhost',
-            'username' => getenv('DB_USER') ?: 'root',
-            'password' => getenv('DB_PASSWORD') ?: 'root',
+            'username' => getenv('DB_USER') ?: 'hmaadmin',
+            'password' => getenv('DB_PASSWORD') ?: 'Admin@2025!',
             'database' => getenv('DB_NAME') ?: 'stagin_hms_db',
             'dbdriver' => 'mysqli',
             'dbprefix' => '',
