@@ -83,7 +83,6 @@ class User_model extends CI_Model
 					log_message('info', 'Created logged_viewer session for user: ' . $affected_rows[0]['username']);
 				}
 				$result = array('status' => 1);
-				var_dump($result); die;
             	return $result;	
 			}else{
 				$result = array('status' => 0);
