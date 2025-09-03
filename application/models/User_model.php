@@ -10,7 +10,6 @@ class User_model extends CI_Model
 		$sql = "Select * from " . $this->config->item('db_prefix') . "employees WHERE username='".$data['email']."' AND status='1'";
         $q = $this->db->query($sql);
         $user_result = $q->result_array();
-		var_dump($user_result); die;
         if (count($user_result) > 0)
         {
 		   if($user_result[0]['center_id'] != 0){ $sql_condition = ' and emp.center_id = center.center_number and center.status="1"'; }
