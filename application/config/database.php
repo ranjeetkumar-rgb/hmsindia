@@ -14,7 +14,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $environment = defined('ENVIRONMENT') ? ENVIRONMENT : 'development';
 $active_group = 'default';
 $query_builder = TRUE;
-
 switch ($environment) {
     case 'production':
         // Production database configuration
