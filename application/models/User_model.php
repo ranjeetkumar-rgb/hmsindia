@@ -34,11 +34,11 @@ class User_model extends CI_Model
 				
 				$role = $affected_rows[0]['role'];
 				if($role == 'administrator'){
-					echo "administrator user_model";
+					$_SESSION['logged_administrator'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number']);
+					echo "administrator_user_model";
 					echo "<pre>";
 					var_dump($_SESSION['logged_administrator']);
 					echo "</pre>";
-					$_SESSION['logged_administrator'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number']);
 				}
 				if($role == 'accountant'){
 					$center = $this->get_center($affected_rows[0]['username']);

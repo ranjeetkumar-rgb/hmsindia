@@ -5,7 +5,7 @@ function checklogin(){
 //   log_message('info', 'checklogin() called - checking session variables');
 //   log_message('info', 'Available session variables: ' . print_r(array_keys($_SESSION), true));
 //   echo "<pre>";
-//   var_dump($_SESSION['logged_administrator']); 
+  var_dump($_SESSION['logged_administrator']); 
 //   echo "<br>";
 //   var_dump($_SESSION['logged_viewer']); 
 //   echo "<br>";
