@@ -48,7 +48,14 @@ class Welcome extends CI_Controller {
 	}
 	
 	public function dashboard(){
+		echo "<pre>";
+		print_r($_SESSION,'session');
+		echo "</pre>";
 		$logg = checklogin();
+		echo "<pre>";
+		print_r($logg,'logg');
+		echo "</pre>";
+		die;
 		if($logg['status'] == true){
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
