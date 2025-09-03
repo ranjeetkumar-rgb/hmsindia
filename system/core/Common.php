@@ -241,8 +241,6 @@ if ( ! function_exists('get_config'))
 
 		if (empty($config))
 		{
-			var_dump(APPPATH.'config/config.php');
-			die;
 			$file_path = APPPATH.'config/config.php';
 			$found = FALSE;
 			if (file_exists($file_path))
@@ -250,7 +248,8 @@ if ( ! function_exists('get_config'))
 				$found = TRUE;
 				require($file_path);
 			}
-
+             var_dump($found);
+			 die;
 			// Is the config file in the environment folder?
 			if (file_exists($file_path = APPPATH.'config/'.ENVIRONMENT.'/config.php'))
 			{
