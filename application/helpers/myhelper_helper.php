@@ -1,15 +1,8 @@
 <?php 
 function checklogin(){
   $return = array();
-  // Debug: Log session check
-  log_message('info', 'checklogin() called - checking session variables');
-  log_message('info', 'Available session variables: ' . print_r(array_keys($_SESSION), true));
-  
   if(isset($_SESSION['logged_administrator'])){
-    var_dump($_SESSION['logged_administrator']);
-    die;
     $return = array('status' => true, 'role'=>$_SESSION['logged_administrator']['role']);
-    log_message('info', 'Found logged_administrator session');
 	return $return;
   }else if(isset($_SESSION['logged_accountant'])){
     $return = array('status' => true, 'role'=>$_SESSION['logged_accountant']['role']);

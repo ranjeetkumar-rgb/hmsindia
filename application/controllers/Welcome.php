@@ -48,12 +48,11 @@ class Welcome extends CI_Controller {
 	}
 	
 	public function dashboard(){
-		//unset($_SESSION['logged_accountant']);
+		var_dump($_SESSION);
+		die;
 		$logg = checklogin();
-		// Debug: Log dashboard access attempt
-		log_message('info', 'Dashboard access attempt - checklogin result: ' . print_r($logg, true));
-		log_message('info', 'Current session data: ' . print_r($_SESSION, true));
-		
+		var_dump($logg);
+		die;
 		if($logg['status'] == true){
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
