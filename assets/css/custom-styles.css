@@ -1,0 +1,1475 @@
+/*----------------------------------------------
+Author : www.webthemez.com
+License: Commons Attribution 3.0
+http://creativecommons.org/licenses/by/3.0/
+------------------------------------------------*/
+
+
+/*----------------------------------------------
+    COMMON  STYLES    
+------------------------------------------------*/
+body {
+    font-family: 'Open Sans', sans-serif;
+    background: #1F2837;
+}
+
+.mt-20{margin-bottom:20px;}
+.no-pad{padding:0px;}
+.pt-7{padding-top:7px;}
+
+ #wrapper {
+    width: 100%;
+}
+
+#page-wrapper {
+    padding: 15px 15px;
+    min-height: 600px;
+    background: #ececec;
+}
+#page-inner {
+    width:100%;
+    margin:10px 20px 10px 0px;
+    padding: 15px 30px;
+    min-height:1200px;
+}
+.header .container-fluid{
+padding:0;
+}
+.text-center {
+    text-align:center;
+}
+.no-boder {
+    border:1px solid #f3f3f3;
+}
+
+h1, .h1, h2, .h2, h3, .h3 {
+margin-top: 7px;
+margin-bottom: -5px;
+}
+h2 {
+    color: #000;
+}
+h4 {
+    padding-top:10px;
+}
+.square-btn-adjust {
+    border: 0px solid transparent; 
+   -webkit-border-radius: 0px;
+-moz-border-radius: 0px;
+border-radius: 0px;
+
+}
+p {
+    font-size: 14px;
+    line-height:25px;
+    /* padding-top:20px; */
+}
+label {
+    display: inline-block;
+    max-width: 100%;
+    margin-bottom: 5px;
+    font-weight: 400;
+}
+.alert { 
+    border-radius: 0px;
+}
+.navbar-side {
+    z-index: 0; 
+}
+.panel{
+border-radius:0px;
+}
+.navbar-side .nav > li > a > i{color: rgba(255, 255, 255, 0.62);padding: 8px;width: 20px;text-align: center;font-size: 14px;}
+.top-navbar{position: fixed;width: 100%;z-index: 300;-webkit-box-shadow: 0 3px 3px rgba(0, 0, 0, 0.05);-moz-box-shadow: 0 3px 3px rgba(0, 0, 0, 0.05);box-shadow: 0 3px 3px rgba(0, 0, 0, 0.05);box-shadow: 0 1px 3px 0 rgba(0,0,0,.2),0 1px 1px 0 rgba(0,0,0,.14),0 2px 1px -1px rgba(0,0,0,.12);}
+.navbar-side {
+  z-index: 2;
+  position: fixed;
+  width: 260px;
+  top: 80px;
+  box-shadow: none;
+}
+#page-wrapper {
+  position: relative;
+  top: 55px;
+  /* box-shadow: 0 0 10px #757575; */
+  -moz-box-shadow: 0 0 10px #757575;
+  /* -webkit-box-shadow: 0 0 10px #757575; */
+}
+.top-navbar .nav > li > a:hover, .top-navbar .nav > li > a:focus {text-decoration: none;background-color: #e0e8f5;color: #fff;}
+.nav .open > a, .nav .open > a:hover, .nav .open > a:focus {
+background-color: #075CB3;
+border-color: #075CB3;
+}
+.breadcrumb {padding: 10px 10px 10px 20px;margin-bottom: 0;list-style: none;border-radius: 0;/* -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05); *//* box-shadow: 0 1px 1px rgba(0,0,0,.05); */background: transparent;line-height: 20px;font-size: 13px;margin-left: 14px;}
+.dropdown-menu>li>a {
+  display: block;
+  padding: 3px 20px;
+  clear: both;
+  font-weight: 400;
+  line-height: 1.42857143;
+  color: #333;
+  white-space: nowrap;
+  font-size: 13px;
+}
+.dropdown-menu>li>a i {
+  color: #1F1F1F;
+}
+.text-muted {
+  color: #213452;
+}
+.badge {
+  display: inline-block;
+  min-width: 10px;
+  /* padding: 4px 7px; */
+  font-size: 11px;
+  font-weight: 300;
+  color: #fff;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: baseline;
+  background-color: #F09B22;
+  border-radius: 10px;
+}
+.closed{
+	-ms-transform: rotate(180deg); /* IE 9 */
+    -webkit-transform: rotate(180deg); /* Chrome, Safari, Opera */
+    transform: rotate(180deg);	
+}
+.closed i{color: #adadad;}
+/*----------------------------------------------
+   DASHBOARD STYLES    
+------------------------------------------------*/
+.page-header {padding-bottom: 0;margin: 0;border-bottom: 1px solid transparent;text-align: left;background-color: transparent;padding: 32px 22px 10px 28px;color: #323232;}
+.panel-left{  
+width: 100px;
+height: 100px;background: #0866C6;/* border: 2px solid #4590DA; */
+/* border-radius: 100%; */
+overflow: hidden;
+
+margin: 12px;}
+.panel-left .fa-5x {
+font-size: 3em;color: rgb(240, 155, 34);
+padding: 29px 0;
+margin-bottom:30px;}
+.panel-right{  
+height: 124px;
+background: transparent;
+margin-bottom: 0;color: #AFAFAF;
+
+float: left;text-align: left;padding-left: 20px;font-size: 16px;text-shadow: none;font-weight: normal;text-align: center;}
+.panel-right h3{  
+font-size: 40px;
+padding: 18px 10px 13px 0;color: #5D5D5D;}
+.panel-right strong{
+	font-weight:normal;
+	color: #737373;
+}
+.panel-back {
+    background-color:#fff;
+
+}
+.panel-default {
+  border-color: #ECECEC;
+}
+.panel-default > .panel-heading {color: #555;
+border-color: #FFF;
+font-weight:bold;background: #FFFFFF;
+font-size: 16px;
+text-shadow: none;}
+.panel-heading {
+  /* padding: 15px 15px 0px; */
+  border-bottom: 1px solid transparent;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+}
+.jumbotron{
+padding:20px;
+}
+.jumbotron p {
+    margin-bottom: 15px;
+    font-size: 15px;
+    font-weight: 200;
+}
+.jumbotron, .well{
+background:#fff;
+}
+   .noti-box {
+min-height: 100px;
+padding: 20px;
+}
+
+    .noti-box .icon-box {
+display: block;
+float: left;
+margin: 0 15px 10px 0;
+width: 70px;
+height: 70px;
+line-height: 75px;
+vertical-align: middle;
+text-align: center;
+font-size: 40px;
+}
+.text-box p{
+    margin: 0 0 3px;
+}
+.main-text {
+    font-size: 25px;
+    font-weight:600;
+}
+.set-icon {
+-webkit-border-radius: 50px;
+-moz-border-radius: 50px;
+border-radius: 50px;
+
+}
+.panel-primary{
+display:inline-block;
+margin-bottom: 30px;
+width:100%;
+}
+.green {
+/* background-color: #1CC09F; */
+color: #fff;
+}
+ .blue {background-color: #FFFFFF;color: #002A4C;}
+  .red {
+background-color: #FB6E51;
+color:#fff;
+}
+  .brown {
+background-color: #F5B252;
+color:#fff;
+} 
+ .back-footer-red {
+background-color: #F0433D;
+color:#fff;
+border-top: 0px solid #fff;
+}
+ 
+ .icon-box-right {
+display: block;
+float: right;
+margin: 0 15px 10px 0;
+width: 70px;
+height: 70px;
+line-height: 75px;
+vertical-align: middle;
+text-align: center;
+font-size: 40px;
+}
+
+ .main-temp-back {
+background: #8702A8;
+color: #FFFFFF;
+font-size: 16px;
+font-weight: 300;
+text-align: center;
+}
+ .main-temp-back .text-temp {
+font-size: 40px;
+}
+.back-dash {
+    padding:20px;
+    font-size:20px;
+    font-weight:500;
+  -webkit-border-radius: 0px;
+-moz-border-radius: 0px;
+border-radius: 0px;
+background-color:#2EA7EB;
+color:#fff;
+}
+    .back-dash p {
+        padding-top:16px;
+        font-size:13px;
+        color:#fff;
+        line-height:25px;
+        text-align:justify;
+    }
+
+     .color-bottom-txt {
+   color: #000;
+font-size: 16px;
+line-height: 30px;
+}
+     /*CHAT PANEL*/
+/*Charts*/
+
+.main-chart {
+	background: #fff;
+}
+
+.easypiechart-panel {
+	text-align: center;
+	padding: 1px 0;
+	margin-bottom: 20px;
+}
+
+.placeholder h2 {
+	margin-bottom: 0px;
+}
+
+.donut {
+	width: 100%;
+}
+
+.easypiechart {
+	position: relative;
+	text-align: center;
+	width: 120px;
+	height: 120px;
+	margin: 20px auto 10px auto;
+}
+
+.easypiechart .percent {
+	display: block;
+	position: absolute;
+	font-size: 26px;
+	top: 38px;
+	width: 120px;
+}
+
+#easypiechart-blue .percent { color: #30a5ff;}
+#easypiechart-teal .percent { color: #1ebfae;}
+#easypiechart-orange .percent { color: #ffb53e;}
+#easypiechart-red .percent { color: #ef4040;}
+
+	 
+ .chat-panel .panel-body {
+height: 450px;
+overflow-y: scroll;
+}
+ .chat-box {
+margin: 0;
+padding: 0;
+list-style: none;
+}
+ .chat-box li {
+margin-bottom: 15px;
+padding-bottom: 5px;
+border-bottom: 1px dotted #808080;
+}
+ .chat-box li.left .chat-body {
+margin-left: 90px;
+}
+ .chat-box li .chat-body p {
+margin: 0;
+color: #8d8888;
+}
+.chat-img>img {
+    margin-left:20px;
+}
+footer p{
+font-size: 14px;
+}
+/*----------------------------------------------
+    MENU STYLES    
+------------------------------------------------*/
+div#sideNav:hover {
+    color: #1f2837;
+}
+.user-image {
+    margin: 25px auto;
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+max-height:170px;
+max-width:170px;
+}
+.top-navbar{
+margin:0px;
+}
+.top-navbar .navbar-brand {color: #fff;width: 260px;text-align: left;height: 60px;font-size: 24px;font-weight: 700;/* text-transform: uppercase; */line-height: 30px;background: #f44336;}
+.navbar-brand b{
+color: #4BD28C;
+}
+.top-navbar .nav > li {
+position: relative;
+display: inline-block;
+margin: 0px;
+padding: 0px;
+}
+.top-navbar .nav > li > a {position: relative;display: block;padding: 17px;color: #484848;margin: 0px;}
+.top-navbar .nav > li > a:hover, .top-navbar .nav > li > a:focus {text-decoration: none;color: #f44336 !important;background: transparent;}
+.top-navbar .dropdown-menu{
+min-width: 230px;
+border-radius: 0 0 4px 4px;
+border: 0;}
+.top-navbar .dropdown-menu > li > a:hover, .top-navbar .dropdown-menu > li > a:focus{
+color: #225081;
+background:none;
+}
+.dropdown-tasks{
+width: 255px;
+}
+.dropdown-tasks .progress {
+height: 8px;
+margin-bottom: 8px;
+overflow: hidden;
+background-color: #f5f5f5;
+border-radius: 0px;
+}
+.dropdown-tasks > li > a {padding: 5px 14px;}
+.dropdown-tasks p {
+font-size: 13px;
+line-height: 21px;
+padding-top: 4px;
+}
+.active-menu, .active-menu i {
+    background-color: #233342 !important;
+    color: #fff !important;
+}
+.active-menu i{color: #f44336 !important;}
+
+/* Enhanced active menu styles */
+.nav > li.active > a {
+    background-color: #233342 !important;
+    color: #fff !important;
+}
+
+.nav > li.active > a i {
+    color: #f44336 !important;
+}
+
+/* Arrow icon states are handled below in the clean section */
+
+/* ===== CLEAN SUBMENU CSS RULES ===== */
+
+/* Arrow icon positioning */
+.arrow {
+    float: right;
+    margin-top: 8px;
+}
+
+/* Arrow icon states */
+.fa.arrow:before {
+    content: "\f104"; /* fa-angle-left - collapsed state */
+}
+
+.active > a > .fa.arrow:before,
+.nav > li.active > a > .fa.arrow:before {
+    content: "\f107"; /* fa-angle-down - expanded state */
+}
+
+/* Support for JavaScript-added classes */
+.fa.arrow.fa-angle-left:before {
+    content: "\f104"; /* fa-angle-left - collapsed state */
+}
+
+.fa.arrow.fa-angle-down:before {
+    content: "\f107"; /* fa-angle-down - expanded state */
+}
+
+/* Submenu list item styling */
+.nav-second-level li,
+.nav-third-level li {
+    border-bottom: none !important;
+}
+
+.nav-second-level li a {
+    padding-left: 37px;
+}
+
+.nav-third-level li a {
+    padding-left: 55px;
+}
+
+/* Submenu visibility rules - CLEAN VERSION */
+.nav-second-level {
+    display: none; /* Hidden by default */
+    background: #121821;
+}
+
+.nav-third-level {
+    display: none; /* Hidden by default */
+    background: #0f1419;
+}
+
+/* When Metis Menu expands a submenu */
+.nav-second-level.in,
+.nav-second-level.collapse.in,
+.nav-second-level.show {
+    display: block !important;
+    background: #121821;
+}
+
+.nav-third-level.in,
+.nav-third-level.collapse.in,
+.nav-third-level.show {
+    display: block !important;
+    background: #0f1419;
+}
+
+/* Active parent items show their submenus */
+.nav > li.active > ul.nav-second-level {
+    display: block !important;
+    background: #121821;
+}
+
+.nav-second-level > li.active > ul.nav-third-level {
+    display: block !important;
+    background: #0f1419;
+}
+
+/* Allow submenus to be collapsed even when parent is active */
+.nav > li.active > ul.nav-second-level.collapse:not(.in) {
+    display: none !important;
+}
+
+.nav-second-level > li.active > ul.nav-third-level.collapse:not(.in) {
+    display: none !important;
+}
+
+/* Force visibility when collapse in classes are manually added */
+.nav-second-level.collapse.in {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+.nav-third-level.collapse.in {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+}
+
+/* Debug: Add border to see submenu boundaries */
+.nav-second-level {
+    border: 1px solid transparent;
+}
+
+.nav-third-level {
+    border: 1px solid transparent;
+}
+
+.nav-second-level.collapse.in {
+    border-color: rgba(255, 0, 0, 0.3);
+}
+
+.nav-third-level.collapse.in {
+    border-color: rgba(0, 255, 0, 0.3);
+}
+
+/* Ensure submenu items are visible */
+.nav-second-level.collapse.in li {
+    display: block !important;
+    visibility: visible !important;
+}
+
+.nav-third-level.collapse.in li {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Force submenu visibility with !important */
+.nav > li.active > ul.nav-second-level,
+.nav-second-level.collapse.in,
+.nav-second-level.in,
+.nav-second-level.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+.nav-second-level > li.active > ul.nav-third-level,
+.nav-third-level.collapse.in,
+.nav-third-level.in,
+.nav-third-level.show {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+    max-height: none !important;
+}
+
+/* Active submenu item styling */
+.nav > li.active > ul.nav-second-level li a.active-menu {
+    background-color: #2a3a4a !important;
+    color: #fff !important;
+    border-left: 3px solid #f44336;
+}
+
+/* Active third-level submenu item styling */
+.nav-second-level > li.active > ul.nav-third-level li a.active-menu {
+    background-color: #1a252f !important;
+    color: #fff !important;
+    border-left: 3px solid #ff9800;
+}
+
+/* Third-level navigation styling */
+.nav-third-level li a {
+    padding-left: 55px !important;
+    font-size: 12px !important;
+    color: #b0b0b0 !important;
+    border-left: 2px solid transparent !important;
+    transition: all 0.3s ease !important;
+}
+
+.nav-third-level li a:hover,
+.nav-third-level li a:focus {
+    background-color: #1a252f !important;
+    color: #fff !important;
+    border-left-color: #ff9800 !important;
+    padding-left: 60px !important;
+}
+
+.nav-third-level li a.active-menu {
+    background-color: #1a252f !important;
+    color: #fff !important;
+    border-left-color: #ff9800 !important;
+    font-weight: 600 !important;
+}
+
+/* Hover effects for active items */
+.nav > li.active > a:hover,
+.nav > li.active > a:focus {
+    background-color: #2a3a4a !important;
+    color: #fff !important;
+}
+
+/* Smooth transitions */
+.nav > li > a,
+.nav-second-level li > a {
+    transition: all 0.3s ease;
+}
+
+/* Sidebar collapse styles */
+.sidebar-collapse, .sidebar-collapse .nav {
+    background: none;
+}
+
+.sidebar-collapse .nav {
+    padding: 0;
+    overflow: auto;
+}
+
+.sidebar-collapse .nav > li > a {
+    color: #fff;
+    background: transparent;
+    text-shadow: none;
+    padding: 4px 40px;
+}
+
+.sidebar-collapse > .nav > li > a {
+    padding: 2px 8px !important;
+    font-size: 14px;
+}
+
+.sidebar-collapse > .nav > li {
+    border-bottom: 1px solid rgba(107, 108, 109, 0.08);
+}
+
+.sidebar-collapse .nav > li > a:hover,
+.sidebar-collapse .nav > li > a:focus {
+    outline: 0;
+}
+
+/* Enhanced Metis Menu compatibility */
+.nav > li > a {
+    position: relative;
+    display: block;
+    padding: 10px 15px;
+    color: #fff;
+    text-decoration: none;
+}
+
+.nav > li > a:hover,
+.nav > li > a:focus {
+    background-color: #233342;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Submenu animation and positioning */
+.nav-second-level {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    background-color: #121821;
+    border: none;
+    box-shadow: none;
+}
+
+/* Ensure proper submenu display */
+.nav > li.active > ul.nav-second-level,
+.nav-second-level.collapse.in {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+    visibility: visible !important;
+}
+
+/* Submenu item styling */
+.nav-second-level > li > a {
+    padding: 8px 15px 8px 40px;
+    color: #fff;
+    background: transparent;
+    border: none;
+    font-size: 13px;
+}
+
+.nav-second-level > li > a:hover,
+.nav-second-level > li > a:focus {
+    background-color: #2a3a4a;
+    color: #fff;
+    text-decoration: none;
+}
+
+/* Active submenu item */
+.nav-second-level > li > a.active-menu {
+    background-color: #2a3a4a !important;
+    color: #fff !important;
+    border-left: 3px solid #f44336;
+}
+
+/* Arrow rotation animation */
+.fa.arrow {
+    transition: transform 0.3s ease;
+}
+
+.nav > li.active > a > .fa.arrow {
+    transform: rotate(90deg);
+}
+
+/* Ensure submenu is above other content */
+.navbar-side {
+    z-index: 1000;
+}
+
+.nav-second-level {
+    z-index: 1001;
+}
+ 
+.navbar-side {
+	border:none;
+	background: #1F2837;
+}
+.top-navbar {
+	background: #ffffff;
+	border-bottom:none;
+}
+.top-navbar .nav > li > a > i {margin-right: 0;}
+.top-navbar .navbar-brand:hover {color: #FFFFFF;background-color: #f44336;}
+.dropdown-user li {
+margin: 8px 0;
+}
+.navbar-default {border: 0px solid #1f2837;}
+.navbar-header {
+    background: transparent;
+}
+.navbar-default .navbar-toggle:hover, .navbar-default .navbar-toggle:focus {background-color: #f44336;}
+.navbar-default .navbar-toggle {border-color: #ffffff;}
+
+.navbar-default .navbar-toggle .icon-bar {background-color: #ffffff;}
+.nav > li > a > i {
+    margin-right:10px;
+    color: #1f2837;
+    font-size: 16px;
+}
+.dropdown-menu>li>a>strong {
+  color: #0866C6;
+  padding: 5px 0;
+  display: inline-block;
+  font-weight: 500;
+}
+#sideNav{
+    float: left;
+    left: 0;
+    z-index: 3;
+    color: #f44336;
+    cursor:pointer;
+    border-radius: 0;
+    width: 14px;
+    font-size: 44px;
+    line-height: 33px;
+    margin: 7px 0 0 13px;
+    background: #ffffff;
+    width: 34px;
+    height: 34px;
+    text-align: center;
+    line-height: 34px;
+    padding-top: 5px;
+    margin-top: 14px;
+    border-radius: 50%;
+}
+ul.dropdown-menu.dropdown-messages li a div {
+  padding: 2px 0;
+}
+#page-wrapper{
+	background: #e0e8f5;
+}
+.dashboard-cards .card-stacked{
+	color:#fff;
+	border-left: 1px solid rgba(255, 255, 255, 0.18);
+}
+.dashboard-cards .card-content{
+	border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+.dashboard-cards .card-action strong{
+	font-weight:700;
+	font-size: 16px;
+	color: rgba(255, 255, 255, 0.65);
+}
+.donutpad {
+    padding: 32px 0;
+}
+.cirStats h4{
+	text-transform:uppercase;
+}
+.card-action b{
+	text-transform:uppercase;
+}
+.collection .collection-item{
+	padding: 16px 20px;
+}
+/*----------------------------------------------
+    UI ELEMENTS STYLES     
+------------------------------------------------*/
+.btn-circle {
+width: 50px;
+height: 50px;
+padding: 6px 0;
+ -webkit-border-radius: 25px;
+-moz-border-radius: 25px;
+border-radius: 25px;
+text-align: center;
+font-size: 12px;
+line-height: 1.428571429;
+}
+
+/*----------------------------------------------
+    MEDIA QUERIES     
+------------------------------------------------*/
+ 
+ @media(min-width:768px) {
+     #page-wrapper{
+               margin: 0 0 0 260px;
+               padding: 0;
+               min-height: auto;
+    }
+	
+	
+    .navbar-side {
+        width: 260px;
+        z-index: 1;
+    }
+
+   .navbar {
+ border-radius: 0px; 
+}
+   
+}
+ @media(max-width:768px) {
+	#sideNav{
+	display:none;
+} 
+ #page-wrapper {
+position: relative;
+top: 59px;
+ }
+ }
+ @media(max-width:480px) {
+ #page-wrapper {
+position: relative;
+top: 93px;
+ }
+.page-header small {
+display: block;
+padding-top: 14px;
+font-size: 19px;
+}
+#sideNav{
+	display:none;
+}
+.panel-left {
+  width: 85px;
+  height: 85px; 
+  border-radius: 100%;
+  overflow: hidden;
+  margin: 14px;
+}
+}
+.dropdown-content{
+    min-width: 165px !important;
+    left: -38px !important;
+    top: 60px !important;
+}
+.w250{
+	    min-width: 255px !important;
+	    left: -184px !important;
+}
+.top-navbar .nav > li > a b{
+	margin:0 5px;
+}
+.dropdown-content li>a{
+	font-size:14px;
+	text-decoration:none;
+	color: #233342;
+}
+.dropdown-content li>a i{
+	font-size:16px;
+}
+.dropdown-content li>a{
+	font-size: 12px;
+	/* margin: 0 4px; */
+	padding: 0;
+}
+.card.horizontal.cardIcon .card-image {
+    background: #30cc7b;
+    color: #fff !important;
+    font-size: 10px;
+    width: 94px;
+    text-align: center;
+    vertical-align: middle;
+}
+.card.horizontal.cardIcon .card-image i {
+    margin-top: 45%;
+    font-size: 55px;
+    opacity: .4;
+}
+.navbar-brand i.large.material-icons {
+    float: left;
+    font-size: 31px;
+    margin-right: 6px;
+}
+.clearBoth{
+	 clear:both;
+}
+.icon-preview {
+    font-size: 13px !important;
+    padding: 15px !important;
+    display: inline-block;
+    line-height: 20px !important;
+}
+.icon-preview span {
+    display: inherit;
+}
+.header .breadcrumb:before{
+	    font-size: 14px;
+	    margin-right: 0px;
+	    color: #717171;
+	    display: none;
+}
+.header .breadcrumb li a{
+	font-size: 13px;
+	font-size: 13px;
+	text-decoration: none;
+	color: #717171;
+	text-decoration: none;
+	color: #f44336;
+}
+.dropdown-content li{
+	padding: 15px;
+	color: #233342;
+	font-size: 13px;
+}
+.taskList li{padding: 20px 15px 5px;background: #fff;font-size: 12px;}
+.taskList > div{
+padding: 0 15px 0px 15px;
+}
+.taskList p{
+}
+.taskList .dropdown-content li>a {
+    font-size: 12px;
+    padding:0px;
+}
+.taskList li:last-child {
+    padding-top: 5px;
+    color: #f44336;
+}
+
+/**** HR ********/
+[type="radio"]:not(:checked), [type="radio"]:checked {
+     position: relative!important;
+     left: 0!important;
+     opacity: 1!important;
+}
+.table-bordered > tbody > tr > td{padding: 10px!important;}
+[type="radio"]:disabled+label:after, [type="radio"]:disabled+label:before {
+    display: none;
+}
+#prodedure_form input[type=text]{margin-bottom: 0px!important;}
+.edit{color:#00CC66;}
+.delete{color:#FF0000;}
+#ui-datepicker-div select{display:inline-block!important;}
+.role select{display:block!important;}
+.statuss, .active-statuss{position:relative!important; opacity:1!important; left: 0!important;}
+.success { color: #fff; background: #00CC66; padding:5px; }
+div.success h4{padding-top:4px!important;}
+.error { color: #fff; background: #FF0000; padding:5px; }
+#disapprove_pop .error { display:none; color: #fff; background: #FF0000; float: left; width: 100%; padding: 5px 10px; border-radius: 6px; }
+div.error h4{padding-top:4px!important;}
+#upload_stock {color : #000; text-decoration:none;}
+a#upload_stock { text-align: right; width: 100%; display: block; }
+.show_upload{float:right;}
+.stock_upload_box{min-height:80px;}
+.up_file{float:left;}
+.up_btn{float:right;}
+.show_upload a{color:#000000!important;}
+.dataTables_week .card-action { padding: 0px; }
+.no-pl{padding-left:0px!important;}
+.first_filter_div{text-align: right;}
+.second_filter_div{text-align: left;}
+a#create_billing, a#edit_billing { height: auto; }
+.logo_section{padding:0px 15px!important;}
+.logo_section img{ height: 60px; margin: auto;}
+.btn-large { height: 25px!important; margin-bottom: 10px!important; padding: 0px 12px!important;}
+span.notice_count {
+    color: #fff;
+    font-weight: 600;
+    background: #f00;
+    border-radius: 50%;
+    padding: 0px 6px;
+    position: absolute;
+    left: 0;
+}
+div#loader_div {
+	display:none;
+    position: absolute;
+    top: 0;
+    height: 100vh;
+    width: 100%;
+    right: 0;
+    z-index: 9999;
+    background: rgba(255,255,255,0.4);
+    text-align: center;
+}
+#loader_div img {
+    position: absolute;
+    top: 50%;
+}
+.chek_box {
+    position: absolute;
+    top: -30px;
+    left: 30px;
+    padding-left: 25px;
+}
+.chek_box input[type="checkbox"]{
+    left: 0;
+    opacity: 1;
+}
+img.img_show {
+    max-width: 100px;
+    border: 1px solid #000;
+}
+label{margin-bottom:0px!important;}
+div#myModal {
+    padding: 0!important;
+    max-height: fit-content!important;
+}
+img#modal_img {
+    border: 1px solid #000;
+}
+div#myModal .modal-body{text-align:center;}
+img.remove_code { position: absolute; top: 8px; right: 0;}
+
+/**** HR ********/
+
+
+ @media(max-width:768px) {
+	  
+	 .navbar-header {
+		background: #f44336;
+	}
+	.navbar-side {
+		z-index: 2;
+		position: fixed;
+		width: 260px;
+		top: 69px;
+		box-shadow: none;
+	}
+ }
+  @media(max-width:520px) {
+	  ul#dropdown1 {
+			left: 0px !important;
+		}
+	 ul#dropdown2 {
+			left: -69px !important;
+		}
+		.top-navbar .nav > li > a{
+			padding:17px 12px;
+		}
+ }
+   @media(max-width:320px) {
+	  ul#dropdown1 {
+			left: 0px !important;
+		}
+	 ul#dropdown2 {
+			left: -69px !important;
+		}
+		.top-navbar .nav > li > a{
+			padding:17px 9px;
+		}
+ }
+
+textarea{height:200px!important;}
+ 
+/* Highlight flash effect for immediate feedback */
+.highlight-flash {
+    animation: highlightPulse 0.5s ease-in-out;
+}
+
+@keyframes highlightPulse {
+    0% { 
+        background-color: #f44336 !important;
+        transform: scale(1);
+    }
+    50% { 
+        background-color: #ff9800 !important;
+        transform: scale(1.02);
+    }
+    100% { 
+        background-color: #233342 !important;
+        transform: scale(1);
+    }
+}
+
+/* Enhanced Active Menu Highlighting */
+.active-menu, .active-menu i {
+    background-color: #233342 !important;
+    color: #fff !important;
+    border-left: 3px solid #f44336 !important;
+    font-weight: 600 !important;
+    position: relative;
+}
+
+.active-menu i {
+    color: #f44336 !important;
+}
+
+/* Active parent menu item styling */
+.nav > li.active > a {
+    background-color: #233342 !important;
+    color: #fff !important;
+    border-left: 3px solid #f44336 !important;
+}
+
+.nav > li.active > a i {
+    color: #f44336 !important;
+}
+
+/* Active submenu item highlighting */
+.nav > li.active > ul.nav-second-level li a.active-menu {
+    background-color: #2a3a4a !important;
+    color: #fff !important;
+    border-left: 3px solid #f44336 !important;
+    font-weight: 600 !important;
+}
+
+/* Enhanced hover effects for all menu items */
+.nav > li > a:hover,
+.nav > li > a:focus {
+    background-color: #233342 !important;
+    color: #fff !important;
+    transition: all 0.3s ease;
+}
+
+.nav-second-level li > a:hover,
+.nav-second-level li > a:focus {
+    background-color: #2a3a4a !important;
+    color: #fff !important;
+    transition: all 0.3s ease;
+}
+
+/* Active menu item glow effect */
+.active-menu {
+    box-shadow: 0 0 10px rgba(244, 67, 54, 0.3) !important;
+}
+
+.active-menu::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #f44336, #ff9800);
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.6);
+}
+
+/* Active parent menu item styling */
+.nav > li.active > a {
+    box-shadow: 0 0 8px rgba(244, 67, 54, 0.2) !important;
+}
+
+/* Current page indicator */
+.active-menu::after {
+    content: '●';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #f44336;
+    font-size: 12px;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: translateY(-50%) scale(1.2);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+} 
+
+/* Enhanced active menu item with better contrast */
+.active-menu {
+    background: linear-gradient(135deg, #233342 0%, #2a3a4a 100%) !important;
+    color: #fff !important;
+    border-left: 4px solid #f44336 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.4) !important;
+    position: relative;
+    transition: all 0.3s ease !important;
+}
+
+/* Special styling for Consent Book section */
+.nav > li > a:contains("Consent Book"),
+.nav > li > a[href*="consent"] {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 100%) !important;
+    border-left: 4px solid #4CAF50 !important;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.4) !important;
+}
+
+.nav > li > a:contains("Consent Book"):hover,
+.nav > li > a[href*="consent"]:hover {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%) !important;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.6) !important;
+}
+
+/* Consent Book submenu styling */
+.nav > li:has(a:contains("Consent Book")) > ul.nav-second-level {
+    border-left: 3px solid #4CAF50 !important;
+    background: linear-gradient(135deg, #121821 0%, #1a252f 100%) !important;
+}
+
+.nav > li:has(a:contains("Consent Book")) > ul.nav-second-level > li > a {
+    border-left: 2px solid transparent !important;
+    transition: all 0.3s ease !important;
+}
+
+.nav > li:has(a:contains("Consent Book")) > ul.nav-second-level > li > a:hover {
+    border-left-color: #4CAF50 !important;
+    background-color: #1a252f !important;
+}
+
+.active-menu:hover {
+    background: linear-gradient(135deg, #2a3a4a 0%, #34495e 100%) !important;
+    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.6) !important;
+    transform: translateX(2px) !important;
+}
+
+/* Active parent menu with enhanced styling */
+.nav > li.active > a {
+    background: linear-gradient(135deg, #233342 0%, #2a3a4a 100%) !important;
+    color: #fff !important;
+    border-left: 4px solid #f44336 !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.3) !important;
+}
+
+/* Active submenu item with distinct styling */
+.nav > li.active > ul.nav-second-level li a.active-menu {
+    background: linear-gradient(135deg, #2a3a4a 0%, #34495e 100%) !important;
+    color: #fff !important;
+    border-left: 4px solid #f44336 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 6px rgba(244, 67, 54, 0.4) !important;
+} 
+
+/* ===== NEW: CLICKED MENU HIGHLIGHTING ===== */
+
+/* Clicked menu item - special highlighting for recently clicked items */
+.clicked-menu {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 100%) !important;
+    color: #fff !important;
+    border-left: 4px solid #ff9800 !important;
+    font-weight: 700 !important;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important;
+    box-shadow: 0 2px 12px rgba(255, 152, 0, 0.6) !important;
+    position: relative;
+    transition: all 0.3s ease !important;
+    animation: clickedPulse 2s ease-in-out;
+}
+
+.clicked-menu i {
+    color: #ff9800 !important;
+    animation: iconGlow 2s ease-in-out infinite;
+}
+
+/* Clicked submenu item with distinct styling */
+.nav > li.active > ul.nav-second-level li a.clicked-menu {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%) !important;
+    color: #fff !important;
+    border-left: 4px solid #ff9800 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.5) !important;
+}
+
+/* Clicked parent menu item */
+.nav > li > a.clicked-menu {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 100%) !important;
+    color: #fff !important;
+    border-left: 4px solid #ff9800 !important;
+    font-weight: 600 !important;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4) !important;
+}
+
+/* Clicked menu hover effects */
+.clicked-menu:hover {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%) !important;
+    box-shadow: 0 4px 16px rgba(255, 152, 0, 0.8) !important;
+    transform: translateX(3px) !important;
+}
+
+/* Clicked menu click effect animation */
+.menu-click-effect {
+    animation: menuClickEffect 0.3s ease-in-out;
+}
+
+/* Clicked menu pulse animation */
+@keyframes clickedPulse {
+    0% {
+        box-shadow: 0 2px 12px rgba(255, 152, 0, 0.6);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 0 4px 20px rgba(255, 152, 0, 0.8);
+        transform: scale(1.02);
+    }
+    100% {
+        box-shadow: 0 2px 12px rgba(255, 152, 0, 0.6);
+        transform: scale(1);
+    }
+}
+
+/* Icon glow animation for clicked items */
+@keyframes iconGlow {
+    0%, 100% {
+        text-shadow: 0 0 5px rgba(255, 152, 0, 0.5);
+    }
+    50% {
+        text-shadow: 0 0 15px rgba(255, 152, 0, 0.8), 0 0 20px rgba(255, 152, 0, 0.6);
+    }
+}
+
+/* Menu click effect animation */
+@keyframes menuClickEffect {
+    0% {
+        transform: scale(1);
+        background: linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 100%);
+    }
+    50% {
+        transform: scale(1.05);
+        background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%);
+    }
+    100% {
+        transform: scale(1);
+        background: linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 100%);
+    }
+}
+
+/* Enhanced visual distinction between active and clicked states */
+.active-menu:not(.clicked-menu) {
+    background: linear-gradient(135deg, #233342 0%, #2a3a4a 100%) !important;
+    border-left-color: #f44336 !important;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.4) !important;
+}
+
+.clicked-menu:not(.active-menu) {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 100%) !important;
+    border-left-color: #ff9800 !important;
+    box-shadow: 0 2px 12px rgba(255, 152, 0, 0.6) !important;
+}
+
+/* When both active and clicked, clicked takes precedence */
+.active-menu.clicked-menu {
+    background: linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 100%) !important;
+    border-left-color: #ff9800 !important;
+    box-shadow: 0 2px 12px rgba(255, 152, 0, 0.6) !important;
+}
+
+/* Enhanced submenu visibility for clicked items */
+.nav > li.active > ul.nav-second-level li a.clicked-menu {
+    background: linear-gradient(135deg, #2c5aa0 0%, #1e3a5f 100%) !important;
+    color: #fff !important;
+    border-left: 4px solid #ff9800 !important;
+    font-weight: 700 !important;
+    box-shadow: 0 2px 8px rgba(255, 152, 0, 0.5) !important;
+    position: relative;
+}
+
+/* Clicked submenu item indicator */
+.clicked-menu::after {
+    content: '★';
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #ff9800;
+    font-size: 14px;
+    animation: starTwinkle 1.5s ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+    0%, 100% {
+        opacity: 1;
+        transform: translateY(-50%) scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: translateY(-50%) scale(1.2);
+    }
+}
+
+/* Responsive adjustments for clicked menu */
+@media(max-width: 768px) {
+    .clicked-menu {
+        background: linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 100%) !important;
+        border-left: 3px solid #ff9800 !important;
+        box-shadow: 0 1px 8px rgba(255, 152, 0, 0.5) !important;
+    }
+    
+    .clicked-menu::after {
+        font-size: 12px;
+        right: 10px;
+    }
+}
+
+/* Accessibility improvements */
+.clicked-menu:focus {
+    outline: 2px solid #ff9800 !important;
+    outline-offset: 2px !important;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .clicked-menu {
+        background: #000080 !important;
+        color: #ffffff !important;
+        border-left: 4px solid #ffff00 !important;
+    }
+    
+    .clicked-menu i {
+        color: #ffff00 !important;
+    }
+} 

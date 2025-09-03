@@ -1,0 +1,127 @@
+FROM php:8.1-apache
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    zip \
+    unzip \
+    libzip-dev \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libmcrypt-dev \
+    libgd-dev \
+    libicu-dev \
+    libpq-dev \
+    libxpm-dev \
+    libvpx-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
+    pdo_mysql \
+    mysqli \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    zip \
+    intl \
+    opcache
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Enable Apache mod_rewrite
+RUN a2enmod rewrite
+RUN a2enmod ssl
+RUN a2enmod headers
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Copy application files
+COPY . /var/www/html/
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader
+
+# Create sessions directory and set proper permissions
+RUN mkdir -p /var/www/html/application/cache/sessions \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 777 /var/www/html/application/logs \
+    && chmod -R 777 /var/www/html/application/cache \
+    && chmod -R 777 /var/www/html/assets
+
+# Configure PHP for production
+RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.memory_consumption=128" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.interned_strings_buffer=8" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.max_accelerated_files=4000" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.revalidate_freq=2" >> /usr/local/etc/php/conf.d/opcache.ini \
+    && echo "opcache.fast_shutdown=1" >> /usr/local/etc/php/conf.d/opcache.ini
+
+# Configure PHP for production
+RUN echo "upload_max_filesize=50M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size=50M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "max_execution_time=300" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "max_input_time=300" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "memory_limit=256M" >> /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "date.timezone=Asia/Kolkata" >> /usr/local/etc/php/conf.d/uploads.ini
+
+# Create Apache virtual host configuration
+RUN echo '<VirtualHost *:80>\n\
+    DocumentRoot /var/www/html\n\
+    <Directory /var/www/html>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+        Options Indexes FollowSymLinks\n\
+    </Directory>\n\
+    ErrorLog ${APACHE_LOG_DIR}/error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/access.log combined\n\
+    <IfModule mod_headers.c>\n\
+        Header always set X-Content-Type-Options nosniff\n\
+        Header always set X-Frame-Options DENY\n\
+        Header always set X-XSS-Protection "1; mode=block"\n\
+    </IfModule>\n\
+</VirtualHost>' > /etc/apache2/sites-available/000-default.conf
+
+# Create SSL virtual host configuration
+RUN echo '<VirtualHost *:443>\n\
+    DocumentRoot /var/www/html\n\
+    <Directory /var/www/html>\n\
+        AllowOverride All\n\
+        Require all granted\n\
+        Options Indexes FollowSymLinks\n\
+    </Directory>\n\
+    SSLEngine on\n\
+    SSLCertificateFile /etc/ssl/certs/hmsindia/cert.pem\n\
+    SSLCertificateKeyFile /etc/ssl/certs/hmsindia/key.pem\n\
+    ErrorLog ${APACHE_LOG_DIR}/ssl_error.log\n\
+    CustomLog ${APACHE_LOG_DIR}/ssl_access.log combined\n\
+    <IfModule mod_headers.c>\n\
+        Header always set X-Content-Type-Options nosniff\n\
+        Header always set X-Frame-Options DENY\n\
+        Header always set X-XSS-Protection "1; mode=block"\n\
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"\n\
+    </IfModule>\n\
+</VirtualHost>' > /etc/apache2/sites-available/ssl.conf
+
+# Enable SSL site
+RUN a2ensite ssl.conf
+
+# Expose ports
+EXPOSE 80 443
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
+
+# Start Apache
+CMD ["apache2-foreground"]

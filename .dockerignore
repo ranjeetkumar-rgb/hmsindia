@@ -1,0 +1,79 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Documentation
+*.md
+README*
+LICENSE*
+
+# IDE and Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+application/logs/*.php
+
+# Temporary files
+*.tmp
+*.temp
+
+# Node modules (if any)
+node_modules/
+
+# Composer vendor (will be installed in container)
+vendor/
+
+# Backup files
+backups/
+*.sql
+*.dump
+
+# Staging directory
+staging/
+
+# Cache
+application/cache/
+system/cache/
+
+# Upload directories (will be mounted as volumes)
+assets/patient_files/
+assets/investigation_files/
+assets/procedure_files/
+assets/stock_files/
+assets/package_form/
+assets/consent_book/
+assets/initial-history/
+assets/investigation_reports/
+assets/procedure-forms-uploads/
+assets/purchase_orders/
+assets/purchase_order_payments/
+assets/whatsapp-pdf/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Test files
+*test*
+*Test*

@@ -1,0 +1,111 @@
+# HMS India - Git Ignore File
+
+# System files
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Deployment files (keep these in repo but ignore sensitive data)
+# deploy.sh
+# deploy.bat
+# setup-server.sh
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+application/logs/*
+!application/logs/index.html
+*.log
+
+# Cache
+application/cache/*
+!application/cache/index.html
+
+# Uploads and user content
+assets/patient_files/*
+assets/investigation_files/*
+assets/procedure_files/*
+assets/stock_files/*
+assets/purchase_orders/*
+assets/whatsapp-pdf/*
+assets/package_form/*
+assets/procedure-forms-uploads/*
+assets/initial-history/*
+assets/consent_book/*
+
+# Keep directory structure but ignore content
+!assets/patient_files/.gitkeep
+!assets/investigation_files/.gitkeep
+!assets/procedure_files/.gitkeep
+!assets/stock_files/.gitkeep
+!assets/purchase_orders/.gitkeep
+!assets/whatsapp-pdf/.gitkeep
+!assets/package_form/.gitkeep
+!assets/procedure-forms-uploads/.gitkeep
+!assets/initial-history/.gitkeep
+!assets/consent_book/.gitkeep
+
+# Database backups
+backups/*
+*.sql
+*.dump
+
+# Composer
+vendor/
+composer.lock
+
+# Node modules (if any)
+node_modules/
+npm-debug.log*
+
+# Docker
+docker-compose.override.yml
+
+# Local development
+staging/
+local/
+
+# Temporary files
+*.tmp
+*.temp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# WAMP specific
+wamp/
+www/
+
+# PHP specific
+*.php~
+*.php.bak
+
+# Configuration files with sensitive data
+application/config/database.php
+application/config/config.php
+
+# Keep example configs
+!application/config/database.php.example
+!application/config/config.php.example

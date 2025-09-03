@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Database Test</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Database Connection Test</h1>
+    <button id="testDb">Test Database Connection</button>
+    <div id="result"></div>
+
+    <script>
+        $('#testDb').click(function() {
+            $.ajax({
+                url: 'simple_db_test.php',
+                method: 'GET',
+                success: function(response) {
+                    $('#result').html('<pre>' + response + '</pre>');
+                },
+                error: function(xhr, status, error) {
+                    $('#result').html('<p style="color: red;">Error: ' + error + '</p>');
+                    console.log('XHR:', xhr);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+date_default_timezone_set('Asia/Calcutta');
+
+class Appointment_model extends CI_Model
+{
+	function my_appointments($center){
+		$result = array();
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments ORDER by appoitmented_date DESC";
+		$q = $this->db->query($sql);
+		$result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	}
+	
+	
+	function export_my_appointments($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type, $crm_id){
+	    $appointments_result = $response = array();
+        $conditions = '';
+		if(empty($patient_name)){
+            if(!empty($center)){
+                $conditions .= " and appoitment_for='$center'";
+            }
+        }
+		if(!empty($paitent_type)){
+                $conditions .= " and paitent_type='$paitent_type'";
+        }
+        if(!empty($patient_id)){
+            $conditions .= " and paitent_id='$patient_id'";
+        }
+        if(!empty($patient_name)){
+            $conditions .= " and (wife_name like '%$patient_name%' or wife_phone like '%$patient_name%')";
+        }
+        if(!empty($status)){
+            $conditions .= " and status='$status'";
+        }
+        if(!empty($doctor)){
+            $conditions .= " and appoitmented_doctor='$doctor'";
+        }
+        if(!empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date between '".$start_date."' AND '".$end_date."' ";
+        }
+        if(!empty($start_date) && empty($end_date)){
+            $conditions .= " and appoitmented_date='$start_date'";
+        }
+        if(empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date='$end_date'";
+        }
+		if(!empty($crm_id)){
+                $conditions .= " and crm_id='$crm_id'";
+        }
+	    $appointments_sql = "Select DISTINCT crm_id, paitent_id, wife_name, husband_name, wife_email, nationality,reason_of_visit, appoitmented_date,paitent_type, status from ".$this->config->item('db_prefix')."appointments where 1 $conditions order by appoitmented_date desc";
+        $appointments_q = $this->db->query($appointments_sql);
+        $appointments_result = $appointments_q->result_array();
+        if(!empty($appointments_result)){
+            foreach($appointments_result as $key => $val){
+				//$patient_name = $this->get_patient_name($val['paitent_id']);
+				//$all_method->doctor_name($vl['appoitmented_doctor']);
+				$response[] = array(
+                        'crm_id' => $val['crm_id'],
+						'paitent_id' => $val['paitent_id'],
+                        'wife_name' => $val['wife_name'],
+				        'husband_name' => $val['husband_name'],
+                        'nationality' => $val['nationality'],
+                        'reason_of_visit' => $val['reason_of_visit'],
+                        'appoitmented_date' => $val['appoitmented_date'],
+						'paitent_type' => $val['paitent_type'],
+                        'status' => $val['status'],
+                        'billing_type' => 'Consultation',
+                );
+            }
+        }    
+		return $response;
+    }
+
+    function my_appointments_count($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id){
+		$conditions = "";
+       if(empty($patient_name)){
+            if(!empty($center)){
+                $conditions .= " and appoitment_for='$center'";
+            }
+        }
+		if(!empty($paitent_type)){
+                $conditions .= " and paitent_type='$paitent_type'";
+        }
+        if(!empty($patient_id)){
+            $conditions .= " and paitent_id='$patient_id'";
+        }
+        if(!empty($patient_name)){
+            $conditions .= " and (wife_name like '%$patient_name%' or wife_phone like '%$patient_name%')";
+        }
+        if(!empty($status)){
+            $conditions .= " and status='$status'";
+        }
+        if(!empty($doctor)){
+            $conditions .= " and appoitmented_doctor='$doctor'";
+        }
+        if(!empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date between '".$start_date."' AND '".$end_date."' ";
+        }
+        if(!empty($start_date) && empty($end_date)){
+            $conditions .= " and appoitmented_date='$start_date'";
+        }
+        if(empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date='$end_date'";
+        }
+		if(!empty($crm_id)){
+                $conditions .= " and crm_id='$crm_id'";
+        }
+        $sql = "Select * from ".$this->config->item('db_prefix')."appointments where 1 ".$conditions."";
+		$q = $this->db->query($sql);
+		return $q->num_rows();
+	}
+
+    function my_appointments_pagination($limit, $page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type,$crm_id){
+		if(empty($page)){
+			$offset = 0;
+		}else{
+			$offset = ($page - 1) * $limit;
+		}
+        $conditions = "";
+        if(empty($patient_name)){
+            if(!empty($center)){
+                $conditions .= " and appoitment_for='$center'";
+            }
+        }
+		if(!empty($paitent_type)){
+                $conditions .= " and paitent_type='$paitent_type'";
+        }
+        if(!empty($patient_id)){
+            $conditions .= " and paitent_id='$patient_id'";
+        }
+        if(!empty($patient_name)){
+            $conditions .= " and (wife_name like '%$patient_name%' or wife_phone like '%$patient_name%')";
+        }
+        if(!empty($status)){
+            $conditions .= " and status='$status'";
+        }
+        if(!empty($doctor)){
+            $conditions .= " and appoitmented_doctor='$doctor'";
+        }
+        if(!empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date between '".$start_date."' AND '".$end_date."' ";
+        }
+        if(!empty($start_date) && empty($end_date)){
+            $conditions .= " and appoitmented_date='$start_date'";
+        }
+        if(empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date='$end_date'";
+        }
+		if(!empty($crm_id)){
+                $conditions .= " and crm_id='$crm_id'";
+        }
+        $result = array();
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where 1 ".$conditions." ORDER by appoitmented_date DESC limit ". $limit." OFFSET ".$offset."";
+		$q = $this->db->query($sql);
+		$result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	}
+	
+	function get_daily_appointments(){
+		$result = array();
+	echo	$sql = "Select * from ".$this->config->item('db_prefix')."appointments WHERE date(appoitmented_date)='".date('Y-m-d')."' ORDER by ID DESC";
+		$q = $this->db->query($sql);
+		$result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	}
+	
+/*	function pending_consultation_billing($center){
+		$result = array();
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where billed='0' and status!='cancelled' ORDER by appoitmented_date DESC";
+		$q = $this->db->query($sql);
+		$result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	} */
+	
+	function pending_consultation_billing($center, $wife_name){
+		$investigation_result = array();
+		$conditions = '';
+		if (!empty($wife_name)){
+			$conditions .= " and wife_name like '%$wife_name%'";
+		}
+		$investigation_sql = "Select * from ".$this->config->item('db_prefix')."appointments where 1 ".$conditions."";
+		$q = $this->db->query($investigation_sql);
+		return $q->num_rows();
+		
+	}
+	
+		function pending_consultation_billing_patination($limit, $page, $center, $wife_name){
+		$investigation_result = array();
+		$conditions = '';
+		if(empty($page)){
+			$offset = 0;
+		}else{
+			$offset = ($page - 1) * $limit;
+		}
+		if (!empty($wife_name)){
+			$conditions .= " and wife_name like '%$wife_name%'";
+		}
+		$investigation_sql = "Select * from ".$this->config->item('db_prefix')."appointments where billed='0' and status!='cancelled' AND 1".$conditions." order by appoitmented_date desc limit ". $limit." OFFSET ".$offset."";
+		$investigation_q = $this->db->query($investigation_sql);
+		$investigation_result = $investigation_q->result_array();
+		return $investigation_result;
+	}
+	
+	function doctor_appointment_details($appointment_id){
+		$result = array();
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where ID='$appointment_id'";
+		$q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result[0];
+        }
+        else
+        {
+            return $result;
+        }
+	}
+	
+	function appointment_status($appointment_status, $appointment_id){
+		$sql = "UPDATE `".config_item('db_prefix')."appointments` SET `status`='$appointment_status' WHERE ID='$appointment_id'";
+        $this->db->query($sql);
+        return $this->db->affected_rows();
+	}
+	
+	
+	function reschedule_appointment_update($data, $appointment_id){
+		$sql = "UPDATE " . config_item('db_prefix') . "appointments SET ";
+		foreach( $data as $key=> $value )
+		{
+			$sqlArr[] = " $key = '".$value."'"	;
+		}
+		$sql .= implode(',' , $sqlArr);
+		$sql .= " WHERE ID = '".$appointment_id."'";
+        $this->db->query($sql);
+        return $this->db->affected_rows();
+	}
+		
+	function patient_procedure($appointment_id){
+		$result = array();
+		$sql = "Select patient_id, receipt_number, appointment_id, ID as patient_procedure_id, data from ".$this->config->item('db_prefix')."patient_procedure where appointment_id='$appointment_id' order by ID desc limit 5";
+		$q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result[0];
+        }else
+        {
+            return $result;
+        }
+	}
+	
+	//Ajax
+	function ajax_appointment_status_data($status){
+		$condition = "";
+		if(isset($_SESSION['logged_billing_manager'])){ 
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " appoitment_for='$center' and ";
+		}
+		
+		$result = array();
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where $condition status='$status' ORDER by appoitmented_date DESC";
+		$q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	}
+	
+	function ajax_appointment_doctor_data($doctor){
+		$condition = "";
+		if(isset($_SESSION['logged_billing_manager'])){ 
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " appoitment_for='$center' and ";
+		}
+		
+		$result = array();
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where $condition appoitmented_doctor='$doctor' ORDER by appoitmented_date DESC";
+		$q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	}
+	
+	function ajax_appointment_date_wise_data($start, $end){
+		$condition = "";
+		if(isset($_SESSION['logged_billing_manager'])){ 
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " appoitment_for='$center' and ";
+		}
+	
+		$result = array();
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where $condition appoitmented_date between '".$start."' AND '".$end."'";
+		$q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	}
+	
+	function ajax_appointment_particular_date_data($appointment_date){
+		$condition = "";
+		if(isset($_SESSION['logged_billing_manager'])){ 
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " appoitment_for='$center' and ";
+		}
+		
+		$result = array();
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where $condition appoitmented_date='$appointment_date' ORDER by appoitmented_date DESC";
+		$q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	}
+	
+	function updateStatusAndDate($wife_phone, $center, $new_status, $appoitmented_date) {
+        $this->db->where('wife_phone', $wife_phone);
+        $this->db->where('appoitment_for', $center);
+        $this->db->where('status', 'booked');
+        $this->db->update('appointments', [
+            'status' => $new_status,
+            'appoitmented_date' => $appoitmented_date
+        ]);
+        return $this->db->affected_rows() > 0;
+    }
+}

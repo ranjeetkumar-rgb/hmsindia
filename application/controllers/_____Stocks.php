@@ -1,0 +1,3391 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Stocks extends CI_Controller {
+
+	public function __construct()
+	{
+		// Load parent's constructor.
+       	parent::__construct();
+		$this->load->database();
+		$this->load->helper('form');
+        $this->load->helper('url_helper');
+	    $this->load->library('session');
+		$this->load->model('order_model');
+		$this->load->model('stock_model');
+		$this->load->model('vendors_model');
+		$this->load->helper('myhelper');
+		$this->load->library("pagination");
+	}
+
+	/**ADD PRODUCTS**/
+
+	public function stock_products()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			$data['data'] = $this->stock_model->get_all_stock_product();
+			//var_dump($this->stock_model->get_stock_products);die;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products/stock_products', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	public function stock_product_add()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_single_product'){
+				unset($_POST['action']);
+				$type = $_POST['type'];
+				$solid = array('Capsule', 'Tablet');
+				$liquid = array('Injection', 'Cyrup');
+
+				if(in_array($type, $solid)){
+					$_POST['product_type'] = "solid";
+				}else if(in_array($type, $liquid)){
+					$_POST['product_type'] = "liquid";
+				}
+				$data = $this->stock_model->stock_product_add($_POST);
+				//var_dump($this->stock_model->stock_product_add($_POST));die;
+				if($data > 0){
+					header("location:" .base_url(). "products?m=".base64_encode('Product added successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "add-product?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}				
+			}
+			$data = array();
+			$template = get_header_template($logg['role']);
+			$data['medicines'] = $this->stock_model->get_medicine_name();
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products/stock_product_add', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function stock_product_edit()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['id'])){ $item_id = $_GET['id']; }
+			if(isset($_POST['id'])) { $item_id = $_POST['id']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_products'){
+				unset($_POST['action']);
+				$type = $_POST['type'];
+				$solid = array('Capsule', 'Tablet');
+				$liquid = array('Injection', 'Cyrup');
+
+				if(in_array($type, $solid)){
+					$_POST['product_type'] = "solid";
+				}else if(in_array($type, $liquid)){
+					$_POST['product_type'] = "liquid";
+				}
+
+				$data = $this->stock_model->update_stock_product_data($_POST, $item_id);
+				if($data > 0){
+					header("location:" .base_url(). "edit-product?m=".base64_encode('Product updated successfully !').'&t='.base64_encode('success').'&id='.$item_id);
+					die();
+				}else{
+					header("location:" .base_url(). "edit-product?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error').'&id='.$item_id);
+					die();
+				}				
+			}
+			$data['data'] = $this->stock_model->get_stock_product_data($item_id);
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products/stock_product_edit', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function stock_medicine_add()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_medicines'){
+				unset($_POST['action']);
+				$type = $_POST['type'];
+				$solid = array('Capsule', 'Tablet');
+				$liquid = array('Injection', 'Cyrup');
+
+				if(in_array($type, $solid)){
+					$_POST['product_type'] = "solid";
+				}else if(in_array($type, $liquid)){
+					$_POST['product_type'] = "liquid";
+				}
+				$data = $this->stock_model->stock_medicine_add($_POST);
+				//var_dump($this->stock_model->stock_product_add($_POST));die;
+				if($data > 0){
+					header("location:" .base_url(). "products?m=".base64_encode('Product added successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "add-medicine?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}				
+			}
+			$data = array();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products/stock_medicine_add', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function stock_medicine()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			$data['data'] = $this->stock_model->get_all_medicine();
+			//var_dump($this->stock_model->get_stock_products);die;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products/stock_medicine', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	function stock_product_brands($product){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'assign_brands'){
+				unset($_POST['action']);
+
+				$data = $this->stock_model->stock_product_brands($_POST, $product);
+				if($data > 0){
+					header("location:" .base_url(). "product-brands/$product?m=".base64_encode('Product assigned successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "product-brands/$product?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}				
+			}
+			$data = array();
+			$data['product'] = $this->stock_model->get_stock_product_data($product);
+			$data['brands'] = $this->stock_model->get_brands_list();
+			$data['prodcut_brands'] = $this->stock_model->get_product_brands($product);
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products/stock_product_brands', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	function stock_product_vendors(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			$data['data'] = $this->stock_model->get_stock_product_vendors();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products/stock_product_vendors', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	public function product_vendor_add(){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'product_vendor_add'){
+				unset($_POST['action']);
+				//var_dump($_POST);die;
+				$data = $this->stock_model->product_vendor_add($_POST);
+				if($data > 0){
+					header("location:" .base_url(). "product-vendors?m=".base64_encode('Vendor assigned successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "product-vendors?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}				
+			}
+			$data = array();
+			$data['products'] = $this->stock_model->get_all_stock_product();
+			$data['vendors'] = $this->vendors_model->get_vendors_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products/product_vendor_add', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	function product_vendor_edit($id){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'product_vendor_update'){
+				unset($_POST['action']);
+				//var_dump($_POST);die;
+				$data = $this->stock_model->product_vendor_update($_POST, $id);
+				if($data > 0){
+					header("location:" .base_url(). "product-vendors?m=".base64_encode('Product Vendor updated successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "product-vendors?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}				
+			}
+			$data = array();
+			$data['data'] = $this->stock_model->get_product_vendor_data($id);
+			$data['products'] = $this->stock_model->get_stock_products();
+			$data['vendors'] = $this->vendors_model->get_vendors_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products/product_vendor_edit', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	function ajax_product_brands(){
+		$response = array(); $brand_html = '';
+		$brand_html = '<option value="">-- Select --</option>';
+
+		$product_id = $_POST['product_id'];
+		$brands = $this->stock_model->get_product_brands($product_id);
+		if(!empty($brands)){
+			$selected_brands = "";
+			if(isset($_POST['mode']) && !empty($_POST['mode']) && $_POST['mode'] == "edit"){
+				$selected_brands = $_POST['brand_number'];
+			}
+
+			$product_info = $this->stock_model->get_stock_product_data($product_id);
+			foreach($brands as $key => $val){
+				$brand_name = $selected = "";
+				$brand_name = $this->stock_model->get_brand_name($val['brand_number']);
+				if($val['brand_number'] == $selected_brands){
+					$selected = "selected='selected'";
+				}
+				$brand_html .= '<option value="'.$val['brand_number'].'" '.$selected.'>'.$brand_name.'</option>';
+			}
+
+			$response = array('brands' => $brand_html, 'product_info' => 'Type: '.$product_info['type'].', Consumption Unit: '.$product_info['consumption_unit'].'');		
+		}else{
+			$response = array('brands' => $brand_html, 'product_info' => 'Product Brands not assigned!');		
+		}
+		echo json_encode($response);
+		die;
+	}
+
+	function ajax_product_brand_vendor(){
+		$product_id = $_POST['product_id'];
+		$brand_number = $_POST['brand_number'];
+		$response = array(); $vendor_html = '';
+		$vendor_html = '<option value="">-- Select --</option>';
+
+		$vendors = $this->stock_model->get_product_brand_vendor($product_id, $brand_number);
+		if(!empty($vendors)){
+			foreach($vendors as $key => $val){
+				$vendor_name = "";
+				$vendor_name = $this->stock_model->get_vendor_name($val['vendor_number']);
+				$vendor_html .= '<option value="'.$val['vendor_number'].'">'.$vendor_name.'</option>';
+			}
+			$response = array('vendors' => $vendor_html);
+		}else{
+			$response = array('vendors' => $vendor_html);
+		}
+		echo json_encode($response);
+		die;
+	}
+
+	function ajax_product_vendor_data(){
+		$product_id = $_POST['product_id'];
+		$brand_number = $_POST['brand_number'];
+		$vendor_number = $_POST['vendor_number'];
+		$batch_number = $_POST['batch_number'];
+		$pack_size = $_POST['pack_size'];
+		$hsn = $_POST['hsn'];
+		$vendor_price = $_POST['vendor_price'];
+		$gstrate = $_POST['gstrate'];
+		$gstdivision = $_POST['gstdivision'];
+		
+		$product_vendor_data = $this->stock_model->get_product_vendor_info($product_id, $brand_number, $vendor_number, $batch_number, $pack_size, $hsn, $vendor_price, $gstrate, $gstdivision);
+		if(!empty($product_vendor_data)){
+			echo json_encode(array('product_vendor_data' => $product_vendor_data, 'status' => 1));
+			die;
+		}else{
+			echo json_encode(array('product_vendor_data' => array(), 'status' => 0));
+			die;
+		}
+	}
+
+
+	public function add()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_item'){
+				unset($_POST['action']);
+				//var_dump($_POST);die;
+				$item_number = $_POST['item_number'];
+				$invoice_no = $_POST['invoice_no'];
+				$no_of_item = $_POST['no_of_item'];
+				$company = $_POST['company'];
+				$item_name = $_POST['item_name'];
+				$product_id = $_POST['product_id'];
+				$brand_name = $_POST['brand_name'];
+				$vendor_number = $_POST['vendor_number'];
+				$batch_number = $_POST['batch_number'];
+				$vendor_price = $_POST['vendor_price'];
+				$hsn = $_POST['hsn'];
+				$pack_size = $_POST['pack_size'];
+				$generic_name = $_POST['generic_name'];
+				$gstrate = $_POST['gstrate'];
+				$gstdivision = $_POST['gstdivision'];
+				$expiry = $_POST['expiry'];
+				$expiry_day = $_POST['expiry_day'];
+				$mrp = $_POST['mrp'];
+				$quantity = $_POST['quantity'];
+				$qty = $_POST['no_of_item'];
+				
+
+				$check_center_item = $this->stock_model->check_centeral_item($product_id, $brand_name, $vendor_number, $batch_number, $vendor_price, $hsn, $pack_size, $gstrate, $gstdivision, $expiry);
+				if($check_center_item > 0){
+					$data = $this->stock_model->update_item($_POST, $product_id, $invoice_no, $no_of_item, $brand_name, $vendor_number, $batch_number, $vendor_price, $hsn, $pack_size, $gstrate, $gstdivision, $expiry, $mrp);
+				}else{
+				    $_POST['item_name'] = $this->get_product_name($product_id);
+					$data = $this->stock_model->update_vendor_invoice($ID, $invoice_no, $qty);
+					//var_dump($this->stock_model->add_item($_POST));die;
+					$data = $this->stock_model->add_item($_POST);
+					//$_POST['type'] ="Central Stocks New Entry";
+					//var_dump($this->stock_model->add_central_report($_POST, $item_number, $item_name, $batch_number, $expiry, $expiry_day, $add_date, $quantity));die;
+					 //12-12-2023 $data = $this->stock_model->add_central_report($_POST, $product_id, $item_name, $batch_number, $expiry, $expiry_day, $add_date, $vendor_price, $mrp, $gstrate, $gstdivision, $quantity);
+				
+					//$data = $this->stock_model->add_item_central($_POST);
+				}
+				if($data > 0){
+					header("location:" .base_url(). "stocks/add?m=".base64_encode('Item added successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/add?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}				
+			}
+			$data = array();
+			$data['categories'] = $this->stock_model->get_categories();
+			$data['brands'] = $this->stock_model->get_brands();
+			$data['vendors'] = $this->vendors_model->get_vendors();
+			$data['products'] = $this->stock_model->get_stock_products();
+			$data['invoices'] = $this->stock_model->get_vendor_invoice();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/add_item', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function edit()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['item_number'])){ $item_id = $_GET['item_number']; }
+			if(isset($_POST['item_number'])) { $item_id = $_POST['item_number']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_cent_item'){
+				unset($_POST['action']);
+				$item_number = $_POST['item_number'];
+				$company = $_POST['company'];
+				$item_name = $_POST['item_name'];
+				$generic_name = $_POST['generic_name'];
+				$batch_number = $_POST['batch_number'];
+				$vendor_price = $_POST['vendor_price'];
+				$quantity = $_POST['quantity'];
+				$quantity_in = $_POST['quantity_in'];
+				$closingstock = (float) $quantity + (float) $quantity_in;
+				$expiry = $_POST['expiry'];
+				$mrp = $_POST['mrp'];
+				$status = $_POST['status'];
+				//echo "<pre>";
+				//print_r($this->stock_model->update_item_data($_POST, $item_id));
+				//echo "</pre>";
+				//exit();
+				//var_dump($this->stock_model->update_item_data($_POST, $item_id, $company, $generic_name, $batch_number, $mrp, $vendor_price, $quantity_in, $hsn, $pack_size, $gstrate, $gstdivision, $expiry, $status));die;
+				$data = $this->stock_model->update_item_data($_POST, $item_id, $company, $item_name, $generic_name, $batch_number, $mrp, $vendor_price, $quantity_in, $hsn, $pack_size, $gstrate, $gstdivision, $expiry, $status);
+				if($data > 0){
+					//$data = $this->stock_model->update_central_stock_report($_POST, $item_id, $company, $item_name, $batch_number, $expiry, $expiry_day, $add_date, $vendor_price, $quantity_in, $mrp, $gstrate, $gstdivision, $quantity, $closingstock);
+					header("location:" .base_url(). "stocks/edit?m=".base64_encode('Item updated successfully !').'&t='.base64_encode('success').'&item_number='.$item_id);
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/edit?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error').'&item_number='.$item_id);
+					die();
+				}				
+			}
+			$data['data'] = $this->stock_model->get_item_data($item_id);
+			$data['categories'] = $this->stock_model->get_categories();
+			$data['brands'] = $this->stock_model->get_brands();
+			$data['vendors'] = $this->vendors_model->get_vendors();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/edit_item', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function audit_stocks()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['ID'])){ $ID = $_GET['ID']; }
+			if(isset($_POST['ID'])){ $ID = $_POST['ID']; }
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_audit_item'){
+				unset($_POST['action']);
+				//$_POST['add_date'] = date("Y-m-d H:i:s");
+				$data = $this->stock_model->audit_item_data($_POST, $ID);
+				if($data > 0){
+					header("location:" .base_url(). "stocks/audit_stocks?m=".base64_encode('Item updated successfully !').'&t='.base64_encode('success').'&ID='.$ID);
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/audit_stocks?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error').'&ID='.$ID);
+					die();
+				}				
+			}			
+			$data['data'] = $this->stock_model->get_audit_stocks_data($ID);
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/audit_stocks', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function audit_report(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$add_date = $this->input->get('add_date', true);
+			$item_name = $this->input->get('item_name', true);
+			$batch_number = $this->input->get('batch_number', true);
+			$export_billing = $this->input->get('export-billing', true);
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_audit_report($employee_number, $start_date, $end_date, $add_date, $item_name);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=All-Center-Medicine-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Item Name,Batch Number, Quantity, Physical Quantity, Register Quantity, Short Quantity, Excess Quantity, Damage Quantity,Discard, Reason,Item Below Min,Near Expiry,Requisition, Employee Name, Date';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$lead_arr = array($val['item_name'], $val['batch_number'], $val['quantity'], $val['physical_quantity'], $val['register_quantity'], $val['short'], $val['excess'], $val['damage'],$val['discard'],$val['reason'],$val['item_below_min'],$val['near_expiry'],$val['requisition'], $val['employee_number'], $val['add_date']);
+					fputcsv($fp, $lead_arr);
+				}
+				
+				fclose($fp);
+				exit();
+			}
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/audit_report";
+        	$config["total_rows"] = $this->stock_model->get_all_audit_report($employee_number, $start_date, $end_date, $add_date, $item_name, $batch_number);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->get_all_audit_report_patination($config["per_page"], $per_page, $employee_number, $start_date, $end_date, $add_date, $item_name, $batch_number);
+			//var_dump($data);die;
+			$data["employee_number"] = $employee_number;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["add_date"] = $add_date;
+            $data["item_name"] = $item_name;
+			$data["batch_number"] = $batch_number;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/audit_report', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function all_audit_report(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$add_date = $this->input->get('add_date', true);
+			$export_billing = $this->input->get('export-billing', true);
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_audit_report($employee_number, $start_date, $end_date, $add_date, $item_name);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=All-Center-Medicine-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Item Number,Company, Item Name, Batch Number, Date, Quantity, Safety Stock, Order Qty, Status, Employee Name';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$lead_arr = array($val['item_number'], $val['company'],$val['item_name'], $val['batch_number'], $val['add_date'], $val['quantity'], $val['safety_stock'], $val['order_qty'], $val['status'], $val['employee_number']);
+					fputcsv($fp, $lead_arr);
+				}
+				
+				fclose($fp);
+				exit();
+			}
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/all_audit_report";
+        	$config["total_rows"] = $this->stock_model->get_audit_report($employee_number, $start_date, $end_date, $add_date, $item_name, $batch_number);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->get_audit_report_patination($config["per_page"], $per_page, $employee_number, $start_date, $end_date, $add_date, $item_name, $batch_number);
+			//var_dump($data);die;
+			$data["employee_number"] = $employee_number;
+			$data["add_date"] = $add_date;
+            $template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/all_audit_report', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function update_audit_report(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			if(isset($_GET['id'])){ $id = $_GET['id']; }
+			if(isset($_POST['id'])) { $id = $_POST['id']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_audit_item'){
+				unset($_POST['action']);
+				$data = $this->stock_model->update_audit_report($_POST, $id);
+				
+				if($data > 0){
+					header("location:" .base_url(). "stocks/update_audit_report?m=".base64_encode('Item updated successfully !').'&t='.base64_encode('success').'&id='.$id);
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/update_audit_report?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error').'&ID='.$ID);
+					die();
+				}				
+			}
+			
+			$template = get_header_template($logg['role']);
+			$data['data'] = $this->stock_model->get_audit_data($id);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/update_audit_report', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function delete()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$item = $_GET['item_number'];
+			if( $item > 0 )
+			{
+				if( $this->stock_model->delete_item_data($item) !== 0)
+				{
+					header("location:" .base_url(). "stocks?m=".base64_encode('Item deleted successfully !').'&t='.base64_encode('success'));
+					die();
+				}
+				else
+				{
+					header("location:" .base_url(). "stocks?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}
+			}
+			header("location:" .base_url(). "stocks?m=".base64_encode('Item not found !').'&t='.base64_encode('error'));
+			die();
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function details($item){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = $this->stock_model->item_details($item, 'admin');
+//			var_dump($data);die;
+			$post_arr = array();
+			$post_arr['data'] = $data;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/details', $post_arr);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+		
+	/****** ADMIN STOCKS *****/
+	
+	
+	/****** CENTER STOCKS *****/
+		public function center_stocks(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$center = $this->input->get('billing_at', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$generic_name = $this->input->get('generic_name', true);
+			$item_name = $this->input->get('item_name', true);
+			$export_billing = $this->input->get('export-billing', true);
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_center_stocks($start_date, $end_date, $generic_name, $item_name);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Medicine-Patients-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Item Number,Company, Item Name, Batch Number, Brand Name, Vendor Number, Generic Name, Quantity, Safety Stock, Order Qty, Category, Item Name, Status';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$billing_at = get_center_name($val['billing_at']);
+					$lead_arr = array($val['item_number'], $val['company'],$val['item_name'], $val['batch_number'], $val['brand_name'], $val['vendor_number'], $val['generic_name'], $val['quantity'], $val['safety_stock'], $val['order_qty'], $val['category'],$val['item_name'], date('Y-m-d H:i:s', strtotime($val['date'])), $val['status']);
+					fputcsv($fp, $lead_arr);
+				}
+				
+				fclose($fp);
+				exit();
+			}
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/center_stocks";
+        	$config["total_rows"] = $this->stock_model->get_center_stocks($start_date, $end_date, $generic_name, $item_name);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->get_center_stocks_patination($config["per_page"], $per_page, $start_date, $end_date, $generic_name, $item_name);
+			//var_dump($data);die;
+			$data["billing_at"] = $center;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["generic_name"] = $generic_name;
+            $data["item_name"] = $item_name;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/center_stocks', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	
+	public function get_item_details(){
+		$item_number = $_POST['item_number'];
+		$data = $this->stock_model->get_item_details($item_number);
+		echo json_encode($data);
+		die;
+	}
+
+	public function add_center_item()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_center_item'){
+				unset($_POST['action']);
+				$item_number = $_POST['item_number'];
+				$item_qty = $_POST['quantity'];
+				$product_id = $_POST['product_id'];
+				$company = $_POST['company'];
+				$item_name = $_POST['item_name'];
+				$batch_number = $_POST['batch_number'];
+				$hsn = $_POST['hsn'];
+				$gstrate = $_POST['gstrate'];
+				$pack_size = $_POST['pack_size'];
+				$gstdivision = $_POST['gstdivision'];
+				$brand_name = $_POST['brand_name'];
+				$generic_name = $_POST['generic_name'];
+				$safety_stock = $_POST['safety_stock'];
+				$order_qty = $_POST['order_qty'];
+				$category = $_POST['category'];
+				$price = $_POST['price'];
+				$expiry = $_POST['expiry'];
+				$expiry_day = $_POST['expiry_day'];
+				$add_date = $_POST['add_date'];
+				$center_number = $_POST['center_number'];
+				$status = $_POST['status'];
+				$vendor_price = $_POST['vendor_price'];
+				$mrp = $_POST['mrp'];
+				$curruntyquantity = $_POST['curruntyquantity'];
+				$_POST['item_number'] = $_POST['item_number'];
+				$_POST['add_date'] = date("Y-m-d H:i:s");
+				$_POST['update_date'] = date("Y-m-d H:i:s");
+				$vendor_number = self::get_vendor_number($_POST['item_number']);
+				$_POST['vendor_number'] = $vendor_number;
+                $employee_number = $_POST['employee_number'];
+				$closingstock = $curruntyquantity - $item_qty;
+				//var_dump($this->stock_model->add_central_stock_report($_POST, $item_number, $item_name, $batch_number, $curruntyquantity, $expiry, $expiry_day, $add_date, $item_qty, $employee_number, $closingstock));die;
+						
+				$data = $this->stock_model->add_central_stock_report($_POST, $item_number, $item_name, $batch_number, $curruntyquantity, $expiry, $expiry_day, $add_date, $employee_number, $vendor_price, $mrp, $item_qty, $gstrate, $gstdivision, $closingstock, $center_number);
+				$check_center_item = $this->stock_model->check_center_item($item_number, $employee_number);
+				if(!empty($check_center_item)){
+					//if($check_center_item > 0){
+				    $data = $this->stock_model->update_center_item_qty($employee_number, $item_number, $item_qty);
+				} else{
+					    $data = $this->stock_model->add_center_item($_POST, $item_number, $product_id, $company, $item_name, $batch_number, $hsn, $gstrate, $pack_size, $gstdivision, $brand_name, $vendor_number, $generic_name, $item_qty, $safety_stock, $order_qty, $category, $price, $expiry, $expiry_day, $add_date, $center_number, $status, $employee_number, $vendor_price, $mrp);
+				}
+                if($data > 0){
+					header("location:" .base_url(). "stocks/add_center_item?m=".base64_encode('Item added successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/add_center_item?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}		
+			}
+			$data = array();
+			$data['categories'] = $this->stock_model->get_categories();
+		    $data['item_lists'] = $this->stock_model->get_item_lists();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/add_center_item', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function add_center_new_item()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_center_new_item'){
+				unset($_POST['action']);
+				$item_number = $_POST['item_number'];
+				$item_qty = $_POST['quantity'];
+				$product_id = $_POST['product_id'];
+				$company = $_POST['company'];
+				$item_name = $_POST['item_name'];
+				$batch_number = $_POST['batch_number'];
+				$hsn = $_POST['hsn'];
+				$gstrate = $_POST['gstrate'];
+				$pack_size = $_POST['pack_size'];
+				$gstdivision = $_POST['gstdivision'];
+				$brand_name = $_POST['brand_name'];
+				$generic_name = $_POST['generic_name'];
+				$safety_stock = $_POST['safety_stock'];
+				$order_qty = $_POST['order_qty'];
+				$category = $_POST['category'];
+				$price = $_POST['price'];
+				$expiry = $_POST['expiry'];
+				$expiry_day = $_POST['expiry_day'];
+				$add_date = $_POST['add_date'];
+				$center_number = $_POST['center_number'];
+				$status = $_POST['status'];
+				$vendor_price = $_POST['vendor_price'];
+				$mrp = $_POST['mrp'];
+				$curruntyquantity = $_POST['curruntyquantity'];
+				$_POST['item_number'] = $_POST['item_number'];
+				$_POST['add_date'] = date("Y-m-d H:i:s");
+				$_POST['update_date'] = date("Y-m-d H:i:s");
+				$vendor_number = self::get_vendor_number($_POST['item_number']);
+				$_POST['vendor_number'] = $vendor_number;
+                $employee_number = $_POST['employee_number'];
+				$closingstock = $curruntyquantity - $item_qty;
+				
+                $data = $this->stock_model->add_center_item($_POST, $item_number, $product_id, $company, $item_name, $batch_number, $hsn, $gstrate, $pack_size, $gstdivision, $brand_name, $vendor_number, $generic_name, $item_qty, $safety_stock, $order_qty, $category, $price, $expiry, $expiry_day, $add_date, $center_number, $status, $employee_number, $vendor_price, $mrp);
+				$data = $this->stock_model->add_central_stock_report($_POST, $item_number, $item_name, $batch_number, $curruntyquantity, $expiry, $expiry_day, $add_date, $employee_number, $vendor_price, $mrp, $item_qty, $gstrate, $gstdivision, $closingstock, $center_number);
+				if($data > 0){
+						header("location:" .base_url(). "stocks/add_center_new_item?m=".base64_encode('Item added successfully !').'&t='.base64_encode('success'));
+						die();
+					}else{
+						header("location:" .base_url(). "stocks/add_center_new_item?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+						die();
+				}	
+			}
+			$data = array();
+			$data['categories'] = $this->stock_model->get_categories();
+		    $data['item_lists'] = $this->stock_model->get_item_lists();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/add_center_new_item', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+		
+	public function edit_center_item()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['ID'])){ $ID = $_GET['ID']; }
+			if(isset($_POST['ID'])) { $ID = $_POST['ID']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_center_medicine'){
+				unset($_POST['action']);
+				$data = $this->stock_model->update_center_item_data($_POST, $ID);
+				//var_dump($this->stock_model->update_center_item_data($_POST, $ID));die;	
+				if($data > 0){
+					header("location:" .base_url(). "stocks/edit_center_item?m=".base64_encode('Item updated successfully !').'&t='.base64_encode('success').'&ID='.$ID);
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/edit_center_item?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error').'&ID='.$ID);
+					die();
+				}				
+			}
+			$data['ID'] = $ID;
+			$data['data'] = $this->stock_model->get_center_item_medicine($ID);
+			//$data['categories'] = $this->stock_model->get_categories();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/edit_center_item', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+public function medicine_update()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['ID'])){ $ID = $_GET['ID']; }
+			if(isset($_POST['ID'])) { $ID = $_POST['ID']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_center_item'){
+				unset($_POST['action']);
+				
+				$icounte = $mcounte = $ccounte = $spcounte = 1;
+				$i_counte = $m_counte = $c_counte = $s_pcounte = array();
+				$i_counter = $m_counter = $c_counter = $s_pcounter = array();
+				foreach($_POST as $key => $val){
+					$pos_c = strpos($key, 'consumables_name_');
+					if ($pos_c === false) {} else {
+						$cid = $int = (int) filter_var($key, FILTER_SANITIZE_NUMBER_INT);
+						$c_counter[] = $cid;
+					}	
+				}
+
+				if(!empty($c_counter)){
+					foreach($c_counter as $key => $ccounte){
+						if($_POST['consumables_name_'.$ccounte] == ''){
+							unset($_POST['consumables_ID_'.$ccounte]);
+							unset($_POST['consumables_serial_'.$ccounte]);
+							unset($_POST['consumables_name_'.$ccounte]);
+							unset($_POST['consumables_stock_'.$ccounte]);
+							unset($_POST['consumables_batch_number_'.$ccounte]);
+							unset($_POST['consumables_quantity_'.$ccounte]);
+						    unset($_POST['consumables_price_'.$ccounte]);
+							unset($_POST['consumables_discount_'.$ccounte]);
+							unset($_POST['consumables_total_'.$ccounte]);
+							unset($_POST['consumables_vendor_price_'.$ccounte]);
+							unset($_POST['consumables_expiry_'.$ccounte]);
+						}else{
+							$c_counte[] = array('consumables_ID'=> $_POST['consumables_ID_'.$ccounte],'consumables_serial'=> $_POST['consumables_serial_'.$ccounte],'consumables_name'=> $_POST['consumables_name_'.$ccounte],'consumables_stock'=> $_POST['consumables_stock_'.$ccounte],'consumables_batch_number'=> $_POST['consumables_batch_number_'.$ccounte],'consumables_quantity'=> $_POST['consumables_quantity_'.$ccounte],'consumables_price'=> $_POST['consumables_price_'.$ccounte],'consumables_discount_'=> $_POST['consumables_discount_'.$ccounte],'consumables_total_'=> $_POST['consumables_total_'.$ccounte],'consumables_vendor_price'=> $_POST['consumables_vendor_price_'.$ccounte],'consumables_expiry'=> $_POST['consumables_expiry_'.$ccounte]);
+						}
+					}
+				}
+								
+				$details = array();
+				$details['data']['consumables'] = $c_counte;
+				$post_arr['data'] = serialize($details);
+           		$data = $this->stock_model->update_center_item_medicine($_POST, $ID, $post_arr);
+				
+				//$data = $this->stock_model->update_center_item_medicine($_POST, $ID);
+				if($data > 0){
+					header("location:" .base_url(). "stocks/medicine_update?m=".base64_encode('Item updated successfully !').'&t='.base64_encode('success').'&ID='.$ID);
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/medicine_update?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error').'&ID='.$ID);
+					die();
+				}				
+			}
+			$data['ID'] = $ID;
+			$data['data'] = $this->stock_model->get_medicine_update($ID);
+			//$data['categories'] = $this->stock_model->get_categories();
+			//var_dump($this->stock_model->get_medicine_update($ID));die;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/medicine_update', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	} 	
+	
+	public function delete_center_item()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$item = $_GET['item_number'];
+			if( $item > 0 )
+			{
+				if( $this->stock_model->delete_center_item_data($item) !== 0)
+				{
+					header("location:" .base_url(). "stocks/center_stocks?m=".base64_encode('Item deleted successfully !').'&t='.base64_encode('success'));
+					die();
+				}
+				else
+				{
+					header("location:" .base_url(). "stocks/center_stocks?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}
+			}
+			header("location:" .base_url(). "stocks/center_stocks?m=".base64_encode('Item not found !').'&t='.base64_encode('error'));
+			die();
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function cdetail($item){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = $this->stock_model->item_details($item, 'center');
+//			var_dump($data);die;
+			$post_arr = array();
+			$post_arr['data'] = $data;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/details', $post_arr);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	/****** CENTER STOCKS *****/
+	
+	public function add_billing_item(){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_billing_item'){
+				unset($_POST['action']);
+				
+				//$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+				$post_arr['receipt_number'] = $_POST['receipt_number'];unset($_POST['receipt_number']);
+				//$post_arr['center_number'] = $_SESSION['logged_stock_manager']['center'];
+				
+				//echo '<pre>';
+				
+				$icounte = $mcounte = $ccounte = $spcounte = 1;
+				$i_counte = $m_counte = $c_counte = $s_pcounte = array();
+				$i_counter = $m_counter = $c_counter = $s_pcounter = array();
+				foreach($_POST as $key => $val){
+					$pos = strpos($key, 'injections_name_');
+					if ($pos === false) {} else {
+						$iid = $int = (int) filter_var($key, FILTER_SANITIZE_NUMBER_INT);
+						$i_counter[] = $iid;
+					}	
+					$pos_m = strpos($key, 'medicine_name_');
+					if ($pos_m === false) {} else {
+						$mid = $int = (int) filter_var($key, FILTER_SANITIZE_NUMBER_INT);
+						$m_counter[] = $mid;
+					}	
+					
+					$pos_c = strpos($key, 'consumables_name_');
+					if ($pos_c === false) {} else {
+						$cid = $int = (int) filter_var($key, FILTER_SANITIZE_NUMBER_INT);
+						$c_counter[] = $cid;
+					}	
+				}
+
+				// var_dump($_POST); 
+				// echo '<br/><br/><br/><br/>';
+				// die;
+
+				// var_dump($i_counter); echo '<br/><br/><br/><br/>'; 
+				// var_dump($m_counter); echo '<br/><br/><br/><br/>'; 
+				// var_dump($c_counter); echo '<br/><br/><br/><br/>'; die;
+				if(!empty($i_counter)){
+					foreach($i_counter as $key => $icounte){
+						if($_POST['injections_name_'.$icounte] == ''){
+							unset($_POST['injections_ID_'.$icounte]);
+							unset($_POST['injections_serial_'.$icounte]);
+							unset($_POST['injections_name_'.$icounte]);
+							unset($_POST['injections_item_name_'.$icounte]);
+							unset($_POST['injections_stock_'.$icounte]);
+							unset($_POST['injections_batch_number_'.$icounte]);
+							unset($_POST['injections_quantity_'.$icounte]);
+							unset($_POST['injections_price_'.$icounte]);
+							unset($_POST['injections_vendor_price_'.$icounte]);
+							unset($_POST['injections_mrp_'.$icounte]);
+							unset($_POST['injections_expiry_'.$icounte]);
+							unset($_POST['injections_gstrate_'.$icounte]);
+							unset($_POST['injections_gstdivision_'.$icounte]);
+							unset($_POST['injections_date_'.$icounte]);
+						}else{
+							$item_number = $_POST['injections_serial_'.$icounte];
+							$company = $_POST['injections_company_'.$icounte];
+							$item_name = $_POST['injections_item_name_'.$icounte];
+							$batch_number = $_POST['injections_batch_number_'.$icounte];
+							$open_stock = $_POST['injections_stock_'.$icounte];
+							$expiry = $_POST['injections_expiry_'.$icounte];
+							$add_date['add_date'] = date("Y-m-d H:i:s");
+							$patient_id = $_POST['patient_id'];
+							$employee_number = $_POST['employee_number'];
+							$center_number = $_POST['center_number'];
+							$vendor_price = $_POST['injections_vendor_price_'.$icounte];
+							$mrp = $_POST['injections_mrp_'.$icounte];
+							$gstrate = $_POST['injections_gstrate_'.$icounte];
+							$gstdivision = $_POST['injections_gstdivision_'.$icounte];
+							$enddate['enddate'] = date("Y-m-d");
+							$quantity_out = $_POST['injections_quantity_'.$icounte];
+							$closingstock = $_POST['injections_stock_'.$icounte] - $_POST['injections_quantity_'.$icounte];
+							$total_vendor_price_gst_excluded = $_POST['injections_vendor_price_'.$icounte] / $_POST['injections_gstdivision_'.$icounte] * $closingstock;
+							$total_vendor_price_gst_included = $closingstock * $_POST['injections_vendor_price_'.$icounte];
+							$total_mrp_price = $closingstock * $_POST['injections_mrp_'.$icounte];
+							//$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+							
+						    $query = "INSERT INTO `hms_central_stock_report` (item_number, company, item_name, batch_number, openstock, expiry, add_date, employee_number, vendor_price, mrp, gstrate, gstdivision, enddate, quantity_out, closingstock, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, center_number) values ('$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','".date("Y-m-d H:i:s")."','$employee_number','$vendor_price','$mrp','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$center_number')";
+                            $result = run_form_query($query); 
+							$i_counte[] = array('injections_ID'=> $_POST['injections_ID_'.$icounte],'injections_serial'=> $_POST['injections_serial_'.$icounte],'injections_name'=> $_POST['injections_name_'.$icounte],'injections_item_name'=> $_POST['injections_item_name_'.$icounte],'injections_stock'=> $_POST['injections_stock_'.$icounte],'injections_batch_number'=> $_POST['injections_batch_number_'.$icounte],'injections_quantity'=> $_POST['injections_quantity_'.$icounte],'injections_price'=> $_POST['injections_price_'.$icounte],'injections_vendor_price'=> $_POST['injections_vendor_price_'.$icounte],'injections_mrp'=> $_POST['injections_mrp_'.$icounte],'injections_expiry'=> $_POST['injections_expiry_'.$icounte],'injections_gstrate'=> $_POST['injections_gstrate_'.$icounte],'injections_gstdivision'=> $_POST['injections_gstdivision_'.$icounte],'injections_date'=> date("Y-m-d H:i:s"));
+						}
+					}
+				}
+				if(!empty($m_counter)){
+					foreach($m_counter as $key => $mcounte){
+						if($_POST['medicine_name_'.$mcounte] == ''){
+							unset($_POST['medicine_ID_'.$mcounte]);
+							unset($_POST['medicine_serial_'.$mcounte]);
+							unset($_POST['medicine_name_'.$mcounte]);
+							unset($_POST['medicine_item_name_'.$mcounte]);
+							unset($_POST['medicine_stock_'.$mcounte]);
+							unset($_POST['medicine_batch_number_'.$mcounte]);
+							unset($_POST['medicine_quantity_'.$mcounte]);
+							unset($_POST['medicine_price_'.$mcounte]);
+							unset($_POST['medicine_vendor_price_'.$mcounte]);
+							unset($_POST['medicine_mrp_'.$mcounte]);
+							unset($_POST['medicine_expiry_'.$mcounte]);
+							unset($_POST['medicine_gstrate_'.$mcounte]);
+							unset($_POST['medicine_gstdivision_'.$mcounte]);
+							unset($_POST['medicine_date_'.$mcounte]);
+						}else{
+							$item_number = $_POST['medicine_serial_'.$mcounte];
+							$company = $_POST['medicine_company_'.$mcounte];
+							$item_name = $_POST['medicine_item_name_'.$mcounte];
+							$batch_number = $_POST['medicine_batch_number_'.$mcounte];
+							$open_stock = $_POST['medicine_stock_'.$mcounte];
+							$expiry = $_POST['medicine_expiry_'.$mcounte];
+							$add_date['add_date'] = date("Y-m-d H:i:s");
+							$patient_id = $_POST['patient_id'];
+							$employee_number = $_POST['employee_number'];
+							$center_number = $_POST['center_number'];
+							$vendor_price = $_POST['medicine_vendor_price_'.$mcounte];
+							$mrp = $_POST['medicine_mrp_'.$mcounte];
+							$gstrate = $_POST['medicine_gstrate_'.$mcounte];
+							$gstdivision = $_POST['medicine_gstdivision_'.$mcounte];
+							$enddate['enddate'] = date("Y-m-d");
+							$quantity_out = $_POST['medicine_quantity_'.$mcounte];
+							$closingstock = $_POST['medicine_stock_'.$mcounte] - $_POST['medicine_quantity_'.$mcounte];
+							$total_vendor_price_gst_excluded = $_POST['medicine_vendor_price_'.$mcounte] / $_POST['medicine_gstdivision_'.$mcounte] * $closingstock;
+							$total_vendor_price_gst_included = $closingstock * $_POST['medicine_vendor_price_'.$mcounte];
+							$total_mrp_price = $closingstock * $_POST['medicine_mrp_'.$mcounte];
+							//$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+							
+						    $query = "INSERT INTO `hms_central_stock_report` (item_number, company, item_name, batch_number, openstock, expiry, add_date,employee_number, vendor_price, mrp, gstrate, gstdivision, enddate, quantity_out, closingstock, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, center_number) values ('$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','".date("Y-m-d H:i:s")."','$employee_number','$vendor_price','$mrp','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$center_number')";
+                            $result = run_form_query($query); 
+							
+							$m_counte[] = array('medicine_ID'=> $_POST['medicine_ID_'.$mcounte],'medicine_serial'=> $_POST['medicine_serial_'.$mcounte],'medicine_name'=> $_POST['medicine_name_'.$mcounte],'medicine_item_name'=> $_POST['medicine_item_name_'.$mcounte],'medicine_stock'=> $_POST['medicine_stock_'.$mcounte],'medicine_batch_number'=> $_POST['medicine_batch_number_'.$mcounte],'medicine_quantity'=> $_POST['medicine_quantity_'.$mcounte],'medicine_price'=> $_POST['medicine_price_'.$mcounte],'medicine_vendor_price'=> $_POST['medicine_vendor_price_'.$mcounte],'medicine_mrp'=> $_POST['medicine_mrp_'.$mcounte],'medicine_expiry'=> $_POST['medicine_expiry_'.$mcounte],'medicine_gstrate'=> $_POST['medicine_gstrate_'.$mcounte],'medicine_gstdivision'=> $_POST['medicine_gstdivision_'.$mcounte],'medicine_date'=> date("Y-m-d H:i:s"));
+						}
+					}
+				}
+				if(!empty($c_counter)){
+					foreach($c_counter as $key => $ccounte){
+						if($_POST['consumables_name_'.$ccounte] == ''){
+							unset($_POST['consumables_ID_'.$ccounte]);
+							unset($_POST['consumables_serial_'.$ccounte]);
+							unset($_POST['consumables_name_'.$ccounte]);
+							unset($_POST['consumables_item_name_'.$ccounte]);
+							unset($_POST['consumables_stock_'.$ccounte]);
+							unset($_POST['consumables_batch_number_'.$ccounte]);
+							unset($_POST['consumables_quantity_'.$ccounte]);
+							unset($_POST['consumables_price_'.$ccounte]);
+							unset($_POST['consumables_vendor_price_'.$ccounte]);
+							unset($_POST['consumables_mrp_'.$ccounte]);
+							unset($_POST['consumables_expiry_'.$ccounte]);
+							unset($_POST['consumables_gstrate_'.$ccounte]);
+							unset($_POST['consumables_gstdivision_'.$ccounte]);
+							unset($_POST['consumables_date_'.$ccounte]);
+						}else{
+							$item_number = $_POST['consumables_serial_'.$ccounte];
+							$company = $_POST['consumables_company_'.$ccounte];
+							$item_name = $_POST['consumables_item_name_'.$ccounte];
+							$batch_number = $_POST['consumables_batch_number_'.$ccounte];
+							$open_stock = $_POST['consumables_stock_'.$ccounte];
+							$expiry = $_POST['consumables_expiry_'.$ccounte];
+							$add_date['add_date'] = date("Y-m-d H:i:s");
+							$patient_id = $_POST['patient_id'];
+							$employee_number = $_POST['employee_number'];
+							$center_number = $_POST['center_number'];
+							$vendor_price = $_POST['consumables_vendor_price_'.$ccounte];
+							$mrp = $_POST['consumables_mrp_'.$ccounte];
+							$gstrate = $_POST['consumables_gstrate_'.$ccounte];
+							$gstdivision = $_POST['consumables_gstdivision_'.$ccounte];
+							$enddate['enddate'] = date("Y-m-d");
+							$quantity_out = $_POST['consumables_quantity_'.$ccounte];
+							$closingstock = $_POST['consumables_stock_'.$ccounte] - $_POST['consumables_quantity_'.$ccounte];
+							$total_vendor_price_gst_excluded = $_POST['consumables_vendor_price_'.$ccounte] / $_POST['consumables_gstdivision_'.$ccounte] * $closingstock;
+							$total_vendor_price_gst_included = $closingstock * $_POST['consumables_vendor_price_'.$ccounte];
+							$total_mrp_price = $closingstock * $_POST['consumables_mrp_'.$ccounte];
+							$company = $_POST['consumables_company_'.$ccounte];
+							//$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+							
+						    $query = "INSERT INTO `hms_central_stock_report` (item_number, company, item_name, batch_number, openstock, expiry, add_date,employee_number, vendor_price, mrp, gstrate, gstdivision, enddate, quantity_out, closingstock, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, center_number) values ('$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','".date("Y-m-d H:i:s")."','$employee_number','$vendor_price','$mrp','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$center_number')";
+                            $result = run_form_query($query); 
+							$c_counte[] = array('consumables_ID'=> $_POST['consumables_ID_'.$ccounte],'consumables_serial'=> $_POST['consumables_serial_'.$ccounte],'consumables_name'=> $_POST['consumables_name_'.$ccounte],'consumables_item_name'=> $_POST['consumables_item_name_'.$ccounte],'consumables_stock'=> $_POST['consumables_stock_'.$ccounte],'consumables_batch_number'=> $_POST['consumables_batch_number_'.$ccounte],'consumables_quantity'=> $_POST['consumables_quantity_'.$ccounte],'consumables_price'=> $_POST['consumables_price_'.$ccounte],'consumables_vendor_price'=> $_POST['consumables_vendor_price_'.$ccounte],'consumables_mrp'=> $_POST['consumables_mrp_'.$ccounte],'consumables_expiry'=> $_POST['consumables_expiry_'.$ccounte],'consumables_gstrate'=> $_POST['consumables_gstrate_'.$ccounte],'consumables_gstdivision'=> $_POST['consumables_gstdivision_'.$ccounte],'consumables_date'=> date("Y-m-d H:i:s"));
+						}
+					}
+				}
+								
+				$details = array();
+				$details['data']['consumables'] = $c_counte;
+				$details['data']['injections'] = $i_counte;
+				$details['data']['medicine'] = $m_counte;
+				$post_arr['data'] = serialize($details);
+				$post_arr['employee_number'] = $_POST['employee_number'];unset($_POST['employee_number']);
+				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+				$post_arr['add_on'] = date("Y-m-d H:i:s");
+				
+				// var_dump($_POST); echo '<br/><br/><br/><br/>';//die;
+				// var_dump($post_arr);
+				// die;
+				
+				$result = $this->stock_model->billing_item_insert($post_arr);
+				if($result > 0){
+					if(!empty($i_counter)){
+						foreach($i_counter as $key => $icounte){
+							$ID = $_POST['injections_ID_'.$icounte];
+							$serial = $_POST['injections_serial_'.$icounte];
+							$qty = $_POST['injections_quantity_'.$icounte];
+							$update_stock = $this->stock_model->deduct_stock($ID, $serial, $qty);
+						}
+					}
+					if(!empty($m_counter)){
+						foreach($m_counter as $key => $mcounte){
+							$ID = $_POST['medicine_ID_'.$mcounte];
+							$serial = $_POST['medicine_serial_'.$mcounte];
+							$qty = $_POST['medicine_quantity_'.$mcounte];
+							$update_stock = $this->stock_model->deduct_stock($ID, $serial, $qty);
+						}
+					}
+					if(!empty($c_counter)){
+						foreach($c_counter as $key => $ccounte){
+							$ID = $_POST['consumables_ID_'.$ccounte];
+							$serial = $_POST['consumables_serial_'.$ccounte];
+							$qty = $_POST['consumables_quantity_'.$ccounte];
+							$update_stock = $this->stock_model->deduct_stock($ID, $serial, $qty);
+						}
+					}
+					header("location:" .base_url(). "stocks/add_billing_item?m=".base64_encode('Patient Items added successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/add_billing_item?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}
+			}
+			//var_dump($this->stock_model->get_center_medicine_list());die;
+			$template = get_header_template($logg['role']);
+			$data['consumables'] = $this->stock_model->get_center_consumbles_list();
+			$data['injections'] = $this->stock_model->get_center_injection_list();
+			$data['medicine'] = $this->stock_model->get_center_embrology_list();
+			$this->load->view($template['header']);
+			$this->load->view('stocks/add_billing_item', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	
+	/****** CENTER STOCKS Meicine Billing *****/
+	
+	public function add_billing_medicine(){
+		//$receipt_number = receipt_number();
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_billing_medicine'){
+				unset($_POST['action']);
+				
+				
+				$post_arr['patient_detail_name'] = $_POST['patient_detail_name'];unset($_POST['patient_detail_name']);
+				$post_arr['receipt_number'] = $_POST['receipt_number'];unset($_POST['receipt_number']);
+				/*if($_SESSION['logged_stock_manager']['center']){
+				$post_arr['billing_at'] = $_SESSION['logged_stock_manager']['center'];
+				}else{
+				$post_arr['billing_at'] = $_SESSION['logged_billing_manager']['center'];
+				} */
+				$post_arr['payment_method'] = $_POST['payment_method'];unset($_POST['payment_method']);
+				$post_arr['cash_payment'] = $_POST['cash_payment'];unset($_POST['cash_payment']);
+				$post_arr['card_payment'] = $_POST['card_payment'];unset($_POST['card_payment']);
+				$post_arr['upi_payment'] = $_POST['upi_payment'];unset($_POST['upi_payment']);
+				$post_arr['neft_payment'] = $_POST['neft_payment'];unset($_POST['neft_payment']);
+				$post_arr['transaction_id'] = $_POST['transaction_id'];unset($_POST['transaction_id']);
+				$post_arr['hospital_id'] = $_POST['hospital_id'];unset($_POST['hospital_id']);
+				//$post_arr['billing_id'] = $_POST['billing_id'];unset($_POST['billing_id']);
+				$post_arr['payment_done'] = $_POST['payment_done'];unset($_POST['payment_done']);
+				$post_arr['discount_amount'] = $_POST['discount_amount'];unset($_POST['discount_amount']);
+				$post_arr['status'] = $_POST['status'];unset($_POST['status']);
+				//echo '<pre>';
+				//var_dump($post_arr);
+				//die();
+				
+				$icounte = $mcounte = $ccounte = $spcounte = 1;
+				$i_counte = $m_counte = $c_counte = $s_pcounte = array();
+				$i_counter = $m_counter = $c_counter = $s_pcounter = array();
+				foreach($_POST as $key => $val){
+					$pos_c = strpos($key, 'consumables_name_');
+					if ($pos_c === false) {} else {
+						$cid = $int = (int) filter_var($key, FILTER_SANITIZE_NUMBER_INT);
+						$c_counter[] = $cid;
+					}	
+				}
+
+				// var_dump($_POST); 
+				// echo '<br/><br/><br/><br/>';
+				// die;
+
+				// var_dump($i_counter); echo '<br/><br/><br/><br/>'; 
+				// var_dump($m_counter); echo '<br/><br/><br/><br/>'; 
+				// var_dump($c_counter); echo '<br/><br/><br/><br/>'; die;
+				if(!empty($c_counter)){
+					foreach($c_counter as $key => $ccounte){
+						if($_POST['consumables_name_'.$ccounte] == ''){
+							unset($_POST['consumables_ID_'.$ccounte]);
+							unset($_POST['consumables_serial_'.$ccounte]);
+							unset($_POST['consumables_name_'.$ccounte]);
+							unset($_POST['consumables_company_'.$ccounte]);
+							unset($_POST['consumables_item_name_'.$ccounte]);
+							unset($_POST['consumables_stock_'.$ccounte]);
+							unset($_POST['consumables_batch_number_'.$ccounte]);
+							unset($_POST['consumables_quantity_'.$ccounte]);
+						    unset($_POST['consumables_price_'.$ccounte]);
+							unset($_POST['consumables_discount_'.$ccounte]);
+							unset($_POST['consumables_total_'.$ccounte]);
+							unset($_POST['consumables_vendor_price_'.$ccounte]);
+							unset($_POST['consumables_expiry_'.$ccounte]);
+							unset($_POST['consumables_hsn_'.$ccounte]);
+							unset($_POST['consumables_gstrate_'.$ccounte]);
+							unset($_POST['consumables_gstdivision_'.$ccounte]);
+							unset($_POST['consumables_pack_size_'.$ccounte]);
+							unset($_POST['consumables_mrp_'.$ccounte]);
+							
+						}else{
+							// insert query
+							$item_number = $_POST['consumables_serial_'.$ccounte];
+							$company = $_POST['consumables_company_'.$ccounte];
+							$item_name = $_POST['consumables_item_name_'.$ccounte];
+							$batch_number = $_POST['consumables_batch_number_'.$ccounte];
+							$open_stock = $_POST['consumables_stock_'.$ccounte];
+							$expiry = $_POST['consumables_expiry_'.$ccounte];
+							$add_date['add_date'] = date("Y-m-d H:i:s");
+							$patient_id = $_POST['patient_id'];
+							$employee_number = $_POST['employee_number'];
+							$center_number = $_POST['center_number'];
+							
+							$vendor_price = $_POST['consumables_vendor_price_'.$ccounte];
+							$mrp = $_POST['consumables_mrp_'.$ccounte];
+							$gstrate = $_POST['consumables_gstrate_'.$ccounte];
+							$gstdivision = $_POST['consumables_gstdivision_'.$ccounte];
+							$enddate['enddate'] = date("Y-m-d");
+							$quantity_out = $_POST['consumables_quantity_'.$ccounte];
+							$closingstock = $_POST['consumables_stock_'.$ccounte] - $_POST['consumables_quantity_'.$ccounte];
+							$total_vendor_price_gst_excluded = $_POST['consumables_vendor_price_'.$ccounte] / $_POST['consumables_gstdivision_'.$ccounte] * $closingstock;
+							$total_vendor_price_gst_included = $closingstock * $_POST['consumables_vendor_price_'.$ccounte];
+							$total_mrp_price = $closingstock * $_POST['consumables_mrp_'.$ccounte];
+							//$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+							
+						    $query = "INSERT INTO `hms_central_stock_report` (item_number,company, item_name, batch_number, openstock, expiry, add_date, employee_number, vendor_price, mrp, gstrate, gstdivision,enddate, quantity_out, closingstock, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, center_number) values ('$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','".date("Y-m-d H:i:s")."','$employee_number','$vendor_price','$mrp','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$center_number')";
+                            $result = run_form_query($query); 
+							$c_counte[] = array('consumables_ID'=> $_POST['consumables_ID_'.$ccounte],'consumables_serial'=> $_POST['consumables_serial_'.$ccounte],'consumables_name'=> $_POST['consumables_name_'.$ccounte],'consumables_company'=> $_POST['consumables_company_'.$ccounte],'consumables_item_name'=> $_POST['consumables_item_name_'.$ccounte],'consumables_stock'=> $_POST['consumables_stock_'.$ccounte],'consumables_batch_number'=> $_POST['consumables_batch_number_'.$ccounte],'consumables_quantity'=> $_POST['consumables_quantity_'.$ccounte],'consumables_price'=> $_POST['consumables_price_'.$ccounte],'consumables_discount_'=> $_POST['consumables_discount_'.$ccounte],'consumables_total_'=> $_POST['consumables_total_'.$ccounte],'consumables_vendor_price'=> $_POST['consumables_vendor_price_'.$ccounte],'consumables_expiry'=> $_POST['consumables_expiry_'.$ccounte],'consumables_hsn'=> $_POST['consumables_hsn_'.$ccounte],'consumables_gstrate'=> $_POST['consumables_gstrate_'.$ccounte],'consumables_gstdivision'=> $_POST['consumables_gstdivision_'.$ccounte],'consumables_pack_size'=> $_POST['consumables_pack_size_'.$ccounte],'consumables_mrp'=> $_POST['consumables_mrp_'.$ccounte]);
+						}
+					}
+				}
+								
+				$details = array();
+				$details['data']['consumables'] = $c_counte;
+				$post_arr['data'] = serialize($details);
+				$post_arr['patient_id'] = $_POST['patient_id'];
+				$post_arr['on_date'] = date("Y-m-d H:i:s");
+				$post_arr['employee_number'] = $_POST['employee_number'];unset($_POST['employee_number']);
+				$post_arr['billing_at'] = $_SESSION['logged_billing_manager']['center'];
+				$post_arr['series_number'] = $_POST['series_number'];unset($_POST['series_number']);
+				
+				 //var_dump($_POST['employee_number']); echo '<br/><br/><br/><br/>';die;
+				// var_dump($post_arr);
+				// die;
+				
+				$result = $this->stock_model->billing_medicine_item_insert($post_arr);
+				//var_dump($this->stock_model->billing_item_insert());die;
+				if($result > 0){
+					if(!empty($c_counter)){
+						foreach($c_counter as $key => $ccounte){
+							$ID = $_POST['consumables_ID_'.$ccounte];
+							$serial = $_POST['consumables_serial_'.$ccounte];
+							$qty = $_POST['consumables_quantity_'.$ccounte];
+							$update_stock = $this->stock_model->deduct_stock($ID, $serial, $qty);
+						}
+					}
+					header("location:" .base_url(). "stocks/patient_medicine_items/?receipt_number=".$post_arr['receipt_number']."&t=medicine");
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/add_billing_medicine?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}
+			}
+			$data['consumables'] = $this->stock_model->get_center_consumbles_medicine_list();
+			//var_dump(get_header_template($logg['role']));die;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/add_billing_medicine', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}	
+	
+	
+	/*************Return medicin by customer***************/
+	
+		public function return_billing_medicine(){
+		//$receipt_number = receipt_number();
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'return_billing_medicine'){
+				unset($_POST['action']);
+				
+				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+				$post_arr['receipt_number'] = $_POST['receipt_number'];unset($_POST['receipt_number']);
+				$post_arr['patient_detail_name'] = $_POST['patient_detail_name'];unset($_POST['patient_detail_name']);
+				$post_arr['billing_at'] = $_SESSION['logged_billing_manager']['center'];
+				$post_arr['payment_method'] = $_POST['payment_method'];unset($_POST['payment_method']);
+				$post_arr['transaction_id'] = $_POST['transaction_id'];unset($_POST['transaction_id']);
+				$post_arr['hospital_id'] = $_POST['hospital_id'];unset($_POST['hospital_id']);
+				//$post_arr['billing_id'] = $_POST['billing_id'];unset($_POST['billing_id']);
+				$post_arr['payment_done'] = $_POST['payment_done'];unset($_POST['payment_done']);
+				$post_arr['discount_amount'] = $_POST['discount_amount'];unset($_POST['discount_amount']);
+				$post_arr['status'] = $_POST['status'];unset($_POST['status']);
+				
+				$icounte = $mcounte = $ccounte = $spcounte = 1;
+				$i_counte = $m_counte = $c_counte = $s_pcounte = array();
+				$i_counter = $m_counter = $c_counter = $s_pcounter = array();
+				foreach($_POST as $key => $val){
+					$pos_c = strpos($key, 'consumables_name_');
+					if ($pos_c === false) {} else {
+						$cid = $int = (int) filter_var($key, FILTER_SANITIZE_NUMBER_INT);
+						$c_counter[] = $cid;
+					}	
+				}
+
+				if(!empty($c_counter)){
+					foreach($c_counter as $key => $ccounte){
+						if($_POST['consumables_name_'.$ccounte] == ''){
+							unset($_POST['consumables_ID_'.$ccounte]);
+							unset($_POST['consumables_serial_'.$ccounte]);
+							unset($_POST['consumables_name_'.$ccounte]);
+							unset($_POST['consumables_stock_'.$ccounte]);
+							unset($_POST['consumables_batch_number_'.$ccounte]);
+							unset($_POST['consumables_quantity_'.$ccounte]);
+						    unset($_POST['consumables_price_'.$ccounte]);
+							unset($_POST['consumables_discount_'.$ccounte]);
+							unset($_POST['consumables_total_'.$ccounte]);
+							unset($_POST['consumables_vendor_price_'.$ccounte]);
+							unset($_POST['consumables_expiry_'.$ccounte]);
+						}else{
+							$c_counte[] = array('consumables_ID'=> $_POST['consumables_ID_'.$ccounte],'consumables_serial'=> $_POST['consumables_serial_'.$ccounte],'consumables_name'=> $_POST['consumables_name_'.$ccounte],'consumables_stock'=> $_POST['consumables_stock_'.$ccounte],'consumables_batch_number'=> $_POST['consumables_batch_number_'.$ccounte],'consumables_quantity'=> $_POST['consumables_quantity_'.$ccounte],'consumables_price'=> $_POST['consumables_price_'.$ccounte],'consumables_discount_'=> $_POST['consumables_discount_'.$ccounte],'consumables_total_'=> $_POST['consumables_total_'.$ccounte],'consumables_vendor_price'=> $_POST['consumables_vendor_price_'.$ccounte],'consumables_expiry'=> $_POST['consumables_expiry_'.$ccounte]);
+						}
+					}
+				}
+								
+				$details = array();
+				$details['return_medicine']['consumables'] = $c_counte;
+				$post_arr['return_medicine'] = serialize($details);
+				$post_arr['on_date'] = date("Y-m-d H:i:s");
+				$post_arr['stutus_type'] = $_POST['stutus_type'];unset($_POST['stutus_type']);
+				$post_arr['employee_number'] = $_POST['employee_number'];unset($_POST['employee_number']);
+				$result = $this->stock_model->billing_medicine_item_insert($post_arr);
+				//var_dump($this->stock_model->billing_medicine_item_insert($post_arr));die;
+				if($result > 0){
+					if(!empty($c_counter)){
+						foreach($c_counter as $key => $ccounte){
+							$ID = $_POST['consumables_ID_'.$ccounte];
+							$item_number = $_POST['consumables_serial_'.$ccounte];
+							$qty = $_POST['consumables_quantity_'.$ccounte];
+							$update_stock = $this->stock_model->update_return_item_data($ID, $item_number, $qty);
+							//var_dump($this->stock_model->update_return_item_data($ID, $item_number, $qty));die;
+						}
+					}
+					header("location:" .base_url(). "stocks/return_billing_medicine/?&t=medicine=Success");
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/return_billing_medicine?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}
+			}
+			$template = get_header_template($logg['role']);
+			$data['consumables'] = $this->stock_model->get_center_consumbles_medicine_list();
+			$this->load->view($template['header']);
+			$this->load->view('stocks/return_billing_medicine', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	function get_stock_item_price(){
+		$item_number = $_POST['item_number'];
+		$units = $_POST['units'];
+		$data = $this->stock_model->get_stock_item_price($item_number, $units);
+		//var_dump($data);die;
+		echo json_encode($data);die;
+	}
+
+	function get_stock_item_discount_price(){
+		$discount = $_POST['discount'];
+		$item_number = $_POST['item_number'];
+		$units = $_POST['units'];
+		$data = $this->stock_model->get_stock_item_discount_price($item_number, $units, $discount);
+		//var_dump($data);die;
+		echo json_encode($data);die;
+	}
+	
+	function patient_items(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/patient_items', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	
+	function patient_medicine_items(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			$receipt_number = $this->input->get('receipt_number', TRUE);
+			$t_parameter = $this->input->get('t', TRUE);
+			$data['data'] = $this->stock_model->get_medicine_data($receipt_number);
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/patient_medicine_items', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function get_patient_items_data(){
+		$patient_id = $_POST['patient_id'];
+		$consumable_result = $injection_result = $medicine_result = $patient_result = array();
+		$data = $this->stock_model->get_patient_items_data($patient_id);
+		//var_dump($data);die;
+		
+		$patient_result = $data['patient_result'];
+		//var_dump($data);die;
+		$response = array();
+		$total_consum_price = 0;
+		$total_injections_price = 0;
+		$total_medicine_price = 0;
+		$total_consum_vendor_price = 0;
+		$total_injections_vendor_price = 0;
+		$total_medicine_vendor_price = 0;
+		if (!empty($patient_result))
+        {       
+			//echo '<pre>';
+				//print_r($data);
+				//echo '</pre>';
+			$html = '';
+			foreach($data as $ky => $vls){ //var_dump($vls);die;
+				
+				$total_consum_price = $total_consum_price2 + $total_injections_price + $total_medicine_price;
+				$total_consum_vendor_price = $total_consum_vendor_price2 + $total_injections_vendor_price + $total_medicine_vendor_price;
+				//$date = $vls['add_on'];
+				//echo $date;			
+				$consumable_result = isset($vls['consumable_result'])?$vls['consumable_result']:array();
+				$injection_result = isset($vls['injection_result'])?$vls['injection_result']:array();
+				$medicine_result = isset($vls['medicine_result'])?$vls['medicine_result']:array();
+				if(count($consumable_result) > 0){
+					$type = 'Consumable';
+					foreach($consumable_result as $key => $val){//var_dump($vls['receipt_number']);die;
+						$item_data = $this->stock_model->get_center_item_data($val['consumables_serial']);
+						//$date = $val['add_on'];
+						//var_dump($item_data);die;
+						$html .= '<tr>';
+						    
+						    $total_vendor_price = $val['consumables_vendor_price'] * $val['consumables_quantity'];
+							$html .= '<td><a href="'.base_url().'stocks/cdetail/'.$val['consumables_serial'].'">'.$val['consumables_serial'].'</a></td>';
+							$html .= '<td>'.$item_data['employee_number'].'</td>';
+							$html .= '<td>'.$item_data['item_name'].'</td>';
+							$html .= '<td>'.$val['consumables_batch_number'].'</td>';
+							$html .= '<td>'.$type.'</td>';
+							$html .= '<td>'.$val['consumables_stock'].'</td>';
+							$html .= '<td>'.$val['consumables_quantity'].'</td>';
+							$html .= '<td><i class="fa fa-inr" aria-hidden="true"></i> '.$val['consumables_price'].'</td>';
+							$html .= '<td>'.$total_vendor_price.'</td>';
+							$total_consum_price2 += $val['consumables_price'];
+							$total_consum_vendor_price2 += $total_vendor_price;
+							$html .= '<td>'.$val['consumables_date'].'</td>';
+							
+						$html .= '</tr>';
+					}
+					if($_SESSION['logged_administrator']){
+				    $html .= '<tr><td colspan="3">Total Vendor Price</td><td colspan="1">'.$total_consum_vendor_price2.'</td></tr>';
+				    }
+					$html .= '<tr><td colspan="3">Total Consumables Price</td><td colspan="1">'.$total_consum_price2.'</td></tr>';
+					
+					$html .= '<tr><td colspan="9"></td></tr>';
+					
+					$html .= '<tr><td colspan="9"><h5 class="center">IPD Injection</h5></td></tr>';
+					
+					$html .= '<tr>
+                        <th>Item code</th>
+                        <th>Receipt number</th>
+                        <th>Item name</th>
+                        <th>Batch Number</th>
+						<th>Category</th>
+						<th>Open Qty</th>
+                        <th>Qty</th>
+                        <th>Consumption Price</th>
+						<th>Vendor Price</th>
+                        <th>Added On Date</th>
+                    </tr>';
+				    
+				}//var_dump($html);//die;
+				if(count($injection_result) > 0){
+					$type = 'Injection';
+					foreach($injection_result as $key => $val){
+						$item_data = $this->stock_model->get_center_item_data($val['injections_serial']);
+						  $html .= '<tr>';
+						    $total_vendor_price_injection = $val['injections_vendor_price'] * $val['injections_quantity'];
+							$html .= '<td><a href="'.base_url().'stocks/cdetail/'.$val['injections_serial'].'">'.$val['injections_serial'].'</a></td>';
+							$html .= '<td>'.$item_data['employee_number'].'</td>';
+							$html .= '<td>'.$item_data['item_name'].'</td>';
+							$html .= '<td>'.$val['injections_batch_number'].'</td>';
+							$html .= '<td>'.$type.'</td>';
+							$html .= '<td>'.$val['injections_stock'].'</td>';
+							$html .= '<td>'.$val['injections_quantity'].'</td>';
+							$html .= '<td><i class="fa fa-inr" aria-hidden="true"></i> '.$val['injections_price'].'</td>';
+							$html .= '<td>'.$total_vendor_price_injection.'</td>';
+							$html .= '<td>'.$val['injections_date'].'</td>';
+							$total_injections_price += $val['injections_price'];
+							$total_injections_vendor_price += $total_vendor_price_injection;
+							
+						$html .= '</tr>';
+					}
+					if($_SESSION['logged_administrator']){
+					$html .= '<tr><td colspan="3">Total Vendor Price</td><td colspan="1">'. $total_injections_vendor_price.' </td>  </tr>';
+					}
+						$html .= '<tr><td colspan="3">Total Injections Price</td><td colspan="1">'.$total_injections_price.'</td></tr>';
+						
+						$html .= '<tr><td colspan="9"></td></tr>';
+						
+						$html .= '<tr><td colspan="9"><h5 class="center">Embrology</h5></td></tr>';
+						
+						$html .= '<tr>
+                        <th>Item code</th>
+                        <th>Receipt number</th>
+                        <th>Item name</th>
+                        <th>Batch Number</th>
+						<th>Category</th>
+						<th>Open Qty</th>
+                        <th>Qty</th>
+                        <th>Consumption Price</th>
+						<th>Vendor Price</th>
+                        <th>Added On Date</th>
+                    </tr>';
+				}
+				
+				if(count($medicine_result) > 0){
+					$type = 'Embrology';
+					foreach($medicine_result as $key => $val){
+						
+						$item_data = $this->stock_model->get_center_item_data($val['medicine_serial']);
+						//$item_data = $this->stock_model->get_employee_name($val['employee_number']);
+						
+						$html .= '<tr>';
+						    $total_vendor_price_medicine = $val['medicine_vendor_price'] * $val['medicine_quantity'];
+							$html .= '<td><a href="'.base_url().'stocks/cdetail/'.$val['medicine_serial'].'">'.$val['medicine_serial'].'</a></td>';
+							$html .= '<td>'.$item_data['employee_number'].'</td>';
+							$html .= '<td>'.$item_data['item_name'].'</td>';
+							$html .= '<td>'.$val['medicine_batch_number'].'</td>';
+							$html .= '<td>'.$type.'</td>';
+							$html .= '<td>'.$val['medicine_stock'].'</td>';
+							$html .= '<td>'.$val['medicine_quantity'].'</td>';
+							$html .= '<td><i class="fa fa-inr" aria-hidden="true"></i> '.$val['medicine_price'].'</td>';
+							$html .= '<td>'.$total_vendor_price_medicine.'</td>';
+							$total_medicine_price += $val['medicine_price'];
+							$total_medicine_vendor_price += $total_vendor_price_medicine;
+							$html .= '<td>'.$val['medicine_date'].'</td>';
+						$html .= '</tr>';
+					}
+					if($_SESSION['logged_administrator']){
+					$html .= '<tr><td colspan="3">Total Vendor Price</td><td colspan="1">'.$total_medicine_vendor_price.'</td></tr>';
+					}
+					$html .= '<tr><td colspan="3">Total Consumables Price</td><td colspan="1">'.$total_medicine_price.'</td></tr>';
+					
+				}
+				
+
+			}
+			
+			$response = array('data' => $html, 'patient_name'=> $patient_result['wife_name'], 'patient_email'=> $patient_result['wife_email'], 'patient_phone'=> $patient_result['wife_phone'], "total_consum_price" =>$total_consum_price, "total_consum_vendor_price" =>$total_consum_vendor_price);
+			echo json_encode($response);
+			die;
+        }else{
+			$response = array('data' => 'No record found!', 'patient_name'=> '', 'patient_email'=> '', 'patient_phone'=> '', 'total_consum_price' =>0, 'total_consum_vendor_price' =>0);
+		}
+	}
+	
+		/******  *****/
+	public function get_patient_medicine_items_data(){
+		$patient_id = $_POST['patient_id'];
+		$consumable_result = $patient_result = array();
+		$data = $this->stock_model->get_patient_medicine_items_data($patient_id);
+		//var_dump($data);die;
+		
+		$patient_result = $data['patient_result'];
+		//var_dump($data);die;
+		$response = array();
+		$total_consum_price = 0;
+		if (!empty($patient_result))
+        {       
+			$html = '';
+			foreach($data as $ky => $vls){ //var_dump($vls);die;
+				$consumable_result = isset($vls['consumable_result'])?$vls['consumable_result']:array();
+				if(count($consumable_result) > 0){
+					$type = 'Consumable';
+					foreach($consumable_result as $key => $val){//var_dump($vls['receipt_number']);die;
+						$item_data = $this->stock_model->get_center_item_data($val['consumables_serial']);
+						//var_dump($item_data);die;
+						$html .= '<tr>';
+							$html .= '<td><a href="'.base_url().'stocks/cdetail/'.$val['consumables_serial'].'">'.$val['consumables_serial'].'</a></td>';
+							$html .= '<td><a href="'.base_url().'accounts/details/'.$vls['receipt_number'].'?t=procedure">'.$vls['receipt_number'].'</a></td>';
+							$html .= '<td><a href="'.base_url().'accounts/details/'.$vls['receipt_number'].'?t=procedure">'.$vls['receipt_number'].'</a></td>';
+							$html .= '<td>'.$item_data['item_name'].'</td>';
+							$html .= '<td>'.$item_data['batch_number'].'</td>';
+							$html .= '<td>'.$type.'</td>';
+							$html .= '<td>'.$val['consumables_quantity'].'</td>';
+							$html .= '<td><i class="fa fa-inr" aria-hidden="true"></i> '.$val['consumables_price'].'</td>';
+							$total_consum_price += $val['consumables_price'];
+							// $html .= '<td>'.date('d-m-Y H:i', strtotime($vls['add_on'])).'</td>';
+						$html .= '</tr>';
+					}
+				}//var_dump($html);die;
+				
+			}
+			
+			$response = array('data' => $html, 'patient_name'=> $patient_result['wife_name'], 'patient_email'=> $patient_result['wife_email'], 'patient_phone'=> $patient_result['wife_phone'], "total_consum_price" =>$total_consum_price);
+			echo json_encode($response);
+			die;
+        }else{
+			$response = array('data' => 'No record found!', 'patient_name'=> '', 'patient_email'=> '', 'patient_phone'=> '', 'total_consum_price' =>0);
+		}
+	}	
+	
+	/****** CENTER STOCKS *****/
+	
+	public function categories(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			$data['data'] = $this->stock_model->get_categories();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/categories', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function add_category(){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_category'){
+				unset($_POST['action']);
+				$data = $this->stock_model->add_category($_POST);
+				if($data > 0){
+					header("location:" .base_url(). "stocks/add_category?m=".base64_encode('Category added successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/add_category?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}				
+			}
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/add_category');
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function edit_category()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['i'])){ $item_id = $_GET['i']; }
+			if(isset($_POST['i'])) { $item_id = $_POST['i']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_category'){
+				unset($_POST['action']);unset($_POST['i']);
+				$data = $this->stock_model->update_category_data($_POST, $item_id);
+				if($data > 0){
+					header("location:" .base_url(). "stocks/edit_category?m=".base64_encode('Category updated successfully !').'&t='.base64_encode('success').'&i='.$item_id);
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/edit_category?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error').'&i='.$item_id);
+					die();
+				}				
+			}
+			$data['data'] = $this->stock_model->get_category_data($item_id);
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/edit_category', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function delete_category()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$item = $_GET['i'];
+			if( $item > 0 )
+			{
+				if( $this->stock_model->delete_category_data($item) !== 0)
+				{
+					header("location:" .base_url(). "stocks/categories?m=".base64_encode('Category deleted successfully !').'&t='.base64_encode('success'));
+					die();
+				}
+				else
+				{
+					header("location:" .base_url(). "stocks/categories?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}
+			}
+			header("location:" .base_url(). "stocks/categories?m=".base64_encode('Category not found !').'&t='.base64_encode('error'));
+			die();
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	/**** Products ****/
+	
+	public function products(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			$data['data'] = $this->stock_model->get_products();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/products', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function add_product(){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_product'){
+				unset($_POST['action']);
+				$data = $this->stock_model->add_product($_POST);
+				if($data > 0){
+					header("location:" .base_url(). "stocks/add_product?m=".base64_encode('Product added successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/add_product?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}				
+			}
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/add_product');
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function edit_product()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['i'])){ $item_id = $_GET['i']; }
+			if(isset($_POST['i'])) { $item_id = $_POST['i']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_product'){
+				unset($_POST['action']);unset($_POST['i']);
+				$data = $this->stock_model->update_product_data($_POST, $item_id);
+				if($data > 0){
+					header("location:" .base_url(). "stocks/edit_product?m=".base64_encode('Product updated successfully !').'&t='.base64_encode('success').'&i='.$item_id);
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/edit_product?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error').'&i='.$item_id);
+					die();
+				}				
+			}
+			$data['data'] = $this->stock_model->get_product_data($item_id);
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/edit_product', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function delete_product()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$item = $_GET['i'];
+			if( $item > 0 )
+			{
+				if( $this->stock_model->delete_category_data($item) !== 0)
+				{
+					header("location:" .base_url(). "stocks/categories?m=".base64_encode('Category deleted successfully !').'&t='.base64_encode('success'));
+					die();
+				}
+				else
+				{
+					header("location:" .base_url(). "stocks/categories?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}
+			}
+			header("location:" .base_url(). "stocks/categories?m=".base64_encode('Category not found !').'&t='.base64_encode('error'));
+			die();
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	
+	public function center_medicine_report(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$center = $this->input->get('billing_at', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('patient_id', true);
+			$export_billing = $this->input->get('export-billing', true);
+			$paid_amount = 0;
+			$discounted_package = 0;
+			$total_package = 0;
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_medicine_center_data($start_date, $end_date, $center, $patient_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Medicine-Report-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Date, IIC ID, Patient Name, Hospital Id,Receipt Number, Payment Method, Medicine, Medicine Name, Quantity, Ammount, Status';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$employee_number = get_center_name($val['employee_number']);
+					$lead_arr = array($val['on_date'], $val['patient_id'], $val['patient_detail_name'],$val['hospital_id'],$val['receipt_number'], $val['payment_method'], $val['consumables_serial'], $val['final__consumables'], $val['consumables_quantity'], $val['consumables_total_'], $val['status']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/center_medicine_report";
+        	$config["total_rows"] = $this->stock_model->patient_center_medicine_count($center, $start_date, $end_date, $patient_id);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->center_medicine_list_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id);
+			//var_dump($data);die;
+			$data["billing_at"] = $center;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/center_medicine_report', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	
+	public function disaprove_medicine_list(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$center = $this->input->get('billing_at', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('patient_id', true);
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/disaprove_medicine_list";
+        	$config["total_rows"] = $this->stock_model->disaprove_medicine_count($center, $start_date, $end_date, $patient_id);
+        	$config["per_page"] = 50;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->disaprove_medicine_list_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id);
+			//var_dump($data);die;
+			$data["billing_at"] = $center;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/disaprove_medicine_list', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	/***********Center Stock***********/
+
+	public function all_center_stocks(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$generic_name = $this->input->get('generic_name', true);
+			$item_name = $this->input->get('item_name', true);
+			$batch_number = $this->input->get('batch_number', true);
+			$export_billing = $this->input->get('export-billing', true);
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_all_center_stocks($employee_number, $start_date, $end_date, $generic_name, $item_name);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=All-Center-Medicine-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Item Number,Company, Item Name, Batch Number, Generic Name, Quantity, Safety Stock, Order Qty, Status, Employee Name';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$lead_arr = array($val['item_number'], $val['company'],$val['item_name'], $val['batch_number'], $val['generic_name'], $val['quantity'], $val['safety_stock'], $val['order_qty'], $val['status'], $val['employee_number']);
+					fputcsv($fp, $lead_arr);
+				}
+				
+				fclose($fp);
+				exit();
+			}
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/all_center_stocks";
+        	$config["total_rows"] = $this->stock_model->get_all_center_stocks($employee_number, $start_date, $end_date, $generic_name, $item_name, $batch_number);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->get_all_center_stocks_patination($config["per_page"], $per_page, $employee_number, $start_date, $end_date, $generic_name, $item_name, $batch_number);
+			//var_dump($data);die;
+			$data["employee_number"] = $employee_number;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["generic_name"] = $generic_name;
+            $data["item_name"] = $item_name;
+			$data["batch_number"] = $batch_number;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/all_center_stocks', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+		/***********All Center Stock***********/
+
+	public function stocks(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$generic_name = $this->input->get('generic_name', true);
+			$item_name = $this->input->get('item_name', true);
+			$export_billing = $this->input->get('export-billing', true);
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_central_stocks($start_date, $end_date, $generic_name, $item_name);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Central-Medicine-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Item Number,Company, Item Name, Batch Number, Brand Name, Vendor Number, Generic Name, Quantity, Safety Stock, Order Qty, Category, Item Name, Status';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$billing_at = get_center_name($val['billing_at']);
+					$lead_arr = array($val['item_number'], $val['company'],$val['item_name'], $val['batch_number'],$val['brand_name'], $val['brand_name'], $val['vendor_number'], $val['generic_name'], $val['quantity'], $val['safety_stock'], $val['order_qty'], $val['category'],$val['item_name'], date('Y-m-d H:i:s', strtotime($val['date'])), $val['status']);
+					fputcsv($fp, $lead_arr);
+				}
+				
+				fclose($fp);
+				exit();
+			}
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/stocks";
+        	$config["total_rows"] = $this->stock_model->get_central_stocks($start_date, $end_date, $generic_name, $item_name);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->get_central_stocks_patination($config["per_page"], $per_page, $start_date, $end_date, $generic_name, $item_name);
+			//var_dump($data);die;
+			//$data = array();
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["generic_name"] = $generic_name;
+            $data["item_name"] = $item_name;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/stocks', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	/**********All Medicine Sale Report**********/
+	
+		/***********All Stock Report***********/
+
+	public function stocks_reports(){
+		$logg = checklogin();
+		//error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$center_number = $this->input->get('center_number', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$item_name = $this->input->get('item_name', true);
+			$batch_number = $this->input->get('batch_number', true);
+			$export_billing = $this->input->get('export-billing', true);
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_stocks_reports($employee_number, $center_number, $add_date, $enddate, $generic_name, $item_name);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Medicine-Stock-Reports-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = ' Item Name, Batch Number, Quantity, Unti Vendor Price,GST Amount, Total Vendor Price, Date, Employee Name';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+				   // $gst_amount = $gstdivision / $val['vendor_price'];
+				    $lead_arr = array($val['item_name'], $val['batch_number'], $val['closingstock'], $val['vendor_price'], $val['gstdivision'], $val['order_qty'], $val['add_date'], $val['employee_number']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/stocks_reports";
+        	$config["total_rows"] = $this->stock_model->get_stocks_reports($employee_number, $center_number, $start_date, $end_date, $item_name, $batch_number);
+        	$config["per_page"] = 20;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->get_stocks_reports_patination($config["per_page"], $per_page, $employee_number, $center_number, $start_date, $end_date, $item_name, $batch_number);
+			$data['total_stock_result'] = $this->stock_model->total_stocks_reports($employee_number, $center_number, $start_date, $end_date, $item_name, $batch_number);
+			//var_dump($data);die;
+			//$data = array();
+			$data["employee_number"] = $employee_number;
+			$data["center_number"] = $employee_number;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["item_name"] = $item_name;
+			$data["batch_number"] = $batch_number;
+            $template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/stocks_reports', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	/**********All Stock Report**********/
+	
+public function medicine_stock(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('patient_id', true);
+			$export_billing = $this->input->get('export-billing', true);
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_medicine_data2($start_date, $end_date, $employee_number, $patient_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Medicine-Stock-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Date, IIC ID, Patient Name, Hospital Id,Receipt Number, Payment Method, Medicine Name, Quantity, Amount, Status';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$employee_number = get_center_name($val['employee_number']);
+					$lead_arr = array($val['on_date'], $val['patient_id'], $val['patient_detail_name'],$val['hospital_id'],$val['receipt_number'], $val['payment_method'], $val['final__consumables'], $val['consumables_quantity'], $val['consumables_total_'], $val['status']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+			$export_cash_medicine = $this->input->get('export-cash-medicine', true);
+			if (isset($export_cash_medicine)){
+				$data = $this->stock_model->export_cash_medicine($start_date, $end_date, $employee_number, $patient_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Cash-Medicine-Stock-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Date, IIC ID, Patient Name, Hospital Id,Receipt Number, Payment Method, Medicine Name,Item Nmae, Quantity,Out Qty, Amount,Vendor Price,Discount, Total, Employee Number, Status, Batch Number,	HSN, GST,	Division, MRP';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$employee_number = get_center_name($val['employee_number']);
+					$lead_arr = array($val['on_date'], $val['patient_id'], $val['patient_detail_name'],$val['hospital_id'],$val['receipt_number'], $val['payment_method'], $val['consumables_name'],$val['consumables_item_name'],$val['consumables_stock'], $val['consumables_quantity'], $val['consumables_price'], $val['consumables_vendor_price'], $val['consumables_discount_'], $val['consumables_total_'],$val['employee_number'], $val['status'], $val['consumables_batch_number'], $val['consumables_hsn'], $val['consumables_gstrate'], $val['consumables_gstdivision'], $val['consumables_mrp']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+			
+			$export_return_medicine = $this->input->get('export-return-medicine', true);
+			if (isset($export_return_medicine)){
+				$data = $this->stock_model->export_return_medicine($start_date, $end_date, $employee_number, $patient_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Cash-Return-Stock-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Date, IIC ID, Patient Name, Hospital Id,Receipt Number, Payment Method, Medicine Name,Item Nmae, Quantity,Out Qty, Amount,Vendor Price,Discount, Total, Employee Number, Status, Batch Number,	HSN, GST,	Division, MRP';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$employee_number = get_center_name($val['employee_number']);
+					$lead_arr = array($val['on_date'], $val['patient_id'], $val['patient_detail_name'],$val['hospital_id'],$val['receipt_number'], $val['payment_method'], $val['consumables_name'],$val['consumables_item_name'],$val['consumables_stock'], $val['consumables_quantity'], $val['consumables_price'], $val['consumables_vendor_price'], $val['consumables_discount_'], $val['consumables_total_'],$val['employee_number'], $val['status'], $val['consumables_batch_number'], $val['consumables_hsn'], $val['consumables_gstrate'], $val['consumables_gstdivision'], $val['consumables_mrp']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/medicine_stock";
+        	$config["total_rows"] = $this->stock_model->patient_medicine_count($employee_number, $start_date, $end_date, $patient_id, $consumables_name);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->patient_medicine_list_patination($config["per_page"], $per_page, $employee_number, $start_date, $end_date, $patient_id, $consumables_name);
+			$data["employee_number"] = $employee_number;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$data["consumables_name"] = $consumables_name;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/medicine_stock', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function medicine_origin(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('patient_id', true);
+			$export_billing = $this->input->get('export-medicine', true);
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_medicine_origin($start_date, $end_date, $employee_number, $patient_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Medicine-Stock-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Date, IIC ID, Patient Name, Hospital Id, Medicine Name, Name, Quantity,  Amount,Status';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$employee_number = get_center_name($val['employee_number']);
+					$lead_arr = array($val['on_date'], $val['patient_id'], $val['patient_detail_name'],$val['hospital_id'], $val['final__consumables'], $val['consumables_item_name'], $val['consumables_quantity'], $val['consumables_total_'], $val['status']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/medicine_origin";
+        	$config["total_rows"] = $this->stock_model->patient_medicine_count($employee_number, $start_date, $end_date, $patient_id, $consumables_name);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->patient_medicine_list_patination($config["per_page"], $per_page, $employee_number, $start_date, $end_date, $patient_id, $consumables_name);
+			$data["employee_number"] = $employee_number;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$data["consumables_name"] = $consumables_name;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/medicine_origin', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	/****Generic Name****/
+	public function generic(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+		
+        	//var_dump($data);die;
+			$data = array();
+			$data['data'] = $this->stock_model->get_generic();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/generic', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function eit_generic_name()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			
+			if(isset($_GET['ID'])){
+				if(isset($_GET['ID'])){ $item_id = $_GET['ID']; }
+				if(isset($_POST['ID'])) { $item_id = $_POST['ID']; }
+				
+				if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_brand'){
+					unset($_POST['action']);
+					$data = $this->stock_model->update_generic_data($_POST, $item_id);
+					if($data > 0){
+						header("location:" .base_url(). "stocks/eit_generic_name?m=".base64_encode('Generic Name updated successfully !').'&t='.base64_encode('success').'&ID='.$item_id);
+						die();
+					}else{
+						header("location:" .base_url(). "stocks/eit_generic_name?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error').'&ID='.$item_id);
+						die();
+					}				
+				}
+				$data['data'] = $this->stock_model->get_generic_data($item_id);
+				$template = get_header_template($logg['role']);
+				$this->load->view($template['header']);
+				$this->load->view('stocks/eit_generic_name', $data);
+				$this->load->view($template['footer']);
+			}else{
+				header("location:" .base_url(). "stocks");
+				die();
+			}
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	/*****Consumption*****/
+	
+	public function all_consumption(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('patient_id', true);
+			$medicine_serial = $this->input->get('medicine_serial', true);
+			$export_consumption = $this->input->get('export-consumption', true);
+			if (isset($export_consumption)){
+				$data = $this->stock_model->export_consumption_medicine($start_date, $end_date, $employee_number, $patient_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Consumption-Report-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Date, IIC ID, Employee Number, Medicine Name,Serial, Quantity, Amount';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$employee_number = get_center_name($val['employee_number']);
+					$lead_arr = array($val['add_on'], $val['patient_id'],$val['employee_number'], $val['final__medicine'],$val['medicine_serial'], $val['medicine_quantity'], $val['medicine_price']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+			
+			$export_injections = $this->input->get('export-injections', true);
+			if (isset($export_injections)){
+				$data = $this->stock_model->export_consumption_injections($start_date, $end_date, $employee_number, $patient_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Consumption-Injections-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Date, IIC ID, Medicine Name, Quantity, Amount';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$employee_number = get_center_name($val['employee_number']);
+					$lead_arr = array($val['add_on'], $val['patient_id'], $val['injections_name'], $val['injections_quantity'], $val['injections_price']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+			
+			$export_consumables = $this->input->get('export-consumables', true);
+			if (isset($export_consumables)){
+				$data = $this->stock_model->export_consumption_consumables($start_date, $end_date, $employee_number, $patient_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Consumption-Report-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'Date, IIC ID, Medicine Name, Quantity, Amount';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$employee_number = get_center_name($val['employee_number']);
+					$lead_arr = array($val['add_on'], $val['patient_id'], $val['final__consumables'], $val['consumables_quantity'], $val['consumables_price']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/all_consumption";
+        	$config["total_rows"] = $this->stock_model->patient_consuption_medicine_count($employee_number, $start_date, $end_date, $patient_id,$medicine_serial=null);
+        	//var_dump($data);
+		    //die;
+			$config["per_page"] = 100;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->patient_consuption_list_patination($config["per_page"], $per_page, $employee_number, $start_date, $end_date, $patient_id,$medicine_serial=null);
+			
+			$data["employee_number"] = $employee_number;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$data["medicine_serial"] = $medicine_serial;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/all_consumption', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+		/*****Consumption*****/
+		
+		public function consumption_price(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('patient_id', true);
+			$type = $this->input->get('type', true);
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/consumption_price";
+        	$config["total_rows"] = $this->stock_model->patient_consuption_medicine_count($employee_number, $start_date, $end_date, $patient_id,$type);
+        	//var_dump($data);
+		    //die;
+			$config["per_page"] = 20;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->patient_consuption_list_patination($config["per_page"], $per_page, $employee_number, $start_date, $end_date, $patient_id,$type);
+			$data["employee_number"] = $employee_number;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$data["medicine_serial"] = $medicine_serial;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/consumption_price', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function consumption_list(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('patient_id', true);
+			$type = $this->input->get('type', true);
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/consumption_list";
+        	$config["total_rows"] = $this->stock_model->consumption_list_count($start_date, $end_date, $patient_id, $type);
+        	//var_dump($data);
+		    //die;
+			$config["per_page"] = 500;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->consumption_list_patination($config["per_page"], $per_page, $start_date, $end_date, $patient_id,$type);
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$data["type"] = $type;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/consumption_list', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function vendor_price_item(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('patient_id', true);
+			$medicine_serial = $this->input->get('medicine_serial', true);
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/vendor_price_item";
+        	$config["total_rows"] = $this->stock_model->patient_consuption_medicine_count($employee_number, $start_date, $end_date, $patient_id,$medicine_serial=null);
+        	//var_dump($data);
+		    //die;
+			$config["per_page"] = 20;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->patient_consuption_list_patination($config["per_page"], $per_page, $employee_number, $start_date, $end_date, $patient_id,$medicine_serial=null);
+			
+			$data["employee_number"] = $employee_number;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$data["medicine_serial"] = $medicine_serial;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/vendor_price_item', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	
+	/*******************Medicine Report Account Panel****************/
+	
+	   public function medicine_patients(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$center = $this->input->get('billing_at', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('iic_id', true);
+			$export_billing = $this->input->get('export-billing', true);
+			if (isset($export_billing)){
+				$data = $this->stock_model->export_investigation_data($start_date, $end_date, $center, $patient_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Investigation-Patients-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'IIC ID, Patient Name, Total package, Discounted Package, Paid Amount, Remaining Amount, Payment Method, Billing From, Billing At, Billing Type, Date, Status';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$billing_at = get_center_name($val['billing_at']);
+					$lead_arr = array($val['patient_id'], $val['wife_name'], $val['totalpackage'], $val['discounted_package'], $val['payment_done'], $val['remaining_amount'], $val['payment_method'], $billing_from, $billing_at, $val['billing_type'], date('Y-m-d H:i:s', strtotime($val['date'])), $val['status']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/medicine_patients";
+        	$config["total_rows"] = $this->stock_model->patient_investigation_count($center, $start_date, $end_date, $patient_id);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->patient_investigation_list_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id);
+			$data["billing_at"] = $center;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/medicine_patients', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	} 
+	
+	
+	
+	   public function medicine_center_order(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$center = $this->input->get('billing_at', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$item_name = $this->input->get('item_name', true);
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/medicine_center_order";
+        	$config["total_rows"] = $this->stock_model->medicine_center_order_item($center, $start_date, $end_date, $item_name);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->medicine_center_order_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $item_name);
+			$data["billing_at"] = $center;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["item_name"] = $item_name;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/medicine_center_order', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	} 
+	
+		/****Return Medicine Item****/
+	public function return_medicine_item(){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['item_number'])){ $item_id = $_GET['item_number']; }
+			
+			if(isset($_POST['item_number'])) { $item_id = $_POST['item_number']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_center_item'){
+				unset($_POST['action']);
+				$data = $this->stock_model->return_center_item_data($_POST, $item_id);
+				if($data > 0){
+					header("location:" .base_url(). "stocks/return_medicine_item?m=".base64_encode('Item updated successfully !').'&t='.base64_encode('success').'&item_number='.$item_id);
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/return_medicine_item?m=".base64_encode('Item updated successfully !').'&t='.base64_encode('error').'&item_number='.$item_id);
+					die();
+				}				
+			}
+			$data['item_number'] = $item_id;
+			$data['data'] = $this->stock_model->get_center_item_data($item_id);
+			//$data['categories'] = $this->stock_model->get_categories();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/return_medicine_item', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function center_medicine_order(){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['item_number'])){ $item_id = $_GET['item_number']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'center_order_item'){
+				unset($_POST['action']);
+				$data = $this->stock_model->center_order_medicine($_POST, $item_id);
+				if($data > 0){
+					header("location:" .base_url(). "stocks/center_medicine_order?m=".base64_encode('Item updated successfully !').'&t='.base64_encode('success').'&item_number='.$item_id);
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/center_medicine_order?m=".base64_encode('Item updated successfully !').'&t='.base64_encode('error').'&item_number='.$item_id);
+					die();
+				}				
+			}
+			$data['item_number'] = $item_id;
+            $data['data'] = $this->stock_model->get_center_item_data2($item_id);
+			//$data['categories'] = $this->stock_model->get_categories();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/center_medicine_order', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function return_medicine_central(){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['item_number'])){ $item_id = $_GET['item_number']; }
+			
+			if(isset($_POST['item_number'])) { $item_id = $_POST['item_number']; }
+			
+			if(isset($_GET['item_id'])){ $item_id = $_GET['item_id']; }
+			$item_qty = $_POST['quantity'];
+			//if(isset($_POST['quantity'])) { $quantity = $_POST['quantity']; }
+			if(isset($_POST['ID'])) { $ID = $_POST['ID']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_discard_item_centaral'){
+				unset($_POST['action']);
+				$data = $this->stock_model->update_discard_central_data($item_number, $ID, $item_qty, $item_id);
+				//var_dump($update_discard_data); 
+				
+				$item_number = $_POST['item_number'];
+				$item_name = $_POST['item_name'];
+				$company = $_POST['company'];
+				$batch_number = $_POST['batch_number'];
+				$reason = $_POST['reason'];
+				$item_qty = $_POST['quantity'];
+                $employee_number = $_POST['employee_number'];
+				$_POST['expiry'] = date("Y-m-d H:i:s");
+				$data = $this->stock_model->add_discard_item($_POST);
+								
+			}
+			$data['ID'] = $ID;
+            $data['item_number'] = $item_id;
+			$data['data'] = $this->stock_model->get_centeral_item($item_id);
+			//$data['categories'] = $this->stock_model->get_categories();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/return_medicine_central', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function return_list(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			//echo '<pre>';
+			$data['data'] = $this->stock_model->get_return_order();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/return_list', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function update_return_item($item_id){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['item_id'])){ $item_id = $_GET['item_id']; }
+			$item_qty = $_POST['quantity'];
+			//if(isset($_POST['quantity'])) { $quantity = $_POST['quantity']; }
+			if(isset($_POST['employee_number'])) { $employee_number = $_POST['employee_number']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_discard_item'){
+				unset($_POST['action']);
+				$data = $this->stock_model->update_discard_data($item_number, $employee_number, $item_qty, $item_id);
+				//var_dump($update_discard_data); 
+				
+				$item_number = $_POST['item_number'];
+				$item_name = $_POST['item_name'];
+				$company = $_POST['company'];
+				$batch_number = $_POST['batch_number'];
+				$reason = $_POST['reason'];
+				$item_qty = $_POST['quantity'];
+				$_POST['employee_number'] = $employee_number;
+				$_POST['expiry'] = date("Y-m-d H:i:s");
+				$data = $this->stock_model->add_discard_item($_POST);
+								
+			}
+			$data['item_number'] = $item_id;
+			$data['employee_number'] = $employee_number;
+			$data['data'] = $this->stock_model->add_item_data($employee_number, $item_id);
+			//$data['categories'] = $this->stock_model->get_categories();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/update_return_item', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function return_vendor($item_id){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['item_id'])){ $item_id = $_GET['item_id']; }
+			$item_qty = $_POST['quantity'];
+			
+			if(isset($_POST['employee_number'])) { $employee_number = $_POST['employee_number']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_discard_item'){
+				unset($_POST['action']);
+				$data = $this->stock_model->vendor_return_data($item_number, $employee_number, $item_qty, $item_id);
+				//var_dump($update_discard_data); 
+				
+				$item_number = $_POST['item_number'];
+				$item_name = $_POST['item_name'];
+				$company = $_POST['company'];
+				$batch_number = $_POST['batch_number'];
+				$reason = $_POST['reason'];
+				$item_qty = $_POST['quantity'];
+				$_POST['employee_number'] = $employee_number;
+				$_POST['expiry'] = date("Y-m-d H:i:s");
+				$data = $this->stock_model->add_vendor_item($_POST);
+								
+			}
+			$data['item_number'] = $item_id;
+			$data['employee_number'] = $employee_number;
+			$data['data'] = $this->stock_model->add_item_data($employee_number, $item_id);
+			//$data['categories'] = $this->stock_model->get_categories();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/return_vendor', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function add_stock($item_id){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['item_id'])){ $item_id = $_GET['item_id']; }
+			$item_qty = $_POST['quantity'];
+			
+			if(isset($_POST['employee_number'])) { $employee_number = $_POST['employee_number']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_return_stocks'){
+				unset($_POST['action']);
+				$data = $this->stock_model->vendor_return_data($item_number, $employee_number, $item_qty, $item_id);
+				//var_dump($update_discard_data); 
+				
+				$item_number = $_POST['item_number'];
+				$item_name = $_POST['item_name'];
+				$company = $_POST['company'];
+				$batch_number = $_POST['batch_number'];
+				$item_qty = $_POST['quantity'];
+				$_POST['employee_number'] = $employee_number;
+				$_POST['return_date'] = date("Y-m-d H:i:s");
+				//var_dump($this->stock_model->update_return_stock($item_qty, $item_id));die();
+				$data = $this->stock_model->update_return_stock($item_qty, $item_id);
+				$_POST['type'] = 'Center Return';
+				$data = $this->stock_model->add_central_stock_report($_POST);
+								
+			}
+			$data['item_number'] = $item_id;
+			$data['employee_number'] = $employee_number;
+			$data['data'] = $this->stock_model->add_item_data($employee_number, $item_id);
+			//$data['categories'] = $this->stock_model->get_categories();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/add_stock', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function centaral_vendor(){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			if(isset($_GET['item_number'])){ $item_id = $_GET['item_number']; }
+			
+			if(isset($_POST['item_number'])) { $item_id = $_POST['item_number']; }
+			
+			if(isset($_GET['item_id'])){ $item_id = $_GET['item_id']; }
+			$item_qty = $_POST['quantity'];
+			//if(isset($_POST['quantity'])) { $quantity = $_POST['quantity']; }
+			if(isset($_POST['ID'])) { $ID = $_POST['ID']; }
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'update_vendor_item_centaral'){
+				unset($_POST['action']);
+				$data = $this->stock_model->vendor_return_central_data($item_number, $ID, $item_qty, $item_id);
+				//var_dump($update_discard_data); 
+				
+				$item_number = $_POST['item_number'];
+				$item_name = $_POST['item_name'];
+				$company = $_POST['company'];
+				$batch_number = $_POST['batch_number'];
+				$reason = $_POST['reason'];
+				$item_qty = $_POST['quantity'];
+                $employee_number = $_POST['employee_number'];
+				$_POST['expiry'] = date("Y-m-d H:i:s");
+				$data = $this->stock_model->add_vendor_item($_POST);
+								
+			}
+			$data['ID'] = $ID;
+            $data['item_number'] = $item_id;
+			$data['data'] = $this->stock_model->get_centeral_item($item_id);
+			//$data['categories'] = $this->stock_model->get_categories();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/centaral_vendor', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function product_discard_list(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			//echo '<pre>';
+			$data['data'] = $this->stock_model->get_discard_product();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/product_discard_list', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function vendor_return_list(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			//echo '<pre>';
+			$data['data'] = $this->stock_model->get_vendor_return();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/vendor_return_list', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	/***********Return Medicine Details***********/
+	
+	
+	
+	function patient_medicine_return(){
+		$logg = checklogin();
+		if($logg['status'] == true){		
+			$data = array();
+			$receipt_number = $this->input->get('receipt_number', TRUE);
+			$t_parameter = $this->input->get('t', TRUE);
+			$data['data'] = $this->stock_model->get_return_medicine_data($receipt_number);
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/patient_medicine_return', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	  public function medicine_return_report(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$employee_number = $this->input->get('employee_number', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$patient_id = $this->input->get('patient_id', true);
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/medicine_return_report";
+        	$config["total_rows"] = $this->stock_model->patient_return_medcine($employee_number, $start_date, $end_date, $patient_id);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['investigate_result'] = $this->stock_model->patient_investigation_list_patination2($config["per_page"], $per_page, $employee_number, $start_date, $end_date, $patient_id);
+			
+			$data["employee_number"] = $employee_number;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/medicine_return_report', $data);
+			$this->load->view($template['footer']);
+			//var_dump($html);
+			//die;
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+		public function add_invoice()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			
+			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'invoice_add'){
+				unset($_POST['action']);
+				//var_dump($_POST);die;
+				$invoice_no = $_POST['invoice_no'];
+				$no_of_item = $_POST['no_of_item'];
+				$Total_amount = $_POST['Total_amount'];
+				$invoice_date = $_POST['invoice_date'];
+				$add_date = $_POST['add_date'];
+				
+				$data = $this->stock_model->invoice_item($_POST, $invoice_no, $no_of_item, $Total_amount, $invoice_date, $add_date);
+				if($data > 0){
+					header("location:" .base_url(). "stocks/add_invoice?m=".base64_encode('Item added successfully !').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "stocks/add_invoice?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}				
+			}
+			$data = array();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/add_invoice', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	  public function invoice_list(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$invoice_no = $this->input->get('invoice_no', true);
+			$config = array();
+        	$config["base_url"] = base_url() . "stocks/invoice_list";
+        	$config["total_rows"] = $this->stock_model->vendor_medicine_invoice($invoice_no);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			$data["links"] = $this->pagination->create_links();
+			$data['invoice_result'] = $this->stock_model->vendor_medicine_invoice_patination($config["per_page"], $per_page, $invoice_no);
+			$data["invoice_no"] = $invoice_no;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('stocks/invoice_list', $data);
+			$this->load->view($template['footer']);
+			}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	function get_patient_name_2($patient_id){
+
+		$name = $this->stock_model->get_patient_name($patient_id);
+
+		return $name;
+
+	}
+	
+	function get_all_centers(){
+		$all_centers = $this->stock_model->get_centers();
+		return $all_centers;
+	}
+	
+	function get_center_name($center){
+		$name = $this->stock_model->get_center_name($center);
+		return $name;
+	}
+	
+	function get_category_name($category){
+		$name = $this->stock_model->get_category_name($category);
+		return $name;		
+	}
+	
+	function get_consumbles_list(){
+		$consumbles = $this->stock_model->get_consumbles_list();
+		return $consumbles;	
+	}
+	
+	function get_employee_list(){
+		$employee = $this->stock_model->get_employee_list();
+		return $employee;	
+	}
+	
+	function get_injection_list(){
+		$injection = $this->stock_model->get_injection_list();
+		return $injection;	
+	}
+	
+	function get_medicine_list(){
+		$medicine = $this->stock_model->get_medicine_list();
+		return $medicine;	
+	}
+	function get_brand_name($brand){
+		$brand_name = $this->order_model->get_brand_name($brand);
+		return $brand_name;
+	}
+	
+	function get_vendor_number($item){
+		$vendor_number = $this->stock_model->get_vendor_number($item);
+		return $vendor_number;
+	}
+
+	function get_vendor_name($item){
+		$vendor_name = $this->stock_model->get_vendor_name($item);
+		return $vendor_name;
+	}
+	
+	function get_product_name($item){
+		$product_name = $this->stock_model->get_product_name($item);
+		return $product_name;
+	}
+	
+	function get_medicine_data($item){
+		$receipt_number = $this->stock_model->get_medicine_data($receipt_number);
+		return $receipt_number;
+	}
+	
+	function get_employee_name($employee){
+		$name = $this->order_model->get_employee_name($employee);
+		return $name;	
+	}
+	
+} 
