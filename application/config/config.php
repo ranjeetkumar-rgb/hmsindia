@@ -58,14 +58,14 @@ switch ($environment) {
         $config['sess_driver'] = 'files';
         $config['sess_cookie_name'] = 'ci_session';
         $config['sess_expiration'] = 3600; // 1 hour in production
-        $config['sess_save_path'] = '/var/www/html/application/cache/sessions';
+        $config['sess_save_path'] = APPPATH . 'cache/sessions';
         $config['sess_match_ip'] = FALSE;
         $config['sess_time_to_update'] = 300;
         $config['sess_regenerate_destroy'] = FALSE;
         $config['cookie_prefix'] = '';
         $config['cookie_domain'] = '';
         $config['cookie_path'] = '/';
-        $config['cookie_secure'] = TRUE; // HTTPS only in production
+        $config['cookie_secure'] = FALSE; // Disabled for HTTP access
         $config['cookie_httponly'] = TRUE;
         $config['standardize_newlines'] = FALSE;
         $config['global_xss_filtering'] = FALSE;
@@ -110,7 +110,7 @@ switch ($environment) {
         $config['sess_driver'] = 'files';
         $config['sess_cookie_name'] = 'ci_session';
         $config['sess_expiration'] = 7200; // 2 hours in development
-        $config['sess_save_path'] = '/var/www/html/application/cache/sessions';
+        $config['sess_save_path'] = APPPATH . 'cache/sessions';
         $config['sess_match_ip'] = FALSE;
         $config['sess_time_to_update'] = 300;
         $config['sess_regenerate_destroy'] = FALSE;
