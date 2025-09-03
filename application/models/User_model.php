@@ -85,6 +85,7 @@ class User_model extends CI_Model
 				echo "<pre>";
 				print_r($result,'result');
 				echo "</pre>";
+				die;
             	return $result;	
 			}else{
 				$result = array('status' => 0);
