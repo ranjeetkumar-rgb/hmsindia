@@ -49,6 +49,13 @@ class Welcome extends CI_Controller {
 	
 	public function dashboard(){
 		echo "<pre>";
+		$this->load->library('session');
+        $this->session->set_userdata('status', 'logged_in');
+        $this->session->set_userdata('role', 'admin');
+        echo '<pre>';
+        print_r($_SESSION);
+        print_r($this->session->all_userdata());
+        echo '</pre>';
 		var_dump($_SESSION,'session');
 		echo "</pre>";
 		$logg = checklogin();

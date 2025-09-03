@@ -53,7 +53,7 @@ switch ($environment) {
         $config['error_views_path'] = '';
         $config['cache_path'] = '';
         $config['cache_query_string'] = FALSE;
-        $config['encryption_key'] = 'your-32-character-secret-key-here';
+        $config['encryption_key'] = 'K3zPq8VnR4uS7bX2aQ9fL0dG5wY1mT6Z';
         $config['sess_driver'] = 'files';
         $config['sess_cookie_name'] = 'ci_session';
         $config['sess_expiration'] = 3600; // 1 hour in production
