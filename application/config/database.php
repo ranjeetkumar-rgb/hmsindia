@@ -1,6 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
+var_dump($_ENV['ENVIRONMENT']);
+die;
 /*
 |--------------------------------------------------------------------------
 | Database Configuration
@@ -16,8 +17,7 @@ $environment = getenv('ENVIRONMENT') ?: 'development';
 
 $active_group = 'default';
 $query_builder = TRUE;
-var_dump($environment);
-die;
+
 switch ($environment) {
     case 'production':
         // Production database configuration
