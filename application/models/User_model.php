@@ -82,6 +82,8 @@ class User_model extends CI_Model
 				if($role == 'viewer'){
 					$center = $this->get_center($affected_rows[0]['username']);
 					$_SESSION['logged_viewer'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => 0);
+					// Debug: Log viewer session creation
+					log_message('info', 'Created logged_viewer session for user: ' . $affected_rows[0]['username']);
 				}
 				$result = array('status' => 1);
             	return $result;	

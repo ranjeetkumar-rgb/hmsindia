@@ -27,9 +27,15 @@ class Welcome extends CI_Controller {
 				$logged = $this->user_model->userlogin($_POST);
 	
 				if($logged['status'] == 1){
+					// Debug: Log successful login
+					log_message('info', 'Login successful for user: ' . $_POST['email']);
+					// Debug: Check session after login
+					log_message('info', 'Session data after login: ' . print_r($_SESSION, true));
 					header("location:" .base_url(). "dashboard");
 					die();
 				}else{
+					// Debug: Log failed login
+					log_message('info', 'Login failed for user: ' . $_POST['email']);
 					header("location:" .base_url(). "");
 					die();
 				}
@@ -44,12 +50,18 @@ class Welcome extends CI_Controller {
 	public function dashboard(){
 		//unset($_SESSION['logged_accountant']);
 		$logg = checklogin();
+		// Debug: Log dashboard access attempt
+		log_message('info', 'Dashboard access attempt - checklogin result: ' . print_r($logg, true));
+		log_message('info', 'Current session data: ' . print_r($_SESSION, true));
+		
 		if($logg['status'] == true){
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view($template['dashboard']);
 			$this->load->view($template['footer']);
 		}else{
+			// Debug: Log why dashboard access was denied
+			log_message('info', 'Dashboard access denied - redirecting to login');
 			header("location:" .base_url(). "");
 			die();
 		}
