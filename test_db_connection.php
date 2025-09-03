@@ -1,23 +1,14 @@
 <?php
 /**
- * Database Connection Test Script
- * Run this on your live server to test database connectivity
+ * Fast Database Connection Test Script
+ * Minimal overhead, maximum speed for live server testing
  */
 
-// Simple logging function
-function log_message($level, $message) {
-    $timestamp = date('Y-m-d H:i:s');
-    $log_entry = "[$timestamp] [$level] $message" . PHP_EOL;
-    
-    // Write to log file
-    $log_file = 'db_test.log';
-    file_put_contents($log_file, $log_entry, FILE_APPEND | LOCK_EX);
-    
-    // Also output to console with timestamp
-    echo "[$timestamp] [$level] $message" . PHP_EOL;
-}
+// Set strict time limits
+set_time_limit(10); // 10 seconds max
+ini_set('max_execution_time', 10);
 
-// Load environment variables
+// Load environment variables quickly
 $env_file = 'env.production';
 if (file_exists($env_file)) {
     $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -36,90 +27,47 @@ $username = $_ENV['DB_USER'] ?? 'root';
 $password = $_ENV['DB_PASSWORD'] ?? 'root';
 $database = $_ENV['DB_NAME'] ?? 'stagin_hms_db';
 
-echo "=== Database Connection Test ===\n";
-echo "Host: $host\n";
-echo "Port: $port\n";
-echo "Username: $username\n";
-echo "Database: $database\n";
-echo "Password: " . str_repeat('*', strlen($password)) . "\n";
-echo "===============================\n\n";
+echo "=== Fast DB Connection Test ===\n";
+echo "Host: $host | DB: $database\n";
+echo "===============================\n";
 
-log_message('info', 'Database connection test started');
-log_message('info', 'Host: ' . $host);
-log_message('info', 'Port: ' . $port);
-log_message('info', 'Username: ' . $username);
-log_message('info', 'Database: ' . $database);
-log_message('info', 'Password: ' . str_repeat('*', strlen($password)));
+$start_time = microtime(true);
 
-// Test 1: Basic connection
-echo "1. Testing basic MySQL connection...\n";
 try {
-    $dsn = "mysql:host=$host;port=$port;charset=utf8";
+    // Single optimized connection with timeouts
+    $dsn = "mysql:host=$host;port=$port;dbname=$database;charset=utf8";
     $pdo = new PDO($dsn, $username, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_TIMEOUT => 5, // 5 second connection timeout
+        PDO::MYSQL_ATTR_INIT_COMMAND => "SET SESSION wait_timeout=5",
+        PDO::ATTR_PERSISTENT => false, // No persistent connections
     ]);
-    echo "✅ Basic connection successful!\n";
-    log_message('info', 'Basic connection successful!');
     
-    // Test 2: Check if database exists
-    echo "\n2. Checking if database '$database' exists...\n";
-    $stmt = $pdo->query("SHOW DATABASES LIKE '$database'");
-    $db_exists = $stmt->fetch();
-    log_message('info', 'Database exists: ' . ($db_exists ? 'true' : 'false'));
+    // Quick test query
+    $stmt = $pdo->query("SELECT 1 as test, NOW() as current_time");
+    $result = $stmt->fetch();
     
-    if ($db_exists) {
-        echo "✅ Database '$database' exists!\n";
-        log_message('info', 'Database exists: ' . ($db_exists ? 'true' : 'false'));
-        
-        // Test 3: Connect to specific database
-        echo "\n3. Testing connection to database '$database'...\n";
-        $dsn_db = "mysql:host=$host;port=$port;dbname=$database;charset=utf8";
-        $pdo_db = new PDO($dsn_db, $username, $password, [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]);
-        echo "✅ Database connection successful!\n";
-        log_message('info', 'Database connection successful!');
-        
-        // Test 4: Check tables
-        echo "\n4. Checking tables in database...\n";
-        $stmt = $pdo_db->query("SHOW TABLES");
-        $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        log_message('info', 'Tables found: ' . count($tables));
-        
-        if (count($tables) > 0) {
-            echo "✅ Found " . count($tables) . " tables:\n";
-            foreach ($tables as $table) {
-                echo "   - $table\n";
-            }
-        } else {
-            echo "⚠️  No tables found in database. Database is empty.\n";
-            log_message('info', 'No tables found in database. Database is empty.');
-        }
-        
-        // Test 5: Test a simple query
-        echo "\n5. Testing simple query...\n";
-        $stmt = $pdo_db->query("SELECT 1 as test");
-        $result = $stmt->fetch();
-        if ($result && $result['test'] == 1) {
-            echo "✅ Query test successful!\n";
-        }
-
-        
-    } else {
-        echo "❌ Database '$database' does not exist!\n";
-        echo "\nAvailable databases:\n";
-        $stmt = $pdo->query("SHOW DATABASES");
-        $databases = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        foreach ($databases as $db) {
-            echo "   - $db\n";
-        }
-    }
+    $end_time = microtime(true);
+    $execution_time = round(($end_time - $start_time) * 1000, 2);
+    
+    echo "✅ Connection SUCCESS!\n";
+    echo "✅ Query test: " . $result['test'] . "\n";
+    echo "✅ Server time: " . $result['current_time'] . "\n";
+    echo "✅ Execution time: {$execution_time}ms\n";
+    
+    // Quick table count (limit to 1 for speed)
+    $stmt = $pdo->query("SELECT COUNT(*) as table_count FROM information_schema.tables WHERE table_schema = '$database'");
+    $table_count = $stmt->fetch()['table_count'];
+    echo "✅ Tables found: $table_count\n";
     
 } catch (PDOException $e) {
-    echo "❌ Connection failed: " . $e->getMessage() . "\n";
-    echo "Error Code: " . $e->getCode() . "\n";
+    $end_time = microtime(true);
+    $execution_time = round(($end_time - $start_time) * 1000, 2);
+    
+    echo "❌ Connection FAILED!\n";
+    echo "❌ Error: " . $e->getMessage() . "\n";
+    echo "❌ Code: " . $e->getCode() . "\n";
+    echo "❌ Time: {$execution_time}ms\n";
 }
 
 echo "\n=== Test Complete ===\n";
