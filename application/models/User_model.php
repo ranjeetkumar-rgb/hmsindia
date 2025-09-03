@@ -82,7 +82,6 @@ class User_model extends CI_Model
 				}
 				$result = array('status' => 1);
 				var_dump($_SESSION,'session');
-				die;
 				echo "<pre>";
 				print_r($result,'result');
 				echo "</pre>";
