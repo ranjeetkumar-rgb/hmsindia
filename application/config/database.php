@@ -1,7 +1,5 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-var_dump($_ENV['ENVIRONMENT']);
-die;
 /*
 |--------------------------------------------------------------------------
 | Database Configuration
@@ -12,9 +10,8 @@ die;
 |
 */
 
-// Get environment from environment variable or default to development
-$environment = getenv('ENVIRONMENT') ?: 'development';
-
+// Get environment from the constant defined in index.php or default to development
+$environment = defined('ENVIRONMENT') ? ENVIRONMENT : 'development';
 $active_group = 'default';
 $query_builder = TRUE;
 
