@@ -48,11 +48,7 @@ class Welcome extends CI_Controller {
 	}
 	
 	public function dashboard(){
-		var_dump($_SESSION);
-		die;
 		$logg = checklogin();
-		var_dump($logg);
-		die;
 		if($logg['status'] == true){
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
