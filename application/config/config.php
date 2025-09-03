@@ -56,11 +56,13 @@ switch ($environment) {
         $config['encryption_key'] = 'K3zPq8VnR4uS7bX2aQ9fL0dG5wY1mT6Z';
         $config['sess_driver'] = 'files';
         $config['sess_cookie_name'] = 'ci_session';
-        $config['sess_expiration'] = 3600; // 1 hour in production
+        $config['sess_expiration'] = 7200; // 2 hours in production
         $config['sess_save_path'] = APPPATH . 'cache/sessions';
         $config['sess_match_ip'] = FALSE;
         $config['sess_time_to_update'] = 300;
         $config['sess_regenerate_destroy'] = FALSE;
+        $config['sess_use_database'] = FALSE;
+        $config['sess_table_name'] = 'ci_sessions';
         $config['cookie_prefix'] = '';
         $config['cookie_domain'] = '';
         $config['cookie_path'] = '/';
