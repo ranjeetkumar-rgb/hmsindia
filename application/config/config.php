@@ -28,8 +28,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 // Get environment from environment variable or default to development
 $environment = defined('ENVIRONMENT') ? ENVIRONMENT : 'development';
-var_dump($environment,'config');
-die;
 switch ($environment) {
     case 'production':
         $config['base_url'] = getenv('BASE_URL') ?: 'http://139.84.175.208/';
