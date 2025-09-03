@@ -75,6 +75,8 @@ ini_set('display_errors', 1);
 			$environment = 'production';
 		}
 	}
+	var_dump($environment);
+	die;
 	
 	define('ENVIRONMENT', $environment);
 

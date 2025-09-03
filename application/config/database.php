@@ -16,8 +16,6 @@ $environment = getenv('ENVIRONMENT') ?: 'development';
 
 $active_group = 'default';
 $query_builder = TRUE;
-var_dump($environment);
-die;
 switch ($environment) {
     case 'production':
         // Production database configuration
