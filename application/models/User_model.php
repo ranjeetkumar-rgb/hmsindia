@@ -5,6 +5,7 @@ class User_model extends CI_Model
 {
 	function userlogin($data)
     {
+		var_dump($data); die;
 		$result = array();
 		$sql_condition = '';
 		$sql = "Select * from " . $this->config->item('db_prefix') . "employees WHERE username='".$data['email']."' AND status='1'";
