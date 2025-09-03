@@ -11,8 +11,6 @@ function checklogin(){
   echo "<br>";
   var_dump($_SESSION); 
   echo "</pre>";
-  die;
-   die;
   if(isset($_SESSION['logged_administrator'])){
     $return = array('status' => true, 'role'=>$_SESSION['logged_administrator']['role']);
     log_message('info', 'Found logged_administrator session');
