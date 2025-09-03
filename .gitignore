@@ -104,9 +104,9 @@ www/
 *.php.bak
 
 # Configuration files with sensitive data
-application/config/database.php
-application/config/config.php
+# application/config/database.php
+# application/config/config.php
 
-# Keep example configs
-!application/config/database.php.example
-!application/config/config.php.example
+# # Keep example configs
+# !application/config/database.php.example
+# !application/config/config.php.example
