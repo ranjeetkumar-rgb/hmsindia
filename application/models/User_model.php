@@ -18,7 +18,6 @@ class User_model extends CI_Model
 		   $affected_rows = $new_q->result_array();
 		   if (count($affected_rows) > 0)
 	       {
-				var_dump($affected_rows,'affected_rows');
 	            if(isset($data['rememberme']))
 				{
 					setcookie( "femail", $data['email'], time() + 36000 );
