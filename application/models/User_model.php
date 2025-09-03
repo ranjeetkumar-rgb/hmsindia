@@ -81,11 +81,6 @@ class User_model extends CI_Model
 					$_SESSION['logged_viewer'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => 0);
 				}
 				$result = array('status' => 1);
-				var_dump($_SESSION,'session');
-				echo "<pre>";
-				print_r($result,'result');
-				echo "</pre>";
-				die;
             	return $result;	
 			}else{
 				$result = array('status' => 0);

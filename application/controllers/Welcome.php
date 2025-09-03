@@ -25,7 +25,8 @@ class Welcome extends CI_Controller {
 			if(isset($_POST['login']) && !empty($_POST['login']) && $_POST['login'] == 'login'){
 				unset($_POST['login']);
 				$logged = $this->user_model->userlogin($_POST);
-	
+				var_dump($logged,'logged');
+				die;
 				if($logged['status'] == 1){
 					// Debug: Log successful login
 					log_message('info', 'Login successful for user: ' . $_POST['email']);
@@ -48,14 +49,7 @@ class Welcome extends CI_Controller {
 	}
 	
 	public function dashboard(){
-		echo "<pre>";
-		var_dump($_SESSION,'session');
-		echo "</pre>";
 		$logg = checklogin();
-		echo "<pre>";
-		var_dump($logg,'logg');
-		echo "</pre>";
-		die;
 		if($logg['status'] == true){
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
