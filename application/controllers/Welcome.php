@@ -49,11 +49,11 @@ class Welcome extends CI_Controller {
 	
 	public function dashboard(){
 		echo "<pre>";
-		print_r($_SESSION,'session');
+		var_dump($_SESSION,'session');
 		echo "</pre>";
 		$logg = checklogin();
 		echo "<pre>";
-		print_r($logg,'logg');
+		var_dump($logg,'logg');
 		echo "</pre>";
 		die;
 		if($logg['status'] == true){
