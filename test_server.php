@@ -2,12 +2,19 @@
 // Simple test file to check server configuration
 echo "<h1>Server Test</h1>";
 echo "<p>PHP Version: " . phpversion() . "</p>";
-echo "<p>Server Software: " . $_SERVER['SERVER_SOFTWARE'] . "</p>";
 echo "<p>Document Root: " . $_SERVER['DOCUMENT_ROOT'] . "</p>";
 echo "<p>Script Path: " . __FILE__ . "</p>";
 
 // Test database connection
 echo "<h2>Database Test</h2>";
+    $host = 'localhost';
+    $username = 'root';
+    $password = 'root';
+    $database = 'stagin_hms_db';
+    
+    $pdo = new PDO("mysql:host=$host;dbname=$database", $username, $password);
+    echo "<p style='color: green;'>Database connection successful!</p>";
+    
 try {
     $host = 'localhost';
     $username = 'root';
