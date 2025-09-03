@@ -14,8 +14,9 @@ class User_model extends CI_Model
         {
 		   if($user_result[0]['center_id'] != 0){ $sql_condition = ' and emp.center_id = center.center_number and center.status="1"'; }
 		   $new_sql = "Select * from ".$this->config->item('db_prefix')."employees as emp, ".$this->config->item('db_prefix')."centers as center WHERE emp.username='".$data['email']."' AND emp.password ='".md5($data['password'])."' AND emp.status='1' ".$sql_condition."";
-
+          var_dump($new_sql); 
 	 	   $new_q = $this->db->query($new_sql);
+		   var_dump($new_q); 
 		   $affected_rows = $new_q->result_array();
 		   var_dump($affected_rows); 
 		   die;
