@@ -30,7 +30,13 @@ echo "Username: $username\n";
 echo "Database: $database\n";
 echo "Password: " . str_repeat('*', strlen($password)) . "\n";
 echo "===============================\n\n";
-
+    log_message('info', 'Database connection test started');
+    log_message('info', 'Host: ' . $host);
+    log_message('info', 'Port: ' . $port);
+    log_message('info', 'Username: ' . $username);
+    log_message('info', 'Database: ' . $database);
+    log_message('info', 'Password: ' . str_repeat('*', strlen($password)));
+    log_message('info', '===============================');
 // Test 1: Basic connection
 echo "1. Testing basic MySQL connection...\n";
 try {
@@ -40,15 +46,15 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
     echo "✅ Basic connection successful!\n";
-    
+     log_message('info', 'Basic connection successful!');
     // Test 2: Check if database exists
     echo "\n2. Checking if database '$database' exists...\n";
     $stmt = $pdo->query("SHOW DATABASES LIKE '$database'");
     $db_exists = $stmt->fetch();
-    
+    log_message('info', 'Database exists: ' . ($db_exists ? 'true' : 'false'));
     if ($db_exists) {
         echo "✅ Database '$database' exists!\n";
-        
+        log_message('info', 'Database exists: ' . ($db_exists ? 'true' : 'false'));
         // Test 3: Connect to specific database
         echo "\n3. Testing connection to database '$database'...\n";
         $dsn_db = "mysql:host=$host;port=$port;dbname=$database;charset=utf8";
@@ -57,12 +63,12 @@ try {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ]);
         echo "✅ Database connection successful!\n";
-        
+        log_message('info', 'Database connection successful!');
         // Test 4: Check tables
         echo "\n4. Checking tables in database...\n";
         $stmt = $pdo_db->query("SHOW TABLES");
         $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        
+        log_message('info', 'Tables found: ' . count($tables));
         if (count($tables) > 0) {
             echo "✅ Found " . count($tables) . " tables:\n";
             foreach ($tables as $table) {
@@ -70,6 +76,7 @@ try {
             }
         } else {
             echo "⚠️  No tables found in database. Database is empty.\n";
+            log_message('info', 'No tables found in database. Database is empty.');
         }
         
         // Test 5: Test a simple query
@@ -79,6 +86,8 @@ try {
         if ($result && $result['test'] == 1) {
             echo "✅ Query test successful!\n";
         }
+        log_message('info', 'Query test successful!');
+
         
     } else {
         echo "❌ Database '$database' does not exist!\n";
@@ -87,12 +96,15 @@ try {
         $databases = $stmt->fetchAll(PDO::FETCH_COLUMN);
         foreach ($databases as $db) {
             echo "   - $db\n";
+            log_message('info', 'Available database: ' . $db);
         }
     }
     
 } catch (PDOException $e) {
     echo "❌ Connection failed: " . $e->getMessage() . "\n";
     echo "Error Code: " . $e->getCode() . "\n";
+    log_message('error', 'Connection failed: ' . $e->getMessage());
+    log_message('error', 'Error Code: ' . $e->getCode());
 }
 
 echo "\n=== Test Complete ===\n";
