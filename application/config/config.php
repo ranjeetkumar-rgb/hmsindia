@@ -66,7 +66,7 @@ switch ($environment) {
         $config['cookie_prefix'] = '';
         $config['cookie_domain'] = '';
         $config['cookie_path'] = '/';
-        $config['cookie_secure'] = FALSE; // Disabled for HTTP access
+        $config['cookie_secure'] = isset($_SERVER['HTTPS']) ? TRUE : FALSE; // Auto-detect HTTPS
         $config['cookie_httponly'] = TRUE;
         $config['standardize_newlines'] = FALSE;
         $config['global_xss_filtering'] = FALSE;

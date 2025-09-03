@@ -13,12 +13,15 @@ class Welcome extends CI_Controller {
 	    $this->load->library('session');
 		$this->load->model(array('user_model', 'patients_model', 'doctors_model'));
 		$this->load->helper('myhelper');
+		
+		// Ensure session is properly started
+		if (session_status() == PHP_SESSION_NONE) {
+			session_start();
+		}
 	}	
 	
 	public function index()
 	{
-		var_dump($_SESSION,'session');
-		die;
 		$logg = checklogin();
 		if($logg['status'] == true){
 			header("location:" .base_url(). "dashboard");
@@ -45,12 +48,6 @@ class Welcome extends CI_Controller {
 	}
 	
 	public function dashboard(){
-		// Debug session data
-		error_log('Session data: ' . print_r($_SESSION, true));
-		error_log('Session ID: ' . session_id());
-		error_log('Session save path: ' . session_save_path());
-		error_log('Session status: ' . session_status());
-		
 		$logg = checklogin();
 		if($logg['status'] == true){
 			$template = get_header_template($logg['role']);
