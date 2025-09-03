@@ -44,7 +44,7 @@ try {
     ]);
 
     // Quick test query (escape reserved keyword)
-    $stmt = $pdo->query("SELECT 1 AS test, NOW() AS `current_time`");
+    $stmt = $pdo->query("SELECT 1 AS test, NOW() AS server_time");
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
     $end_time = microtime(true);
@@ -52,12 +52,12 @@ try {
 
     echo "✅ Connection SUCCESS!\n";
     echo "✅ Query test: " . $result['test'] . "\n";
-    echo "✅ Server time: " . $result['current_time'] . "\n";
+    echo "✅ Server time: " . $result['server_time'] . "\n";
     echo "✅ Execution time: {$execution_time}ms\n";
 
     // Quick table count (limit to 1 for speed)
-    $stmt = $pdo->query("SELECT COUNT(*) AS table_count FROM information_schema.tables WHERE table_schema = :db");
-    $stmt->execute(['db' => $database]);
+    $stmt = $pdo->prepare("SELECT COUNT(*) AS table_count FROM information_schema.tables WHERE table_schema = ?");
+    $stmt->execute([$database]);
     $table_count = $stmt->fetch(PDO::FETCH_ASSOC)['table_count'];
     echo "✅ Tables found: $table_count\n";
 
