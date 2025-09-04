@@ -16,13 +16,14 @@ class Welcome extends CI_Controller {
 		
 		// Ensure session is properly started
 		if (session_status() == PHP_SESSION_NONE) {
+			var_dump(session_status());
 			session_start();
 		}
 	}	
 	
 	public function index()
 	{
-		$logg = checklogin();
+		$logg = checklogin();	
 		if($logg['status'] == true){
 			header("location:" .base_url(). "dashboard");
 			die;
