@@ -61,7 +61,7 @@ class Welcome extends CI_Controller {
 		}else{
 			// Debug: Log why dashboard access was denied
 			log_message('info', 'Dashboard access denied - redirecting to login. Session status: ' . session_status());
-			log_message('info', 'Available sessions: ' . print_r($_SESSION, true));
+			log_message('info', 'Available sessions: ' . json_encode($_SESSION));
 			header("location:" .base_url(). "");
 			die();
 		}
