@@ -23,6 +23,8 @@ class Welcome extends CI_Controller {
 	{
 		$logg = checklogin();	
 		if($logg['status'] == true){
+			// Debug: Log successful checklogin
+			log_message('info', 'User already logged in, redirecting to dashboard');
 			header("location:" .base_url(). "dashboard");
 			die;
 		}else{
@@ -32,6 +34,9 @@ class Welcome extends CI_Controller {
 				if($logged['status'] == 1){
 					// Debug: Log successful login
 					log_message('info', 'Login successful for user: ' . $_POST['email']);
+					// Check session after login
+					$logg_after = checklogin();
+					log_message('info', 'checklogin after login: ' . json_encode($logg_after));
 					header("location:" .base_url(). "dashboard");
 					die();
 				}else{

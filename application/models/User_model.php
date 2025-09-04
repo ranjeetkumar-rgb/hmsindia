@@ -12,8 +12,8 @@ class User_model extends CI_Model
         $user_result = $q->result_array();
         if (count($user_result) > 0)
         {
-		   if($user_result[0]['center_id'] != 0){ $sql_condition = ' and emp.center_id = center.center_number and center.status="1"'; }
-		   $new_sql = "Select * from ".$this->config->item('db_prefix')."employees as emp, ".$this->config->item('db_prefix')."centers as center WHERE emp.username='".$data['email']."' AND emp.password ='".md5($data['password'])."' AND emp.status='1' ".$sql_condition."";
+		   // Simplified login query - avoid complex JOIN that might be causing issues
+		   $new_sql = "Select * from ".$this->config->item('db_prefix')."employees WHERE username='".$data['email']."' AND password ='".md5($data['password'])."' AND status='1'";
 	 	   $new_q = $this->db->query($new_sql); 
 		   $affected_rows = $new_q->result_array();
 		   if (count($affected_rows) > 0)
