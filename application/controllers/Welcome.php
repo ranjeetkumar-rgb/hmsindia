@@ -56,6 +56,7 @@ class Welcome extends CI_Controller {
 	public function dashboard(){
 
 		$logg = checklogin();
+		var_dump($logg);die;
 		if($logg['status'] == true){
 			// Debug: Log successful dashboard access
 			log_message('info', 'Dashboard access granted for role: ' . $logg['role']);
