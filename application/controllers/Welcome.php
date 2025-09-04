@@ -48,6 +48,8 @@ class Welcome extends CI_Controller {
 	}
 	
 	public function dashboard(){
+		var_dump($_SESSION);
+		die;
 		$logg = checklogin();
 		if($logg['status'] == true){
 			$template = get_header_template($logg['role']);
