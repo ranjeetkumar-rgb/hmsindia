@@ -64,7 +64,7 @@ switch ($environment) {
         $config['sess_use_database'] = FALSE;
         $config['sess_table_name'] = 'ci_sessions';
         $config['cookie_prefix'] = '';
-        $config['cookie_domain'] = '139.84.175.208';
+        $config['cookie_domain'] = '';
         $config['cookie_path'] = '/';
         $config['cookie_secure'] = FALSE; // Disabled for HTTP access
         $config['cookie_httponly'] = TRUE;
