@@ -36,7 +36,7 @@ switch ($environment) {
         $config['url_suffix'] = '';
         $config['language'] = 'english';
         $config['charset'] = 'UTF-8';
-        $config['enable_hooks'] = FALSE;
+        $config['enable_hooks'] = TRUE;
         $config['subclass_prefix'] = 'MY_';
         $config['composer_autoload'] = FALSE;
         $config['permitted_uri_chars'] = 'a-z 0-9~%.:_\-';
@@ -90,7 +90,7 @@ switch ($environment) {
         $config['url_suffix'] = '';
         $config['language'] = 'english';
         $config['charset'] = 'UTF-8';
-        $config['enable_hooks'] = FALSE;
+        $config['enable_hooks'] = TRUE;
         $config['subclass_prefix'] = 'MY_';
         $config['composer_autoload'] = FALSE;
         $config['permitted_uri_chars'] = 'a-z 0-9~%.:_\-';

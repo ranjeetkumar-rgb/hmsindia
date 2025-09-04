@@ -103,7 +103,7 @@ $autoload['helper'] = array('email');
 | config files.  Otherwise, leave it blank.
 |
 */
-$autoload['config'] = array('session_fix');
+$autoload['config'] = array();
 
 /*
 | -------------------------------------------------------------------
