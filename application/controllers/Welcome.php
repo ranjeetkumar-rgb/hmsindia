@@ -14,15 +14,9 @@ class Welcome extends CI_Controller {
 		$this->load->model(array('user_model', 'patients_model', 'doctors_model'));
 		$this->load->helper('myhelper');
 		
-		// Ensure session is properly started
-		var_dump(session_status());
-		var_dump(PHP_SESSION_NONE);
-		die;
-		if (session_status() == PHP_SESSION_NONE) {
-			var_dump(session_status());
-			die;
-			session_start();
-		}
+		// if (session_status() == PHP_SESSION_NONE) {
+		// 	session_start();
+		// }
 	}	
 	
 	public function index()
@@ -53,8 +47,7 @@ class Welcome extends CI_Controller {
 	}
 	
 	public function dashboard(){
-		var_dump($_SESSION);
-		die;
+
 		$logg = checklogin();
 		if($logg['status'] == true){
 			$template = get_header_template($logg['role']);
