@@ -325,35 +325,6 @@ switch (ENVIRONMENT)
 
 /*
  * --------------------------------------------------------------------
- * SESSION CHECK BEFORE BOOTSTRAP
- * --------------------------------------------------------------------
- *
- * Check if user is already logged in before loading CodeIgniter
- * This prevents the login page from showing when user is already logged in
- */
-if (ENVIRONMENT === 'production') {
-    // Start session if not already started
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    
-    // Load helper to check login status
-    if (file_exists(APPPATH . 'helpers/myhelper_helper.php')) {
-        include_once APPPATH . 'helpers/myhelper_helper.php';
-        
-        // Check if user is already logged in
-        $logg = checklogin();
-        if ($logg['status'] === true) {
-            // User is logged in, redirect to dashboard
-            $base_url = 'http://139.84.175.208/';
-            header("location: " . $base_url . "dashboard");
-            exit;
-        }
-    }
-}
-
-/*
- * --------------------------------------------------------------------
  * LOAD THE BOOTSTRAP FILE
  * --------------------------------------------------------------------
  *
