@@ -15,8 +15,11 @@ class Welcome extends CI_Controller {
 		$this->load->helper('myhelper');
 		
 		// Ensure session is properly started
+		var_dump(session_status());
+		var_dump(PHP_SESSION_NONE);
 		if (session_status() == PHP_SESSION_NONE) {
 			var_dump(session_status());
+			die;
 			session_start();
 		}
 	}	

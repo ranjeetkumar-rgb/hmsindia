@@ -218,7 +218,7 @@ class Centers extends CI_Controller {
 			// Load the hub-spoke model
 			$this->load->model('hub_spoke_model');
 			$data['relationships'] = $this->hub_spoke_model->get_all_relationships();
-			$template = get_header_templafte($logg['role']);
+			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 
 			$this->load->view('hub_spoke/index', $data);

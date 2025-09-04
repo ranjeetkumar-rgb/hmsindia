@@ -379,10 +379,18 @@ WHERE inv.master_id = '$investigation'";
 				$center_ids = explode(',', $procedure_data['center_id']);
                 if(in_array($current_user_center, $center_ids)) {
 				    $center_name =  $this->center_model->get_center_name_by_code($current_user_center);
-					$procedure_data['center_name'] = $center_name['center_name'];
-					$procedure_data['center_number'] = $center_name['center_number'];
-					$procedure_data['hub_center_id'] = $center_name['center_number'];
-					$procedure_data['center_classification'] = 'no';
+					if (!empty($center_name)) {
+						$procedure_data['center_name'] = $center_name['center_name'];
+						$procedure_data['center_number'] = $center_name['center_number'];
+						$procedure_data['hub_center_id'] = $center_name['center_number'];
+						$procedure_data['center_classification'] = 'no';
+					} else {
+						// Fallback if center not found
+						$procedure_data['center_name'] = 'Unknown Center';
+						$procedure_data['center_number'] = $current_user_center;
+						$procedure_data['hub_center_id'] = $current_user_center;
+						$procedure_data['center_classification'] = 'no';
+					}
                 } else {
                     $this->load->model('hub_spoke_model');
                     $center_classification = $this->hub_spoke_model->get_center_classification_for_billing($current_user_center);
