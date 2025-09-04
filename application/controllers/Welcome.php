@@ -56,21 +56,21 @@ class Welcome extends CI_Controller {
 	public function dashboard(){
 
 		$logg = checklogin();
-		var_dump($logg);die;
-		if($logg['status'] == true){
+		// var_dump($logg);die;
+		// if($logg['status'] == true){
 			// Debug: Log successful dashboard access
 			log_message('info', 'Dashboard access granted for role: ' . $logg['role']);
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view($template['dashboard']);
 			$this->load->view($template['footer']);
-		}else{
-			// Debug: Log why dashboard access was denied
-			log_message('info', 'Dashboard access denied - redirecting to login. Session status: ' . session_status());
-			log_message('info', 'Available sessions: ' . json_encode($_SESSION));
-			header("location:" .base_url(). "");
-			die();
-		}
+		// }else{
+		// 	// Debug: Log why dashboard access was denied
+		// 	log_message('info', 'Dashboard access denied - redirecting to login. Session status: ' . session_status());
+		// 	log_message('info', 'Available sessions: ' . json_encode($_SESSION));
+		// 	header("location:" .base_url(). "");
+		// 	die();
+		// }
 	}
 	
 	public function password()
