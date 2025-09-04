@@ -1,6 +1,6 @@
 # HMS India - Local Development Guide
 
-This guide will help you set up and run your HMS India application locally using Docker.
+This guide will help you set up and run your HMS India application locally using traditional PHP/Apache/MySQL setup.
 
 ## 🚀 Quick Start
 
@@ -26,38 +26,45 @@ cp application/config/database.php.example application/config/database.php
 cp application/config/config.php.example application/config/config.php
 cp env.local .env
 
-# 2. Start Docker containers
-docker-compose up -d --build
+# 2. Start your local web server
+# Use XAMPP, WAMP, MAMP, or built-in PHP server
 ```
 
-## 🐳 Local Docker Architecture
+## 🖥️ Local Development Architecture
 
-Your local development environment runs these containers:
+Your local development environment uses:
 
-- **Web Container**: PHP 8.1 + Apache (your application)
-- **Database Container**: MySQL 8.0 (development database)
-- **phpMyAdmin Container**: Database management interface
+- **Web Server**: Apache (via XAMPP/WAMP/MAMP) or PHP built-in server
+- **Database**: MySQL 8.0 (local installation)
+- **PHP**: PHP 7.4+ (recommended 8.1+)
 
 ## 🌐 Access URLs
 
 After setup:
 
-- **Main Application**: http://localhost:8080
-- **phpMyAdmin**: http://localhost:8081
-- **Database (External)**: localhost:3307
+- **Main Application**: http://localhost/hmsindia (or http://localhost:8080)
+- **phpMyAdmin**: http://localhost/phpmyadmin (if using XAMPP/WAMP)
+- **Database (External)**: localhost:3306
 
 ## 🔐 Database Credentials (Local Development)
 
-- **Host**: `db` (internal) or `localhost:3307` (external)
-- **Database**: `hmsindiaivf_dev`
+- **Host**: `localhost`
+- **Database**: `hmsindiaivf`
 - **Username**: `root`
-- **Password**: (empty)
+- **Password**: (empty or your local MySQL password)
 
 ## 📋 Prerequisites
 
-1. **Docker Desktop** installed and running
-2. **Docker Compose** (usually comes with Docker Desktop)
-3. **Git** (for version control)
+1. **PHP 7.4+** (recommended 8.1+) installed
+2. **Apache Web Server** (or use PHP built-in server)
+3. **MySQL 8.0** installed and running
+4. **Git** (for version control)
+
+### Recommended Local Development Stacks:
+
+- **Windows**: XAMPP, WAMP, or Laragon
+- **Mac**: XAMPP, MAMP, or Homebrew
+- **Linux**: Apache + PHP + MySQL via package manager
 
 ## 🔧 Configuration Files
 

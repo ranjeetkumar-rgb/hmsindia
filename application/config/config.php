@@ -84,7 +84,7 @@ switch ($environment) {
         
     case 'development':
     default:
-        $config['base_url'] = getenv('BASE_URL') ?: 'http://localhost:8080/';
+        $config['base_url'] = getenv('BASE_URL') ?: 'http://localhost/hmsindia/';
         $config['index_page'] = '';
         $config['uri_protocol'] = 'REQUEST_URI';
         $config['url_suffix'] = '';
