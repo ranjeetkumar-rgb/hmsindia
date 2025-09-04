@@ -99,12 +99,34 @@ class Procedures_model extends CI_Model
         }
 	}
 	
+	function get_procedure_form_relationships($procedure_id){
+		$result = array();
+		$sql = "Select form_id from ".$this->config->item('db_prefix')."form_relationship where procedure_id='".$procedure_id."'";
+        $q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            $form_ids = array();
+            foreach($result as $row){
+                $form_ids[] = $row['form_id'];
+            }
+            return implode(',', $form_ids);
+        }
+        else
+        {
+            return '';
+        }
+	}
+	
 	public function update_procedure_data($data, $item)
 	{	
-		$sql = "UPDATE " . config_item('db_prefix') . "procedures SET ";
+		$sql = "UPDATE " . config_item('db_prefix') . "procedures SET ";	
 		$sqlArr = [];
 		foreach ($data as $key => $value) {
 			if ($key == 'center_id' && is_array($value)) {
+				$value = implode(',', $value);
+			}
+			if ($key == 'procedure_form' && is_array($value)) {
 				$value = implode(',', $value);
 			}
 			$sqlArr[] = " $key = '" . addslashes($value) . "'";
@@ -182,9 +204,13 @@ class Procedures_model extends CI_Model
 	public function update_id_data($data, $item)
     {	
         $sql = "UPDATE " . config_item('db_prefix') . "ids SET ";
+		$sqlArr = [];
 		foreach( $data as $key=> $value )
 		{
-			$sqlArr[] = " $key = '".$value."'"	;
+			if (is_array($value)) {
+				$value = implode(',', $value);
+			}
+			$sqlArr[] = " $key = '".addslashes($value)."'";
 		}
 		$sql .= implode(',' , $sqlArr);
 		$sql .= " WHERE ID = '".$item."'";
@@ -329,9 +355,13 @@ class Procedures_model extends CI_Model
 
 	function update_procedure_form($data, $item_id){
 		$sql = "UPDATE " . config_item('db_prefix') . "procedure_forms SET ";
+		$sqlArr = [];
 		foreach( $data as $key=> $value )
 		{
-			$sqlArr[] = " $key = '".$value."'"	;
+			if (is_array($value)) {
+				$value = implode(',', $value);
+			}
+			$sqlArr[] = " $key = '".addslashes($value)."'";
 		}
 		$sql .= implode(',' , $sqlArr);
 		$sql .= " WHERE ID = '".$item_id."'";

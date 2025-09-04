@@ -100,10 +100,16 @@
                   <label for="item_name">Procedure Form (Required)</label> <br/>
                   <select class="form-control multidselect_dropdown_2"  multiple="multiple" name="procedure_form[]">
                   <?php
-                      foreach($procedure_forms as $key => $val){
-                          echo '<option value="'.$val['ID'].'">'.ucfirst(strtolower(str_replace("_", " ", $val['form_name']))).' ('.$val['form_for'].')</option>'; 
-                      } 
-                      ?>
+                     $selected_procedure_forms = array();
+                     if (!empty($data['procedure_form'])) {
+                           $selected_procedure_forms = explode(',', $data['procedure_form']);
+                     }
+                     
+                     foreach($procedure_forms as $key => $val){
+                           $selected = in_array($val['ID'], $selected_procedure_forms) ? 'selected="selected"' : '';
+                           echo '<option value="'.$val['ID'].'" '.$selected.'>'.ucfirst(strtolower(str_replace("_", " ", $val['form_name']))).' ('.$val['form_for'].')</option>'; 
+                     }
+                     ?>
                   </select>
                 </div>
               </div>
