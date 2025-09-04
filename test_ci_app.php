@@ -47,7 +47,10 @@ echo "<h3>2. Testing base_url() Function</h3>";
 // Simulate CodeIgniter environment
 define('BASEPATH', __DIR__ . '/system/');
 define('APPPATH', __DIR__ . '/application/');
-define('ENVIRONMENT', 'production');
+define('FCPATH', __DIR__ . '/');
+if (!defined('ENVIRONMENT')) {
+    define('ENVIRONMENT', 'production');
+}
 
 // Load config
 include_once __DIR__ . '/application/config/config.php';

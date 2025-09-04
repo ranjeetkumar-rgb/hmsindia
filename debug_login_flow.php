@@ -17,7 +17,10 @@ echo "<h3>1. CodeIgniter Bootstrap Test</h3>";
 // Set up CodeIgniter environment
 define('BASEPATH', __DIR__ . '/system/');
 define('APPPATH', __DIR__ . '/application/');
-define('ENVIRONMENT', 'production');
+define('FCPATH', __DIR__ . '/');
+if (!defined('ENVIRONMENT')) {
+    define('ENVIRONMENT', 'production');
+}
 
 // Include CodeIgniter bootstrap
 if (file_exists(__DIR__ . '/index.php')) {
