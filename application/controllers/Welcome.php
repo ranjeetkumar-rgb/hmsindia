@@ -17,6 +17,7 @@ class Welcome extends CI_Controller {
 		// Ensure session is properly started
 		var_dump(session_status());
 		var_dump(PHP_SESSION_NONE);
+		die;
 		if (session_status() == PHP_SESSION_NONE) {
 			var_dump(session_status());
 			die;
