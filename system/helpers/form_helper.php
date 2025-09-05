@@ -99,7 +99,7 @@ if ( ! function_exists('form_open'))
 		}
 
 		// Add CSRF field if enabled, but leave it out for GET requests and requests to external websites
-		if ($CI->config->item('csrf_protection') === TRUE && strpos($action, $CI->config->base_url()) !== FALSE && ! stripos($form, 'method="get"'))
+		if ($CI->config->item('csrf_protection') === FALSE && strpos($action, $CI->config->base_url()) !== FALSE && ! stripos($form, 'method="get"'))
 		{
 			// Prepend/append random-length "white noise" around the CSRF
 			// token input, as a form of protection against BREACH attacks
