@@ -6,7 +6,7 @@ This guide will help you deploy your HMS India application to your Vultr server.
 
 - **Server IP**: 139.84.175.208
 - **Username**: root
-- **Password**: bM}5rh5Q[rmyJzba
+- **Password**: 5_DkAy%)93t*}-w,
 - **OS**: Ubuntu 25.04 x64
 GRANT ALL PRIVILEGES ON stagin_hms_db.* TO 'hmaadmin'@'localhost' IDENTIFIED BY 'Admin@2025!';
 FLUSH PRIVILEGES;

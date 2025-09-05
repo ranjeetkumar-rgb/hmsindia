@@ -120,10 +120,6 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                                 </td>
                             </tr>
                         <?php $i++; endforeach; ?>
-                    <?php else: ?>
-                        <tr>
-                            <td colspan="9" class="text-center">No camps found</td>
-                        </tr>
                     <?php endif; ?>
                 </tbody>
             </table>
@@ -133,19 +129,11 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <script>
 $(document).ready(function() {
+    
     // Check if DataTable is available
     if (typeof $.fn.DataTable !== 'undefined') {
         var table = $('#dataTables-example').DataTable({
-            responsive: true,
-            "pageLength": 25,
-            "order": [[ 0, "asc" ]],
-            "columnDefs": [
-                { "orderable": false, "targets": [8] } // Disable sorting on Action column
-            ],
-            "language": {
-                "emptyTable": "No camps data available",
-                "zeroRecords": "No matching camps found"
-            }
+            "order": [[ 0, "asc" ]]
         });
         
         // Status filter
@@ -163,26 +151,6 @@ $(document).ready(function() {
         $('#center_filter').on('change', function() {
             var center = $(this).val();
             table.column(3).search(center).draw(); // Center is column 3 (0-indexed)
-        });
-        
-        // Add row highlighting for inactive camps after table is drawn
-        table.on('draw', function() {
-            $('#dataTables-example tbody tr').each(function() {
-                var statusCell = $(this).find('td:eq(7)'); // Status is column 7 (0-indexed)
-                if(statusCell.text().trim() === 'Inactive') {
-                    $(this).addClass('warning');
-                } else {
-                    $(this).removeClass('warning');
-                }
-            });
-        });
-        
-        // Initial highlighting
-        $('#dataTables-example tbody tr').each(function() {
-            var statusCell = $(this).find('td:eq(7)');
-            if(statusCell.text().trim() === 'Inactive') {
-                $(this).addClass('warning');
-            }
         });
     } else {
         console.error('DataTables library not loaded properly');

@@ -21,6 +21,13 @@ class Camps extends CI_Controller {
 		if($logg['status'] == true){
 			$data = array();
 			$data['data'] = $this->camp_model->get_camps();
+			
+			// Debug: Log the data being passed to the view
+			log_message('debug', 'Camps controller - Data count: ' . count($data['data']));
+			if(!empty($data['data'])) {
+				log_message('debug', 'First camp data: ' . print_r($data['data'][0], true));
+			}
+			
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view('camps/camps', $data);
