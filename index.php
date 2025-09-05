@@ -81,9 +81,10 @@
  *
  * Configure session settings early to prevent "headers already sent" errors
  */
+// Define APPPATH for all environments
+define('APPPATH', __DIR__ . '/application/');
+
 if (ENVIRONMENT === 'production') {
-	// Define paths
-	define('APPPATH', __DIR__ . '/application/');
 	$session_path = APPPATH . 'cache/sessions/';
 	
 	// Ensure session directory exists
@@ -318,7 +319,7 @@ switch (ENVIRONMENT)
 		exit(3); // EXIT_CONFIG
 	}
 
-	// define('APPPATH', $application_folder.DIRECTORY_SEPARATOR);
+	// APPPATH is already defined above for all environments
 
 	// The path to the "views" directory
 	if ( ! isset($view_folder[0]) && is_dir(APPPATH.'views'.DIRECTORY_SEPARATOR))
