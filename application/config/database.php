@@ -22,7 +22,7 @@ switch ($environment) {
             'hostname' => getenv('DB_HOST') ?: 'localhost',
             'username' => getenv('DB_USER') ?: 'hmsuser',
             'password' => getenv('DB_PASSWORD') ?: 'ranjeet@india',
-            'database' => getenv('DB_NAME') ?: 'hmsindia_db',
+            'database' => getenv('DB_NAME') ?: 'hms_database',
             'dbdriver' => 'mysqli',
             'dbprefix' => '',
             'pconnect' => TRUE,
