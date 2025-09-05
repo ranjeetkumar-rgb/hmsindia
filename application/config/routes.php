@@ -10,6 +10,13 @@ $route['dashboard'] = 'welcome/dashboard';
 
 $route['logout'] = 'welcome/logout';
 
+$route['logs'] = 'logs/index';
+$route['logs/test'] = 'logs/test';
+$route['logs/ajax'] = 'logs/ajax';
+$route['logs/clear'] = 'logs/clear';
+$route['logs/stats'] = 'logs/stats';
+$route['logs/download'] = 'logs/download';
+
 $route['stocks'] = 'stocks/stocks';
 
 $route['centers'] = 'centers/centers';
