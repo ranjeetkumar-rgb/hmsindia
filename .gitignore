@@ -180,8 +180,6 @@ composer.phar
 .settings/
 
 
-/index.php
 /application/config/config.php
 /application/config/production/config.php
-/system/core/Input.php
-/system/core/Security.php
+
