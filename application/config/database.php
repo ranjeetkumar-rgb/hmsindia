@@ -20,9 +20,9 @@ switch ($environment) {
         $db['default'] = array(
             'dsn'	=> '',
             'hostname' => getenv('DB_HOST') ?: 'localhost',
-            'username' => getenv('DB_USER') ?: 'hmaadmin',
-            'password' => getenv('DB_PASSWORD') ?: 'Admin@2025!',
-            'database' => getenv('DB_NAME') ?: 'stagin_hms_db',
+            'username' => getenv('DB_USER') ?: 'hmsuser',
+            'password' => getenv('DB_PASSWORD') ?: 'ranjeet@india',
+            'database' => getenv('DB_NAME') ?: 'hmsindia_db',
             'dbdriver' => 'mysqli',
             'dbprefix' => '',
             'pconnect' => TRUE,
