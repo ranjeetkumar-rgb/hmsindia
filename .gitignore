@@ -178,3 +178,9 @@ composer.phar
 *.code-workspace
 .project
 .settings/
+
+
+/index.php
+/application/config/config.php
+/application/config/production/config.php
+/system/core/Input.php
