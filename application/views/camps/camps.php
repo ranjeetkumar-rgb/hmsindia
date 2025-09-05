@@ -84,41 +84,45 @@ defined('BASEPATH') OR exit('No direct script access allowed');
                         <?php $i = 1; foreach($data as $row): ?>
                             <tr>
                                 <td><?php echo $i; ?></td>
-                                <td><?php echo $row['camp_number']; ?></td>
-                                <td><?php echo $row['camp_name']; ?></td>
-                                <td><?php echo $row['center_name']; ?></td>
-                                <td><?php echo $row['description'] ? $row['description'] : '-'; ?></td>
-                                <td><?php echo $row['start_date'] ? date('d-m-Y', strtotime($row['start_date'])) : '-'; ?></td>
-                                <td><?php echo $row['end_date'] ? date('d-m-Y', strtotime($row['end_date'])) : '-'; ?></td>
+                                <td><?php echo isset($row['camp_number']) ? htmlspecialchars($row['camp_number']) : '-'; ?></td>
+                                <td><?php echo isset($row['camp_name']) ? htmlspecialchars($row['camp_name']) : '-'; ?></td>
+                                <td><?php echo isset($row['center_name']) ? htmlspecialchars($row['center_name']) : '-'; ?></td>
+                                <td><?php echo isset($row['description']) && !empty($row['description']) ? htmlspecialchars($row['description']) : '-'; ?></td>
+                                <td><?php echo isset($row['start_date']) && !empty($row['start_date']) ? date('d-m-Y', strtotime($row['start_date'])) : '-'; ?></td>
+                                <td><?php echo isset($row['end_date']) && !empty($row['end_date']) ? date('d-m-Y', strtotime($row['end_date'])) : '-'; ?></td>
                                 <td>
-                                    <?php if($row['status'] == '1'): ?>
+                                    <?php if(isset($row['status']) && $row['status'] == '1'): ?>
                                         <span class="label label-success">Active</span>
                                     <?php else: ?>
                                         <span class="label label-danger">Inactive</span>
                                     <?php endif; ?>
                                 </td>
                                 <td>
-                                    <a href="<?php echo base_url();?>camps/edit?camp_number=<?php echo $row['camp_number']; ?>" class="btn btn-sm btn-info">
-                                        <i class="fa fa-edit"></i> Edit
-                                    </a>
-                                    <?php if($row['status'] == '1'): ?>
-                                        <a href="<?php echo base_url();?>camps/toggle_status?camp_number=<?php echo $row['camp_number']; ?>&status=0" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to deactivate this camp?')">
-                                            <i class="fa fa-pause"></i> Deactivate
+                                    <?php if(isset($row['camp_number'])): ?>
+                                        <a href="<?php echo base_url();?>camps/edit?camp_number=<?php echo urlencode($row['camp_number']); ?>" class="btn btn-sm btn-info">
+                                            <i class="fa fa-edit"></i> Edit
+                                        </a>
+                                        <?php if(isset($row['status']) && $row['status'] == '1'): ?>
+                                            <a href="<?php echo base_url();?>camps/toggle_status?camp_number=<?php echo urlencode($row['camp_number']); ?>&status=0" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure you want to deactivate this camp?')">
+                                                <i class="fa fa-pause"></i> Deactivate
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="<?php echo base_url();?>camps/toggle_status?camp_number=<?php echo urlencode($row['camp_number']); ?>&status=1" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to activate this camp?')">
+                                                <i class="fa fa-play"></i> Activate
+                                            </a>
+                                        <?php endif; ?>
+                                        <a href="<?php echo base_url();?>camps/delete?camp_number=<?php echo urlencode($row['camp_number']); ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this camp?')">
+                                            <i class="fa fa-trash"></i> Delete
                                         </a>
                                     <?php else: ?>
-                                        <a href="<?php echo base_url();?>camps/toggle_status?camp_number=<?php echo $row['camp_number']; ?>&status=1" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to activate this camp?')">
-                                            <i class="fa fa-play"></i> Activate
-                                        </a>
+                                        <span class="text-muted">No actions available</span>
                                     <?php endif; ?>
-                                    <a href="<?php echo base_url();?>camps/delete?camp_number=<?php echo $row['camp_number']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this camp?')">
-                                        <i class="fa fa-trash"></i> Delete
-                                    </a>
                                 </td>
                             </tr>
                         <?php $i++; endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="8" class="text-center">No camps found</td>
+                            <td colspan="9" class="text-center">No camps found</td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -129,33 +133,61 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 <script>
 $(document).ready(function() {
-    var table = $('#dataTables-example').DataTable({
-        responsive: true
-    });
-    
-    // Status filter
-    $('#status_filter').on('change', function() {
-        var status = $(this).val();
-        if(status === '') {
-            table.column(6).search('').draw();
-        } else {
-            var searchText = status === '1' ? 'Active' : 'Inactive';
-            table.column(6).search(searchText).draw();
-        }
-    });
-    
-    // Center filter
-    $('#center_filter').on('change', function() {
-        var center = $(this).val();
-        table.column(2).search(center).draw();
-    });
-    
-    // Add row highlighting for inactive camps
-    $('#dataTables-example tbody tr').each(function() {
-        var statusCell = $(this).find('td:eq(6)');
-        if(statusCell.text().trim() === 'Inactive') {
-            $(this).addClass('warning');
-        }
-    });
+    // Check if DataTable is available
+    if (typeof $.fn.DataTable !== 'undefined') {
+        var table = $('#dataTables-example').DataTable({
+            responsive: true,
+            "pageLength": 25,
+            "order": [[ 0, "asc" ]],
+            "columnDefs": [
+                { "orderable": false, "targets": [8] } // Disable sorting on Action column
+            ],
+            "language": {
+                "emptyTable": "No camps data available",
+                "zeroRecords": "No matching camps found"
+            }
+        });
+        
+        // Status filter
+        $('#status_filter').on('change', function() {
+            var status = $(this).val();
+            if(status === '') {
+                table.column(7).search('').draw(); // Status is column 7 (0-indexed)
+            } else {
+                var searchText = status === '1' ? 'Active' : 'Inactive';
+                table.column(7).search(searchText).draw();
+            }
+        });
+        
+        // Center filter
+        $('#center_filter').on('change', function() {
+            var center = $(this).val();
+            table.column(3).search(center).draw(); // Center is column 3 (0-indexed)
+        });
+        
+        // Add row highlighting for inactive camps after table is drawn
+        table.on('draw', function() {
+            $('#dataTables-example tbody tr').each(function() {
+                var statusCell = $(this).find('td:eq(7)'); // Status is column 7 (0-indexed)
+                if(statusCell.text().trim() === 'Inactive') {
+                    $(this).addClass('warning');
+                } else {
+                    $(this).removeClass('warning');
+                }
+            });
+        });
+        
+        // Initial highlighting
+        $('#dataTables-example tbody tr').each(function() {
+            var statusCell = $(this).find('td:eq(7)');
+            if(statusCell.text().trim() === 'Inactive') {
+                $(this).addClass('warning');
+            }
+        });
+    } else {
+        console.error('DataTables library not loaded properly');
+        // Fallback: basic table styling
+        $('#dataTables-example').addClass('table table-striped table-bordered');
+    }
 });
 </script>

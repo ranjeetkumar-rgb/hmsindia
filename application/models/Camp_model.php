@@ -5,19 +5,38 @@ class Camp_model extends CI_Model
 {
 	function get_camps(){
 		$result = array();
-		$sql = "SELECT c.*, cen.center_name FROM ".$this->config->item('db_prefix')."camps c 
-				LEFT JOIN ".$this->config->item('db_prefix')."centers cen ON c.center_id = cen.ID 
-				ORDER BY c.ID DESC";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result;
-        }
-        else
-        {
-            return $result;
-        }
+		try {
+			$sql = "SELECT c.*, cen.center_name FROM ".$this->config->item('db_prefix')."camps c 
+					LEFT JOIN ".$this->config->item('db_prefix')."centers cen ON c.center_id = cen.ID 
+					ORDER BY c.ID DESC";
+	        $q = $this->db->query($sql);
+	        
+	        if ($q === false) {
+	        	log_message('error', 'Database query failed in get_camps: ' . $this->db->error()['message']);
+	        	return array();
+	        }
+	        
+	        $result = $q->result_array();
+	        
+	        // Ensure all rows have consistent structure
+	        foreach ($result as &$row) {
+	        	// Set default values for missing fields
+	        	$row['camp_number'] = isset($row['camp_number']) ? $row['camp_number'] : '';
+	        	$row['camp_name'] = isset($row['camp_name']) ? $row['camp_name'] : '';
+	        	$row['center_name'] = isset($row['center_name']) ? $row['center_name'] : 'Unknown Center';
+	        	$row['description'] = isset($row['description']) ? $row['description'] : '';
+	        	$row['start_date'] = isset($row['start_date']) ? $row['start_date'] : null;
+	        	$row['end_date'] = isset($row['end_date']) ? $row['end_date'] : null;
+	        	$row['status'] = isset($row['status']) ? $row['status'] : '0';
+	        }
+	        
+	        log_message('debug', 'Retrieved ' . count($result) . ' camps from database');
+	        return $result;
+	        
+		} catch (Exception $e) {
+			log_message('error', 'Exception in get_camps: ' . $e->getMessage());
+			return array();
+		}
 	}
 	
 	function get_camps_by_status($status = '1'){
