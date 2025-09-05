@@ -95,16 +95,20 @@ class Procedures extends CI_Controller {
 				$post_arr['procedure_name'] = $_POST['procedure_name'];unset($_POST['procedure_name']);
 				$post_arr['category'] = $_POST['category'];unset($_POST['category']);
 				$post_arr['center_id'] = $_POST['center_id'];unset($_POST['center_id']);
+				$post_arr['procedure_form'] = $_POST['procedure_form'];unset($_POST['procedure_form']);
 				$post_arr['price'] = $_POST['price'];
 				$post_arr['usd_price'] = round($_POST['price']/get_converstion_rate(), 2);unset($_POST['price']); 
 				$post_arr['code'] = $_POST['code'];unset($_POST['code']);
 				$post_arr['parent_id'] = $_POST['parent_id'];unset($_POST['parent_id']);
 				$post_arr['status'] = $_POST['status'];unset($_POST['status']);
 				
+				// Store procedure_form before it gets unset
+				$procedure_form_data = $post_arr['procedure_form'];
+				
 				$data = $this->procedures_model->add_procedure($post_arr);
 				if($data > 0){
-				    if(!empty($_POST)){
-					    $insert_procedure_forms = $this->procedures_model->insert_form_relation($_POST, $data);
+				    if(!empty($procedure_form_data)){
+					    $insert_procedure_forms = $this->procedures_model->insert_form_relation(array('procedure_form' => $procedure_form_data), $data);
 				    }
 					header("location:" .base_url(). "procedures/add?m=".base64_encode('Procedure added successfully !').'&t='.base64_encode('success'));
 					die();
@@ -143,6 +147,7 @@ class Procedures extends CI_Controller {
 					$post_arr['procedure_name'] = $_POST['procedure_name'];unset($_POST['procedure_name']);
 					$post_arr['category'] = $_POST['category'];unset($_POST['category']);
 					$post_arr['center_id'] = $_POST['center_id'];unset($_POST['center_id']);
+					$post_arr['procedure_form'] = $_POST['procedure_form'];
 					$post_arr['price'] = $_POST['price'];
 				    $post_arr['usd_price'] = round($_POST['price']/get_converstion_rate(), 2);unset($_POST['price']); 
 					$post_arr['code'] = $_POST['code'];unset($_POST['code']);
@@ -159,6 +164,7 @@ class Procedures extends CI_Controller {
 					}				
 				}
 				$data['data'] = $this->procedures_model->get_procedure_data($item_id);
+				$data['data']['procedure_form'] = $this->procedures_model->get_procedure_form_relationships($item_id);
 				$data['procedures'] = $this->procedures_model->get_procedures();
 				$data['procedure_forms'] = $this->procedures_model->get_procedures_forms();
 				$template = get_header_template($logg['role']);

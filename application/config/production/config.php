@@ -20,7 +20,8 @@ $config['cookie_httponly'] = TRUE;
 $config['csrf_protection'] = TRUE; // Enabled in production
 $config['compress_output'] = TRUE;
 $config['sess_expiration'] = 3600; // 1 hour in production
-$config['sess_save_path'] = '/var/www/html/application/cache/sessions';
+$config['sess_save_path'] = APPPATH . 'cache/sessions';
 
 // Production email settings (if not already set in email.php)
 $config['mail_debug'] = false;
+
