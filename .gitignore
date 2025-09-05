@@ -1,113 +1,180 @@
 # HMS India - Git Ignore File
 
-# System files
-.DS_Store
-Thumbs.db
-*.tmp
-# *.log
-*.log
-
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# Backup files
-*.bak
-*.backup
-*.old
-
-# Deployment files (keep these in repo but ignore sensitive data)
-# deploy.sh
-# deploy.bat
-# setup-server.sh
-
-# Environment files
-# .env
-# .env.local
-# .env.production
-
-# Logs
-application/logs/*
-!application/logs/index.html
-*.log
-
-# Cache
-application/cache/*
-!application/cache/index.html
-
-# Uploads and user content
-assets/patient_files/*
-assets/investigation_files/*
-assets/procedure_files/*
-assets/stock_files/*
-assets/purchase_orders/*
-assets/whatsapp-pdf/*
-assets/package_form/*
-assets/procedure-forms-uploads/*
-assets/initial-history/*
-assets/consent_book/*
-assets/center
-
-# Keep directory structure but ignore content
-!assets/patient_files/.gitkeep
-!assets/investigation_files/.gitkeep
-!assets/procedure_files/.gitkeep
-!assets/stock_files/.gitkeep
-!assets/purchase_orders/.gitkeep
-!assets/whatsapp-pdf/.gitkeep
-!assets/package_form/.gitkeep
-!assets/procedure-forms-uploads/.gitkeep
-!assets/initial-history/.gitkeep
-!assets/consent_book/.gitkeep
-
-# Database backups
-backups/*
-*.sql
-*.dump
-
-# Composer
-# vendor/
-composer.lock
-
-# Node modules (if any)
-node_modules/
-npm-debug.log*
-
-# Docker
-docker-compose.override.yml
-
-# Local development
-staging/
-local/
-
-# Temporary files
-*.tmp
-*.temp
-
-# OS generated files
+# ===========================================
+# System Files
+# ===========================================
 .DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
 Thumbs.db
+ehthumbs.db
+desktop.ini
 
-# WAMP specific
-wamp/
-www/
+# ===========================================
+# IDE and Editor Files
+# ===========================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
 
-# PHP specific
+# ===========================================
+# Backup and Temporary Files
+# ===========================================
+*.bak
+*.backup
+*.old
+*.tmp
+*.temp
 *.php~
 *.php.bak
 
-# Configuration files with sensitive data
-# application/config/database.php
-# application/config/config.php
+# ===========================================
+# Environment and Configuration
+# ===========================================
+.env
+.env.local
+.env.production
+.env.staging
+application/config/database.php
+application/config/config.php
+application/config/constants.php
 
 # Keep example configs
-# !application/config/database.php.example
-# !application/config/config.php.example
+!application/config/database.php.example
+!application/config/config.php.example
+!application/config/constants.php.example
+
+# ===========================================
+# Logs and Cache
+# ===========================================
+application/logs/*
+!application/logs/index.html
+application/cache/*
+!application/cache/index.html
+*.log
+
+# ===========================================
+# User Uploads and Generated Content
+# ===========================================
+assets/patient_files/*
+!assets/patient_files/.gitkeep
+assets/investigation_files/*
+!assets/investigation_files/.gitkeep
+assets/procedure_files/*
+!assets/procedure_files/.gitkeep
+assets/stock_files/*
+!assets/stock_files/.gitkeep
+assets/purchase_orders/*
+!assets/purchase_orders/.gitkeep
+assets/whatsapp-pdf/*
+!assets/whatsapp-pdf/.gitkeep
+assets/package_form/*
+!assets/package_form/.gitkeep
+assets/procedure-forms-uploads/*
+!assets/procedure-forms-uploads/.gitkeep
+assets/initial-history/*
+!assets/initial-history/.gitkeep
+assets/consent_book/*
+!assets/consent_book/.gitkeep
+assets/center/*
+!assets/center/.gitkeep
+
+# ===========================================
+# Database and Backups
+# ===========================================
+backups/*
+*.sql
+*.dump
+*.db
+*.sqlite
+*.sqlite3
+
+# ===========================================
+# Dependencies
+# ===========================================
+vendor/
+node_modules/
+composer.lock
+
+# ===========================================
+# Build and Deployment
+# ===========================================
+build/
+dist/
+deploy/
+staging/
+local/
+docker-compose.override.yml
+.docker/
+
+# ===========================================
+# Testing
+# ===========================================
+coverage/
+.phpunit.result.cache
+phpunit.xml
+
+# ===========================================
+# WAMP/XAMPP Specific
+# ===========================================
+wamp/
+www/
+xampp/
+
+# ===========================================
+# OS Specific
+# ===========================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+
+# ===========================================
+# Security and Sensitive Files
+# ===========================================
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+.secrets/
+
+# ===========================================
+# Documentation Build
+# ===========================================
+docs/_build/
+site/
+
+# ===========================================
+# Package Managers
+# ===========================================
+package-lock.json
+yarn.lock
+composer.phar
+
+# ===========================================
+# IDE Workspace Files
+# ===========================================
+*.code-workspace
+.project
+.settings/
