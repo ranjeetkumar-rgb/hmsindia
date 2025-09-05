@@ -25,9 +25,9 @@ Thumbs.db
 # setup-server.sh
 
 # Environment files
-.env
-.env.local
-.env.production
+# .env
+# .env.local
+# .env.production
 
 # Logs
 application/logs/*
@@ -69,7 +69,7 @@ backups/*
 *.dump
 
 # Composer
-vendor/
+# vendor/
 composer.lock
 
 # Node modules (if any)
@@ -105,9 +105,9 @@ www/
 *.php.bak
 
 # Configuration files with sensitive data
-application/config/database.php
-application/config/config.php
+# application/config/database.php
+# application/config/config.php
 
 # Keep example configs
-!application/config/database.php.example
-!application/config/config.php.example
+# !application/config/database.php.example
+# !application/config/config.php.example
