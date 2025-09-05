@@ -419,7 +419,7 @@ $all_method->load->model('center_model');
                 <div class="card-body">
                     <!-- Bulk Actions -->
                     <div class="admin-actions" style="margin-bottom: 20px;">
-                        <h4>Bulk Actions</h4>
+                        <h4>Bulk Actions <span id="selectedCount" style="font-size: 0.8em; color: #666; margin-left: 10px;">0 selected</span></h4>
                         <div class="action-buttons">
                             <button type="button" class="btn btn-approve" onclick="bulkApprove()">
                                 ✓ Approve Selected
@@ -442,7 +442,7 @@ $all_method->load->model('center_model');
                             <thead>
                                 <tr style="background: #f8f9fa; border-bottom: 2px solid #dee2e6;">
                                     <th style="padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6;">
-                                        <input type="checkbox" id="selectAllCheckbox" onchange="toggleAllSelection()">
+                                        <input type="checkbox" id="selectAllCheckbox" onchange="toggleAllSelection()" style="left: 0px !important;opacity: 1 !important;position: unset !important;">
                                     </th>
                                     <th style="padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6;">PO Number</th>
                                     <th style="padding: 12px; text-align: left; border-bottom: 1px solid #dee2e6;">Department</th>
@@ -458,7 +458,7 @@ $all_method->load->model('center_model');
                                 <?php foreach ($purchase_orders as $po): ?>
                                     <tr style="border-bottom: 1px solid #dee2e6;" class="po-row" data-po-id="<?php echo $po['id']; ?>">
                                         <td style="padding: 12px;">
-                                            <input type="checkbox" class="po-checkbox" value="<?php echo $po['id']; ?>">
+                                            <input type="checkbox" class="po-checkbox" style="left: 0px !important;opacity: 1 !important;position: unset !important;" value="<?php echo $po['id']; ?>">
                                         </td>
                                         <td style="padding: 12px; font-weight: 600;">
                                             <a href="<?php echo base_url('new_purchase_orders/view/' . $po['id']); ?>" style="color: #007bff; text-decoration: none;">
@@ -479,7 +479,7 @@ $all_method->load->model('center_model');
                                         ?>
                                         <td style="padding: 12px;"><?php echo isset($vendor_name) ? $vendor_name : 'N/A'; ?></td>
                                         <td style="padding: 12px; font-weight: 600; color: #28a745;">
-                                            ₹<?php echo isset($po['po_total']) ? number_format($po['po_total'], 2) : '0.00'; ?>
+                                            ₹<?php echo isset($po['total_amount']) ? number_format($po['total_amount'], 2) : '0.00'; ?>
                                         </td>
                                         <td style="padding: 12px;"><?php echo isset($po['created_at']) ? date('d M Y H:i', strtotime($po['created_at'])) : 'N/A'; ?></td>
                                         <td style="padding: 12px;">
@@ -615,6 +615,7 @@ function selectAll() {
         checkbox.checked = true;
     });
     document.getElementById('selectAllCheckbox').checked = true;
+    updateSelectedCount();
 }
 
 function clearSelection() {
@@ -623,6 +624,7 @@ function clearSelection() {
         checkbox.checked = false;
     });
     document.getElementById('selectAllCheckbox').checked = false;
+    updateSelectedCount();
 }
 
 function toggleAllSelection() {
@@ -632,7 +634,32 @@ function toggleAllSelection() {
     checkboxes.forEach(function(checkbox) {
         checkbox.checked = selectAllCheckbox.checked;
     });
+    
+    updateSelectedCount();
 }
+
+// Update selected count display
+function updateSelectedCount() {
+    var checkedCount = document.querySelectorAll('.po-checkbox:checked').length;
+    var countElement = document.getElementById('selectedCount');
+    if (countElement) {
+        countElement.textContent = checkedCount + ' selected';
+    }
+}
+
+// Initialize event listeners for individual checkboxes
+document.addEventListener('DOMContentLoaded', function() {
+    var checkboxes = document.querySelectorAll('.po-checkbox');
+    
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            updateSelectedCount();
+        });
+    });
+    
+    // Initial count update
+    updateSelectedCount();
+});
 
 function getSelectedPOs() {
     var selected = [];

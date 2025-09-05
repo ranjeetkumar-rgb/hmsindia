@@ -76,6 +76,40 @@
 
 /*
  *---------------------------------------------------------------
+ * SESSION CONFIGURATION
+ *---------------------------------------------------------------
+ *
+ * Configure session settings early to prevent "headers already sent" errors
+ */
+if (ENVIRONMENT === 'production') {
+	// Define paths
+	define('APPPATH', __DIR__ . '/application/');
+	$session_path = APPPATH . 'cache/sessions/';
+	
+	// Ensure session directory exists
+	if (!is_dir($session_path)) {
+		mkdir($session_path, 0755, true);
+		chmod($session_path, 0755);
+	}
+	
+	// Set session configuration before any output
+	ini_set('session.save_path', $session_path);
+	ini_set('session.cookie_secure', 0); // HTTP
+	ini_set('session.cookie_httponly', 1);
+	ini_set('session.cookie_samesite', 'Lax');
+	ini_set('session.gc_maxlifetime', 7200); // 2 hours
+	ini_set('session.gc_probability', 1);
+	ini_set('session.gc_divisor', 100);
+	ini_set('session.use_strict_mode', 1);
+	ini_set('session.use_cookies', 1);
+	ini_set('session.use_only_cookies', 1);
+	ini_set('session.auto_start', 0);
+	ini_set('session.cache_limiter', 'nocache');
+	ini_set('session.cache_expire', 180);
+}
+
+/*
+ *---------------------------------------------------------------
  * ERROR REPORTING
  *---------------------------------------------------------------
  *
