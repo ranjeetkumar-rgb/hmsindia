@@ -49,6 +49,7 @@ assets/package_form/*
 assets/procedure-forms-uploads/*
 assets/initial-history/*
 assets/consent_book/*
+assets/center
 
 # Keep directory structure but ignore content
 !assets/patient_files/.gitkeep

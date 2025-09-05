@@ -14,16 +14,17 @@ class Welcome extends CI_Controller {
 		$this->load->model(array('user_model', 'patients_model', 'doctors_model'));
 		$this->load->helper('myhelper');
 		
-		// Ensure session is properly started
-		if (session_status() == PHP_SESSION_NONE) {
-			session_start();
-		}
+		// if (session_status() == PHP_SESSION_NONE) {
+		// 	session_start();
+		// }
 	}	
 	
 	public function index()
 	{
-		$logg = checklogin();
+		$logg = checklogin();	
 		if($logg['status'] == true){
+			// Debug: Log successful checklogin
+			log_message('info', 'User already logged in, redirecting to dashboard');
 			header("location:" .base_url(). "dashboard");
 			die;
 		}else{
@@ -31,6 +32,11 @@ class Welcome extends CI_Controller {
 				unset($_POST['login']);
 				$logged = $this->user_model->userlogin($_POST);
 				if($logged['status'] == 1){
+					// Debug: Log successful login
+					log_message('info', 'Login successful for user: ' . $_POST['email']);
+					// Check session after login
+					$logg_after = checklogin();
+					log_message('info', 'checklogin after login: ' . json_encode($logg_after));
 					header("location:" .base_url(). "dashboard");
 					die();
 				}else{
@@ -48,15 +54,18 @@ class Welcome extends CI_Controller {
 	}
 	
 	public function dashboard(){
+
 		$logg = checklogin();
 		if($logg['status'] == true){
+			log_message('info', 'Dashboard access granted for role: ' . $logg['role']);
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view($template['dashboard']);
 			$this->load->view($template['footer']);
 		}else{
 			// Debug: Log why dashboard access was denied
-			log_message('info', 'Dashboard access denied - redirecting to login');
+			log_message('info', 'Dashboard access denied - redirecting to login. Session status: ' . session_status());
+			log_message('info', 'Available sessions: ' . json_encode($_SESSION));
 			header("location:" .base_url(). "");
 			die();
 		}

@@ -12,8 +12,8 @@ class User_model extends CI_Model
         $user_result = $q->result_array();
         if (count($user_result) > 0)
         {
-		   if($user_result[0]['center_id'] != 0){ $sql_condition = ' and emp.center_id = center.center_number and center.status="1"'; }
-		   $new_sql = "Select * from ".$this->config->item('db_prefix')."employees as emp, ".$this->config->item('db_prefix')."centers as center WHERE emp.username='".$data['email']."' AND emp.password ='".md5($data['password'])."' AND emp.status='1' ".$sql_condition."";
+		   // Simplified login query - avoid complex JOIN that might be causing issues
+		   $new_sql = "Select * from ".$this->config->item('db_prefix')."employees WHERE username='".$data['email']."' AND password ='".md5($data['password'])."' AND status='1'";
 	 	   $new_q = $this->db->query($new_sql); 
 		   $affected_rows = $new_q->result_array();
 		   if (count($affected_rows) > 0)
@@ -37,19 +37,19 @@ class User_model extends CI_Model
 				}
 				if($role == 'accountant'){
 					$center = $this->get_center($affected_rows[0]['username']);
-					$_SESSION['logged_accountant'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => $center['center_number'], 'center_type' => $center['type']);
+					$_SESSION['logged_accountant'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => isset($center['center_number']) ? $center['center_number'] : 0, 'center_type' => isset($center['type']) ? $center['type'] : '');
 				}
 				if($role == 'stock_manager'){
 					$center = $this->get_center($affected_rows[0]['username']);
-					$_SESSION['logged_stock_manager'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => $center['center_number'], 'center_type' => $center['type'], 'department' => $affected_rows[0]['department']);
+					$_SESSION['logged_stock_manager'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => isset($center['center_number']) ? $center['center_number'] : 0, 'center_type' => isset($center['type']) ? $center['type'] : '', 'department' => $affected_rows[0]['department']);
 				}
 				if($role == 'billing_manager'){
 					$center = $this->get_center($affected_rows[0]['username']); 
-					$_SESSION['logged_billing_manager'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => $center['center_number'], 'center_type' => $center['type'], 'allow_discount_rs' => $affected_rows[0]['allow_discount_rs'], 'allow_discount_us' => $affected_rows[0]['allow_discount_us'], 'department' => $affected_rows[0]['department']);
+					$_SESSION['logged_billing_manager'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => isset($center['center_number']) ? $center['center_number'] : 0, 'center_type' => isset($center['type']) ? $center['type'] : '', 'allow_discount_rs' => $affected_rows[0]['allow_discount_rs'], 'allow_discount_us' => $affected_rows[0]['allow_discount_us'], 'department' => $affected_rows[0]['department']);
 				}
 				if($role == 'telecaller'){
 					$center = $this->get_center($affected_rows[0]['username']); 
-					$_SESSION['logged_telecaller'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => $center['center_number'], 'center_type' => $center['type']);
+					$_SESSION['logged_telecaller'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => isset($center['center_number']) ? $center['center_number'] : 0, 'center_type' => isset($center['type']) ? $center['type'] : '');
 				}
 				if($role == 'central_stock_manager'){
 					$center = $this->get_center($affected_rows[0]['username']);
@@ -62,11 +62,11 @@ class User_model extends CI_Model
 				}
 				if($role == 'counselor'){
 					$center = $this->get_center($affected_rows[0]['username']);
-					$_SESSION['logged_counselor'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => $center['center_number']);
+					$_SESSION['logged_counselor'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => isset($center['center_number']) ? $center['center_number'] : 0);
 				}
 				if($role == 'embryologist'){
 					$center = $this->get_center($affected_rows[0]['username']);
-					$_SESSION['logged_embryologist'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => $center['center_number']);
+					$_SESSION['logged_embryologist'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'email'=>$affected_rows[0]['email'], 'role'=>$affected_rows[0]['role'], 'employee_number'=>$affected_rows[0]['employee_number'], 'center' => isset($center['center_number']) ? $center['center_number'] : 0);
 				}
 				if($role == 'liason'){
 					$center = $this->get_center($affected_rows[0]['username']);

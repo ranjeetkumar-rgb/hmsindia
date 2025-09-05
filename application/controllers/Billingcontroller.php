@@ -1716,7 +1716,6 @@ function partial_billing($appointment_id){
 				}
 			}
 			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_procedure"){
-				unset($_POST['action']);				
 				$post_arr = array();
 				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
 				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
@@ -2016,53 +2015,30 @@ function partial_billing($appointment_id){
 				}
 
 			}
-			
-			 if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_package"){
-
+			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_package"){
 				unset($_POST['action']);				
-
 				$post_arr = array();
-
 				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
-
 				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
-
 				$post_arr['consultation_done'] = $_POST['consultation_done'];unset($_POST['consultation_done']);
-
 				$post_arr['billing_from'] = $_POST['billing_from'];unset($_POST['billing_from']);
-
 				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
-
 				$post_arr['on_date'] = $_POST['on_date'];unset($_POST['on_date']);
-
 				//$post_arr['receipt_number'] = check_billing_receipt($_POST['receipt_number']);unset($_POST['receipt_number']);
-
 				$post_arr['billing_id'] = isset($_POST['billing_id'])?$_POST['billing_id']:''; unset($_POST['billing_id']);
-
 				$post_arr['biller_id'] = $_POST['biller_id']; unset($_POST['biller_id']);
-
 				$post_arr['transaction_id'] = ($_POST['transaction_id'])?$_POST['transaction_id']:0; unset($_POST['transaction_id']);
-
 				$post_arr['subvention_charges'] = isset($_POST['subvention_charges'])?$_POST['subvention_charges']:0; unset($_POST['subvention_charges']);
-
 				$transaction_img = '';
-
 				if(!empty($_FILES['transaction_img']['tmp_name'])){
-
 					$dest_path = $this->config->item('upload_path');
-
 					$destination = $dest_path.'patient_files/';
-
 					$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-". $_FILES['transaction_img']['name'];
-
 					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
-
 					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
-
 					$post_arr['transaction_img'] = $transaction_img;
 
 				}
-
 				$post_arr['hospital_id'] = isset($_POST['hospital_id'])?$_POST['hospital_id']:''; unset($_POST['hospital_id']);
 
 				$package_form = '';
@@ -2402,22 +2378,13 @@ function partial_billing($appointment_id){
 				}
 
 			}
-			
 			if(isset($_GET['t']) && !empty($_GET['t']) && isset($_GET['i']) && !empty($_GET['i'])){
-
 				$consultation_details = $this->billingmodel_model->after_consultation_billing($_GET['i']);
-
-				
-
 				if(count($consultation_details) > 0){
-
 					$data['billing_details'] = $consultation_details;
-
 					$data['converstion_rate'] = get_converstion_rate();
-					
 					// Get centers data for dynamic dropdown
 					$data['centers'] = $this->center_model->get_centers();
-					
 					// Get current user's center
 					$data['current_user_center'] = '';
 					if(isset($_SESSION['logged_billing_manager']['center'])) {
@@ -2437,7 +2404,6 @@ function partial_billing($appointment_id){
 					$template = get_header_template($logg['role']);
 
 					$this->load->view($template['header']);
-
 					$this->load->view('billing_view/billing_after_consultation', $data);
 
 					$this->load->view($template['footer']);
@@ -2451,17 +2417,13 @@ function partial_billing($appointment_id){
 				}
 
 			}else{
-
 				header("location:" .base_url(). "after-consultation?m=".base64_encode('consultation not found!').'&t='.base64_encode('error'));
-
 				die();
 
 			}
 
 		}else{
-
 			header("location:" .base_url(). "");
-
 			die();
 
 		}

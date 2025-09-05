@@ -168,15 +168,12 @@ class Center_model extends CI_Model
 	
 	public function update_item_data($data, $item)
     {
-        try {
-            // Log the incoming data
+        // try {
             $table_name = $this->config->item('db_prefix') . 'centers';
-            // Check if table exists
             $table_exists = $this->db->table_exists($table_name);
             if (!$table_exists) {
                 return 0;
             }
-            // Get table structure to validate fields
             $fields = $this->db->list_fields($table_name);
             $filtered_data = array();
             foreach ($data as $key => $value) {
@@ -190,7 +187,6 @@ class Center_model extends CI_Model
                 }
                 // Skip ID field completely to avoid primary key conflicts
                 if ($key === 'ID' || $key === 'id' || $field_name === 'ID' || $field_name === 'id') {
-                    log_message('debug', 'Skipping ID field: ' . $key);
                     continue;
                 }
                 if (in_array($field_name, $fields)) {
@@ -199,23 +195,18 @@ class Center_model extends CI_Model
                     log_message('warning', 'Field ' . $key . ' (mapped to ' . $field_name . ') not found in table ' . $table_name);
                 }
             }
-            // Use CodeIgniter's update method for better security
             $this->db->where('center_number', $item);
             $result = $this->db->update($table_name, $filtered_data);
             if ($result) {
                 $affected_rows = $this->db->affected_rows();
-                log_message('info', 'Center updated successfully. Affected rows: ' . $affected_rows);
                 return $affected_rows;
             } else {
                 $error = $this->db->error();
-                log_message('error', 'Database update failed: ' . print_r($error, true));
                 return 0;
             }
-        } catch (Exception $e) {
-            log_message('error', 'Exception in update_item_data: ' . $e->getMessage());
-            log_message('error', 'Exception trace: ' . $e->getTraceAsString());
-            return 0;
-        }
+        // } catch (Exception $e) {
+        //     return 0;
+        // }
     }
 	
 	public function delete_item_data($item){
@@ -244,8 +235,46 @@ class Center_model extends CI_Model
         }
 	}
 
-	 
+	public function get_center_number(){
+		$result = array();
+		$sql = "Select center_number from ".$this->config->item('db_prefix')."centers ";
+		$q = $this->db->query($sql);
+		$result = $q->result_array();
+		if (!empty($result))
+		{
+			return $result;
+		}
+		else
+		{
+			return array();
+		}
+	}
 
+	public function get_center_code(){
+		$result = array();
+		$sql = "Select center_code from ".$this->config->item('db_prefix')."centers ";
+		$q = $this->db->query($sql);
+		$result = $q->result_array();
+		if (!empty($result))
+		{
+			return $result;
+		}
+		else
+		{
+			return array();
+		}
+	}
+
+	function get_center_name_by_code($center_id){
+		$sql = "Select * from ".$this->config->item('db_prefix')."centers where center_number='$center_id'";
+		$q = $this->db->query($sql);
+		$result = $q->result_array();
+		if (!empty($result)) {
+			return $result[0];
+		} else {
+			return array();
+		}
+	}
 }
 // END Stock_model class
 

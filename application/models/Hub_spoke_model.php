@@ -34,9 +34,11 @@ class Hub_spoke_model extends CI_Model {
         $sql = "SELECT 
                     hsr.*,
                     hub.center_name as hub_center_name,
-                    hub.center_number as hub_center_number
+                    hub.center_number as hub_center_number,
+                    spoke.center_name as spoke_center_name
                 FROM " . $this->config->item('db_prefix') . "hub_spoke_relationships hsr
                 LEFT JOIN " . $this->config->item('db_prefix') . "centers hub ON hsr.hub_center_id = hub.center_number
+                LEFT JOIN " . $this->config->item('db_prefix') . "centers spoke ON hsr.spoke_center_id = spoke.center_number
                 WHERE hsr.spoke_center_id = ? AND hsr.status = 'active'
                 LIMIT 1";
         

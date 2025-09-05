@@ -515,9 +515,9 @@ function get_header_template($role){
 		$return = array('header' => "templates/central_stock_manager_header", 'footer'=>"templates/central_stock_manager_footer", 'dashboard' => 'dashboard/central_stock_manager_dashboard');
 		return $return;
 	}else if($role == "doctor"){
-        if($_SESSION['logged_doctor']['junior_doctor'] == 1){
+        if(isset($_SESSION['logged_doctor']['junior_doctor']) && $_SESSION['logged_doctor']['junior_doctor'] == 1){
             $return = array('header' => "templates/junior_doctor_header", 'footer'=>"templates/junior_doctor_footer", 'dashboard' => 'dashboard/junior_doctor_dashboard');
-		}elseif($_SESSION['logged_doctor']['psychological'] == 1){
+		}elseif(isset($_SESSION['logged_doctor']['psychological']) && $_SESSION['logged_doctor']['psychological'] == 1){
 			$return = array('header' => "templates/psychological_header", 'footer'=>"templates/psychological_footer", 'dashboard' => 'dashboard/psychological_dashboard');
         }else{
             $return = array('header' => "templates/doctor_header", 'footer'=>"templates/doctor_footer", 'dashboard' => 'dashboard/doctor_dashboard');
@@ -3152,7 +3152,7 @@ function get_center_notification(){
 	$db_prefix = $ci->config->config['db_prefix'];
 
 	
-    if($_SESSION['logged_stock_manager']['employee_number']){
+    if(isset($_SESSION['logged_stock_manager']['employee_number']) && !empty($_SESSION['logged_stock_manager']['employee_number'])){
     $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND employee_number='".$_SESSION['logged_stock_manager']['employee_number']."'";
     }else{
     $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND employee_number='".$_SESSION['logged_billing_manager']['employee_number']."'";
@@ -3161,7 +3161,7 @@ function get_center_notification(){
 
     $result = $q->result_array();
 
-	if($_SESSION['logged_stock_manager']['employee_number']){
+	if(isset($_SESSION['logged_stock_manager']['employee_number']) && !empty($_SESSION['logged_stock_manager']['employee_number'])){
 	$center_id = $_SESSION['logged_stock_manager']['center'];
 	$employee_number = $_SESSION['logged_stock_manager']['employee_number'];
 	}else{
