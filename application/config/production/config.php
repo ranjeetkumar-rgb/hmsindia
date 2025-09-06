@@ -13,7 +13,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 
 // Production-specific overrides
-$config['base_url'] = getenv('BASE_URL') ?: 'http://139.84.175.208/';
+$config['base_url'] = getenv('BASE_URL') ?: 'http://139.84.175.88/';
 $config['log_threshold'] = 1; // Only errors in production
 $config['cookie_secure'] = FALSE; // Disabled for HTTP access in production
 $config['cookie_httponly'] = TRUE;
