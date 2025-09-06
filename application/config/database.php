@@ -16,13 +16,12 @@ $active_group = 'default';
 $query_builder = TRUE;
 switch ($environment) {
     case 'production':
-        // Production database configuration
         $db['default'] = array(
             'dsn'	=> '',
             'hostname' => getenv('DB_HOST') ?: 'localhost',
-            'username' => getenv('DB_USER') ?: 'hmsuser',
-            'password' => getenv('DB_PASSWORD') ?: 'ranjeet@india',
-            'database' => getenv('DB_NAME') ?: 'hms_database',
+            'username' => getenv('DB_USER') ?: 'hmsindiaivf',
+            'password' => getenv('DB_PASSWORD') ?: 'Hmsindia@2025',
+            'database' => getenv('DB_NAME') ?: 'hmsindiaivf',
             'dbdriver' => 'mysqli',
             'dbprefix' => '',
             'pconnect' => TRUE,
@@ -45,9 +44,9 @@ switch ($environment) {
         $db['default'] = array(
             'dsn'	=> '',
             'hostname' => getenv('DB_HOST') ?: 'localhost',
-            'username' => getenv('DB_USER') ?: 'staging_user',
-            'password' => getenv('DB_PASSWORD') ?: 'staging_password',
-            'database' => getenv('DB_NAME') ?: 'hms_staging',
+            'username' => getenv('DB_USER') ?: 'hmsuser',
+            'password' => getenv('DB_PASSWORD') ?: 'ranjeet@india',
+            'database' => getenv('DB_NAME') ?: 'hms_database',
             'dbdriver' => 'mysqli',
             'dbprefix' => '',
             'pconnect' => FALSE,
