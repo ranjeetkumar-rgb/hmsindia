@@ -141,7 +141,7 @@ class CI_Input {
 		$this->_enable_xss		= (config_item('global_xss_filtering') === TRUE);
 		if(ENVIRONMENT == 'production' || ENVIRONMENT == 'staging')
 		{
-			$this->_enable_csrf		= (config_item('csrf_protection') === FALSE);
+			$this->_enable_csrf		= (config_item('csrf_protection') === TRUE);
 		}
 		else
 		{
