@@ -40,6 +40,31 @@ switch ($environment) {
         );
         break;
         
+    case 'staging':
+        // Staging database configuration
+        $db['default'] = array(
+            'dsn'	=> '',
+            'hostname' => getenv('DB_HOST') ?: 'localhost',
+            'username' => getenv('DB_USER') ?: 'staging_user',
+            'password' => getenv('DB_PASSWORD') ?: 'staging_password',
+            'database' => getenv('DB_NAME') ?: 'hms_staging',
+            'dbdriver' => 'mysqli',
+            'dbprefix' => '',
+            'pconnect' => FALSE,
+            'db_debug' => TRUE,
+            'cache_on' => FALSE,
+            'cachedir' => '',
+            'char_set' => 'utf8',
+            'dbcollat' => 'utf8_general_ci',
+            'swap_pre' => '',
+            'encrypt' => FALSE,
+            'compress' => FALSE,
+            'stricton' => FALSE,
+            'failover' => array(),
+            'save_queries' => TRUE
+        );
+        break;
+        
     case 'development':
     default:
         // Development database configuration
