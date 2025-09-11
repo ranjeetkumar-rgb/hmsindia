@@ -2,7 +2,7 @@
 <div class="card-content">
 <div class="row" id="myfrm2">
 <div class="ga-pro">
-<div class="col-lg-12"><img src="https://indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>            
+<div class="col-lg-12"><img src="https://infra.indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>            
 <h2 style="text-align:center;">Informed Consent Agreement for Therapy </h2>
 <form action="" enctype='multipart/form-data' method="post">  
 <table width="100%" class="">

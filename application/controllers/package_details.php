@@ -96,8 +96,9 @@ th, td {
     <td><a href="<?php echo $data['wife_pan_card'];?>"  target="_blank" target="_blank"><img src="<?php echo $data['wife_pan_card'];?>" class="img_sec" /></a></td>
   </tr>
   <tr>
+    <?php die; ?>
     <th>Wife adhaar number/ Passport No:</th>
-    <td><?php echo $data['wife_adhar_number'];?></td>
+    <td><?php echo masking($data['wife_adhar_number']);?></td>
   </tr>
   <tr>
     <th>Wife adhaar card / Passport:</th>

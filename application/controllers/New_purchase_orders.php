@@ -17,6 +17,7 @@ class New_purchase_orders extends CI_Controller {
 
     // Index page - List all purchase orders
     public function index() {
+        error_reporting(0);
         $logg = checklogin();
         if($logg['status'] == true) {
             $data['title'] = 'New Purchase Orders';

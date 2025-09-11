@@ -168,7 +168,8 @@ class Api extends CI_Controller {
 			}else{
 				$appoint_arr = array();
 			    $patient_id = $patient_status = "";
-			    $patient = $this->billingmodel_model->	($mobile, "phone_number");
+				$patient = $this->billingmodel_model->search_patient($mobile, "phone_number");
+			    // $patient = $this->billingmodel_model->([$mobile, "phone_number"]);
 				if(count($patient) > 0){
 					$patient_id = $patient['patient_id'];
 					$patient_status = "exist_patient";

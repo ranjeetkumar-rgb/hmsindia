@@ -7,7 +7,7 @@
 <table>
 <tr>
 <th style="color: red;">
-<img src="https://indiaivf.website/Anaesthesia.jpeg" style="width:300px">
+<img src="https://infra.indiaivf.website/Anaesthesia.jpeg" style="width:300px">
 </th>
 <td>
 

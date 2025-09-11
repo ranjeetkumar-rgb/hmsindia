@@ -83,7 +83,7 @@
 <div class="ga-pro">
 <table style="border:1px solid;width:100%;" class="fg45yu">
    <tr>
-   <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
+   <td style="width:50%;padding:5px;" colspan="2"><img src="https://infra.indiaivf.website/assets/images/india-ivf-logo.webp"></td>
    <td style="width:50%;padding:5px;" colspan="2"><h4>Where every day a mother is born</h4><h3 style="margin-top:20px;">Before starting IVF cycle:</h3></td>
    </tr>
 </table>

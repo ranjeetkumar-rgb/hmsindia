@@ -397,7 +397,6 @@ hr {
                 <select name="appoitment_for" class="empty-field" id="appoitment_for" required>
                     <option value="">Select</option>
                     <?php $center = $all_method->get_center_list(); 
-					
 					foreach($center as $key => $center){  ?>
                   	<option value="<?php echo $center['center_number']; ?>"><?php echo $center['center_name']; ?></option>
                     <?php } ?>
@@ -485,8 +484,6 @@ hr {
 	     <div class="form-group col-sm-12 col-xs-12">
 	        <input type="submit" id="submitbutton" class="btn btn-large" value="Book Appointment" />
          </div>
-         
-         
          </div>
       </div>
       </p>
@@ -692,8 +689,6 @@ function search_patient(data){
 				$('#add_section').show();
 			}			
 			if(data.status == 'exist_patient'){
-				 //patient details
-				 //WIFE
 				 $('#paitent_type').val(data.status);
 				 $('#msg_area').removeClass().addClass('success').html(data.message).show();
 				 $('#paitent_id').val(data.uhid);

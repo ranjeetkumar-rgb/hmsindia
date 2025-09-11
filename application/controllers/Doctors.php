@@ -2012,23 +2012,80 @@ class Doctors extends CI_Controller {
 		}
 	}
 
-	function follow_up($appointment_id){
+	/**
+	 * ORIGINAL FOLLOW-UP CONSULTATION FUNCTION
+	 * 
+	 * This function handles the follow-up consultation form submission and processing.
+	 * It processes medicine suggestions, investigation suggestions, procedure suggestions,
+	 * package suggestions, and follow-up appointment creation.
+	 * 
+	 * FUNCTIONALITY BREAKDOWN:
+	 * 1. Medicine Processing (Lines 2040-2093):
+	 *    - Extracts dynamic medicine fields (male_medicine_name_1, female_medicine_name_1, etc.)
+	 *    - Builds medicine suggestion arrays with dosage, remarks, timing, etc.
+	 *    - Serializes medicine data for database storage
+	 * 
+	 * 2. Investigation Processing (Lines 209    W5-2117):
+	 *    - Handles male/female investigation suggestions	
+	 *    - Handles master investigation suggestions (IIC investigations)
+	 * 	 *    - Serializes investigation data
+
+	 * 3. Procedure & Package Processing (Lines 2118-2124):
+	 *    - Processes procedure suggestions
+	 *    - Processes package suggestions
+	 *    - Serializes data for storage
+	 * 
+	 * 4. Prescription Upload (Lines 2127-2133):
+	 *    - Handles prescription file upload
+	 *    - No validation for file type or size
+	 * 
+	 * 5. Follow-up Appointment (Lines 2190-2251):
+	 *    - Creates follow-up appointments if requested
+	 *    - Sends notifications via email, SMS, and WhatsApp
+	 * 
+	 * 6. External API Integration (Lines 2376-2423):
+	 *    - Sends consultation data to external lead management systems
+	 *    - Processes investigation, medicine, procedure, and package names
+	 * 
+	 * SECURITY ISSUES:
+	 * - SQL injection vulnerabilities in database queries
+	 * - No input validation for form data
+	 * - No file upload validation
+	 * - Uses addslashes() instead of prepared statements
+	 * 
+	 * NOTE: This function has security vulnerabilities and should be replaced with follow_up_enhanced()
+	 * 
+	 * @param int $appointment_id - The appointment ID for the consultation
+	 * @return void
+	 */
+	function follow_up_old($appointment_id){
+		// Check if user is logged in
 		$logg = checklogin();
 		if($logg['status'] == true){
+			// Check if form is being submitted for consultation completion
+			// NOTE: Duplicate isset check - should be fixed
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_consultation_done'){
+				// Remove action from POST data
 				unset($_POST['action']);
-				//var_dump($_POST);die;
+				
+				// PROCESS MEDICINE SUGGESTIONS
+				// This section handles dynamic medicine fields for both male and female patients
+				// The form creates fields like: male_medicine_name_1, male_medicine_dosage_1, etc.
 				if(isset($_POST['medicine_suggestion'])){
+					// Initialize arrays to store medicine field names
 					$male_med_array = $female_med_array = array();
+					
+					// Loop through all POST data to find medicine-related fields
 					foreach($_POST as $key => $val){
+						// Find male medicine name fields (e.g., male_medicine_name_1, male_medicine_name_2)
 						if (substr( $key, 0, 19 ) === "male_medicine_name_") {
 							$male_med_array[] = $key;
 						}
+						// Find female medicine name fields (e.g., female_medicine_name_1, female_medicine_name_2)
 						if (substr( $key, 0, 21 ) === "female_medicine_name_") {
 							$female_med_array[] = $key;
 						}
 					}
-
 					$male_med_number = $female_med_number = array();
 					foreach($male_med_array as $key => $val){
 							$explode = explode('male_medicine_name_', $val);
@@ -2210,7 +2267,6 @@ class Doctors extends CI_Controller {
 					$appointment_arr['follow_up_appointment'] = 1;
 					$appointment_arr['previous_appointment'] = $consultation_post['appointment_id'];
 					$appointment_arr['appointment_added'] = date('Y-m-d H:i:s');
-					
 					//var_dump($appointment_arr['appoitment_for']);
 					//die();
 					$appointment = $this->billingmodel_model->insert_appointments($appointment_arr);
@@ -2251,14 +2307,10 @@ class Doctors extends CI_Controller {
 						send_mail($doctor_to, $doctor_subject, $doctor_message);
 					}
 				}
-				
 				$consultation_done = $this->doctors_model->consultation_done($consultation_post);//var_dump($consultation_done);die;
-				
 				$female_ids_serialized = $consultation_post['female_minvestigation_suggestion_list'];
 				$unserializedArray = unserialize($female_ids_serialized);
-
 				$investigation_names = [];
-
 				if (is_array($unserializedArray)) {
 					foreach ($unserializedArray as $key => $value) {
 						$value = (int)$value; // ensure it's safe
@@ -2467,9 +2519,668 @@ class Doctors extends CI_Controller {
 		}
 	}
 	
+	/**
+	 * Enhanced follow-up consultation processing with proper validation and error handling
+	 * This function maintains the same functionality as follow_up() but with improved data processing
+	 * 
+	 * @param int $appointment_id - The appointment ID for the consultation
+	 * @return void
+	 */
+	function follow_up($appointment_id){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if(isset($_POST['action']) && $_POST['action'] == 'add_consultation_done'){
+				// Process consultation data with validation
+				$consultation_data = $this->process_consultation_data();
+				if($consultation_data['status'] == 'error') {
+					header("location:" .base_url(). "doctor_appointments?m=".base64_encode($consultation_data['message']).'&t='.base64_encode('error'));
+					die();
+				}
+				// Process follow-up appointment if required
+				if($consultation_data['data']['follow_up'] == 1) {
+					$followup_result = $this->process_followup_appointment($consultation_data['data']);
+					if($followup_result['status'] == 'error') {
+						header("location:" .base_url(). "doctor_appointments?m=".base64_encode($followup_result['message']).'&t='.base64_encode('error'));
+						die();
+					}
+				}
+				// Save consultation data
+				$consultation_done = $this->doctors_model->consultation_done($consultation_data['data']);
+				if($consultation_done > 0) {
+					// Process external API calls
+					$this->send_consultation_to_external_apis($consultation_data['data']);
+					// Send advisory emails if templates selected
+					$this->send_advisory_emails($consultation_data['data']);
+					// Update appointment status
+					$this->appointment_model->appointment_status('consultation_done', $consultation_data['data']['appointment_id']);
+					header("location:" .base_url(). "doctor_appointments?m=".base64_encode('Consultation done!').'&t='.base64_encode('success'));
+					die();
+				} else {
+					header("location:" .base_url(). "doctor_appointments?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
+					die();
+				}
+			}
+			// Load view data (same as original)
+			$data = array();
+			$data['appointments'] = $this->appointment_model->doctor_appointment_details($appointment_id);
+			$data['consultation_medicine'] = $this->doctors_model->consultation_medicine();
+			$data['investigations'] = $this->investigation_model->get_investigations_list();
+			$data['master_investigations'] = $this->investigation_model->get_master_investigations_list();
+			$data['procedures'] = $this->procedures_model->get_procedures_list();
+			$data['package'] = $this->procedures_model->get_procedure_package_list();			
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/follow_up', $data);
+			$this->load->view($template['footer']);
+		} else {
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	/**
+	 * Process consultation data with proper validation
+	 * Handles medicine, investigation, procedure, and package suggestions
+	 * 
+	 * @return array - Processed consultation data with status
+	 */
+	private function process_consultation_data() {
+		try {
+			// Remove action from POST data
+			unset($_POST['action']);
+			// Initialize consultation data array
+			$consultation_post = array();
+			// Process basic consultation data
+			$consultation_post['appointment_id'] = $this->input->post('appointment_id', TRUE);
+			$consultation_post['patient_id'] = $this->input->post('patient_id', TRUE);
+			$consultation_post['wife_phone'] = $this->input->post('wife_phone', TRUE);
+			$consultation_post['doctor_id'] = $this->input->post('doctor_id', TRUE);
+			$consultation_post['center_number'] = $this->input->post('center_number', TRUE);
+			$consultation_post['female_findings'] = $this->input->post('female_findings', TRUE) ?: '';
+			$consultation_post['male_findings'] = $this->input->post('male_findings', TRUE) ?: '';
+			$consultation_post['follow_up'] = $this->input->post('follow_up', TRUE) ?: '';
+			$consultation_post['follow_up_date'] = $this->input->post('follow_up_date', TRUE) ?: '';
+			$consultation_post['follow_slot'] = $this->input->post('appoitmented_slot', TRUE) ?: '';
+			$consultation_post['follow_up_purpose'] = $this->input->post('follow_up_purpose', TRUE) ?: '';
+			// Validate required fields
+			$required_fields = ['appointment_id', 'patient_id', 'doctor_id', 'center_number'];
+			foreach($required_fields as $field) {
+				if(empty($consultation_post[$field])) {
+					return ['status' => 'error', 'message' => 'Required field missing: ' . $field];
+				}
+			}
+			// Process medicine suggestions
+			if($this->input->post('medicine_suggestion')) {
+				$medicine_data = $this->process_medicine_suggestions();
+				if($medicine_data['status'] == 'error') {
+					return $medicine_data;
+				}
+				$consultation_post = array_merge($consultation_post, $medicine_data['data']);
+			}
+			// Process investigation suggestions
+			if($this->input->post('investigation_suggestion')) {
+				$investigation_data = $this->process_investigation_suggestions();
+				if($investigation_data['status'] == 'error') {
+					return $investigation_data;
+				}
+				$consultation_post = array_merge($consultation_post, $investigation_data['data']);
+			}
+			// Process procedure suggestions
+			if($this->input->post('procedure_suggestion')) {
+				$procedure_data = $this->process_procedure_suggestions();
+				if($procedure_data['status'] == 'error') {
+					return $procedure_data;
+				}
+				$consultation_post = array_merge($consultation_post, $procedure_data['data']);
+			}
+			// Process package suggestions
+			if($this->input->post('package_suggestion')) {
+				$package_data = $this->process_package_suggestions();
+				if($package_data['status'] == 'error') {
+					return $package_data;
+				}
+				$consultation_post = array_merge($consultation_post, $package_data['data']);
+			}
+			// Process prescription file upload
+			$prescription = $this->process_prescription_upload();
+			$consultation_post['prescription'] = $prescription;
+			// Set final consultation data
+			$consultation_post['final_mode'] = 1;
+			$consultation_post['consultation_date'] = date("Y-m-d H:i:s");
+			return ['status' => 'success', 'data' => $consultation_post];
+			
+		} catch (Exception $e) {
+			return ['status' => 'error', 'message' => 'Error processing consultation data: ' . $e->getMessage()];
+		}
+	}
+	
+	/**
+	 * Process medicine suggestions with validation
+	 * 
+	 * @return array - Medicine data with status
+	 */
+	private function process_medicine_suggestions() {
+		try {
+			$medicine_data = array();
+			$medicine_data['medicine_suggestion'] = 1;
+			// Process male medicine suggestions
+			$male_medicine_data = $this->extract_medicine_data('male');
+			if($male_medicine_data['status'] == 'error') {
+				return $male_medicine_data;
+			}
+			$medicine_data['male_medicine_suggestion_list'] = $male_medicine_data['data'];
+			// Process female medicine suggestions
+			$female_medicine_data = $this->extract_medicine_data('female');
+			if($female_medicine_data['status'] == 'error') {
+				return $female_medicine_data;
+			}
+			$medicine_data['female_medicine_suggestion_list'] = $female_medicine_data['data'];
+			return ['status' => 'success', 'data' => $medicine_data];
+		} catch (Exception $e) {
+			return ['status' => 'error', 'message' => 'Error processing medicine suggestions: ' . $e->getMessage()];
+		}
+	}
+	
+	/**
+	 * Extract medicine data for male or female
+	 * 
+	 * @param string $gender - 'male' or 'female'
+	 * @return array - Medicine data with status
+	 */
+	private function extract_medicine_data($gender) {
+		try {
+			$medicine_array = array();
+			$medicine_numbers = array();
+			// Find medicine field names
+			foreach($_POST as $key => $val) {
+				if (substr($key, 0, strlen($gender . '_medicine_name_')) === $gender . '_medicine_name_') {
+					$medicine_array[] = $key;
+				}
+			}
+			// Extract medicine numbers
+			foreach($medicine_array as $key => $val) {
+				$explode = explode($gender . '_medicine_name_', $val);
+				$medicine_numbers[] = $explode[1];
+			}
+			$medicine_numbers = array_unique($medicine_numbers);
+			// Build medicine suggestion list
+			$medicine_suggestion_list = array();
+			foreach($medicine_numbers as $key => $val) {
+				$medicine_suggestion_list[$gender . '_medicine_suggestion_list'][] = array(
+					$gender . '_medicine_name' => $this->input->post($gender . '_medicine_name_' . $val, TRUE),
+					$gender . '_medicine_dosage' => $this->input->post($gender . '_medicine_dosage_' . $val, TRUE),
+					$gender . '_medicine_remarks' => $this->input->post($gender . '_medicine_remarks_' . $val, TRUE),
+					$gender . '_medicine_when_start' => $this->input->post($gender . '_medicine_when_start_' . $val, TRUE),
+					$gender . '_medicine_days' => $this->input->post($gender . '_medicine_days_' . $val, TRUE),
+					$gender . '_medicine_route' => $this->input->post($gender . '_medicine_route_' . $val, TRUE),
+					$gender . '_medicine_frequency' => $this->input->post($gender . '_medicine_frequency_' . $val, TRUE),
+					$gender . '_medicine_timing' => $this->input->post($gender . '_medicine_timing_' . $val, TRUE),
+					$gender . '_medicine_take' => $this->input->post($gender . '_medicine_take_' . $val, TRUE)
+				);
+			}
+			return ['status' => 'success', 'data' => serialize($medicine_suggestion_list)];
+		} catch (Exception $e) {
+			return ['status' => 'error', 'message' => 'Error extracting ' . $gender . ' medicine data: ' . $e->getMessage()];
+		}
+	}
+	
+	/**
+	 * Process investigation suggestions
+	 * 
+	 * @return array - Investigation data with status
+	 */
+	private function process_investigation_suggestions() {
+		try {
+			$investigation_data = array();
+			$investigation_data['investation_suggestion'] = 1; // Note: keeping original typo for compatibility
+			// Process male investigation suggestions
+			if($this->input->post('male_investigation_suggestion_list')) {
+				$investigation_data['male_investigation_suggestion_list'] = serialize($this->input->post('male_investigation_suggestion_list'));
+			}
+			// Process female investigation suggestions
+			if($this->input->post('female_investigation_suggestion_list')) {
+				$investigation_data['female_investigation_suggestion_list'] = serialize($this->input->post('female_investigation_suggestion_list'));
+			}
+			// Process male master investigation suggestions
+			if($this->input->post('male_minvestigation_suggestion_list')) {
+				$investigation_data['male_minvestigation_suggestion_list'] = serialize($this->input->post('male_minvestigation_suggestion_list'));
+			}
+			// Process female master investigation suggestions
+			if($this->input->post('female_minvestigation_suggestion_list')) {
+				$investigation_data['female_minvestigation_suggestion_list'] = serialize($this->input->post('female_minvestigation_suggestion_list'));
+			}
+			return ['status' => 'success', 'data' => $investigation_data];
+		} catch (Exception $e) {
+			return ['status' => 'error', 'message' => 'Error processing investigation suggestions: ' . $e->getMessage()];
+		}
+	}
+	
+	/**
+	 * Process procedure suggestions
+	 * 
+	 * @return array - Procedure data with status
+	 */
+	private function process_procedure_suggestions() {
+		try {
+			$procedure_data = array();
+			$procedure_data['procedure_suggestion'] = 1;
+			$procedure_data['procedure_suggestion_list'] = '';
+			$procedure_data['sub_procedure_suggestion_list'] = serialize($this->input->post('sub_procedure_suggestion_list'));
+			return ['status' => 'success', 'data' => $procedure_data];
+		} catch (Exception $e) {
+			return ['status' => 'error', 'message' => 'Error processing procedure suggestions: ' . $e->getMessage()];
+		}
+	}
+	
+	/**
+	 * Process package suggestions
+	 * 
+	 * @return array - Package data with status
+	 */
+	private function process_package_suggestions() {
+		try {
+			$package_data = array();
+			$package_data['package_suggestion'] = 1;
+			$package_data['package_suggestion_list'] = serialize($this->input->post('package_suggestion_list'));
+			return ['status' => 'success', 'data' => $package_data];
+		} catch (Exception $e) {
+			return ['status' => 'error', 'message' => 'Error processing package suggestions: ' . $e->getMessage()];
+		}
+	}
+	
+	/**
+	 * Process prescription file upload with validation
+	 * 
+	 * @return string - Prescription file path or empty string
+	 */
+	private function process_prescription_upload() {
+		try {
+			if(!empty($_FILES['prescription']['tmp_name'])) {
+				// Validate file type
+				$allowed_types = ['pdf', 'jpg', 'jpeg', 'png', 'doc', 'docx'];
+				$file_extension = strtolower(pathinfo($_FILES['prescription']['name'], PATHINFO_EXTENSION));
+				if(!in_array($file_extension, $allowed_types)) {
+					throw new Exception('Invalid file type. Allowed types: ' . implode(', ', $allowed_types));
+				}
+				// Validate file size (max 5MB)
+				if($_FILES['prescription']['size'] > 5 * 1024 * 1024) {
+					throw new Exception('File size too large. Maximum size is 5MB.');
+				}
+				$dest_path = $this->config->item('upload_path');
+				$destination = $dest_path . 'patient_files/';
+				// Create directory if it doesn't exist
+				if(!is_dir($destination)) {
+					mkdir($destination, 0755, true);
+				}
+				$NewImageName = rand(4, 10000) . "-" . $this->input->post('patient_id') . "-" . $_FILES['prescription']['name'];
+				$prescription = base_url() . 'assets/patient_files/' . $NewImageName;
+				if(move_uploaded_file($_FILES['prescription']['tmp_name'], $destination . $NewImageName)) {
+					return $prescription;
+				} else {
+					throw new Exception('Failed to upload prescription file.');
+				}
+			}
+			
+			return '';
+			
+		} catch (Exception $e) {
+			// Log error but don't stop processing
+			log_message('error', 'Prescription upload error: ' . $e->getMessage());
+			return '';
+		}
+	}
+	
+	/**
+	 * Process follow-up appointment creation
+	 * 
+	 * @param array $consultation_data - Consultation data
+	 * @return array - Follow-up result with status
+	 */
+	private function process_followup_appointment($consultation_data) {
+		try {
+			// Validate follow-up appointment data
+			if(empty($this->input->post('appoitment_for')) || 
+			   empty($consultation_data['follow_up_date']) || 
+			   empty($this->input->post('appoitmented_doctor')) || 
+			   empty($consultation_data['follow_slot'])) {
+				return ['status' => 'error', 'message' => 'Follow-up appointment data incomplete'];
+			}
+			$patient_details = get_patient_detail($consultation_data['patient_id']);
+			$doctor_details = doctor_details($consultation_data['doctor_id']);
+			$appointment_arr = array();
+			$appointment_arr['paitent_type'] = 'exist_patient';
+			$appointment_arr['paitent_id'] = $consultation_data['patient_id'];
+			$appointment_arr['wife_name'] = $patient_details['wife_name'];
+			$appointment_arr['wife_phone'] = $consultation_data['wife_phone'];
+			$appointment_arr['wife_email'] = $patient_details['wife_email'];
+			$appointment_arr['nationality'] = $patient_details['nationality'];
+			$appointment_arr['reason_of_visit'] = $consultation_data['follow_up_purpose'];
+			$appointment_arr['appoitment_for'] = $this->input->post('appoitment_for');
+			$appointment_arr['appoitmented_date'] = $consultation_data['follow_up_date'];
+			$appointment_arr['appoitmented_doctor'] = $this->input->post('appoitmented_doctor');
+			$appointment_arr['appoitmented_slot'] = $consultation_data['follow_slot'];
+			$appointment_arr['follow_up_appointment'] = 1;
+			$appointment_arr['previous_appointment'] = $consultation_data['appointment_id'];
+			$appointment_arr['appointment_added'] = date('Y-m-d H:i:s');
+			$appointment = $this->billingmodel_model->insert_appointments($appointment_arr);
+			if($appointment > 0) {
+				// Send notifications
+				$this->send_followup_notifications($appointment_arr, $patient_details, $doctor_details);
+				return ['status' => 'success', 'message' => 'Follow-up appointment created successfully'];
+			} else {
+				return ['status' => 'error', 'message' => 'Failed to create follow-up appointment'];
+			}
+			
+		} catch (Exception $e) {
+			return ['status' => 'error', 'message' => 'Error creating follow-up appointment: ' . $e->getMessage()];
+		}
+	}
+	
+	/**
+	 * Send follow-up appointment notifications
+	 * 
+	 * @param array $appointment_arr - Appointment data
+	 * @param array $patient_details - Patient details
+	 * @param array $doctor_details - Doctor details
+	 */
+	private function send_followup_notifications($appointment_arr, $patient_details, $doctor_details) {
+		try {
+			$centre_details = get_centre_details($appointment_arr['appoitment_for']);
+			// Send WhatsApp notification
+			whatsappappointment(
+				$appointment_arr['wife_phone'], 
+				$appointment_arr['wife_name'],
+				$centre_details['center_name'],
+				date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])),
+				$appointment_arr['appoitmented_slot'],
+				isset($centre_details['center_location']) ? $centre_details['center_location'] : "",
+				"appointment_confirmation"
+			);
+			// Send patient email
+			$patient_to = $patient_details['wife_email'];
+			$patient_subject = "Followup appointment booked";
+			$patient_message = "Hi " . $patient_details['wife_name'] . ",<br/> Your followup appointment is booked with Dr." . $doctor_details['name'] . " on " . date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])) . " at " . $appointment_arr['appoitmented_slot'] . ".";
+			send_mail($patient_to, $patient_subject, $patient_message);
+			// Send patient SMS
+			$patient_phone = $patient_details['wife_phone'];
+			$sms_message = "Hi " . $patient_details['wife_name'] . ", Your followup appointment is booked with Dr." . $doctor_details['name'] . " on " . date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])) . " at " . $appointment_arr['appoitmented_slot'] . ".";
+			send_sms($patient_phone, $sms_message);
+			// Send doctor email
+			$doctor_to = $doctor_details['email'];
+			$doctor_subject = "Followup appointment";
+			$doctor_message = "Hi Dr." . $doctor_details['name'] . ",<br/> Followup Appointment is booked on " . date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])) . " at " . $appointment_arr['appoitmented_slot'] . ".";
+			send_mail($doctor_to, $doctor_subject, $doctor_message);
+		} catch (Exception $e) {
+			log_message('error', 'Error sending follow-up notifications: ' . $e->getMessage());
+		}
+	}
+	
+	/**
+	 * Send consultation data to external APIs
+	 * 
+	 * @param array $consultation_data - Consultation data
+	 */
+	private function send_consultation_to_external_apis($consultation_data) {
+		try {
+			// Get investigation names for external API
+			$investigation_data = $this->get_investigation_names_for_api($consultation_data);
+			$medicine_data = $this->get_medicine_names_for_api($consultation_data);
+			$procedure_data = $this->get_procedure_names_for_api($consultation_data);
+			$package_data = $this->get_package_names_for_api($consultation_data);
+			// Get lead ID
+			$patient_id = $consultation_data['patient_id'];
+			$fosql = "SELECT * FROM hms_appointments WHERE paitent_id = ?";
+			$fo_result = $this->db->query($fosql, [$patient_id])->row_array();
+			$lead_id = isset($fo_result['crm_id']) ? $fo_result['crm_id'] : '';
+			// Get doctor details
+			$doctor_id = $consultation_data['doctor_id'];
+			$dosql = "SELECT * FROM hms_doctors WHERE ID = ?";
+			$do_result = $this->db->query($dosql, [$doctor_id])->row_array();
+			$data = [
+				"doctor" => $do_result['name'],
+				"wife_phone" => $consultation_data['wife_phone'],
+				"patient_id" => $patient_id,
+				"appointment_id" => $consultation_data['appointment_id'],
+				"female_investigation_suggestion_list" => $investigation_data['female'],
+				"male_minvestigation_suggestion_list" => $investigation_data['male'],
+				"package_suggestion_list" => $package_data,
+				"sub_procedure_suggestion_list" => $procedure_data,
+				"female_medicine_suggestion_list" => $medicine_data['female'],
+				"male_medicine_suggestion_list" => $medicine_data['male'],
+				"lead_id" => $lead_id
+			];
+			$urls = [
+				'lead_1' => 'https://flertility.in/lead/consultations/',
+				'lead_2' => 'https://staging.flertility.in/lead/consultations/'
+			];
+			foreach ($urls as $key => $url) {
+				$this->send_api_request($url, $data, $key);
+			}
+		} catch (Exception $e) {
+			log_message('error', 'Error sending consultation to external APIs: ' . $e->getMessage());
+		}
+	}
+	
+	/**
+	 * Send API request to external service
+	 * 
+	 * @param string $url - API URL
+	 * @param array $data - Data to send
+	 * @param string $key - API key identifier
+	 */
+	private function send_api_request($url, $data, $key) {
+		try {
+			$curl = curl_init();
+			curl_setopt_array($curl, array(
+				CURLOPT_URL => $url,
+				CURLOPT_RETURNTRANSFER => true,
+				CURLOPT_ENCODING => '',
+				CURLOPT_MAXREDIRS => 10,
+				CURLOPT_TIMEOUT => 10,
+				CURLOPT_FOLLOWLOCATION => true,
+				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				CURLOPT_CUSTOMREQUEST => 'POST',
+				CURLOPT_POSTFIELDS => json_encode($data),
+				CURLOPT_HTTPHEADER => array(
+					'Content-Type: application/json'
+				),
+			));
+
+			$response = curl_exec($curl);
+			if (curl_errno($curl)) {
+				log_message('error', "[$key] API Error: " . curl_error($curl));
+			} else {
+				log_message('info', "[$key] API Response: " . $response);
+			}
+			curl_close($curl);
+			
+		} catch (Exception $e) {
+			log_message('error', "[$key] API Exception: " . $e->getMessage());
+		}
+	}
+	/**
+	 * Send advisory emails if templates are selected
+	 * 
+	 * @param array $consultation_data - Consultation data
+	 */
+	private function send_advisory_emails($consultation_data) {
+		try {
+			if($this->input->post('advisory_templates')) {
+				$patient_details = get_patient_detail($consultation_data['patient_id']);
+				$patient_to = $patient_details['wife_email'];
+				$patient_name = $patient_details['wife_name'];
+				$advisory_subject = "IVF related advisory";
+				$advisory_message = "Hi " . $patient_name . ", Hope you are doing well!<br/>Here are some suggestion you can follow for successfull IVF. Please find the attached instruction below.<br/> Thanks & Regards<br/> IndiaIVF";
+				$advisory_templates = implode(',', $this->input->post('advisory_templates'));
+				send_mail($patient_to, $advisory_subject, $advisory_message, $advisory_templates);
+			}
+		} catch (Exception $e) {
+			log_message('error', 'Error sending advisory emails: ' . $e->getMessage());
+		}
+	}
+	
+	/**
+	 * Get investigation names for external API
+	 * 
+	 * @param array $consultation_data - Consultation data
+	 * @return array - Investigation names
+	 */
+	private function get_investigation_names_for_api($consultation_data) {
+		$result = ['female' => '', 'male' => ''];
+		try {
+			// Female investigations
+			if(isset($consultation_data['female_minvestigation_suggestion_list'])) {
+				$female_ids = unserialize($consultation_data['female_minvestigation_suggestion_list']);
+				$investigation_names = [];
+				if (is_array($female_ids)) {
+					foreach ($female_ids as $value) {
+						$value = (int)$value;
+						$sql = "SELECT * FROM `hms_master_investigations` WHERE ID = ?";
+						$select_result = $this->db->query($sql, [$value])->row_array();
+						if (!empty($select_result) && isset($select_result['investigation_name'])) {
+							$investigation_names[] = $select_result['investigation_name'];
+						}
+					}
+				}
+				$result['female'] = implode(', ', $investigation_names);
+			}
+			// Male investigations
+			if(isset($consultation_data['male_minvestigation_suggestion_list'])) {
+				$male_ids = unserialize($consultation_data['male_minvestigation_suggestion_list']);
+				$investigation_names = [];
+				if (is_array($male_ids)) {
+					foreach ($male_ids as $value) {
+						$value = (int)$value;
+						$sql = "SELECT * FROM `hms_master_investigations` WHERE ID = ?";
+						$select_result = $this->db->query($sql, [$value])->row_array();
+						if (!empty($select_result) && isset($select_result['investigation_name'])) {
+							$investigation_names[] = $select_result['investigation_name'];
+						}
+					}
+				}
+				$result['male'] = implode(', ', $investigation_names);
+			}
+			
+		} catch (Exception $e) {
+			log_message('error', 'Error getting investigation names: ' . $e->getMessage());
+		}
+		return $result;
+	}
+	
+	/**
+	 * Get medicine names for external API
+	 * 
+	 * @param array $consultation_data - Consultation data
+	 * @return array - Medicine names
+	 */
+	private function get_medicine_names_for_api($consultation_data) {
+		$result = ['female' => '', 'male' => ''];
+		try {
+			// Female medicines
+			if(isset($consultation_data['female_medicine_suggestion_list'])) {
+				$female_medicines = unserialize($consultation_data['female_medicine_suggestion_list']);
+				$item_names = [];
+				foreach ($female_medicines as $valueGroup) {
+					foreach ($valueGroup as $value) {
+						if (!empty($value['female_medicine_name']) && is_numeric($value['female_medicine_name'])) {
+							$item_number = (int)$value['female_medicine_name'];
+							$sql = "SELECT * FROM hms_stocks WHERE item_number = ?";
+							$select_result = $this->db->query($sql, [$item_number])->row_array();
+							if (!empty($select_result) && isset($select_result['item_name'])) {
+								$item_names[] = $select_result['item_name'];
+							}
+						}
+					}
+				}
+				$result['female'] = implode(', ', $item_names);
+			}
+			// Male medicines
+			if(isset($consultation_data['male_medicine_suggestion_list'])) {
+				$male_medicines = unserialize($consultation_data['male_medicine_suggestion_list']);
+				$item_names = [];
+				foreach ($male_medicines as $valueGroup) {
+					foreach ($valueGroup as $value) {
+						if (!empty($value['male_medicine_name']) && is_numeric($value['male_medicine_name'])) {
+							$item_number = (int)$value['male_medicine_name'];
+							$sql = "SELECT * FROM hms_stocks WHERE item_number = ?";
+							$select_result = $this->db->query($sql, [$item_number])->row_array();
+							if (!empty($select_result) && isset($select_result['item_name'])) {
+								$item_names[] = $select_result['item_name'];
+							}
+						}
+					}
+				}
+				$result['male'] = implode(', ', $item_names);
+			}
+		} catch (Exception $e) {
+			log_message('error', 'Error getting medicine names: ' . $e->getMessage());
+		}
+		return $result;
+	}
+	
+	/**
+	 * Get procedure names for external API
+	 * 
+	 * @param array $consultation_data - Consultation data
+	 * @return string - Procedure names
+	 */
+	private function get_procedure_names_for_api($consultation_data) {
+		try {
+			if(isset($consultation_data['sub_procedure_suggestion_list'])) {
+				$procedure_ids = unserialize($consultation_data['sub_procedure_suggestion_list']);
+				$procedure_names = [];
+				if (is_array($procedure_ids)) {
+					foreach ($procedure_ids as $value) {
+						$value = (int)$value;
+						$sql = "SELECT * FROM `hms_procedures` WHERE ID = ?";
+						$select_result = $this->db->query($sql, [$value])->row_array();
+						if (!empty($select_result) && isset($select_result['procedure_name'])) {
+							$procedure_names[] = $select_result['procedure_name'];
+						}
+					}
+				}
+				return implode(', ', $procedure_names);
+			}
+		} catch (Exception $e) {
+			log_message('error', 'Error getting procedure names: ' . $e->getMessage());
+		}
+		return '';
+	}
+	
+	/**
+	 * Get package names for external API
+	 * 
+	 * @param array $consultation_data - Consultation data
+	 * @return string - Package names
+	 */
+	private function get_package_names_for_api($consultation_data) {
+		try {
+			if(isset($consultation_data['package_suggestion_list'])) {
+				$package_ids_string = $consultation_data['package_suggestion_list'];
+				$package_ids_array = explode(',', $package_ids_string);
+				$package_names = [];
+				foreach ($package_ids_array as $id) {
+					$id = (int)trim($id);
+					if ($id > 0) {
+						$sql = "SELECT * FROM hms_procedure_package WHERE procedure_id = ?";
+						$select_result = $this->db->query($sql, [$id])->row_array();
+						if (!empty($select_result) && isset($select_result['package_name'])) {
+							$package_names[] = $select_result['package_name'];
+						}
+					}
+				}
+				return implode(', ', array_unique($package_names));
+			}
+		} catch (Exception $e) {
+			log_message('error', 'Error getting package names: ' . $e->getMessage());
+		}
+		
+		return '';
+	}
+	// end of follow_up function
+	
 	// Appointment Filter
 	function ajax_appointment_filter(){
-		
 		if($_POST['type'] == 'appointment_status'){
 			$status = $_POST['status'];
 			$data = $this->appointment_model->ajax_appointment_status_data($status);

@@ -95,7 +95,7 @@
          </tr>
          <tr>
             <th>Wife adhaar number/ Passport No:</th>
-            <td><?php echo $data['wife_adhar_number'];?></td>
+            <td><?php echo  sting_masking($data['wife_adhar_number'])?></td>
          </tr>
          <tr>
             <th>Wife adhaar card / Passport:</th>
@@ -138,7 +138,7 @@
          </tr>
          <tr>
             <th>Husband / Father adhaar number / Passport No:</th>
-            <td><?php echo $data['husband_adhar_number'];?></td>
+            <td><?php echo  sting_masking($data['husband_adhar_number'])?></td>
          </tr>
          <tr>
             <th>Husband / Father adhaar card / Passport:</th>

@@ -1,4 +1,4 @@
-<?php $all_method =&get_instance();
+<?php  $all_method =&get_instance();
 $center= get_center_name($data['billing_at']);
 $patient_data = get_patient_detail($data['patient_id']);
 

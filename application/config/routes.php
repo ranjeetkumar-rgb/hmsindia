@@ -136,18 +136,68 @@ $route['upload-package-form/(:any)'] = 'billingcontroller/upload_package_form/$1
 
 
 
-//Appointment modules
+//Modern Appointment modules
 
+$route['appointments'] = 'appointmentcontroller/modern_appointments';
+$route['appointment/getAppointments'] = 'appointmentcontroller/getAppointments';
+$route['appointment/create'] = 'appointmentcontroller/create';
+$route['appointment/updateStatus'] = 'appointmentcontroller/updateStatus';
+$route['appointment/reschedule'] = 'appointmentcontroller/reschedule';
+$route['appointment/cancel'] = 'appointmentcontroller/cancel';
+$route['appointment/getDetails/(:any)'] = 'appointmentcontroller/getDetails/$1';
+$route['appointment/export'] = 'appointmentcontroller/export';
+$route['appointment/getAvailableSlots'] = 'appointmentcontroller/getAvailableSlots';
+
+// // Modern Appointments Extended Modules
+// $route['modern-appointments/create'] = 'appointmentcontroller/modern_create';
+// $route['modern-appointments/calendar'] = 'appointmentcontroller/modern_calendar';
+// $route['modern-appointments/reports'] = 'appointmentcontroller/modern_reports';
+// $route['modern-appointments/settings'] = 'appointmentcontroller/modern_settings';
+// $route['modern-appointments/analytics'] = 'appointmentcontroller/modern_analytics';
+// $route['modern-appointments/notifications'] = 'appointmentcontroller/modern_notifications';
+// $route['modern-appointments/templates'] = 'appointmentcontroller/modern_templates';
+// $route['modern-appointments/integrations'] = 'appointmentcontroller/modern_integrations';
+
+// // Modern Appointment Controller Routes
+$route['modern-appointments/create'] = 'ModernAppointmentController/create';
+$route['modern-appointments/createAppointment'] = 'ModernAppointmentController/createAppointment';
+$route['modern-appointments/searchPatient'] = 'ModernAppointmentController/searchPatient';
+$route['modern-appointments/getDoctorsByCenter'] = 'ModernAppointmentController/getDoctorsByCenter';
+$route['modern-appointments/getAvailableSlots'] = 'ModernAppointmentController/getAvailableSlots';
+$route['modern-appointments/getCampsByCenter'] = 'ModernAppointmentController/getCampsByCenter';
+$route['modern-appointments/createCamp'] = 'ModernAppointmentController/createCamp';
+$route['modern-appointments/checkCampTemplates'] = 'ModernAppointmentController/checkCampTemplates';
+$route['modern-appointments/getDetails/(:any)'] = 'ModernAppointmentController/getDetails/$1';
+$route['modern-appointments/updateStatus'] = 'ModernAppointmentController/updateStatus';
+$route['modern-appointments/reschedule'] = 'ModernAppointmentController/reschedule';
+$route['modern-appointments/cancel'] = 'ModernAppointmentController/cancel';
+$route['modern-appointments/getAppointments'] = 'ModernAppointmentController/getAppointments';
+$route['modern-appointments/export'] = 'ModernAppointmentController/export';
+
+// Modern Appointments Dashboard and Views
+$route['modern-appointments'] = 'ModernAppointmentController/dashboard';
+$route['modern-appointments/index'] = 'ModernAppointmentController/dashboard';
+$route['modern-appointments/calendar'] = 'ModernAppointmentController/calendar';
+$route['modern-appointments/reports'] = 'ModernAppointmentController/reports';
+$route['modern-appointments/settings'] = 'ModernAppointmentController/settings';
+
+//API Routes
+$route['api/appointment/create'] = 'Api/AppointmentApi/create';
+$route['api/appointment/updateStatus'] = 'Api/AppointmentApi/updateStatus';
+$route['api/appointment/getAppointments'] = 'Api/AppointmentApi/getAppointments';
+$route['api/appointment/getDetails/(:any)'] = 'Api/AppointmentApi/getDetails/$1';
+$route['api/appointment/getAvailableSlots'] = 'Api/AppointmentApi/getAvailableSlots';
+$route['api/appointment/reschedule'] = 'Api/AppointmentApi/reschedule';
+$route['api/appointment/cancel'] = 'Api/AppointmentApi/cancel';
+$route['api/appointment/leadsquare'] = 'Api/AppointmentApi/leadsquareIntegration';
+
+//Legacy routes (for backward compatibility)
 $route['my_appointments'] = 'appointmentcontroller/my_appointments';
 $route['all-appointments'] = 'appointmentcontroller/all_appointments';
 $route['telecaller-appointments'] = 'appointmentcontroller/telecaller_appointments';
-
 $route['follow-up-appointment'] = 'appointmentcontroller/followup_appointment';
-
 $route['pending-consultation-billing'] = 'appointmentcontroller/pending_consultation_billing';
-
 $route['daily-appointments'] = 'appointmentcontroller/daily_appointments';
-
 $route['partial-billing/(:any)'] = 'billingcontroller/partial_billing/$1';
 
 //Doctor Dashboards

@@ -2678,7 +2678,7 @@ public function medicine_update()
 	
 public function medicine_stock(){
 		$logg = checklogin();
-		error_reporting();
+		error_reporting(0);
 		if($logg['status'] == true){
 
 			$per_page = $this->input->get('per_page', true);

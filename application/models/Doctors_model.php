@@ -9,23 +9,14 @@ class Doctors_model extends CI_Model
 {
 
 	function login($data)
-
     {
-
 		$result = array();
-
 		$sql_condition = '';
-
 		$sql = "Select * from " . $this->config->item('db_prefix') . "doctors WHERE username='".$data['email']."' AND status='1'";
-
         $q = $this->db->query($sql);
-
         $user_result = $q->result_array();
-
         if (count($user_result) > 0)
-
         {
-
 			if($user_result[0]['center_id'] != 0)
 			{ $sql_condition = ' and emp.center_id = center.center_number and center.status="1"'; }
 			$new_sql = "SELECT emp.*, emp.ID as doctor_id 
@@ -37,41 +28,23 @@ class Doctors_model extends CI_Model
 			$new_q = $this->db->query($new_sql);
 			// var_dump($new_q->result_array());
 			// die;
-
 		//    $new_sql = "Select *, emp.ID as doctor_id from ".$this->config->item('db_prefix')."doctors as emp, ".$this->config->item('db_prefix')."centers as center WHERE emp.username='".$data['email']."' AND emp.password ='".md5($data['password'])."' AND emp.status='1' ".$sql_condition."";
-
 	 	//    $new_q = $this->db->query($new_sql);
-
 		   $affected_rows = $new_q->result_array();		   
-
 		   if (count($affected_rows) > 0)
-
 	       {
-
 				unset($_SESSION['logged_doctor']);
-
 				$_SESSION['logged_doctor'] = array('name'=>$affected_rows[0]['name'], 'username'=>$affected_rows[0]['username'], 'doctor_id'=>$affected_rows[0]['doctor_id'], 'is_primary'=>$affected_rows[0]['is_primary'], 'role' => 'doctor', 'junior_doctor'=>$affected_rows[0]['junior_doctor'], 'psychological'=>$affected_rows[0]['psychological']);
-
 				$result = array('status' => 1);
-
             	return $result;
-
 			}else{
-
 				$result = array('status' => 0);
-
             	return $result;		
-
 			}
-
         }
-
         else
-
         {
-
 			$result = array('status' => 0);
-
             return $result;		
 
         }
@@ -81,23 +54,14 @@ class Doctors_model extends CI_Model
 	
 
 	function consultation_medicine(){
-
 		$result = array();
-
 		$sql_condition = '';
-
 	  	$sql ="Select DISTINCT item_name, item_number from ".$this->config->item('db_prefix')."stocks where status='1' GROUP BY item_name, item_number";
-
 		$q = $this->db->query($sql);
-
         $result = $q->result_array();
-
         if (!empty($result))
-
         {
-
             return $result;
-
         }
 
         else
@@ -226,33 +190,19 @@ class Doctors_model extends CI_Model
 	
 
 	function consultation_done($data){
-
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "doctor_consultation` SET ";
-
 		$sqlArr = array();
-
 		foreach( $data as $key=> $value )
-
 		{
-
 			$sqlArr[] = " $key = '".addslashes($value)."'";
-
 		}		
-
 		$sql .= implode(',' , $sqlArr);
-
        	$res =  $this->db->query($sql);
-
 		if ($res)
-
 		{
-
 			return $this->db->insert_id();
-
 		}
-
 		else
-
 			return 0;
 
 	}
@@ -326,34 +276,22 @@ function patient_medical_info($data) {
 
 
 
-	function get_doctors(){
-
+	function get_doctors()
+	{
 		$result = array();
-
 		$sql_condition = '';
-
 		$sql = "Select * from ".$this->config->item('db_prefix')."doctors ORDER by ID DESC";
-
         $q = $this->db->query($sql);
-
         $result = $q->result_array();
-
         if (!empty($result))
-
         {
-
             return $result;
 
         }
-
         else
-
         {
-
             return $result;
-
         }
-
 	}
 
 
@@ -680,23 +618,14 @@ function patient_medical_info($data) {
 	function center_doctors($center){
 
 		$result = array();
-
 		$sql = "Select ID, name from ".$this->config->item('db_prefix')."doctors where center_id='$center' and status='1' ORDER by ID DESC";
-
         $q = $this->db->query($sql);
-
         $result = $q->result_array();
-
         if (!empty($result))
-
         {
-
             return $result;
-
         }
-
         return $result;
-
 	}
 
 	
@@ -1479,33 +1408,19 @@ function patient_pcpndt_count($center, $start_date, $end_date, $iic_id, $type, $
 	}
 	
 	function consultation_provisional_diagnosis(){
-
 		$result = array();
-
 		$sql_condition = '';
-
 	  	$sql ="Select * from ".$this->config->item('db_prefix')."provisional_diagnosis where status='1'";
-
 		$q = $this->db->query($sql);
-
         $result = $q->result_array();
-
         if (!empty($result))
-
         {
-
             return $result;
-
         }
-
         else
-
         {
-
             return $result;
-
         }
-
 	}
 	
 	

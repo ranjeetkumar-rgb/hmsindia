@@ -7,13 +7,21 @@
   
 $sql = "SELECT * FROM `hms_doctor_consultation` WHERE appointment_id=".$data['appointment_id']."";
 $select_result = run_select_query($sql);
-$sql2 = "SELECT * FROM `hms_doctors` WHERE ID=".$select_result['doctor_id']."";
-$select_result2 = run_select_query($sql2);
+if(!empty($select_result) && isset($select_result['doctor_id'])){
+    $sql2 = "SELECT * FROM `hms_doctors` WHERE ID=".$select_result['doctor_id']."";
+    $select_result2 = run_select_query($sql2);
+} else {
+    $select_result2 = array();
+}
 
 $sql_appointments = "Select * from ".$this->config->item('db_prefix')."appointments where wife_phone='".$patient_data['wife_phone']."' and paitent_type='new_patient'";
 $appointments_result = run_select_query($sql_appointments);
-$sql3 = "Select * from ".$this->config->item('db_prefix')."centers where center_number='".$appointments_result['appoitment_for']."'";
-$select_result3 = run_select_query($sql3);
+if(!empty($appointments_result) && isset($appointments_result['appoitment_for'])){
+    $sql3 = "Select * from ".$this->config->item('db_prefix')."centers where center_number='".$appointments_result['appoitment_for']."'";
+    $select_result3 = run_select_query($sql3);
+} else {
+    $select_result3 = array();
+}
 ?>
 <style>
 #print_this_section{margin-top:50px;}
@@ -38,7 +46,7 @@ $select_result3 = run_select_query($sql3);
   </tr>
   <tr>
     <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">UHID:</th>
-    <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;"><?php  echo $select_result3['center_code']."/".$appointments_result['uhid'];  ?></td>
+    <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;"><?php  echo (isset($select_result3['center_code']) ? $select_result3['center_code'] : '') ."/". (isset($appointments_result['uhid']) ? $appointments_result['uhid'] : '');  ?></td>
   </tr>
   <tr>
     <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">IIC ID:</th>
@@ -111,7 +119,7 @@ $select_result3 = run_select_query($sql3);
   
   <tr>
     <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">IIC share:</th>
-    <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;"><?php echo $currency; ?><?php echo $data['center_share'];?></td>
+    <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;"><?php echo $currency; ?><?php echo isset($data['center_share']) ? $data['center_share'] : '';?></td>
   </tr>
   <tr>
     <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">Reason of visit:</th>
@@ -231,7 +239,7 @@ $select_result3 = run_select_query($sql3);
                 </table>
     <?php } ?>    
     <!-- procedure -->    
-	<?php  $procedures = unserialize($data['data']); if(isset($procedures) && !empty($procedures)) {  ?>
+	<?php  $procedures = isset($data['data']) ? unserialize($data['data']) : array(); if(isset($procedures) && !empty($procedures)) {  ?>
         <hr />
         <h3>Procedures details</h3>
         <hr />

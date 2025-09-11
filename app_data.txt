@@ -51108,3 +51108,15 @@
 23-08-25 16:32:46-----Response--------null
 
 23-08-25 18:48:56-----Response--------null
+
+09-09-2025 18:15:02-------------{"wife_name":"Meenakshi","husband_name":"","wife_phone":"7469420306","appoitment_for":"17569728937791","appoitmented_doctor":"7","appoitmented_date":"2025-09-11","appoitmented_slot":"09:20-09:40","status":"in_clinic"}
+
+09-09-2025 18:15:03======Patient Exists======
+
+10-09-25 11:59:55-----Response--------null
+
+10-09-25 15:46:49-----Response--------null
+
+10-09-25 16:05:28-----Response--------null
+
+10-09-25 17:27:23-----Response--------null

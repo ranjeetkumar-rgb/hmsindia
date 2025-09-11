@@ -17,7 +17,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 // Development Email Settings (using Mailtrap for testing)
 $config['mail_host'] = 'smtp.gmail.com';
 $config['mail_username'] = 'ranjeet.kumar@indiaivf.in';
-$config['mail_password'] = 'mslzfkpcdefvytld';
+$config['mail_password'] = 'mslzfkpcdefvytldddsdssdsa';
+// $config['mail_password'] = 'mslzfkpcdefvytld';
 $config['mail_from_emailid'] = 'ranjeet.kumar@indiaivf.in';
 $config['mail_from_name'] = 'IndiaIVF (DEV)';
 $config['mail_port'] = 587;
