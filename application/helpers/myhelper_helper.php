@@ -179,7 +179,7 @@ $filename = "Billing";
 $from = "+919971934495";
 $authorizationKey = "key_FRwBDvK22S";
 
-$publicFileUrl = "https://indiaivf.website/assets/whatsapp-pdf/" . basename($file);
+$publicFileUrl = "https://infra.indiaivf.website/assets/whatsapp-pdf/" . basename($file);
 
 // Create the data array
 $data = [
@@ -675,72 +675,42 @@ function dateformat($originalDate){
 
 
 function sting_masking($number, $maskingCharacter = 'X') {
-
     return substr_replace($number, str_repeat("X", 5), 2, 4);
-
 }
 
 
 
 /** dashboard widgets */
 
-    function ivf_opd(){
-
+function ivf_opd(){
         $ci= &get_instance();
-
         $ci->load->database();
-
         $db_prefix = $ci->config->config['db_prefix'];
-
-        
-
         $consultation_result = array();
-
         $consultation_sql = "SELECT count(*) as consultations FROM ".$db_prefix."consultation where status!='disapproved'";
-
         $consultation_q = $ci->db->query($consultation_sql);
-
         $consultation_result = $consultation_q->result_array();
-
         if(count($consultation_result) > 0){
-
             $consultation_result = $consultation_result[0]['consultations'];
-
         }
-
         return $consultation_result;
+}
 
+
+
+function ivf_procedures(){
+    $ci= &get_instance();
+    $ci->load->database();
+    $db_prefix = $ci->config->config['db_prefix'];
+    $consultation_result = array();
+    $consultation_sql = "SELECT count(*) as procedures FROM ".$db_prefix."patient_procedure where status!='disapproved'";
+    $consultation_q = $ci->db->query($consultation_sql);
+    $consultation_result = $consultation_q->result_array();
+    if(count($consultation_result) > 0){
+        $consultation_result = $consultation_result[0]['procedures'];
     }
-
-
-
-    function ivf_procedures(){
-
-        $ci= &get_instance();
-
-        $ci->load->database();
-
-        $db_prefix = $ci->config->config['db_prefix'];
-
-        
-
-        $consultation_result = array();
-
-        $consultation_sql = "SELECT count(*) as procedures FROM ".$db_prefix."patient_procedure where status!='disapproved'";
-
-        $consultation_q = $ci->db->query($consultation_sql);
-
-        $consultation_result = $consultation_q->result_array();
-
-        if(count($consultation_result) > 0){
-
-            $consultation_result = $consultation_result[0]['procedures'];
-
-        }
-
-        return $consultation_result;
-
-    }
+    return $consultation_result;
+}
 
 
 
@@ -3079,18 +3049,31 @@ function run_select_query($query){
 
     $ci->load->database();
 
-    $query = $ci->db->query($query);
+    // Check if query is empty or invalid
+    if(empty($query) || trim($query) == ''){
+        return array();
+    }
 
-    $result = $query->result_array();
+    try {
+        $query_result = $ci->db->query($query);
 
-    if(!empty($result)){
+        if($query_result === FALSE){
+            return array();
+        }
 
-        return $result[0];
+        $result = $query_result->result_array();
 
-    }else{
+        if(!empty($result)){
 
-        return $result;
+            return $result[0];
 
+        }else{
+
+            return array();
+
+        }
+    } catch (Exception $e) {
+        return array();
     }
 
 }
@@ -3933,37 +3916,39 @@ function get_master_investigation_name($id)
 
 
 
- function get_center_name($center_id)
+function get_center_name($center_id)
 
- {
+{
 
- 	$ci = &get_instance();
+	$ci = &get_instance();
 
- 	$ci->load->database();
+	$ci->load->database();
 
- 	$sql = "SELECT * FROM hms_centers WHERE center_number = '".$center_id."'";
+	$sql = "SELECT * FROM hms_centers WHERE center_number = '".$center_id."'";
 
- 	$q = $ci->db->query($sql);
+	$q = $ci->db->query($sql);
 
- 	$result = $q->result_array();
+	$result = $q->result_array();
 
- 	if(count($result) > 0)
+	$center_name = ''; // Initialize the variable
 
- 	{
+	if(count($result) > 0)
 
- 		foreach($result as $key => $value)
+	{
 
- 		{
+		foreach($result as $key => $value)
 
- 			$center_name = $value['center_name'];
+		{
 
- 		}
+			$center_name = $value['center_name'];
 
- 	}	
+		}
 
- 	return $center_name;
+	}	
 
- }
+	return $center_name;
+
+}
 
 
 
@@ -4370,7 +4355,11 @@ function check_billing_status($patient_id, $receipt_number, $type){
 
         $result = $qry->result_array();
 
-        $appointment_id = $result[0]['appointment_id'];
+        if(!empty($result) && isset($result[0]['appointment_id'])){
+            $appointment_id = $result[0]['appointment_id'];
+        } else {
+            return "<h4 class='error'>No investigation record found</h4>";
+        }   
 
     }else if($type == "procedure"){
 
@@ -4380,7 +4369,11 @@ function check_billing_status($patient_id, $receipt_number, $type){
 
         $result = $qry->result_array();
 
-        $appointment_id = $result[0]['appointment_id'];
+        if(!empty($result) && isset($result[0]['appointment_id'])){
+            $appointment_id = $result[0]['appointment_id'];
+        } else {
+            return "<h4 class='error'>No procedure record found</h4>";
+        }
 
     }
 
@@ -4392,6 +4385,10 @@ function check_billing_status($patient_id, $receipt_number, $type){
 
     $appoint_result = $appoint_qry->result_array();
 
+    if(empty($appoint_result) || !isset($appoint_result[0])){
+        return "<h4 class='error'>No consultation record found</h4>";
+    }
+    
     $appoint_result = $appoint_result[0];
 
     //var_dump($appoint_result);die;
@@ -4400,7 +4397,7 @@ function check_billing_status($patient_id, $receipt_number, $type){
 
 
 
-    if($appoint_result['medicine_suggestion'] == 1 && $appoint_result['medicine_billed'] == 0){
+    if(isset($appoint_result['medicine_suggestion']) && $appoint_result['medicine_suggestion'] == 1 && isset($appoint_result['medicine_billed']) && $appoint_result['medicine_billed'] == 0){
 
         $output = false;
 
@@ -4414,9 +4411,9 @@ function check_billing_status($patient_id, $receipt_number, $type){
 
     }
 
-    if($appoint_result['investation_suggestion'] == 1 && $appoint_result['investigation_billed'] == 0){
+    if(isset($appoint_result['investation_suggestion']) && $appoint_result['investation_suggestion'] == 1 && isset($appoint_result['investigation_billed']) && $appoint_result['investigation_billed'] == 0){
 
-        $ $output = false;
+        $output = false;
 
         $response = "<h4 class='error'>Another billing pending. <a href='".base_url()."after-consultation'>Go to billing</a></h4>"; 
 
@@ -4428,7 +4425,7 @@ function check_billing_status($patient_id, $receipt_number, $type){
 
     }
 
-    if($appoint_result['procedure_suggestion'] == 1 && $appoint_result['procedure_billed'] == 0){
+    if(isset($appoint_result['procedure_suggestion']) && $appoint_result['procedure_suggestion'] == 1 && isset($appoint_result['procedure_billed']) && $appoint_result['procedure_billed'] == 0){
 
         $output = false;
 

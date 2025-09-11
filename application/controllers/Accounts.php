@@ -36,7 +36,7 @@ class Accounts extends CI_Controller {
             
             require_once $dest_path. '/mpdf/vendor/autoload.php';
             $filename= $dest_path."whatsapp-pdf/".$NewImageName.".pdf";
-			//$filename= "https://indiaivf.website/assets/whatsapp-pdf/".$NewImageName.".pdf";
+			//$filename= "https://infra.indiaivf.website/assets/whatsapp-pdf/".$NewImageName.".pdf";
             $mpdf = new \Mpdf\Mpdf();
             $mpdf->WriteHTML($paitent_html);
             $mpdf->Output($filename,'F');
@@ -5350,12 +5350,10 @@ public function partial_procedure(){
 		$logg = checklogin();
 		error_reporting(0);
 		if($logg['status'] == true){
-
 			$per_page = $this->input->get('per_page', true);
 			if(empty($per_page)){
 				$per_page = 0;
 			}
-			
 			$config = array();
         	$config["base_url"] = base_url() . "accounts/doctor_referral_list";
         	$config["total_rows"] = $this->accounts_model->doctor_referral_count();
@@ -5367,7 +5365,6 @@ public function partial_procedure(){
 			$config['reuse_query_string'] = true;
         	$this->pagination->initialize($config);
         	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
-			
         	$data["links"] = $this->pagination->create_links();
 			$data['procedure_result'] = $this->accounts_model->doctor_referral_patination($config["per_page"], $per_page);
 			$template = get_header_template($logg['role']);

@@ -11,7 +11,6 @@ class Billingmodel_model extends CI_Model
 				unset($data[$field]);
 			}
 		}
-		
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "appointments` SET ";
 		$sqlArr = array();
 		foreach( $data as $key=> $value )
@@ -31,7 +30,7 @@ class Billingmodel_model extends CI_Model
 	
 	function insert_crm_appointments($data){
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "crmappointments` SET ";
-foreach( $data as $key=> $value )
+		foreach( $data as $key=> $value )
 		{
 			$sqlArr[] = " $key = '".addslashes($value)."'"	;
 		}		

@@ -9,317 +9,606 @@
 		$query = $this->db->query($sql1);
         $select_result1 = $query->result(); 
 ?>
-<form class="col-sm-12 col-xs-12" method="post" action="" enctype="multipart/form-data" >
-  <input type="hidden" name="action" value="add_consultation" />
-  <input type="hidden" name="appointment_id" value="<?php echo $appointments['ID']; ?>" />
-  <input type="hidden" name="billing_at" value="<?php echo $_SESSION['logged_billing_manager']['center']?>" />
-  <input type="hidden" id="billing_type" value="consultation" />
-  <input type="hidden" id="patient_id" name="patient_id" value="<?php echo $patient_id;?>" />
-  <input type="hidden" name="biller_id" value="<?php echo $_SESSION['logged_billing_manager']['employee_number']?>" />
-  
+<div class="container-fluid">
   <div class="row">
-    <div class="col-sm-12 col-xs-12 panel panel-piluku" id="consultation_details">
-      <div class="panel-heading">
-        <h3 class="heading">Consultation Details</h3>
+    <div class="col-md-12">
+      <div class="page-header" style="border-bottom: 2px solid #337ab7; margin-bottom: 30px;">
+        <h2 style="color: #337ab7; margin: 0; padding-bottom: 10px;">
+          <i class="fa fa-stethoscope" style="margin-right: 10px;"></i>
+          Consultation Billing
+        </h2>
+        <p class="text-muted">Create and manage consultation billing records</p>
       </div>
-      <div class="panel-body profile-edit">
-      <p id="msg_area" class="delete"></p>
-        <p>
+    </div>
+  </div>
 
-        <div class="row">            
-           <div class="form-group col-sm-6 col-xs-12 role">
-           <label for="item_name">IIC ID(Required)</label>
-                <input value="<?php echo $patient_id; ?>" placeholder="IIC ID" readonly="readonly" id="iic" type="text" disabled class="form-control validate" required>
+  <form class="form-horizontal" method="post" action="" enctype="multipart/form-data">
+    <input type="hidden" name="action" value="add_consultation" />
+    <input type="hidden" name="appointment_id" value="<?php echo $appointments['ID']; ?>" />
+    <input type="hidden" name="billing_at" value="<?php echo $_SESSION['logged_billing_manager']['center']?>" />
+    <input type="hidden" id="billing_type" value="consultation" />
+    <input type="hidden" id="patient_id" name="patient_id" value="<?php echo $patient_id;?>" />
+    <input type="hidden" name="biller_id" value="<?php echo $_SESSION['logged_billing_manager']['employee_number']?>" />
+    
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="panel panel-primary" id="consultation_details">
+          <div class="panel-heading" style="background: linear-gradient(135deg, #337ab7, #2e6da4); border: none;">
+            <h3 class="panel-title" style="color: white; font-weight: 600;">
+              <i class="fa fa-file-text-o" style="margin-right: 8px;"></i>
+              Consultation Details
+            </h3>
+          </div>
+          <div class="panel-body" style="padding: 30px; background-color: #fafafa;">
+            <div id="msg_area" class="alert alert-danger" style="display: none;"></div>
+
+            <!-- Patient Information Section -->
+            <div class="row" style="margin-bottom: 25px;">
+              <div class="col-sm-12">
+                <h4 style="color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; margin-bottom: 20px;">
+                  <i class="fa fa-user" style="margin-right: 8px; color: #3498db;"></i>
+                  Patient Information
+                </h4>
+              </div>
             </div>
-			<div class="form-group col-sm-6 col-xs-12 role">
-           <label for="item_name">UHID</label>
-		   <?php 
-		    if ($appointments['paitent_type'] == 'new_patient' ){
-		      foreach ($select_result1 as $res_val){
-			   ?>
-			   		<?php  if($_SESSION['logged_billing_manager']['employee_number'] = "16267558222750" ) {  ?>
-						<input value="<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
-					<?php  } ?>		
-					<?php  if($_SESSION['logged_billing_manager']['employee_number'] == "16249589462327" ) {  ?>
-						<input value="001/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
-					<?php  } ?>	
+
+            <div class="row">            
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="iic" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-id-card-o" style="margin-right: 5px; color: #3498db;"></i>
+                  IIC ID <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-key"></i>
+                  </span>
+                  <input value="<?php echo $patient_id; ?>" placeholder="IIC ID" readonly="readonly" id="iic" type="text" disabled class="form-control" style="background-color: #f8f9fa;" required>
+                </div>
+              </div>
+              
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="uhid" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-hospital-o" style="margin-right: 5px; color: #3498db;"></i>
+                  UHID
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-hashtag"></i>
+                  </span>
+                  <?php 
+                    if ($appointments['paitent_type'] == 'new_patient' ){
+                      foreach ($select_result1 as $res_val){
+                   ?>
+                    <?php  if($_SESSION['logged_billing_manager']['employee_number'] = "16267558222750" ) {  ?>
+                      <input value="<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
+                    <?php  } ?>    
+                    <?php  if($_SESSION['logged_billing_manager']['employee_number'] == "16249589462327" ) {  ?>
+                      <input value="001/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
+                    <?php  } ?>  
                     <?php  if($_SESSION['logged_billing_manager']['employee_number'] == "16266778858144" ) {  ?>
-						<input value="002/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
-					<?php  } ?>	
-					<?php  if($_SESSION['logged_billing_manager']['employee_number'] == "1581156221" ) {  ?>
-						<input value="003/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
-					<?php  } ?>	
-					<?php  if($_SESSION['logged_billing_manager']['employee_number'] == "16098223739590" ) {  ?>
-						<input value="004/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
-					<?php  } ?>
+                      <input value="002/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
+                    <?php  } ?>  
+                    <?php  if($_SESSION['logged_billing_manager']['employee_number'] == "1581156221" ) {  ?>
+                      <input value="003/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
+                    <?php  } ?>  
+                    <?php  if($_SESSION['logged_billing_manager']['employee_number'] == "16098223739590" ) {  ?>
+                      <input value="004/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
+                    <?php  } ?>
                     <?php  if($_SESSION['logged_billing_manager']['employee_number'] == "16133769691598" ) {  ?>
-						<input value="005/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
-					<?php  } ?>
-           <?php } } ?>
-			</div>
-         </div>
-
-
-         <div class="row">            
-           <div class="form-group col-sm-6 col-xs-12 role">
-                <label for="statuss">Doctor (Required)</label>
-                <p>Dr. <?php echo $all_method->doctor_name($appointments['appoitmented_doctor']); ?></p>
-                <input id="doctor_name" type="hidden" value="Dr. <?php echo $all_method->doctor_name($appointments['appoitmented_doctor']); ?>" >
+                      <input value="005/<?php echo $res_val->uhid+1; ?>" id="uhid" name="uhid" type="text" class="form-control">
+                    <?php  } ?>
+                   <?php } } ?>
+                </div>
+              </div>
             </div>
-           
-           <div class="form-group col-sm-6 col-xs-12">
-                <label for="item_name">Date(Required)</label>
-                <input value="<?php echo date("Y-m-d H:i:s"); ?>" placeholder="Date" readonly="readonly" id="on_date" name="on_date" type="text" class="form-control validate" required>
-           </div>
-         </div>
+
+
+            <!-- Doctor & Date Section -->
+            <div class="row" style="margin-bottom: 25px;">
+              <div class="col-sm-12">
+                <h4 style="color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; margin-bottom: 20px;">
+                  <i class="fa fa-user-md" style="margin-right: 8px; color: #3498db;"></i>
+                  Consultation Information
+                </h4>
+              </div>
+            </div>
+
+            <div class="row">            
+              <div class="form-group col-sm-6 col-xs-12">
+                <label class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-stethoscope" style="margin-right: 5px; color: #3498db;"></i>
+                  Doctor <span class="text-danger">*</span>
+                </label>
+                <div class="well well-sm" style="background-color: #e8f4fd; border: 1px solid #b3d9ff; margin-top: 5px;">
+                  <i class="fa fa-user-md" style="margin-right: 8px; color: #2c3e50;"></i>
+                  <strong>Dr. <?php echo $all_method->doctor_name($appointments['appoitmented_doctor']); ?></strong>
+                </div>
+                <input id="doctor_name" type="hidden" value="Dr. <?php echo $all_method->doctor_name($appointments['appoitmented_doctor']); ?>" >
+              </div>
+             
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="on_date" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-calendar" style="margin-right: 5px; color: #3498db;"></i>
+                  Date <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-clock-o"></i>
+                  </span>
+                  <input value="<?php echo date("Y-m-d H:i:s"); ?>" placeholder="Date" readonly="readonly" id="on_date" name="on_date" type="text" class="form-control" style="background-color: #f8f9fa;" required>
+                </div>
+              </div>
+            </div>
          
-         <div class="row">            
-           <div class="form-group col-sm-6 col-xs-12">
-                <label for="item_name">Receipt number (Required)</label>
-                <input value="<?php echo getReceiptGUID(); ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number" name="receipt_number" type="text" class="form-control validate" required>
-           </div>
-           
-           <div class="form-group col-sm-6 col-xs-12">
-                <label for="item_name">Consultation fees (Required)</label>
-                <!-- <input value="<?php echo $all_method->doctor_fees($appointments['appoitmented_doctor'], $appointments['nationality']); ?>" name="totalpackage" placeholder="Consultation fees" readonly="readonly" class="dhee" id="fees" type="hidden" class="form-control validate" required>
-                <input value="<?php echo $all_method->doctor_fees($appointments['appoitmented_doctor'], $appointments['nationality']); ?>" placeholder="Consultation fees" readonly="readonly" id="after_discount" name="fees" type="text" class="form-control validate" required> -->
-                <input value="<?php echo $all_method->doctor_fees($appointments['appoitmented_doctor'], 'indian'); ?>" name="totalpackage" placeholder="Consultation fees" readonly="readonly" class="dhee" id="fees" type="hidden" class="form-control validate" required>
-                <input value="<?php echo $all_method->doctor_fees($appointments['appoitmented_doctor'], 'indian'); ?>" placeholder="Consultation fees" readonly="readonly" id="after_discount" name="fees" type="text" class="form-control validate" required>
-           </div>
-         </div>
+            <!-- Billing Information Section -->
+            <div class="row" style="margin-bottom: 25px;">
+              <div class="col-sm-12">
+                <h4 style="color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; margin-bottom: 20px;">
+                  <i class="fa fa-money" style="margin-right: 8px; color: #3498db;"></i>
+                  Billing Information
+                </h4>
+              </div>
+            </div>
+
+            <div class="row">            
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="receipt_number" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-receipt" style="margin-right: 5px; color: #3498db;"></i>
+                  Receipt Number <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-barcode"></i>
+                  </span>
+                  <input value="<?php echo getReceiptGUID(); ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number" name="receipt_number" type="text" class="form-control" style="background-color: #f8f9fa;" required>
+                </div>
+              </div>
+              
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="after_discount" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-rupee" style="margin-right: 5px; color: #3498db;"></i>
+                  Consultation Fees <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-calculator"></i>
+                  </span>
+                  <input value="<?php echo $all_method->doctor_fees($appointments['appoitmented_doctor'], 'indian'); ?>" name="totalpackage" placeholder="Consultation fees" readonly="readonly" class="dhee" id="fees" type="hidden" required>
+                  <input value="<?php echo $all_method->doctor_fees($appointments['appoitmented_doctor'], 'indian'); ?>" placeholder="Consultation fees" readonly="readonly" id="after_discount" name="fees" type="text" class="form-control" style="background-color: #f8f9fa;" required>
+                </div>
+              </div>
+            </div>
      
          
-         <div class="row">
-         	 <div class="form-group col-sm-6 col-xs-12 role">
-                <label for="statuss">Payment discount (Required)</label>
-                <select id="payment_discount" required>
-               		<option value="">Select</option>
-                    <option value="free">Free</option>
-               		  <option value="discount">Discount</option>
-                    <option value="no discount">No discount</option>
-                </select>
+            <!-- Payment Discount Section -->
+            <div class="row" style="margin-bottom: 25px;">
+              <div class="col-sm-12">
+                <h4 style="color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; margin-bottom: 20px;">
+                  <i class="fa fa-percent" style="margin-right: 8px; color: #3498db;"></i>
+                  Payment Discount
+                </h4>
+              </div>
             </div>
 
-            <div class="form-group col-sm-6 col-xs-12 role" id="free_reason_box" style="display:none;">
-                <label for="item_name">Free Reason (Required)</label>
-                <select id="free_reason">
-               		<option value="">Select</option>
+            <div class="row">
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="payment_discount" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-tags" style="margin-right: 5px; color: #3498db;"></i>
+                  Payment Discount <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-percent"></i>
+                  </span>
+                  <select id="payment_discount" class="form-control" required>
+                    <option value="">Select Discount Type</option>
+                    <option value="free">Free</option>
+                    <option value="discount">Discount</option>
+                    <option value="no discount">No Discount</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="form-group col-sm-6 col-xs-12" id="free_reason_box" style="display:none;">
+                <label for="free_reason" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-info-circle" style="margin-right: 5px; color: #3498db;"></i>
+                  Free Reason <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-list"></i>
+                  </span>
+                  <select id="free_reason" class="form-control">
+                    <option value="">Select Reason</option>
                     <option value="First Consultation">First Consultation</option>
-               		  <option value="For TVS (Under Package)">For TVS (Under Package)</option>
+                    <option value="For TVS (Under Package)">For TVS (Under Package)</option>
                     <option value="Under Package">Under Package</option>
                     <option value="BHCG Counselling">BHCG Counselling</option>
                     <option value="Medicine Purchase">Medicine Purchase</option>
                     <option value="Diagnostic Test">Diagnostic Test</option>
                     <option value="Camp">Camp</option>
-                </select>
-              <!--  <input value="" placeholder="Free Reason" id="free_reason" name="free_reason" type="text" class="form-control validate">
-                    --> </div>
-          </div>        
-        
-        <div class="row" id="discount_avail" style="display:none;">
-            <div class="form-group col-sm-6 col-xs-12">
-               <label for="item_name">Discount amount (Required)</label>
-               <input value="0" placeholder="Discount amount" id="discount_amount" name="discount_amount" type="text" class="form-control validate">
-               <input value="<?php echo $_SESSION['logged_billing_manager']['allow_discount_rs']; ?>" id="allow_discount" type="hidden" class="form-control validate" required>
-               <p id="show_disc_app" style="display:none;">Given discount is more than allowed, <a href="javascript:void(0);" accountant="<?php echo $_SESSION['logged_billing_manager']['username'];?>" id="get_discount_approval">click here</a> for admin approval.</p> 
-            </div>
-            
-            <div class="form-group col-sm-6 col-xs-12">
-           		<div id="center_share_div">
-                <label for="item_name">Reason of discount(Required)</label>
-                <input value="" placeholder="Reason of discount" id="reason_of_discount" name="reason_of_discount" type="text" class="form-control validate">
+                  </select>
                 </div>
-           </div>
-         </div>
+              </div>
+            </div>        
+        
+            <div class="row" id="discount_avail" style="display:none;">
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="discount_amount" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-minus-circle" style="margin-right: 5px; color: #3498db;"></i>
+                  Discount Amount <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-rupee"></i>
+                  </span>
+                  <input value="0" placeholder="Enter discount amount" id="discount_amount" name="discount_amount" type="text" class="form-control">
+                </div>
+                <input value="<?php echo $_SESSION['logged_billing_manager']['allow_discount_rs']; ?>" id="allow_discount" type="hidden" required>
+                <div id="show_disc_app" class="alert alert-warning" style="display:none; margin-top: 10px;">
+                  <i class="fa fa-exclamation-triangle"></i>
+                  Given discount is more than allowed, 
+                  <a href="javascript:void(0);" accountant="<?php echo $_SESSION['logged_billing_manager']['username'];?>" id="get_discount_approval" class="alert-link">
+                    click here
+                  </a> 
+                  for admin approval.
+                </div> 
+              </div>
+              
+              <div class="form-group col-sm-6 col-xs-12">
+                <div id="center_share_div">
+                  <label for="reason_of_discount" class="control-label" style="font-weight: 600; color: #34495e;">
+                    <i class="fa fa-comment" style="margin-right: 5px; color: #3498db;"></i>
+                    Reason of Discount <span class="text-danger">*</span>
+                  </label>
+                  <div class="input-group">
+                    <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                      <i class="fa fa-edit"></i>
+                    </span>
+                    <input value="" placeholder="Enter reason for discount" id="reason_of_discount" name="reason_of_discount" type="text" class="form-control">
+                  </div>
+                </div>
+              </div>
+            </div>
 
-         <div class="row">
-           <div class="form-group col-sm-6 col-xs-12 role">
-                <label for="statuss">Payment mode (Optional for free)</label>
-                <select name="payment_method" id="payment_method" required>
-                    <option value="">Select</option>
-                   	<?php if($appointments['nationality'] == 'indian'){?>
+            <!-- Payment Method Section -->
+            <div class="row" style="margin-bottom: 25px;">
+              <div class="col-sm-12">
+                <h4 style="color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; margin-bottom: 20px;">
+                  <i class="fa fa-credit-card" style="margin-right: 8px; color: #3498db;"></i>
+                  Payment Method
+                </h4>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="payment_method" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-payment" style="margin-right: 5px; color: #3498db;"></i>
+                  Payment Mode <span class="text-muted">(Optional for free)</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-credit-card"></i>
+                  </span>
+                  <select name="payment_method" id="payment_method" class="form-control" required>
+                    <option value="">Select Payment Method</option>
+                    <?php if($appointments['nationality'] == 'indian'){?>
                       <option value="neft" mode="NEFT">NEFT</option>
                       <option value="rtgs" mode="RTGS">RTGS</option>
                       <option value="card" mode="Card">Card</option>
                       <option value="upi" mode="UPI">UPI</option>
                       <option value="insurance" mode="Insurance">Insurance</option>
                     <?php }else{ ?>
-	                    <option value="international_card" mode="International Card">International Card</option>
+                      <option value="international_card" mode="International Card">International Card</option>
                     <?php } ?>
                       <option value="cash" mode="Cash">Cash</option>
                       <option value="cheque" mode="Cheque">Cheque</option>                    
-                </select>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="form-group col-sm-6 col-xs-12" id="subvention_box" style="display:none;">
+                <label for="subvention_charges" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-plus-circle" style="margin-right: 5px; color: #3498db;"></i>
+                  Subvention Charges <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-rupee"></i>
+                  </span>
+                  <input value="" placeholder="Enter subvention charges" id="subvention_charges" name="subvention_charges" type="text" class="form-control">
+                </div>
+              </div>
             </div>
-            
-            <div class="form-group col-sm-6 col-xs-12" id="subvention_box" style="display:none;">
-               <label for="item_name">Subvention charges (Required)</label>
-               <input value="" placeholder="Subvention charges" id="subvention_charges" name="subvention_charges" type="text" class="form-control validate">
-            </div>
-         </div>
 
-         <div class="row">            
-           <div class="form-group col-sm-6 col-xs-12">
-                <label for="item_name">Payment received (Required)</label>
-                <input value="" placeholder="Payment received" id="payment_done" step="any" name="payment_done" type="number" class="form-control validate" required>
-           </div>
-           
-           <div class="form-group col-sm-6 col-xs-12">
-               <label for="item_name">Remaining amount (Required)</label>
-               <input value="" placeholder="Remaining amount" readonly="readonly" id="remaining_amount" name="remaining_amount" type="text" class="form-control validate" required>
-           </div>
-         </div>
+            <!-- Payment Amount Section -->
+            <div class="row" style="margin-bottom: 25px;">
+              <div class="col-sm-12">
+                <h4 style="color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; margin-bottom: 20px;">
+                  <i class="fa fa-calculator" style="margin-right: 8px; color: #3498db;"></i>
+                  Payment Amount
+                </h4>
+              </div>
+            </div>
+
+            <div class="row">            
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="payment_done" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-money" style="margin-right: 5px; color: #3498db;"></i>
+                  Payment Received <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-rupee"></i>
+                  </span>
+                  <input value="" placeholder="Enter payment received" id="payment_done" step="any" name="payment_done" type="number" class="form-control" required>
+                </div>
+              </div>
+              
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="remaining_amount" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-balance-scale" style="margin-right: 5px; color: #3498db;"></i>
+                  Remaining Amount <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-calculator"></i>
+                  </span>
+                  <input value="" placeholder="Remaining amount" readonly="readonly" id="remaining_amount" name="remaining_amount" type="text" class="form-control" style="background-color: #f8f9fa;" required>
+                </div>
+              </div>
+            </div>
 
          
-        <div class="row">
-            <div class="form-group col-sm-6 col-xs-12">
-               <label for="item_name">Billing ID (Optional)</label>
-               <input value="" placeholder="Billing ID" id="billing_id" name="billing_id" type="text" class="form-control validate">
-			    <?php 
-				      $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where wife_phone='".$appointments['wife_phone']."' and paitent_type='new_patient'"; 
-			            $query = $this->db->query($sql1);
-                            $select_result1 = $query->result(); 
-							foreach ($select_result1 as $res_val){
-							//	echo '<br/>';
-							//	echo $res_val->appoitment_for;
-							//}
-						?>
-						<input value="<?php echo $res_val->appoitment_for;?>" placeholder="origins" readonly="readonly" name="origins" id="origins" type="hidden" class="form-control">
-           		<?php } ?>
+            <!-- Additional Information Section -->
+            <div class="row" style="margin-bottom: 25px;">
+              <div class="col-sm-12">
+                <h4 style="color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 8px; margin-bottom: 20px;">
+                  <i class="fa fa-info" style="margin-right: 8px; color: #3498db;"></i>
+                  Additional Information
+                </h4>
+              </div>
             </div>
-            
-            <div class="form-group col-sm-6 col-xs-12 role">
-               <label for="item_name">Consultation ID</label>
-               <select id="consultation_id" name="consultation_id">
-               		<option value="">Consultation ID</option>
+
+            <div class="row">
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="billing_id" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-barcode" style="margin-right: 5px; color: #3498db;"></i>
+                  Billing ID <span class="text-muted">(Optional)</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-tag"></i>
+                  </span>
+                  <input value="" placeholder="Enter billing ID" id="billing_id" name="billing_id" type="text" class="form-control">
+                </div>
+                <?php 
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where wife_phone='".$appointments['wife_phone']."' and paitent_type='new_patient'"; 
+                  $query = $this->db->query($sql1);
+                  $select_result1 = $query->result(); 
+                  foreach ($select_result1 as $res_val){
+                ?>
+                  <input value="<?php echo $res_val->appoitment_for;?>" placeholder="origins" readonly="readonly" name="origins" id="origins" type="hidden" class="form-control">
+                <?php } ?>
+              </div>
+              
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="consultation_id" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-stethoscope" style="margin-right: 5px; color: #3498db;"></i>
+                  Consultation ID
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-list"></i>
+                  </span>
+                  <select id="consultation_id" name="consultation_id" class="form-control">
+                    <option value="">Select Consultation ID</option>
                     <?php echo $all_method->get_code('consultation');?>
-               </select>
+                  </select>
+                </div>
+              </div>
             </div>
-        </div>
          
-         <div class="row">            
-            <div class="form-group col-sm-6 col-xs-12 role">
-                <label for="statuss">Billing source (Required)</label>
-                <select name="billing_from" id="billing_from" required>
-                    <option value="">Select</option>
+            <!-- Billing Source Section -->
+            <div class="row" style="margin-bottom: 30px;">
+              <div class="form-group col-sm-6 col-xs-12">
+                <label for="billing_from" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-building" style="margin-right: 5px; color: #3498db;"></i>
+                  Billing Source <span class="text-danger">*</span>
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-hospital-o"></i>
+                  </span>
+                  <select name="billing_from" id="billing_from" class="form-control" required>
+                    <option value="">Select Billing Source</option>
                     <?php if(isset($_SESSION['logged_billing_manager'])){ 
                             $center = $all_method->get_center(); 
                             if($_SESSION['logged_billing_manager']['center_type'] == "associated"){ ?>
-                    	      <option value="<?php echo $center['center_number']; ?>"><?php echo $center['center_name']; ?></option>
+                      <option value="<?php echo $center['center_number']; ?>"><?php echo $center['center_name']; ?></option>
                     <?php } } ?>
                     <option value="IndiaIVF">IndiaIVF</option>       
-                </select>
-            </div>
+                  </select>
+                </div>
+              </div>
+              
               <div class="form-group col-sm-6 col-xs-12 hospital_id_section" style="display:none;">
-               <label for="item_name">Hospital ID</label>
-               <input value="" id="hospital_id" name="hospital_id" type="text" class="form-control validate">
-			         <?php if($_SESSION['logged_billing_manager']['employee_number'] == "16249617235059" ){ ?>
-						<input value="001/C/<?php $year = date("y"); echo $year, $year+1; ?>/" id="series_number" name="series_number" type="hidden" class="form-control validate">
-					<?php  } ?>	
-                	<?php if($_SESSION['logged_billing_manager']['employee_number'] == "16266784114794" ){ ?>
-						<input value="002/C/<?php $year = date("y"); echo $year, $year+1; ?>/" id="series_number" name="series_number" type="hidden" class="form-control validate">
-					<?php  } ?>	
-					<?php if($_SESSION['logged_billing_manager']['employee_number'] == "16289367598583" ){ ?>
-						<input value="003/C/<?php $year = date("y"); echo $year, $year+1; ?>/" id="series_number" name="series_number" type="hidden" class="form-control validate">
-					<?php  } ?>	
-					<?php if($_SESSION['logged_billing_manager']['employee_number'] == "16299510247261" ){ ?>
-						<input value="005/C/<?php $year = date("y"); echo $year, $year+1; ?>/" id="series_number" name="series_number" type="hidden" class="form-control validate">
-					<?php  } ?>	
+                <label for="hospital_id" class="control-label" style="font-weight: 600; color: #34495e;">
+                  <i class="fa fa-hospital" style="margin-right: 5px; color: #3498db;"></i>
+                  Hospital ID
+                </label>
+                <div class="input-group">
+                  <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                    <i class="fa fa-id-badge"></i>
+                  </span>
+                  <input value="" id="hospital_id" name="hospital_id" type="text" class="form-control" placeholder="Enter hospital ID">
+                </div>
+                <?php if($_SESSION['logged_billing_manager']['employee_number'] == "16249617235059" ){ ?>
+                  <input value="001/C/<?php $year = date("y"); echo $year, $year+1; ?>/" id="series_number" name="series_number" type="hidden" class="form-control">
+                <?php  } ?>  
+                <?php if($_SESSION['logged_billing_manager']['employee_number'] == "16266784114794" ){ ?>
+                  <input value="002/C/<?php $year = date("y"); echo $year, $year+1; ?>/" id="series_number" name="series_number" type="hidden" class="form-control">
+                <?php  } ?>  
+                <?php if($_SESSION['logged_billing_manager']['employee_number'] == "16289367598583" ){ ?>
+                  <input value="003/C/<?php $year = date("y"); echo $year, $year+1; ?>/" id="series_number" name="series_number" type="hidden" class="form-control">
+                <?php  } ?>  
+                <?php if($_SESSION['logged_billing_manager']['employee_number'] == "16299510247261" ){ ?>
+                  <input value="005/C/<?php $year = date("y"); echo $year, $year+1; ?>/" id="series_number" name="series_number" type="hidden" class="form-control">
+                <?php  } ?>  
+              </div>
             </div>
-         </div>
-         
-         <div class="clearfix"></div>
-	     <div class="form-group col-sm-12 col-xs-12">
-            <a class="btn btn-large" id="create_billing" href="javascript:void(0);">Create Billing</a>
-         </div>
-      </div>
-      </p>
-    </div>
-    
-    <div class="col-sm-12 col-xs-12 panel panel-piluku" style="display:none;" id="consultation_preview">
-      <div class="panel-heading">
-        <h3 class="heading">Billing Summary</h3>
-        <input type='button' id='btn' value='Print' class="btn btn-primary pull-right" onclick='printDiv();'>
-      </div>
-      <div class="panel-body profile-edit">
-      <p id="msg_area" class="delete"></p>
-        <p>
-        <table border="1" id="print_this_section" style="width:100%; border: 1px solid black; border-collapse: collapse;">
-        <tr style="width:100%; border: 1px solid black; border-collapse: collapse;">
-          <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;" colspan="2" >Billing summary:</th>
-        </tr>
-        
-        <tr style="width:100%; border: 1px solid black; border-collapse: collapse;">
-          <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">Doctor:</th>
-          <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;" id="doctor_id_text"></td>
-        </tr>
-
-        <tr style="width:100%; border: 1px solid black; border-collapse: collapse;">
-          <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">Date:</th>
-          <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;" id="on_date_text"></td>
-        </tr>
-        
-        <tr style="width:100%; border: 1px solid black; border-collapse: collapse;">
-          <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">IIC ID:</th>
-          <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;" id="iic_id_text"></td>
-        </tr>
-
-        <tr style="width:100%; border: 1px solid black; border-collapse: collapse;">
-          <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">Receipt number:</th>
-          <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;" id="receipt_number_text"></td>
-        </tr>
-
-        <tr style="width:100%; border: 1px solid black; border-collapse: collapse;">
-          <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">Fees:</th>
-          <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;" id="fees_text"></td>
-        </tr>
-
-        <tr style="width:100%; border: 1px solid black; border-collapse: collapse;">
-          <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">Payment received:</th>
-          <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;" id="payment_done_text"></td>
-        </tr>  
-
-        <tr style="width:100%; border: 1px solid black; border-collapse: collapse;">
-          <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">Remaining amount:</th>
-          <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;" id="remaining_amount_text"></td>
-        </tr>
-      </table>
-
-          <div class="row">
-             <!-- <div class="form-group col-sm-6 col-xs-12 role">
-                <label for="statuss">Payment mode (Optional for free)</label>
-                <select name="payment_method" id="payment_method" required>
-                    <option value="">Select</option>
-                   	<?php if($appointments['nationality'] == 'indian'){?>
-               			<option value="neft" mode="NEFT">NEFT</option>
-               			<option value="rtgs" mode="RTGS">RTGS</option>
-        	       		<option value="card" mode="Card">Card</option>
-    	           		<option value="insurance" mode="Insurance">Insurance</option>
-                    <?php }else{ ?>
-	                    <option value="international_card" mode="International Card">International Card</option>
-                    <?php } ?>
-                    <option value="cash" mode="Cash">Cash</option>
-                    <option value="cheque" mode="Cheque">Cheque</option>                    
-                </select>
-            </div> -->
             
-            <div class="form-group col-sm-6 col-xs-12" id="transaction" style="display:none;">
-               <label for="item_name">Reference no. (Optional)</label>
-               <input value="" placeholder="Reference no." id="transaction_id" name="transaction_id" type="text" class="form-control validate" required>
-               <label>Upload screenshot/document here</label>
-               <input type="file" name="transaction_img" id="transaction_img"  />
+            <!-- Action Buttons -->
+            <div class="row">
+              <div class="col-sm-12 text-center">
+                <div class="btn-group" role="group">
+                  <button type="button" class="btn btn-primary btn-lg" id="create_billing" style="padding: 12px 30px; font-weight: 600; border-radius: 6px;">
+                    <i class="fa fa-plus-circle" style="margin-right: 8px;"></i>
+                    Create Billing
+                  </button>
+                </div>
+              </div>
             </div>
-         </div>
+          </div>
+        </div>
+    
+    <div class="col-sm-12" style="display:none;" id="consultation_preview">
+      <div class="panel panel-success">
+        <div class="panel-heading" style="background: linear-gradient(135deg, #27ae60, #229954); border: none;">
+          <h3 class="panel-title" style="color: white; font-weight: 600;">
+            <i class="fa fa-check-circle" style="margin-right: 8px;"></i>
+            Billing Summary
+          </h3>
+          <div class="pull-right">
+            <button type='button' id='btn' class="btn btn-warning btn-sm" onclick='printDiv();' style="margin-top: -5px;">
+              <i class="fa fa-print" style="margin-right: 5px;"></i>
+              Print
+            </button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding: 30px; background-color: #f8f9fa;">
+          <div id="msg_area" class="alert alert-danger" style="display: none;"></div>
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped" id="print_this_section" style="margin-bottom: 0;">
+              <thead style="background-color: #34495e; color: white;">
+                <tr>
+                  <th colspan="2" style="text-align: center; font-size: 16px; padding: 15px;">
+                    <i class="fa fa-file-text-o" style="margin-right: 8px;"></i>
+                    Billing Summary
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="width: 40%; font-weight: 600; background-color: #ecf0f1;">
+                    <i class="fa fa-user-md" style="margin-right: 8px; color: #3498db;"></i>
+                    Doctor:
+                  </td>
+                  <td id="doctor_id_text" style="font-weight: 500;"></td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; background-color: #ecf0f1;">
+                    <i class="fa fa-calendar" style="margin-right: 8px; color: #3498db;"></i>
+                    Date:
+                  </td>
+                  <td id="on_date_text" style="font-weight: 500;"></td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; background-color: #ecf0f1;">
+                    <i class="fa fa-id-card-o" style="margin-right: 8px; color: #3498db;"></i>
+                    IIC ID:
+                  </td>
+                  <td id="iic_id_text" style="font-weight: 500;"></td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; background-color: #ecf0f1;">
+                    <i class="fa fa-receipt" style="margin-right: 8px; color: #3498db;"></i>
+                    Receipt Number:
+                  </td>
+                  <td id="receipt_number_text" style="font-weight: 500;"></td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; background-color: #ecf0f1;">
+                    <i class="fa fa-rupee" style="margin-right: 8px; color: #3498db;"></i>
+                    Fees:
+                  </td>
+                  <td id="fees_text" style="font-weight: 500;"></td>
+                </tr>
+                <tr>
+                  <td style="font-weight: 600; background-color: #ecf0f1;">
+                    <i class="fa fa-money" style="margin-right: 8px; color: #3498db;"></i>
+                    Payment Received:
+                  </td>
+                  <td id="payment_done_text" style="font-weight: 500;"></td>
+                </tr>  
+                <tr>
+                  <td style="font-weight: 600; background-color: #ecf0f1;">
+                    <i class="fa fa-balance-scale" style="margin-right: 8px; color: #3498db;"></i>
+                    Remaining Amount:
+                  </td>
+                  <td id="remaining_amount_text" style="font-weight: 500;"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Transaction Details (Hidden by default) -->
+          <div class="row" id="transaction" style="display:none; margin-top: 20px;">
+            <div class="col-sm-12">
+              <h5 style="color: #2c3e50; border-bottom: 1px solid #bdc3c7; padding-bottom: 5px; margin-bottom: 15px;">
+                <i class="fa fa-credit-card" style="margin-right: 8px; color: #3498db;"></i>
+                Transaction Details
+              </h5>
+            </div>
+            <div class="form-group col-sm-6 col-xs-12">
+              <label for="transaction_id" class="control-label" style="font-weight: 600; color: #34495e;">
+                <i class="fa fa-hashtag" style="margin-right: 5px; color: #3498db;"></i>
+                Reference Number <span class="text-muted">(Optional)</span>
+              </label>
+              <div class="input-group">
+                <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                  <i class="fa fa-barcode"></i>
+                </span>
+                <input value="" placeholder="Enter reference number" id="transaction_id" name="transaction_id" type="text" class="form-control">
+              </div>
+            </div>
+            <div class="form-group col-sm-6 col-xs-12">
+              <label for="transaction_img" class="control-label" style="font-weight: 600; color: #34495e;">
+                <i class="fa fa-upload" style="margin-right: 5px; color: #3498db;"></i>
+                Upload Document
+              </label>
+              <div class="input-group">
+                <span class="input-group-addon" style="background-color: #ecf0f1; border-color: #bdc3c7;">
+                  <i class="fa fa-file"></i>
+                </span>
+                <input type="file" name="transaction_img" id="transaction_img" class="form-control" accept="image/*,.pdf">
+              </div>
+              <small class="help-block text-muted">Upload screenshot or document (JPG, PNG, PDF)</small>
+            </div>
+          </div>
           
-         <div class="clearfix"></div>
-	     <div class="form-group col-sm-12 col-xs-12">
-            <a class="btn btn-large" id="edit_billing" href="javascript:void(0);">Edit Billing</a>
-            <input type="submit" id="submitbutton" class="btn btn-large" value="Create Billing" />
-         </div>
+          <!-- Final Action Buttons -->
+          <div class="row" style="margin-top: 30px;">
+            <div class="col-sm-12 text-center">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-warning btn-lg" id="edit_billing" style="padding: 12px 25px; font-weight: 600; border-radius: 6px; margin-right: 10px;">
+                  <i class="fa fa-edit" style="margin-right: 8px;"></i>
+                  Edit Billing
+                </button>
+                <button type="submit" id="submitbutton" class="btn btn-success btn-lg" style="padding: 12px 25px; font-weight: 600; border-radius: 6px;">
+                  <i class="fa fa-check" style="margin-right: 8px;"></i>
+                  Create Billing
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      </p>
     </div>
   </div>
 </form>
+</div>
 
 <script type="text/javascript">
   $(document).on('keyup',"#subvention_charges",function(e) {

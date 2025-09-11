@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 //$config['protocol'] = "http" . ((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == "on") ? "s" : "") . "://";
 $config['protocol'] = "http://";
-$config['base_url'] = $config['protocol'] . 'indiaivf.website/';
+$config['base_url'] = $config['protocol'] . 'infra.indiaivf.website/';
 $config['index_page'] = 'index.php';
 $config['uri_protocol']	= 'REQUEST_URI';
 $config['url_suffix'] = '';

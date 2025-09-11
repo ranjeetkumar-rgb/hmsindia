@@ -11,7 +11,7 @@
 <table>
 <tr>
 <th style="color: red;">
-<img src="https://indiaivf.website//assets/images/India-IVF-Logo-Option-5.png" style="width:300px">
+<img src="https://infra.indiaivf.website//assets/images/India-IVF-Logo-Option-5.png" style="width:300px">
 </th>
 <td>
 <table width="100%">
@@ -110,7 +110,7 @@ Address and Signature of the Witness from the clinic:-<span id="username20" styl
 <table>
 <tr>
 <th style="color: red;">
-<img src="https://indiaivf.website//assets/images/India-IVF-Logo-Option-5.png" style="width:300px">
+<img src="https://infra.indiaivf.website//assets/images/India-IVF-Logo-Option-5.png" style="width:300px">
 </th>
 <td>
 <table width="100%">

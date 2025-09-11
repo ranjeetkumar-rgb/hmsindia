@@ -43,7 +43,7 @@ $select_result4 = run_select_query($sql4);
 
     <th style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;">UHID:</th>
 
-    <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;"><?php echo $center_data['center_code']."/".$select_result4['uhid']; ?></td>
+    <td style="border: 1px solid black; border-collapse: collapse;padding:5px; text-align:left;"><?php echo (isset($center_data['center_code']) ? $center_data['center_code'] : '') ."/". (isset($select_result4['uhid']) ? $select_result4['uhid'] : ''); ?></td>
 
   </tr>
 

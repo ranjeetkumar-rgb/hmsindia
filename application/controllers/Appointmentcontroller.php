@@ -31,17 +31,13 @@ class Appointmentcontroller extends CI_Controller {
 		if($logg['status'] == true){
 			$data = array();
 			$template = get_header_template($logg['role']);
-			
-			
-			
 			if (!empty($_SESSION['logged_billing_manager']['center'])) {
 				$center = $_SESSION['logged_billing_manager']['center'];
 			} elseif (!empty($_SESSION['logged_counselor']['center'])) {
 				$center = $_SESSION['logged_counselor']['center'];
 			} else {
-				$center = null; // Default if neither exists
+				$center = null; 
 			}
-			
 			$per_page = $this->input->get('per_page', true);
 			if(empty($per_page)){
 				$per_page = 0;
@@ -183,19 +179,12 @@ class Appointmentcontroller extends CI_Controller {
 		}
 	}
 	
-	public function appointment_status(){
-		
+	public function appointment_status()
+	{
 		$appointment_status = $_POST['appointment_status'];
 		$appointment_id = $_POST['appointment_id'];
-		
-		print_r($this->session->userdata['logged_billing_manager']);
-		
 		$status = $this->appointment_model->appointment_status($appointment_status, $appointment_id);
 		if($status > 0){
-			/* 
-				Start API
-				This API is used for update appointment status in crm.
-			*/
 		    $sql2 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$appointment_id."' limit 1"; 
 			$query2 = $this->db->query($sql2);
             $select_result2 = $query2->result(); 
@@ -205,7 +194,6 @@ class Appointmentcontroller extends CI_Controller {
 				$appoitment_for = $res_val->appoitment_for;
 				$wife_phone = $res_val->wife_phone;
 			}
-			
 		    $url="https://flertility.in/appointment/hms-appointment-status/?accessKey=AKIA3OFKVR3DZWGD7HSGKTER001";
 			$data= array(
 				'patient_id'=>$res_val->paitent_id,
@@ -221,10 +209,8 @@ class Appointmentcontroller extends CI_Controller {
 			curl_setopt($ch, CURLOPT_URL,$url);
 			curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			
 			curl_exec($ch);
 			curl_close($ch);
-			/* End API */
 			$response = array('status' => 'status_updated', 'message'=> 'Appointment updated');
 			echo json_encode($response);
 			die;
@@ -243,21 +229,17 @@ class Appointmentcontroller extends CI_Controller {
 			$reschedule_appointment_id = $_POST['reschedule_appointment_id'];unset($_POST['reschedule_appointment_id']);
 			$update_appointment = $this->appointment_model->reschedule_appointment_update($_POST, $reschedule_appointment_id);
 			if($update_appointment > 0){
-
 				$appointment_details = doctor_appointment($reschedule_appointment_id);
 				$doctor_details = doctor_details($appointment_details['appoitmented_doctor']);
-	
 				$patient_to = $patient_subject = $patient_message = $doctor_to = $doctor_subject = $doctor_message = "";
 				//Patient emails
 				$patient_to = $appointment_details['wife_email'];
 				$patient_subject = "Appointment rescheduled";
 				$patient_message = "Hi ".$appointment_details['wife_name'].",<br/> Your appointment is rescheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
 				send_mail($patient_to, $patient_subject, $patient_message);
-				
 				$patient_phone = $appointment_details['wife_phone'];
 				$sms_message = "Hi ".$appointment_details['wife_name'].", Your appointment is rescheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
 				send_sms($patient_phone, $sms_message);
-					
 				//Doctor emails
 				$doctor_to = $doctor_details['email'];
 				$doctor_subject = "Appointment rescheduled";
@@ -284,27 +266,22 @@ class Appointmentcontroller extends CI_Controller {
 			$reschedule_appointment_id = $_POST['reschedule_appointment_id'];unset($_POST['reschedule_appointment_id']);
 			$update_appointment = $this->appointment_model->reschedule_appointment_update($_POST, $reschedule_appointment_id);
 			if($update_appointment > 0){
-
 				$appointment_details = doctor_appointment($reschedule_appointment_id);
 				$doctor_details = doctor_details($appointment_details['appoitmented_doctor']);
-	
 				$patient_to = $patient_subject = $patient_message = $doctor_to = $doctor_subject = $doctor_message = "";
 				//Patient emails
 				$patient_to = $appointment_details['wife_email'];
 				$patient_subject = "Appointment rescheduled";
 				$patient_message = "Hi ".$appointment_details['wife_name'].",<br/> Your appointment is rescheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
 				send_mail($patient_to, $patient_subject, $patient_message);
-				
 				$patient_phone = $appointment_details['wife_phone'];
 				$sms_message = "Hi ".$appointment_details['wife_name'].", Your appointment is rescheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
 				send_sms($patient_phone, $sms_message);
-					
 				//Doctor emails
 				$doctor_to = $doctor_details['email'];
 				$doctor_subject = "Appointment rescheduled";
 				$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Appointment is rescheduled on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
 				send_mail($doctor_to, $doctor_subject, $doctor_message);
-
 				header("location:" .base_url(). "telecaller-appointments?m=".base64_encode('Appointment rescheduled!').'&t='.base64_encode('success'));
 				die();
 			}else{
@@ -318,7 +295,6 @@ class Appointmentcontroller extends CI_Controller {
 	}
 	
 	function ajax_appointment_filter(){
-		
 		if($_POST['type'] == 'by_doctor'){
 			$doctor = $_POST['doctor'];
 			$data = $this->appointment_model->ajax_appointment_doctor_data($doctor);
@@ -337,7 +313,6 @@ class Appointmentcontroller extends CI_Controller {
 			echo json_encode($response);
 			die;
 		}
-		
 		if(!empty($data)){
 			$appointment_html = "";
 			$count = 1;			
@@ -349,7 +324,6 @@ class Appointmentcontroller extends CI_Controller {
 				if($vl['status'] == 'visited'){ $billing_done = "selected='selected'"; }
 				if($vl['status'] == 'consultation'){ $patient_in = "selected='selected'"; }
 				if($vl['status'] == 'in_clinic'){ $inclinic_select = "selected='selected'"; }
-				
 				$appointment_html .= '<tr class="odd gradeX"><td>'.$count.'</td>';
 				if($vl['paitent_type'] == 'exist_patient'){
 					 $appointment_html .= '<td><a target="_blank" href="'.base_url().'patient_details/'.$vl['paitent_id'].'">'.$vl['wife_name'].'</a></td>';
@@ -367,7 +341,6 @@ class Appointmentcontroller extends CI_Controller {
                                 </select></td>';
 								}
 						}else{ $appointment_html .= '<td>'.strtoupper($vl['status']).'<td>';}
-				
 				if($vl['billed'] == '0'){ if($vl['status'] == "in_clinic"){
 					$appointment_html .= '<td><a href="'.base_url('consultation/'.$vl['ID']).'" class="btn btn-primary" id="billing_link_'.$vl['ID'].'">Consultation billing</a></td>';
 				}else{$appointment_html .= '<td></td>';} }else{ $appointment_html .= '<td>BILLED</td>'; }
@@ -390,20 +363,16 @@ class Appointmentcontroller extends CI_Controller {
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_followup'){
 				unset($_POST['action']);
 				$patient_details  = get_patient_detail($_POST['paitent_id']);
-				
 				if(empty($_POST['appoitment_for']) && empty($_POST['appoitmented_date']) && empty($_POST['appoitmented_doctor']) && empty($_POST['appoitmented_slot'])){
 				    header("location:" .base_url()."follow-up-appointment?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
 					die();
 				}
-				
 				$appointments = $this->billingmodel_model->search_appointment($patient_details['wife_phone'], "phone");
     			if(count($appointments) > 0){
     				header("location:" .base_url(). "follow-up-appointment?m=".base64_encode('Appointment already booked. Go to my appointments').'&t='.base64_encode('error'));
     				die();
     			}
-				
 				// var_dump($_POST);die;
-				
 				$doctor_details = doctor_details($_POST['appoitmented_doctor']);
 				$appointment_arr = array();
 				$appointment_arr['paitent_type'] = 'exist_patient';
@@ -420,16 +389,13 @@ class Appointmentcontroller extends CI_Controller {
 				$appointment_arr['follow_up_appointment'] = 1;
 				$appointment_arr['previous_appointment'] = 0;
 				$appointment_arr['appointment_added'] = date('Y-m-d H:i:s');
-				
 				$appointment = $this->billingmodel_model->insert_appointments($appointment_arr);
 				if($appointment > 0){
 				    $patient_phone = $patient_details['wife_phone'];
-				    
 				    $centre_details = get_centre_details($appointment_arr['appoitment_for']);
     				$appointwhatmsg = array();
     				$appointwhatmsg = array($appointment_arr['wife_name'], $centre_details['center_name'], date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])), $appointment_arr['appoitmented_slot'], isset($centre_details['center_location'])?$centre_details['center_location']:"");
                     $appointsendmsg = whatsappappointment($patient_phone, $appointment_arr['wife_name'], $centre_details['center_name'], date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])), $appointment_arr['appoitmented_slot'], isset($centre_details['center_location'])?$centre_details['center_location']:"");
-				    
 					$doctor_details = doctor_details($appointment_arr['appoitmented_doctor']);
 					$patient_to = $patient_subject = $patient_message = $doctor_to = $doctor_subject = $doctor_message = "";
 					//Patient emails
@@ -437,17 +403,13 @@ class Appointmentcontroller extends CI_Controller {
 					$patient_subject = "Followup appointment booked";
 					$patient_message = "Hi ".$patient_details['wife_name'].",<br/> Your followup appointment is booked with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($appointment_arr['appoitmented_date']))." at ".$appointment_arr['appoitmented_slot'].".";
 					send_mail($patient_to, $patient_subject, $patient_message);
-					
-					
 					$sms_message = "Hi ".$patient_details['wife_name'].", Your followup appointment is booked with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($appointment_arr['appoitmented_date']))." at ".$appointment_arr['appoitmented_slot'].".";
 					send_sms($patient_phone, $sms_message);
-					
 					//Doctor emails
 					$doctor_to = $doctor_details['email'];
 					$doctor_subject = "Followup appointment";
 					$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Followup Appointment is booked on ".date("d-m-Y", strtotime($appointment_arr['appoitmented_date']))." at ".$appointment_arr['appoitmented_slot'].".";
 					send_mail($doctor_to, $doctor_subject, $doctor_message);
-					
 					header("location:" .base_url()."follow-up-appointment?m=".base64_encode('Followup booked successfully!').'&t='.base64_encode('success'));
 					die();
 				}else{
@@ -455,7 +417,6 @@ class Appointmentcontroller extends CI_Controller {
 					die();
 				}
 			}
-
 			$data = array();
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
@@ -468,13 +429,11 @@ class Appointmentcontroller extends CI_Controller {
 	}
 	
 	//QUERY
-
 	function center_doctors(){
 		$center = $_SESSION['logged_billing_manager']['center'];
 		$doctor_list = $this->doctors_model->get_center_doctors($center);
 		return $doctor_list;
 	}
-	
 	function doctor_name($doctor_id){
 		$doctor_name = $this->doctors_model->get_doctor_data($doctor_id);
 		if(!empty($doctor_name)){
@@ -487,7 +446,7 @@ class Appointmentcontroller extends CI_Controller {
 		return $center;
 	}
 	
-function all_appointments()
+	function all_appointments()
 	{
 	    try{
                $data = $this->input->get();
@@ -557,6 +516,606 @@ function all_appointments()
                             ->set_status_header(200)
                             ->set_output(json_encode($Json));
             }
+	}
+
+	/**
+	 * Modern Appointments Page
+	 */
+	public function modern_appointments()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/index', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	/**
+	 * Get Appointments via AJAX
+	 */
+	public function getAppointments()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			try {
+				$filters = $this->getFilters();
+				$page = $this->input->get('page', TRUE) ?: 1;
+				$limit = $this->input->get('limit', TRUE) ?: 10;
+				$center = $this->getCenter();
+				// Convert page to offset for the existing model (which expects 0-based offset)
+				$offset = ($page - 1) * $limit;
+				$appointments = $this->appointment_model->my_appointments_pagination(
+					$limit, 
+					$offset, 
+					$center, 
+					$filters['start_date'], 
+					$filters['end_date'], 
+					$filters['patient_id'], 
+					$filters['patient_name'], 
+					$filters['status'], 
+					$filters['doctor_id'], 
+					$filters['patient_type'], 
+					$filters['crm_id']
+				);
+				// Add doctor names to appointments
+				foreach($appointments as $key => $appointment) {
+					$appointments[$key]['doctor_name'] = $this->doctor_name($appointment['appoitmented_doctor']);
+				}
+				$total = $this->appointment_model->my_appointments_count(
+					$center, 
+					$filters['start_date'], 
+					$filters['end_date'], 
+					$filters['patient_id'], 
+					$filters['patient_name'], 
+					$filters['status'], 
+					$filters['doctor_id'], 
+					$filters['patient_type'], 
+					$filters['crm_id']
+				);
+				$paginationData = $this->getPaginationData($total, $limit, $page);
+				// Debug logging
+				error_log("Pagination Debug - Page: $page, Limit: $limit, Total: $total, Offset: $offset");
+				error_log("Pagination Data: " . json_encode($paginationData));
+				error_log("Appointments Count: " . count($appointments));
+				$response = [
+					'status' => true, 
+					'message' => 'Appointments retrieved successfully',
+					'data' => [
+						'appointments' => $appointments,
+						'pagination' => $paginationData,
+						'filters' => $filters
+					]
+				];
+			} catch (Exception $e) {
+				$response = ['status' => false, 'message' => 'Failed to retrieve appointments: ' . $e->getMessage()];
+			}
+		} else {
+			$response = ['status' => false, 'message' => 'Authentication required'];
+		}
+		
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
+
+	/**
+	 * Create new appointment
+	 */
+	public function create()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			if ($this->input->method() === 'post') {
+				try {
+					$appointmentData = $this->prepareAppointmentData();
+					$appointmentId = $this->billingmodel_model->insert_appointments($appointmentData);
+					if ($appointmentId) {
+						$response = ['status' => true, 'message' => 'Appointment created successfully', 'data' => ['appointment_id' => $appointmentId]];
+					} else {
+						$response = ['status' => false, 'message' => 'Failed to create appointment'];
+					}
+				} catch (Exception $e) {
+					$response = ['status' => false, 'message' => 'Error creating appointment: ' . $e->getMessage()];
+				}
+			} else {
+				$response = ['status' => false, 'message' => 'Invalid request method'];
+			}
+		} else {
+			$response = ['status' => false, 'message' => 'Authentication required'];
+		}
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
+
+	/**
+	 * Update appointment status
+	 */
+	public function updateStatus()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			try {
+				$appointmentId = $this->input->post('appointment_id');
+				$status = $this->input->post('status');
+				if (!$appointmentId || !$status) {
+					$response = ['status' => false, 'message' => 'Appointment ID and status are required'];
+				} else {
+					$result = $this->appointment_model->appointment_status($status, $appointmentId);
+					
+					if ($result) {
+						$response = ['status' => true, 'message' => 'Appointment status updated successfully'];
+					} else {
+						$response = ['status' => false, 'message' => 'Failed to update appointment status'];
+					}
+				}
+				
+			} catch (Exception $e) {
+				$response = ['status' => false, 'message' => 'Error updating status: ' . $e->getMessage()];
+			}
+		} else {
+			$response = ['status' => false, 'message' => 'Authentication required'];
+		}
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
+
+	/**
+	 * Reschedule appointment
+	 */
+	public function reschedule()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			try {
+				$appointmentId = $this->input->post('appointment_id');
+				$newDate = $this->input->post('new_date');
+				$newTime = $this->input->post('new_time');
+				$reason = $this->input->post('reason');
+				if (!$appointmentId || !$newDate || !$newTime) {
+					$response = ['status' => false, 'message' => 'Appointment ID, new date, and new time are required'];
+				} else {
+					$updateData = [
+						'appoitmented_date' => $newDate,
+						'appoitmented_slot' => $newTime,
+						'status' => 'rescheduled',
+						'reschedule_reason' => $reason
+					];
+					
+					$result = $this->appointment_model->reschedule_appointment_update($updateData, $appointmentId);
+					
+					if ($result) {
+						$response = ['status' => true, 'message' => 'Appointment rescheduled successfully'];
+					} else {
+						$response = ['status' => false, 'message' => 'Failed to reschedule appointment'];
+					}
+				}
+				
+			} catch (Exception $e) {
+				$response = ['status' => false, 'message' => 'Error rescheduling appointment: ' . $e->getMessage()];
+			}
+		} else {
+			$response = ['status' => false, 'message' => 'Authentication required'];
+		}
+		
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
+
+	/**
+	 * Cancel appointment
+	 */
+	public function cancel()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			try {
+				$appointmentId = $this->input->post('appointment_id');
+				$reason = $this->input->post('reason');
+				
+				if (!$appointmentId || !$reason) {
+					$response = ['status' => false, 'message' => 'Appointment ID and reason are required'];
+				} else {
+					$updateData = [
+						'status' => 'cancelled',
+						'cancellation_reason' => $reason
+					];
+					
+					$result = $this->appointment_model->reschedule_appointment_update($updateData, $appointmentId);
+					
+					if ($result) {
+						$response = ['status' => true, 'message' => 'Appointment cancelled successfully'];
+					} else {
+						$response = ['status' => false, 'message' => 'Failed to cancel appointment'];
+					}
+				}
+				
+			} catch (Exception $e) {
+				$response = ['status' => false, 'message' => 'Error cancelling appointment: ' . $e->getMessage()];
+			}
+		} else {
+			$response = ['status' => false, 'message' => 'Authentication required'];
+		}
+		
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
+
+	/**
+	 * Get appointment details
+	 */
+	public function getDetails($appointmentId)
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			try {
+				$appointment = $this->appointment_model->doctor_appointment_details($appointmentId);
+				
+				if ($appointment) {
+					$response = ['status' => true, 'message' => 'Appointment details retrieved successfully', 'data' => $appointment];
+				} else {
+					$response = ['status' => false, 'message' => 'Appointment not found'];
+				}
+				
+			} catch (Exception $e) {
+				$response = ['status' => false, 'message' => 'Error retrieving appointment: ' . $e->getMessage()];
+			}
+		} else {
+			$response = ['status' => false, 'message' => 'Authentication required'];
+		}
+		
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
+
+	/**
+	 * Export appointments to CSV
+	 */
+	public function export()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			try {
+				$filters = $this->getFilters();
+				$center = $this->getCenter();
+				
+				$appointments = $this->appointment_model->export_my_appointments(
+					$filters['start_date'], 
+					$filters['end_date'], 
+					$center, 
+					$filters['patient_id'], 
+					$filters['doctor_id'], 
+					$filters['patient_name'], 
+					$filters['patient_type'], 
+					$filters['crm_id']
+				);
+				
+				$this->exportToCSV($appointments);
+				
+			} catch (Exception $e) {
+				$response = ['status' => false, 'message' => 'Error exporting appointments: ' . $e->getMessage()];
+				$this->output
+					->set_content_type('application/json')
+					->set_output(json_encode($response));
+			}
+		} else {
+			redirect(base_url());
+		}
+	}
+
+	/**
+	 * Get available time slots
+	 */
+	public function getAvailableSlots()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$doctorId = $this->input->get('doctor_id', TRUE);
+			$date = $this->input->get('date', TRUE);
+			
+			if (!$doctorId || !$date) {
+				$response = ['status' => false, 'message' => 'Doctor ID and date are required'];
+			} else {
+				try {
+					$slots = $this->getTimeSlots();
+					$response = ['status' => true, 'message' => 'Available slots retrieved successfully', 'data' => $slots];
+				} catch (Exception $e) {
+					$response = ['status' => false, 'message' => 'Error retrieving slots: ' . $e->getMessage()];
+				}
+			}
+		} else {
+			$response = ['status' => false, 'message' => 'Authentication required'];
+		}
+		
+		$this->output
+			->set_content_type('application/json')
+			->set_output(json_encode($response));
+	}
+
+	// Private helper methods
+
+	private function getFilters()
+	{
+		return [
+			'status' => $this->input->get('status', TRUE),
+			'doctor_id' => $this->input->get('doctor_id', TRUE),
+			'center_id' => $this->input->get('center_id', TRUE),
+			'patient_name' => $this->input->get('patient_name', TRUE),
+			'patient_phone' => $this->input->get('patient_phone', TRUE),
+			'start_date' => $this->input->get('start_date', TRUE),
+			'end_date' => $this->input->get('end_date', TRUE),
+			'patient_type' => $this->input->get('patient_type', TRUE),
+			'crm_id' => $this->input->get('crm_id', TRUE),
+			'patient_id' => $this->input->get('patient_id', TRUE) ?: null
+		];
+	}
+
+	private function getCenter()
+	{
+		if (!empty($_SESSION['logged_billing_manager']['center'])) {
+			return $_SESSION['logged_billing_manager']['center'];
+		} elseif (!empty($_SESSION['logged_counselor']['center'])) {
+			return $_SESSION['logged_counselor']['center'];
+		}
+		return null;
+	}
+
+	private function getPaginationData($total, $limit, $page)
+	{
+		return [
+			'total' => $total,
+			'per_page' => $limit,
+			'current_page' => $page,
+			'total_pages' => ceil($total / $limit)
+		];
+	}
+
+	private function prepareAppointmentData()
+	{
+		return [
+			'wife_name' => $this->input->post('patient_name'),
+			'wife_phone' => $this->input->post('patient_phone'),
+			'wife_email' => $this->input->post('patient_email'),
+			'appoitmented_date' => $this->input->post('appointment_date'),
+			'appoitmented_slot' => $this->input->post('appointment_time'),
+			'appoitmented_doctor' => $this->input->post('doctor_id'),
+			'appoitment_for' => $this->input->post('center_id'),
+			'reason_of_visit' => $this->input->post('reason'),
+			'paitent_type' => $this->input->post('patient_type') ?: 'new_patient',
+			'appointment_added' => date('Y-m-d H:i:s')
+		];
+	}
+
+	private function getTimeSlots()
+	{
+		return [
+			['value' => '09:00', 'label' => '9:00 AM'],
+			['value' => '09:30', 'label' => '9:30 AM'],
+			['value' => '10:00', 'label' => '10:00 AM'],
+			['value' => '10:30', 'label' => '10:30 AM'],
+			['value' => '11:00', 'label' => '11:00 AM'],
+			['value' => '11:30', 'label' => '11:30 AM'],
+			['value' => '12:00', 'label' => '12:00 PM'],
+			['value' => '12:30', 'label' => '12:30 PM'],
+			['value' => '14:00', 'label' => '2:00 PM'],
+			['value' => '14:30', 'label' => '2:30 PM'],
+			['value' => '15:00', 'label' => '3:00 PM'],
+			['value' => '15:30', 'label' => '3:30 PM'],
+			['value' => '16:00', 'label' => '4:00 PM'],
+			['value' => '16:30', 'label' => '4:30 PM'],
+			['value' => '17:00', 'label' => '5:00 PM'],
+			['value' => '17:30', 'label' => '5:30 PM']
+		];
+	}
+
+	private function exportToCSV($appointments)
+	{
+		$filename = 'appointments_' . date('Y-m-d_H-i-s') . '.csv';
+		
+		header('Content-Type: text/csv');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		
+		$output = fopen('php://output', 'w');
+		
+		// CSV headers
+		fputcsv($output, [
+			'ID', 'Patient Name', 'Phone', 'Email', 'Doctor', 'Center', 
+			'Date', 'Time', 'Status', 'Reason', 'Created Date'
+		]);
+		
+		// CSV data
+		foreach ($appointments as $appointment) {
+			fputcsv($output, [
+				$appointment['ID'] ?? '',
+				$appointment['wife_name'] ?? '',
+				$appointment['wife_phone'] ?? '',
+				$appointment['wife_email'] ?? '',
+				$appointment['doctor_name'] ?? '',
+				$appointment['center_name'] ?? '',
+				$appointment['appoitmented_date'] ?? '',
+				$appointment['appoitmented_slot'] ?? '',
+				$appointment['status'] ?? '',
+				$appointment['reason_of_visit'] ?? '',
+				$appointment['appointment_added'] ?? ''
+			]);
+		}
+		
+		fclose($output);
+		exit;
+	}
+
+	// ===========================================
+	// MODERN APPOINTMENTS EXTENDED MODULES
+	// ===========================================
+
+	/**
+	 * Modern Create Appointment Page
+	 */
+	public function modern_create()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			$data['doctors'] = $this->center_doctors();
+			$data['centers'] = $this->get_center_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/modern_create', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	/**
+	 * Modern Calendar View
+	 */
+	public function modern_calendar()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			$data['doctors'] = $this->center_doctors();
+			$data['centers'] = $this->get_center_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/modern_calendar', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	/**
+	 * Modern Reports Page
+	 */
+	public function modern_reports()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			$data['doctors'] = $this->center_doctors();
+			$data['centers'] = $this->get_center_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/modern_reports', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	/**
+	 * Modern Settings Page
+	 */
+	public function modern_settings()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			$data['doctors'] = $this->center_doctors();
+			$data['centers'] = $this->get_center_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/modern_settings', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	/**
+	 * Modern Analytics Page
+	 */
+	public function modern_analytics()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			$data['doctors'] = $this->center_doctors();
+			$data['centers'] = $this->get_center_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/modern_analytics', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	/**
+	 * Modern Notifications Page
+	 */
+	public function modern_notifications()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			$data['doctors'] = $this->center_doctors();
+			$data['centers'] = $this->get_center_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/modern_notifications', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	/**
+	 * Modern Templates Page
+	 */
+	public function modern_templates()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			$data['doctors'] = $this->center_doctors();
+			$data['centers'] = $this->get_center_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/modern_templates', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+	/**
+	 * Modern Integrations Page
+	 */
+	public function modern_integrations()
+	{
+		$logg = checklogin();
+		if($logg['status'] == true){
+			$data = array();
+			$data['doctors'] = $this->center_doctors();
+			$data['centers'] = $this->get_center_list();
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/modern_integrations', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
 	}
 	
 } 

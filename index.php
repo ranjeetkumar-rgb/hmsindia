@@ -66,15 +66,18 @@
 	// Check for HTTP_HOST to detect production
 	elseif (isset($_SERVER['HTTP_HOST'])) {
 		$host = $_SERVER['HTTP_HOST'];
-		if (strpos($host, '139.84.175.88') !== false || 
-			strpos($host, 'indiaivf.website') !== false ||
-			strpos($host, 'hmsindia') !== false) {
-			$environment = 'production';
-		}
-		elseif (strpos($host, '139.84.175.208') !== false) {
+		if (strpos($host, 'staging.indiaivf.website') !== false || strpos($host, '139.84.175.208') !== false) {
 			$environment = 'staging';
 		}
+		// Production
+		elseif (strpos($host, 'infra.indiaivf.website') !== false || strpos($host, '139.84.175.88') !== false) {
+			$environment = 'production';
+		}
+		else {
+			$environment = 'development'; // optional default
+		}
 	}
+	
 	define('ENVIRONMENT', $environment);
 
 /*

@@ -2245,7 +2245,7 @@ public function procedure_billings(){
             ob_end_clean();//End Output Buffering
             $mpdf->Output($dest_path.$filename, 'F');
             
-            return "https://indiaivf.website/assets/initial-history/".$filename;
+            return "https://infra.indiaivf.website/assets/initial-history/".$filename;
 	    }
 	    return "";
 	}

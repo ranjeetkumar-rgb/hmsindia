@@ -51,7 +51,7 @@
 </tbody>
 </table> 
         <div class="row" id="myfrm2">
-		<div class="col-lg-12"><img src="https://indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>
+		<div class="col-lg-12"><img src="https://infra.indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>
             <div class="ga-pro">
 			
                 <h2 style="text-align: center;">POST OVUM PICK UP (OPU) INSTRUCTIONS </h2>
@@ -110,7 +110,7 @@
 <div class="ga-pro">
 <table style="border:1px solid;width:100%;" class="fg45yu">
    <tr>
-   <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
+   <td style="width:50%;padding:5px;" colspan="2"><img src="https://infra.indiaivf.website/assets/images/india-ivf-logo.webp"></td>
    <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">POST OVUM PICK UP (OPU) INSTRUCTIONS</h3></td>
    </tr>
 </table>

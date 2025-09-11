@@ -33,7 +33,7 @@ if (file_exists(__DIR__ . '/index.php')) {
     } elseif (isset($_SERVER['HTTP_HOST'])) {
         $host = $_SERVER['HTTP_HOST'];
         if (strpos($host, '139.84.175.208') !== false || 
-            strpos($host, 'indiaivf.website') !== false ||
+            strpos($host, 'infra.indiaivf.website') !== false ||
             strpos($host, 'hmsindia') !== false) {
             $environment = 'production';
         }
