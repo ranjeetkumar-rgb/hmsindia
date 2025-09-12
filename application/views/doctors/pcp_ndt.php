@@ -1,27 +1,21 @@
  <?php $all_method =&get_instance(); 
-$servername = "localhost";
-//$username = "root";
-//$password = "";
-$username = "hms";
-$password = "hms$2025";
-$dbname = "hms";
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-// Check connection
-if ($conn->connect_error) {
-  die("Connection failed: " . $conn->connect_error);
+// Use CodeIgniter database connection instead of hardcoded credentials
+$CI =& get_instance();
+$CI->load->database();
+
+// Check if ID is provided for deletion
+if (isset($ID) && !empty($ID)) {
+    // Use CodeIgniter's query builder for safe deletion
+    $CI->db->where('ID', $ID);
+    $result = $CI->db->delete('pcp_ndt');
+    
+    if ($result) {
+        echo "Record deleted successfully";
+    } else {
+        echo "Error deleting record: " . $CI->db->error()['message'];
+    }
 }
-
-// sql to delete a record
-$sql = "DELETE FROM pcp_ndt WHERE ID='".$ID."'";
-
-if ($conn->query($sql) === TRUE) {
-  echo "Record deleted successfully";
-} else {
-  echo "Error deleting record: " . $conn->error;
-}
-$conn->close();
 ?>
  
     <div class="col-md-12">
