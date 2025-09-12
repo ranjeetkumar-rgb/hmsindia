@@ -124,6 +124,26 @@ class CI_Loader {
 		'user_agent' => 'agent'
 	);
 
+	// Dynamic properties that get copied from CI instance
+	// These are declared to avoid PHP 8.2+ deprecation warnings
+	public $benchmark;
+	public $hooks;
+	public $config;
+	public $log;
+	public $utf8;
+	public $uri;
+	public $router;
+	public $output;
+	public $security;
+	public $input;
+	public $lang;
+	public $load;
+	public $db;
+	public $session;
+	public $user_model;
+	public $patients_model;
+	public $doctors_model;
+
 	// --------------------------------------------------------------------
 
 	/**
