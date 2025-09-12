@@ -25,7 +25,7 @@
 <link rel="stylesheet" href="<?php echo base_url();?>assets/css/select2.min.css">
 <script src="<?php echo base_url();?>assets/js/select2.min.js"></script>
 <!-- Google Fonts-->
-<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+<link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
 
 </head>
 <body>

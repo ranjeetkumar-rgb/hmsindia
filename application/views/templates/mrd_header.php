@@ -23,7 +23,7 @@
       <script src="<?php echo base_url();?>assets/js/jquery-ui.js"></script>
       <script src="<?php echo base_url();?>assets/js/select2.min.js"></script>
       <!-- Google Fonts-->
-      <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
+      <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css' />
       <link rel="stylesheet" href="<?php echo base_url();?>assets/css/Lightweight-Chart/cssCharts.css">
       <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
    </head>

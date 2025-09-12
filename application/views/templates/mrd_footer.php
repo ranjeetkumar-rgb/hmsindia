@@ -1,17 +1,5 @@
 </div>
 </div>
-<script type="text/javascript">
-		$(function() {
-		  $('input.daterange_filter').daterangepicker({
-			timePicker: false,
-			startDate: moment().startOf('hour'),
-			endDate: moment().startOf('hour').add(32, 'hour'),
-			locale: {
-			  format: 'DD-MM-YYYY'
-			}
-		  });
-		});
-</script>
 
 <script type="text/javascript">
 $( ".week_month_filter" ).on( "change", function() {
@@ -58,6 +46,19 @@ $( ".week_month_filter" ).on( "change", function() {
 
 <script type="text/javascript" src="<?php echo base_url();?>assets/js/moment.min.js"></script>
 <script type="text/javascript" src="<?php echo base_url();?>assets/js/daterangepicker.min.js"></script>
+
+<script type="text/javascript">
+		$(function() {
+		  $('input.daterange_filter').daterangepicker({
+			timePicker: false,
+			startDate: moment().startOf('hour'),
+			endDate: moment().startOf('hour').add(32, 'hour'),
+			locale: {
+			  format: 'DD-MM-YYYY'
+			}
+		  });
+		});
+</script>
 
 </body>
 </html>

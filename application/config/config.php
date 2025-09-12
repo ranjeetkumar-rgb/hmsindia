@@ -30,7 +30,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 $environment = defined('ENVIRONMENT') ? ENVIRONMENT : 'development';    
 switch ($environment) {
     case 'production':
-        $config['base_url'] = getenv('BASE_URL') ?: 'http://139.84.175.88/';
+        $config['base_url'] = getenv('BASE_URL') ?: 'https://infra.indiaivf.website/';
         $config['index_page'] = '';
         $config['uri_protocol'] = 'REQUEST_URI';
         $config['url_suffix'] = '';
