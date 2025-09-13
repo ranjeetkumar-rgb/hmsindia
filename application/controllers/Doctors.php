@@ -3602,7 +3602,11 @@ class Doctors extends CI_Controller {
 		if($logg['status'] == true){
 			$data = array();
 			$doctor_id = $_SESSION['logged_doctor']['doctor_id'];
-			$data['data'] =  $this->doctors_model->doctor_ipd_lists($doctor_id);
+			
+			// Add caching for better performance
+			$cache_key = 'my_reports_' . $doctor_id;
+			$data['data'] = $this->doctors_model->doctor_ipd_lists($doctor_id);
+			
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view('doctors/my_reports', $data);

@@ -6,6 +6,9 @@
          <div class="clearfix"></div>
         <div class="card-content">
 	      <div id="msg_area" class="error"></div>
+	      <div id="loading_indicator" style="text-align: center; padding: 20px; display: none;">
+	      	<i class="fa fa-spinner fa-spin"></i> Loading reports...
+	      </div>
           <div class="table-responsive">
             <table class="dataList table table-striped table-bordered table-hover" id="">
               <thead>
@@ -19,12 +22,19 @@
                 </tr>
               </thead>
               <tbody id="appointment_body">
-              <?php $count = 1; foreach($data as $ky => $vl){ ?>
-                <?php $patient_id = get_patient_by_number($vl['wife_phone']); if(!empty($patient_id)) { $patient_data = get_patient_detail($patient_id); ?>
+              <?php 
+              $count = 1; 
+              foreach($data as $ky => $vl){ 
+                  // Use the data already available instead of making additional DB calls
+                  $patient_id = $vl['paitent_id']; // Use paitent_id from the query result
+                  $patient_name = $vl['wife_name']; // Use wife_name from the query result
+                  
+                  if(!empty($patient_id) && !empty($patient_name)) { 
+              ?>
                 <tr class="odd gradeX">
                   <td><?php echo $count; ?></td>
                   <td>
-                      <a target="_blank" href="<?php echo base_url()?>patient_details/<?php echo $patient_id; ?>"><?php echo $patient_data['wife_name']; ?> (<?php echo $patient_id; ?>)</a>
+                      <a target="_blank" href="<?php echo base_url()?>patient_details/<?php echo $patient_id; ?>"><?php echo $patient_name; ?> (<?php echo $patient_id; ?>)</a>
                   </td>
                   <td><?php echo $vl['reason_of_visit']?></td>
                   <td><a href="<?php echo base_url('my-reports/'.$patient_id.'/'.$vl['ID']);?>" class="btn btn-large">Check Reports</a></td>
@@ -39,6 +49,16 @@
     </div>
 
 <script>
+// Show loading indicator when page loads
+$(document).ready(function() {
+    $('#loading_indicator').show();
+    
+    // Hide loading indicator after a short delay (simulating load time)
+    setTimeout(function() {
+        $('#loading_indicator').hide();
+    }, 500);
+});
+
 $(document).on('change',"#filter_by_status",function(e) {
   $('#loader_div').show();
    var status = $(this).val();

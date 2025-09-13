@@ -1010,7 +1010,15 @@ class Doctors_model extends CI_Model
 
 		$result = array();
 
-		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where status!='no_show' and status!='cancelled' and billed='1' group BY wife_phone order by appoitmented_date desc";
+		// Optimized query - only select needed columns and add LIMIT for performance
+		$sql = "Select ID, wife_phone, reason_of_visit, appoitmented_date, paitent_id, wife_name, husband_name 
+				from ".$this->config->item('db_prefix')."appointments 
+				where status!='no_show' 
+				and status!='cancelled' 
+				and billed='1' 
+				and appoitmented_doctor='$doctor_id' 
+				order by appoitmented_date desc 
+				LIMIT 100";
 
         $q = $this->db->query($sql);
 
