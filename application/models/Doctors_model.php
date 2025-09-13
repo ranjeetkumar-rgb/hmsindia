@@ -989,7 +989,7 @@ function patient_medical_info($data) {
 
 
 
-	/*function doctor_ipd_lists($doctor_id){
+	function doctor_ipd_lists($doctor_id){
 
 		$result = array();
 
@@ -1012,7 +1012,7 @@ function patient_medical_info($data) {
 
 		}
 
-	}*?
+	}
 	
 	/********My IPD********/
 	function ipd_data_count($wife_name, $paitent_id){
