@@ -2943,54 +2943,38 @@ public function moulist(){
 	
 
 	function details($receipt = null){
-
 		$logg = checklogin();
-
 		if($logg['status'] == true){
-
-			// Check if receipt parameter is provided
 			if(empty($receipt)){
 				header("location:" .base_url(). "dashboard?m=".base64_encode('Receipt number is required!').'&t='.base64_encode('error'));
 				die();
 			}
-
 			$data = array();
-
 			$type = $_GET['t'];
-
-			
-
 			$template = get_header_template($logg['role']);
-
 			$this->load->view($template['header']);
-
 			if($type == 'consultation'){			
-
 				$data['data'] = $this->accounts_model->get_details($receipt, $type);
-
 				$this->load->view('accounts/consultation_details', $data);
-
-//				var_dump($data['data']);die;
-
 				$this->load->view('accounts/procedure_details', $data);
-				
-			}else if($type == 'package'){
-
+			}else if($type == 'registation'){
 				$data['data'] = $this->accounts_model->get_details($receipt, $type);
-
+				$this->load->view('accounts/registation_details', $data);
+			}else if($type == 'investigation'){
+				$data['data'] = $this->accounts_model->get_details($receipt, $type);
+				$this->load->view('accounts/investigation_details', $data);
+			}else if($type == 'procedure'){
+				$data['data'] = $this->accounts_model->get_details($receipt, $type);
+				$this->load->view('accounts/procedure_details', $data);
+			}else if($type == 'package'){
+				$data['data'] = $this->accounts_model->get_details($receipt, $type);
 				$this->load->view('accounts/package_details', $data);	
 			}else if($type == 'medicine'){
-
 				$data['data'] = $this->accounts_model->get_details($receipt, $type);
-
 				$this->load->view('accounts/medicine_details', $data);	
-			
 			}else{
-
 				header("location:" .base_url(). "dashboard?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
-
 				die();
-
 			}
 
 			if(empty($data['data'])){
