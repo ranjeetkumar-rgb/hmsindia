@@ -1,4 +1,6 @@
- <?php $all_method =&get_instance(); ?>
+<?php $all_method =&get_instance(); ?>
+<div class="card">
+      <div class="row card-content" style="margin-bottom:20px;">
     <div class="col-md-12">
            <div class="row" style="margin-bottom:20px;">
       <div class="col-md-12"><h3>Partial Payments </h3></div>
@@ -279,6 +281,8 @@
 			}
 		});	
     </script>
+  </div>
+ </div>
 <script>
       $( function() {
         $( ".particular_date_filter" ).datepicker({

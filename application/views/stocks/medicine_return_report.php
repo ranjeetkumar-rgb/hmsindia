@@ -1,4 +1,6 @@
   <?php $all_method =&get_instance(); ?>
+  <div class="card">
+      <div class="row card-content" style="margin-bottom:20px;">
     <div class="col-md-12">
     <div class="row" style="margin-bottom:20px;">
          <div class="col-md-12"><h3> Medicine Return Reports </h3></div>
@@ -208,7 +210,9 @@
             </div>
 
         </div>
-	   
+      </div>
+ </div>
+</div>
     </div>
 	
 	  <style>

@@ -1,4 +1,6 @@
  <?php $all_method =&get_instance(); ?>
+ <div class="card">
+      <div class="row card-content" style="margin-bottom:20px;">
         <div class="col-md-12">
       <div class="row" style="margin-bottom:20px;">
       <div class="col-md-12"><h3> Consultation  Patients </h3></div>
@@ -251,7 +253,9 @@
                 <a href="javascript:void(0);" class="now_cancle btn btn-large">Cancel</a>
             </div>
         </div>
-    </div>
+      </div>
+ </div>
+</div>
 
     <style>
 		.hidden_field{display:none;}
