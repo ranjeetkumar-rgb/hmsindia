@@ -190,8 +190,9 @@ if ($result && isset($result['investigations'])) {
 							?>
 						</td>
 					    <td><?php  // SQL query to fetch patient procedure data
-    $sql = "SELECT data, totalpackage, discount_amount FROM `hms_patient_procedure` WHERE appointment_id='" . $row->appointment_id . "' AND patient_id='" . $row->patient_id . "' AND status='approved'";
-    $pro_result = run_select_query($sql); // Assuming this fetches the row as an associative array
+    // Optimized query with prepared statement
+    $sql = "SELECT data, totalpackage, discount_amount FROM `hms_patient_procedure` WHERE appointment_id = ? AND patient_id = ? AND status = 'approved'";
+    $pro_result = $this->db->query($sql, array($row->appointment_id, $row->patient_id))->row_array();
 
     // Check if the query returned a result
     if ($pro_result && isset($pro_result['data'])) {
@@ -201,22 +202,46 @@ if ($result && isset($result['investigations'])) {
         // Check if 'patient_procedures' key exists and is an array
         if (isset($unserializedData['patient_procedures']) && is_array($unserializedData['patient_procedures'])) {
             $patientProcedures = $unserializedData['patient_procedures'];
+            
+            // Collect all procedure IDs for batch query
+            $procedure_ids = array();
+            foreach ($patientProcedures as $procedure) {
+                if ($procedure && isset($procedure['sub_procedure'])) {
+                    $procedure_ids[] = $procedure['sub_procedure'];
+                }
+            }
+            
+            // Single optimized query for all procedures
+            if (!empty($procedure_ids)) {
+                $procedure_ids_str = implode(',', array_map('intval', $procedure_ids));
+                $procedures_sql = "SELECT * FROM `hms_procedures` WHERE ID IN ($procedure_ids_str)";
+                $procedures_result = $this->db->query($procedures_sql)->result_array();
+                
+                // Create lookup array for procedures
+                $procedures_lookup = array();
+                foreach ($procedures_result as $proc) {
+                    $procedures_lookup[$proc['ID']] = $proc;
+                }
+            }
 
             // Iterate through each procedure and display details
             foreach ($patientProcedures as $procedure) {
                 if ($procedure) {
-					$sql = "SELECT * FROM `hms_procedures` WHERE ID='".$procedure['sub_procedure']."'";
-							$pro_select_result = run_select_query($sql);
-					echo "Name: " . $pro_select_result['procedure_name'] . "<br>";
-                    echo "Code: " . ($procedure['sub_procedures_code'] ?? 'N/A') . "<br>";
-                    echo "Price: " . ($procedure['sub_procedures_price'] ?? '0') . "<br>";
-                    echo "Discount: " . ($procedure['sub_procedures_discount'] ?? '0') . "<br>";
-                    echo "Paid Price: " . ($procedure['sub_procedures_paid_price'] ?? '0') . "<br>";
-                    echo "-------<br>";
+                    $procedure_id = $procedure['sub_procedure'];
+                    $pro_select_result = isset($procedures_lookup[$procedure_id]) ? $procedures_lookup[$procedure_id] : null;
+                    
+                    if ($pro_select_result) {
+                        echo "Name: " . $pro_select_result['procedure_name'] . "<br>";
+                        echo "Code: " . ($procedure['sub_procedures_code'] ?? 'N/A') . "<br>";
+                        echo "Price: " . ($procedure['sub_procedures_price'] ?? '0') . "<br>";
+                        echo "Discount: " . ($procedure['sub_procedures_discount'] ?? '0') . "<br>";
+                        echo "Paid Price: " . ($procedure['sub_procedures_paid_price'] ?? '0') . "<br>";
+                        echo "-------<br>";
 
-                    // Add to totals
-                    $totalPrice += (float) ($procedure['sub_procedures_price'] ?? 0);
-                    $totalDiscount += (float) ($procedure['sub_procedures_discount'] ?? 0);
+                        // Add to totals
+                        $totalPrice += (float) ($procedure['sub_procedures_price'] ?? 0);
+                        $totalDiscount += (float) ($procedure['sub_procedures_discount'] ?? 0);
+                    }
                 }
             }
         }

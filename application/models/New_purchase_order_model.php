@@ -176,11 +176,10 @@ class New_purchase_order_model extends CI_Model {
             $item_total = ($quantity * $vendor_price) * (1 + $tax / 100);
             $total += $item_total;
             
-            // Debug logging - remove this after testing
-            error_log("PO Item Debug - PO ID: $po_id, Quantity: $quantity, Vendor Price: $vendor_price, Tax: $tax, Item Total: $item_total, Running Total: $total");
+            // Debug logging removed for performance
         }
         
-        error_log("PO Total Calculation - PO ID: $po_id, Final Total: $total");
+        // Debug logging removed for performance
         return $total;
     }
 

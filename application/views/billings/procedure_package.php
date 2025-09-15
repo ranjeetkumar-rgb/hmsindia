@@ -483,14 +483,17 @@ function calculateAfterDiscount(counter) {
 function calculateTotalAfterDiscount() {
     let total = 0;
     let i = 1;
+    let maxIterations = 1000; // Safety limit to prevent infinite loops
+    let iterations = 0;
 
-    while (true) {
+    while (iterations < maxIterations) {
         let field = document.getElementById('after_discount_' + i);
         if (!field) break;
 
         let val = parseFloat(field.value) || 0;
         total += val;
         i++;
+        iterations++;
     }
 
     const totalField = document.getElementById('total_after_discount');

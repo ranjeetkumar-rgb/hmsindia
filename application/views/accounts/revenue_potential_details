@@ -81,12 +81,12 @@ case "$base" in
 		# are not always persistent enough, so this is purely auxilliary.
 		pid=$(lsof "$FLAG" 2>/dev/null | awk '{print $2}' | grep "^[0-9]") || true
 		[ -z "$pid" ] || kill $pid
-		sleep 0.5
+		sleep 5
 		# Run the specified command, assuming we can flock this command string's hash
 		flock -xn "$FLAG" "$@"
 	;;
 	keep-one-running|run-one-constantly|run-one-until-success|run-one-until-failure)
-		backoff=0
+		backoff=10
 		retries=0
 		while true; do
 			# Run the specified command, assuming we can flock this command string's hash
@@ -95,19 +95,18 @@ case "$base" in
 			if [ "$?" = 0 ]; then
 				# If we were waiting for success, we're done
 				[ "$base" = "run-one-until-success" ] && exit $?
-				# Last run finished successfully, reset to minimum back-off of 1 second
-				backoff=0
-				backoff=0
+				# Last run finished successfully, reset to minimum back-off of 10 seconds
+				backoff=10
 			else
 				# If we were waiting for failure, we're done
 				[ "$base" = "run-one-until-failure" ] && exit $?
 				# Last run failed, so slow down the retries
 				retries=$((retries + 1))
-				backoff=$((retries / 10))
+				backoff=$((retries * 10))
 				logger -t "${base}[$$]" "last run failed; sleeping [$backoff] seconds before next run"
 			fi
-			# Don't sleep more than 60 seconds
-			[ $backoff -gt 60 ] && backoff=60
+			# Don't sleep more than 300 seconds (5 minutes)
+			[ $backoff -gt 300 ] && backoff=300
 			sleep $backoff
 		done
 	;;
