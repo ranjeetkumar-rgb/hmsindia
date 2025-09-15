@@ -2942,11 +2942,17 @@ public function moulist(){
 
 	
 
-	function details($receipt){
+	function details($receipt = null){
 
 		$logg = checklogin();
 
 		if($logg['status'] == true){
+
+			// Check if receipt parameter is provided
+			if(empty($receipt)){
+				header("location:" .base_url(). "dashboard?m=".base64_encode('Receipt number is required!').'&t='.base64_encode('error'));
+				die();
+			}
 
 			$data = array();
 
