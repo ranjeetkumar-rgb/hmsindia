@@ -4,6 +4,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
+    # Block access to sensitive directories
+    RewriteRule ^(application|system|vendor|backups|db|staging)/ - [F,L]
+    
     # Handle Angular and other frontend routes
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
@@ -32,6 +35,38 @@ php_value upload_max_filesize 50M
 php_value post_max_size 50M
 php_value max_execution_time 300
 php_value memory_limit 256M
+
+# Prevent direct access to sensitive files
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|inc|bak|sql|conf|config)$">
+    Require all denied
+</FilesMatch>
+
+# Block access to composer and package files
+<FilesMatch "^(composer\.(json|lock)|package\.json|\.env)$">
+    Require all denied
+</FilesMatch>
+
+# Prevent access to version control files
+<FilesMatch "\.(git|svn)$">
+    Require all denied
+</FilesMatch>
+
+# Block access to specific sensitive files
+<Files "composer.json">
+    Require all denied
+</Files>
+
+<Files "composer.lock">
+    Require all denied
+</Files>
+
+<Files ".env">
+    Require all denied
+</Files>
+
+<Files ".git">
+    Require all denied
+</Files>
 
 # Error pages
 ErrorDocument 404 /index.php
