@@ -90,7 +90,7 @@ $centers_result = run_select_query($centers_sql);
 		}
 
         //wallete
-		$consultation_wallet_result = $procedure_wallet_result = $registation_wallet_result = $investigation_wallet_result = $partialpayments_wallet_result = $medicine_wallet_result = $wallet_remaining_billing = $wallet_arr = $wallet_bill_total = array();
+		$consultation_wallet_result = $procedure_wallet_result = $registation_wallet_result = $investigation_wallet_result = $partialpayments_wallet_result = $medicine_wallet_result = $done_wallet_result = $wallet_remaining_billing = $wallet_arr = $wallet_bill_total = array();
 		$procedure_wallet_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."patient_procedure where wallet_payment > 0 and patient_id='".$select_result_consultation['patient_id']."'";
         $procedure_wallet_q = $ci->db->query($procedure_wallet_sql);
         $procedure_wallet_result = $procedure_wallet_q->result_array();
@@ -139,8 +139,10 @@ $centers_result = run_select_query($centers_sql);
 			$wallet_arr[] = $value['wallet_payment'];
 		}
 		
-		foreach($done_wallet_result as $key => $value){
-			$wallet_arr[] = $value['wallet_payment'];
+		if(is_array($done_wallet_result) && !empty($done_wallet_result)){
+			foreach($done_wallet_result as $key => $value){
+				$wallet_arr[] = $value['wallet_payment'];
+			}
 		}
 
         foreach($refund_amount_result as $key => $value){

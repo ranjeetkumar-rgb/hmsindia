@@ -1170,7 +1170,7 @@ class Stock_model extends CI_Model
 		$sql_condition = '';
 		//$sql = "Select * from ".$this->config->item('db_prefix')."center_stocks where center_number='".$_SESSION['logged_stock_manager']['center']."' AND employee_number='".$_SESSION['logged_stock_manager']['employee_number']."' AND quantity > 0 order by expiry asc";
 	    
-		if($_SESSION['logged_stock_manager']['center']){
+		if(isset($_SESSION['logged_stock_manager']['center']) && $_SESSION['logged_stock_manager']['center']){
 		$sql = "Select * from ".$this->config->item('db_prefix')."center_stocks where center_number='".$_SESSION['logged_stock_manager']['center']."' AND department='".$_SESSION['logged_stock_manager']['department']."' AND quantity > 0 order by expiry asc";
 	    }else{
 		$sql = "Select * from ".$this->config->item('db_prefix')."center_stocks where center_number='".$_SESSION['logged_billing_manager']['center']."' AND department='".$_SESSION['logged_billing_manager']['department']."' AND quantity > 0 order by expiry asc";
