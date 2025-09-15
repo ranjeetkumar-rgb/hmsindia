@@ -1556,8 +1556,8 @@ public function medicine_update()
 				$post_arr['fees'] = $_POST['fees'];unset($_POST['fees']);
 				$post_arr['status'] = $_POST['status'];unset($_POST['status']);
                 $post_arr['discount_amount'] = $post_arr['fees'] - $post_arr['payment_done'];
-				$post_arr['employee_number'] = $_POST['employee_number'];unset($_POST['employee_number']);
-				$post_arr['department'] = $_POST['department'];unset($_POST['department']);
+				$post_arr['employee_number'] = isset($_POST['employee_number']) ? $_POST['employee_number'] : '';unset($_POST['employee_number']);
+				$post_arr['department'] = isset($_POST['department']) ? $_POST['department'] : '';unset($_POST['department']);
 				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
 				
 				$icounte = $mcounte = $ccounte = $spcounte = 1;
@@ -1602,11 +1602,26 @@ public function medicine_update()
 							$batch_number = $_POST['consumables_batch_number_'.$ccounte];
 							$open_stock = $_POST['consumables_stock_'.$ccounte];
 							$expiry = $_POST['consumables_expiry_'.$ccounte];
+							// Calculate expiry_day using the same logic as gimmeYesterday function
+							$expiry_day = '';
+							if (!empty($expiry)) {
+								$d = new DateTime($expiry);
+								$day = $d->format('d');
+								$month = $d->format('m');
+								$year = $d->format('Y');
+								
+								// Adjust for edge cases like the JavaScript function
+								if ($day == 30 || $day == 31 || $day == 29) { 
+									$day = 28; 
+								}
+								
+								$expiry_day = $year . '-' . $month . '-' . sprintf('%02d', $day);
+							}
 							$add_date['add_date'] = date("Y-m-d H:i:s");
 							$patient_id = $_POST['patient_id'];
-							$employee_number = $_POST['employee_number'];
+							$employee_number = isset($_POST['employee_number']) ? $_POST['employee_number'] : '';
 							$date_of_purchase = $_POST['consumables_date_of_purchase_'.$ccounte];
-							$center_number = $_POST['center_number'];
+							$center_number = isset($_POST['center_number']) ? $_POST['center_number'] : '';
 							$vendor_price = $_POST['consumables_vendor_price_'.$ccounte];
 							$mrp = $_POST['consumables_mrp_'.$ccounte];
 							$hsn = $_POST['consumables_hsn_'.$ccounte];
@@ -1627,7 +1642,7 @@ public function medicine_update()
 							$total_vendor_price_gst_included = $closingstock * $_POST['consumables_vendor_price_'.$ccounte];
 							$total_mrp_price = $closingstock * $_POST['consumables_mrp_'.$ccounte];
 							
-						    $query = "INSERT INTO `hms_central_stock_report` (invoice_no, item_number, company, item_name, batch_number, openstock, expiry, add_date, employee_number, vendor_price, mrp, hsn, gstrate, gstdivision,enddate, quantity_out, closingstock,type, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, date_of_purchase, center_number) values ('$invoice_no','$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','".date("Y-m-d H:i:s")."','".$post_arr['employee_number']."','$vendor_price','$mrp','$hsn','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','Cash','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$date_of_purchase','".$post_arr['billing_at']."')";
+						    $query = "INSERT INTO `hms_central_stock_report` (invoice_no, item_number, company, item_name, batch_number, openstock, expiry, expiry_day, add_date, employee_number, vendor_price, mrp, hsn, gstrate, gstdivision,enddate, quantity_out, closingstock,type, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, date_of_purchase, center_number) values ('$invoice_no','$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','$expiry_day','".date("Y-m-d H:i:s")."','".$post_arr['employee_number']."','$vendor_price','$mrp','$hsn','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','Cash','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$date_of_purchase','".$post_arr['billing_at']."')";
                             $result = run_form_query($query); 
 							$c_counte[] = array('consumables_ID'=> $_POST['consumables_ID_'.$ccounte],'consumables_serial'=> $_POST['consumables_serial_'.$ccounte],'consumables_name'=> $_POST['consumables_name_'.$ccounte],'consumables_company'=> $_POST['consumables_company_'.$ccounte],'consumables_item_name'=> $_POST['consumables_item_name_'.$ccounte],'consumables_stock'=> $_POST['consumables_stock_'.$ccounte],'consumables_batch_number'=> $_POST['consumables_batch_number_'.$ccounte],'consumables_quantity'=> $_POST['consumables_quantity_'.$ccounte],'consumables_price'=> $_POST['consumables_price_'.$ccounte],'consumables_discount_'=> $_POST['consumables_discount_'.$ccounte],'consumables_total_'=> $_POST['consumables_total_'.$ccounte],'consumables_vendor_price'=> $_POST['consumables_vendor_price_'.$ccounte],'consumables_expiry'=> $_POST['consumables_expiry_'.$ccounte],'consumables_hsn'=> $_POST['consumables_hsn_'.$ccounte],'consumables_gstrate'=> $_POST['consumables_gstrate_'.$ccounte],'consumables_gstdivision'=> $_POST['consumables_gstdivision_'.$ccounte],'consumables_pack_size'=> $_POST['consumables_pack_size_'.$ccounte],'consumables_mrp'=> $_POST['consumables_mrp_'.$ccounte]);
 						}
