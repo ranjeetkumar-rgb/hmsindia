@@ -1403,6 +1403,21 @@ public function medicine_update()
 							$batch_number = $_POST['consumables_batch_number_'.$ccounte];
 							$open_stock = $_POST['consumables_stock_'.$ccounte];
 							$expiry = $_POST['consumables_expiry_'.$ccounte];
+							// Calculate expiry_day using the same logic as gimmeYesterday function
+							$expiry_day = '';
+							if (!empty($expiry)) {
+								$d = new DateTime($expiry);
+								$day = $d->format('d');
+								$month = $d->format('m');
+								$year = $d->format('Y');
+								
+								// Adjust for edge cases like the JavaScript function
+								if ($day == 30 || $day == 31 || $day == 29) { 
+									$day = 28; 
+								}
+								
+								$expiry_day = $year . '-' . $month . '-' . sprintf('%02d', $day);
+							}
 							$add_date['add_date'] = date("Y-m-d H:i:s");
 							$patient_id = $_POST['patient_id'];
 							$patient_name = $_POST['patient_name'];
@@ -1433,7 +1448,7 @@ public function medicine_update()
 							$company = $_POST['consumables_company_'.$ccounte];
 							//$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
 							
-						    $query = "INSERT INTO `hms_central_stock_report` (invoice_no, item_number, company, item_name, batch_number, openstock, expiry, add_date,employee_number, vendor_price, mrp, hsn, gstrate, gstdivision, enddate, quantity_out, closingstock, type, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, date_of_purchase, center_number) values ('$invoice_no','$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','".date("Y-m-d H:i:s")."','$employee_number','$vendor_price','$mrp','$hsn','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','Ot','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$date_of_purchase','$center_number')";
+						    $query = "INSERT INTO `hms_central_stock_report` (invoice_no, item_number, company, item_name, batch_number, openstock, expiry, expiry_day, add_date,employee_number, vendor_price, mrp, hsn, gstrate, gstdivision, enddate, quantity_out, closingstock, type, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, date_of_purchase, center_number) values ('$invoice_no','$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','$expiry_day','".date("Y-m-d H:i:s")."','$employee_number','$vendor_price','$mrp','$hsn','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','Ot','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$date_of_purchase','$center_number')";
                             $result = run_form_query($query);
 							
 							//$total_vendor_price = $vendor_price / $pack_size * $quantity_out;
@@ -1530,11 +1545,11 @@ public function medicine_update()
 				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
 				$post_arr['receipt_number'] = $_POST['receipt_number'];unset($_POST['receipt_number']);
 				$post_arr['payment_method'] = $_POST['payment_method'];unset($_POST['payment_method']);
-				$post_arr['cash_payment'] = $_POST['cash_payment'];unset($_POST['cash_payment']);
-				$post_arr['card_payment'] = $_POST['card_payment'];unset($_POST['card_payment']);
-				$post_arr['upi_payment'] = $_POST['upi_payment'];unset($_POST['upi_payment']);
-				$post_arr['neft_payment'] = $_POST['neft_payment'];unset($_POST['neft_payment']);
-				$post_arr['wallet_payment'] = $_POST['wallet_payment'];unset($_POST['wallet_payment']);
+				$post_arr['cash_payment'] = isset($_POST['cash_payment']) ? substr($_POST['cash_payment'], 0, 10) : '0';unset($_POST['cash_payment']);
+				$post_arr['card_payment'] = isset($_POST['card_payment']) ? substr($_POST['card_payment'], 0, 10) : '0';unset($_POST['card_payment']);
+				$post_arr['upi_payment'] = isset($_POST['upi_payment']) ? substr($_POST['upi_payment'], 0, 10) : '0';unset($_POST['upi_payment']);
+				$post_arr['neft_payment'] = isset($_POST['neft_payment']) ? substr($_POST['neft_payment'], 0, 10) : '0';unset($_POST['neft_payment']);
+				$post_arr['wallet_payment'] = isset($_POST['wallet_payment']) ? substr($_POST['wallet_payment'], 0, 10) : '0';unset($_POST['wallet_payment']);
 				$post_arr['transaction_id'] = $_POST['transaction_id'];unset($_POST['transaction_id']);
 				$post_arr['hospital_id'] = $_POST['hospital_id'];unset($_POST['hospital_id']);
 				$post_arr['payment_done'] = $_POST['payment_done'];unset($_POST['payment_done']);
