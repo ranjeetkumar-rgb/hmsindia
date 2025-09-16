@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-require '/var/www/html/vendor/autoload.php';
+require FCPATH . 'vendor/autoload.php';
 
 use Mpdf\Mpdf;
 
@@ -335,14 +335,14 @@ function partial_billing($appointment_id){
 
 				$biller_id = $_POST['biller_id'];
 				
-				$uhid = $_POST['uhid'];
-				$donor_patient_id = $_POST['donor_patient_id'];
+				$uhid = isset($_POST['uhid']) ? $_POST['uhid'] : '';
+				$donor_patient_id = isset($_POST['donor_patient_id']) ? $_POST['donor_patient_id'] : '';
 				
-				$cash_payment = $_POST['cash_payment'];
-				$card_payment = $_POST['card_payment'];
-				$upi_payment = $_POST['upi_payment'];
-				$neft_payment = $_POST['neft_payment'];
-				$wallet_payment = $_POST['wallet_payment'];
+				$cash_payment = isset($_POST['cash_payment']) ? $_POST['cash_payment'] : 0;
+				$card_payment = isset($_POST['card_payment']) ? $_POST['card_payment'] : 0;
+				$upi_payment = isset($_POST['upi_payment']) ? $_POST['upi_payment'] : 0;
+				$neft_payment = isset($_POST['neft_payment']) ? $_POST['neft_payment'] : 0;
+				$wallet_payment = isset($_POST['wallet_payment']) ? $_POST['wallet_payment'] : 0;
 				
 				// Appointment details
 
@@ -465,7 +465,7 @@ function partial_billing($appointment_id){
 			$curl = curl_init();
 
 			curl_setopt_array($curl, array(
-				CURLOPT_URL => "https://flertility.in/lead/lead-mobile-no/?mobile_no=" . urlencode($_POST['wife_phone']),
+				CURLOPT_URL => "https://flertility.in/lead/lead-mobile-no/?mobile_no=" . urlencode(isset($_POST['wife_phone']) ? $_POST['wife_phone'] : ''),
 				CURLOPT_RETURNTRANSFER => true,
 				CURLOPT_ENCODING => '',
 				CURLOPT_MAXREDIRS => 10,
@@ -757,7 +757,7 @@ function partial_billing($appointment_id){
 
 							<tr style="height: 23px;">
 
-								<td style="width: 50%;"><strong>Name :</strong> '.$patient_data['wife_name'].'</td>
+								<td style="width: 50%;"><strong>Name :</strong> '.(isset($patient_data['wife_name']) ? $patient_data['wife_name'] : '').'</td>
 
 								<td style="width: 50%;"><strong>Billing date :</strong> '.date('d-m-Y', strtotime($date)).'</td>
 
@@ -765,7 +765,7 @@ function partial_billing($appointment_id){
 
 							<tr style="height: 23px;">
 
-								<td style="width: 50%;"><strong>Email :</strong> '.$patient_data['wife_email'].'</td>
+								<td style="width: 50%;"><strong>Email :</strong> '.(isset($patient_data['wife_email']) ? $patient_data['wife_email'] : '').'</td>
 
 								<td style="width: 50%;"><strong>Billing option :</strong> '.ucwords($type).'</td>
 
@@ -773,7 +773,7 @@ function partial_billing($appointment_id){
 
 							<tr style="height: 23px;">
 
-								<td style="width: 50%;"><strong>Phone :</strong> '.$patient_data['patient_phone'].'</td>';
+								<td style="width: 50%;"><strong>Phone :</strong> '.(isset($patient_data['patient_phone']) ? $patient_data['patient_phone'] : '').'</td>';
 
 								if($billing_from == 'IndiaIVF'){
 
@@ -841,7 +841,7 @@ function partial_billing($appointment_id){
 
 		}
 
-		send_sms($patient_data['wife_phone'], $sms_html);
+		send_sms(isset($patient_data['wife_phone']) ? $patient_data['wife_phone'] : '', $sms_html);
 
 		
 
@@ -849,7 +849,7 @@ function partial_billing($appointment_id){
 
 		$biller_emails = $biller_details['email'];
 
-		$sent = send_mail($biller_emails.'|'.$patient_data['wife_email'].'', 'IndiaIVF Billing Receipt', $mail_html);
+		$sent = send_mail($biller_emails.'|'.(isset($patient_data['wife_email']) ? $patient_data['wife_email'] : '').'', 'IndiaIVF Billing Receipt', $mail_html);
 
 		
 
@@ -868,7 +868,6 @@ function partial_billing($appointment_id){
 			$account_html .= '<a href="'.base_url().'accounts/front_approve/'.$billing_key.'?t='.$type.'&u=approved" class="xyx btn btn-large">Approve</a>
 
 				<a href="'.base_url().'accounts/front_approve/'.$billing_key.'?t='.$type.'&u=disapproved&r=Wrong billing">Disapprove</a>';
-
 			$sent = send_mail($account_email, 'IndiaIVF Billing Approval', $account_html);
 
 		}
@@ -1701,23 +1700,15 @@ function partial_billing($appointment_id){
                 if($procedure_billed == 0){
                     $procedure_billed = check_suggested($post_arr['consultation_done'], 'procedure_suggestion', 'procedure_billed');
                 }
-
 				$investg = $this->billingmodel_model->investigation_insert($post_arr);
-
+				var_dump($investg);die;
 				if($investg > 0){
 
 					$insert_receipt = insert_receipt_log($post_arr['receipt_number']);
-
-
-
 					$update_doctor_consultation = $this->billingmodel_model->update_doctor_consultation($post_arr['receipt_number'], $post_arr['consultation_done'], $medicine_billed, $investigation_billed, $procedure_billed);
-
 					$this->send_billing_receipt($post_arr['biller_id'], $post_arr['patient_id'], $post_arr['on_date'], $post_arr['billing_from'], $post_arr['receipt_number'], 'investigation');
-
 					header("location:" .base_url(). "accounts/details/".$post_arr['receipt_number']."?t=investigation");
-
 					die();
-
 				}else{
 
 					header("location:" .base_url(). "after-consultation?m=".base64_encode('something went wrong!').'&t='.base64_encode('error'));

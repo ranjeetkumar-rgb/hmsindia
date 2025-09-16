@@ -2956,7 +2956,6 @@ public function moulist(){
 			if($type == 'consultation'){			
 				$data['data'] = $this->accounts_model->get_details($receipt, $type);
 				$this->load->view('accounts/consultation_details', $data);
-				$this->load->view('accounts/procedure_details', $data);
 			}else if($type == 'registation'){
 				$data['data'] = $this->accounts_model->get_details($receipt, $type);
 				$this->load->view('accounts/registation_details', $data);
