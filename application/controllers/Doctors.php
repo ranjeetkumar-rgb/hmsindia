@@ -1713,7 +1713,7 @@ class Doctors extends CI_Controller {
 						$patient_to = $patient_details['wife_email'];
 						$patient_subject = "Followup appointment booked";
 						$patient_message = "Hi ".$patient_details['wife_name'].",<br/> Your followup appointment is booked with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($consultation_post['follow_up_date']))." at ".$consultation_post['follow_slot'].".";
-						send_mail($patient_to, $patient_subject, $patient_message);
+						// send_mail($patient_to, $patient_subject, $patient_message);
 						
 						$patient_phone = $patient_details['wife_phone'];
 						$sms_message = "Hi ".$patient_details['wife_name'].", Your followup appointment is booked with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($consultation_post['follow_up_date']))." at ".$consultation_post['follow_slot'].".";
@@ -1723,7 +1723,7 @@ class Doctors extends CI_Controller {
 						$doctor_to = $doctor_details['email'];
 						$doctor_subject = "Followup appointment";
 						$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Followup Appointment is booked on ".date("d-m-Y", strtotime($consultation_post['follow_up_date']))." at ".$consultation_post['follow_slot'].".";
-						send_mail($doctor_to, $doctor_subject, $doctor_message);
+						// send_mail($doctor_to, $doctor_subject, $doctor_message);
 					}
 
 				}
@@ -2294,7 +2294,7 @@ class Doctors extends CI_Controller {
 						$patient_to = $patient_details['wife_email'];
 						$patient_subject = "Followup appointment booked";
 						$patient_message = "Hi ".$patient_details['wife_name'].",<br/> Your followup appointment is booked with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($consultation_post['follow_up_date']))." at ".$consultation_post['follow_slot'].".";
-						send_mail($patient_to, $patient_subject, $patient_message);
+						// send_mail($patient_to, $patient_subject, $patient_message);
 						
 						$patient_phone = $patient_details['wife_phone'];
 						$sms_message = "Hi ".$patient_details['wife_name'].", Your followup appointment is booked with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($consultation_post['follow_up_date']))." at ".$consultation_post['follow_slot'].".";
@@ -2304,7 +2304,7 @@ class Doctors extends CI_Controller {
 						$doctor_to = $doctor_details['email'];
 						$doctor_subject = "Followup appointment";
 						$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Followup Appointment is booked on ".date("d-m-Y", strtotime($consultation_post['follow_up_date']))." at ".$consultation_post['follow_slot'].".";
-						send_mail($doctor_to, $doctor_subject, $doctor_message);
+						// send_mail($doctor_to, $doctor_subject, $doctor_message);
 					}
 				}
 				$consultation_done = $this->doctors_model->consultation_done($consultation_post);//var_dump($consultation_done);die;
@@ -2491,7 +2491,7 @@ class Doctors extends CI_Controller {
 						$advisory_subject = "IVF related advisory";
 						$advisory_message = "Hi ".$patient_name.", Hope you are doing well!<br/>Here are some suggestion you can follow for successfull IVF. Please find the attached instruction below.<br/> Thanks & Regards<br/> IndiaIVF";
 						$advisory_templates = implode(',', $_POST['advisory_templates']);
-						send_mail($patient_to, $advisory_subject, $advisory_message, $advisory_templates);
+						// send_mail($patient_to, $advisory_subject, $advisory_message, $advisory_templates);
 					}
 					$appointment_status = $this->appointment_model->appointment_status('consultation_done', $consultation_post['appointment_id']);
 					header("location:" .base_url(). "doctor_appointments?m=".base64_encode('Consultation done!').'&t='.base64_encode('success'));
@@ -2900,7 +2900,7 @@ class Doctors extends CI_Controller {
 			$patient_to = $patient_details['wife_email'];
 			$patient_subject = "Followup appointment booked";
 			$patient_message = "Hi " . $patient_details['wife_name'] . ",<br/> Your followup appointment is booked with Dr." . $doctor_details['name'] . " on " . date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])) . " at " . $appointment_arr['appoitmented_slot'] . ".";
-			send_mail($patient_to, $patient_subject, $patient_message);
+			// send_mail($patient_to, $patient_subject, $patient_message);
 			// Send patient SMS
 			$patient_phone = $patient_details['wife_phone'];
 			$sms_message = "Hi " . $patient_details['wife_name'] . ", Your followup appointment is booked with Dr." . $doctor_details['name'] . " on " . date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])) . " at " . $appointment_arr['appoitmented_slot'] . ".";
@@ -2909,7 +2909,7 @@ class Doctors extends CI_Controller {
 			$doctor_to = $doctor_details['email'];
 			$doctor_subject = "Followup appointment";
 			$doctor_message = "Hi Dr." . $doctor_details['name'] . ",<br/> Followup Appointment is booked on " . date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])) . " at " . $appointment_arr['appoitmented_slot'] . ".";
-			send_mail($doctor_to, $doctor_subject, $doctor_message);
+			// send_mail($doctor_to, $doctor_subject, $doctor_message);
 		} catch (Exception $e) {
 			log_message('error', 'Error sending follow-up notifications: ' . $e->getMessage());
 		}
@@ -3012,7 +3012,7 @@ class Doctors extends CI_Controller {
 				$advisory_subject = "IVF related advisory";
 				$advisory_message = "Hi " . $patient_name . ", Hope you are doing well!<br/>Here are some suggestion you can follow for successfull IVF. Please find the attached instruction below.<br/> Thanks & Regards<br/> IndiaIVF";
 				$advisory_templates = implode(',', $this->input->post('advisory_templates'));
-				send_mail($patient_to, $advisory_subject, $advisory_message, $advisory_templates);
+				// send_mail($patient_to, $advisory_subject, $advisory_message, $advisory_templates);
 			}
 		} catch (Exception $e) {
 			log_message('error', 'Error sending advisory emails: ' . $e->getMessage());
