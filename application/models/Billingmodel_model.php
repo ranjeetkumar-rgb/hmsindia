@@ -758,11 +758,20 @@ WHERE inv.master_id = '$investigation'";
 			if (isset($data['patient_id']) && !empty($data['patient_id'])) {
 				$patient_sql = "Select husband_name from ".$this->config->item('db_prefix')."patients where patient_id='".$data['patient_id']."'";
 				$patient_result = run_select_query($patient_sql);
-				$data['husband_name'] = $patient_result['husband_name'] ?? '';
+				$data['husband_name'] = isset($patient_result['husband_name']) ? $patient_result['husband_name'] : '';
 			} else {
 				$data['husband_name'] = '';
 			}
 		}
+		
+		// Ensure husband_name is not null or empty - set to empty string if still empty
+		if (empty($data['husband_name'])) {
+			$data['husband_name'] = '';
+		}
+		
+		// Debug: Log the data being inserted
+		log_message('debug', 'patient_journey_data - husband_name: ' . $data['husband_name']);
+		log_message('debug', 'patient_journey_data - patient_id: ' . ($data['patient_id'] ?? 'NOT_SET'));
 		
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patient_journey` SET ";
 		$sqlArr = array();
@@ -772,13 +781,21 @@ WHERE inv.master_id = '$investigation'";
 		}		
 		$sql .= implode(',' , $sqlArr);
 		
+		// Debug: Log the SQL query
+		log_message('debug', 'patient_journey_data SQL: ' . $sql);
+		
        	$res =  $this->db->query($sql);
 		if ($res)
 		{
 			return $this->db->insert_id();
 		}
 		else
+		{
+			// Log the error for debugging
+			log_message('error', 'patient_journey_data SQL Error: ' . $this->db->last_query());
+			log_message('error', 'patient_journey_data DB Error: ' . $this->db->error()['message']);
 			return 0;
+		}
 	}
 	
 }
