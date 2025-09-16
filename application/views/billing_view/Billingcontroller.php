@@ -2315,7 +2315,7 @@ function partial_billing($appointment_id){
 				$proc_result = run_select_query($procedure_sql);
 				
 				//$_POST['sub_procedure_1'] = $subProcedure;
-				$_POST['package_amount'] = $post_arr['totalpackage'];
+				$_POST['package_amount'] = $post_arr['totalpackage'] ?? 0;
 				$_POST['patient_id'] = $post_arr['patient_id'];
 				$_POST['receipt_number'] = $post_arr['receipt_number'];
 				$_POST['appointment_id'] = $post_arr['appointment_id'];
