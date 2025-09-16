@@ -763,7 +763,6 @@ WHERE inv.master_id = '$investigation'";
 				$data['husband_name'] = '';
 			}
 		}
-		
 		// Ensure husband_name is not null or empty - set to empty string if still empty
 		if (empty($data['husband_name'])) {
 			$data['husband_name'] = '';
