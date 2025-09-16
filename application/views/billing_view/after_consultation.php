@@ -1,4 +1,4 @@
-<?php $all_method =&get_instance(); ?>
+<?php  $all_method =&get_instance(); ?>
   <div class="col-sm-12 col-xs-12">
     <div class="col-sm-12 col-xs-12 panel panel-piluku">
       <div class="panel-heading">

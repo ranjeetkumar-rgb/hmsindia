@@ -54,7 +54,7 @@ class Billingcontroller extends CI_Controller {
 		$this->load->library("pagination");
 
 		$this->load->helper('myhelper');
-
+		error_reporting(0);
 	}
 
 
@@ -320,9 +320,8 @@ function partial_billing($appointment_id){
 	
 
 	public function consultation($appointment_id){
-
+     
 		$logg = checklogin();
-
 		if($logg['status'] == true){
 
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_consultation'){
@@ -1387,13 +1386,9 @@ function partial_billing($appointment_id){
 
 
 	public function after_consultation_billing(){
-
 		$logg = checklogin();
-
 		if($logg['status'] == true){	
-
 			$medicine_billed = $investigation_billed = $procedure_billed = 0;
-
 			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_investigation"){
 
 				unset($_POST['action']);
@@ -1718,10 +1713,6 @@ function partial_billing($appointment_id){
 				}
 
 			}
-			
-			
-			
-
 			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_investigations"){
 
 				unset($_POST['action']);
@@ -2059,11 +2050,8 @@ function partial_billing($appointment_id){
 				}
 
 			}
-
-
-
 			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_procedure"){
-
+       
 				unset($_POST['action']);				
 
 				$post_arr = array();
@@ -2467,7 +2455,6 @@ function partial_billing($appointment_id){
 				}
 
 			}
-			
 			 if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_package"){
 
 				unset($_POST['action']);				
@@ -2855,13 +2842,8 @@ function partial_billing($appointment_id){
 			}
 			
 			if(isset($_GET['t']) && !empty($_GET['t']) && isset($_GET['i']) && !empty($_GET['i'])){
-
 				$consultation_details = $this->billingmodel_model->after_consultation_billing($_GET['i']);
-
-				
-
 				if(count($consultation_details) > 0){
-
 					$data['billing_details'] = $consultation_details;
 
 					$data['converstion_rate'] = get_converstion_rate();
@@ -2869,7 +2851,6 @@ function partial_billing($appointment_id){
 					$template = get_header_template($logg['role']);
 
 					$this->load->view($template['header']);
-
 					$this->load->view('billing_view/billing_after_consultation', $data);
 
 					$this->load->view($template['footer']);
@@ -2891,7 +2872,7 @@ function partial_billing($appointment_id){
 			}
 
 		}else{
-
+         
 			header("location:" .base_url(). "");
 
 			die();
@@ -4189,9 +4170,7 @@ public function billing_noreceipt_patient_payments(){
 	
 
 	function get_procedure_details($procedure){
-
 		$details = $this->billingmodel_model->get_procedure_details($procedure);
-
 		return $details;
 
 	}

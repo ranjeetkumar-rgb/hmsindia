@@ -252,7 +252,7 @@ class Center_model extends CI_Model
 
 	public function get_center_code(){
 		$result = array();
-		$sql = "Select center_code from ".$this->config->item('db_prefix')."centers ";
+		$sql = "Select center_number from ".$this->config->item('db_prefix')."centers ";
 		$q = $this->db->query($sql);
 		$result = $q->result_array();
 		if (!empty($result))

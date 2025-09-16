@@ -1,4 +1,5 @@
-<?php $all_method =&get_instance();
+<?php
+$all_method =&get_instance();
 	$billing_type = '';
 	if($consultation_details['investation_suggestion'] == 1){
 		$billing_type = 'investigation';

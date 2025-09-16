@@ -467,7 +467,6 @@ class Stocks extends CI_Controller {
 					$vndr_bill['total_purchase_value_excl_gst'] = $_POST['total_purchase_value_excl_gst'];
 					$vndr_bill['freight_forwarding_charges'] = $_POST['freight_forwarding_charges'];
 					$vndr_bill['comment'] = $comment;
-					 
 					// print_r($this->order_model->insert_vendor_billing($vndr_bill));die();
 					$data = $this->order_model->insert_vendor_billing($vndr_bill);
 				}	
