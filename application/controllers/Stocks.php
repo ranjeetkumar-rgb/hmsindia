@@ -1556,7 +1556,7 @@ public function medicine_update()
 				$post_arr['fees'] = $_POST['fees'];unset($_POST['fees']);
 				$post_arr['status'] = $_POST['status'];unset($_POST['status']);
                 $post_arr['discount_amount'] = $post_arr['fees'] - $post_arr['payment_done'];
-				$post_arr['employee_number'] = isset($_POST['employee_	number']) ? $_POST['employee_number'] : '';unset($_POST['employee_number']);
+				$post_arr['employee_number'] = isset($_POST['employee_number']) ? $_POST['employee_number'] : '';unset($_POST['employee_number']);
 				$post_arr['department'] = isset($_POST['department']) ? $_POST['department'] : '';unset($_POST['department']);
 				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
 				

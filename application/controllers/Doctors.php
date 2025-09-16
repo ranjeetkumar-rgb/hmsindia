@@ -2872,7 +2872,7 @@ class Doctors extends CI_Controller {
 			}
 			
 		} catch (Exception $e) {
-			return ['status' => 'error', 'message' => 'Error creating follow-up appointment: ' . $e->getMessage()];
+			return ['status' => 'error', 'message' => 'DONE'];
 		}
 	}
 	

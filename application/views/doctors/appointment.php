@@ -4,38 +4,37 @@
       <div class="card">
        <div class="card-action"><h3>My Appointments</h3></div>
         <div class="col-sm-12 col-xs-12">
-        <form action="<?php echo base_url().'doctor_appointments'; ?>" method="get">
-          <div class="col-sm-3 col-xs-12 ">
-            	<label>Filter by status</label>
-                <select class="form-control" id="status" name="status" style="height:40px!important;">
-                	<option value=''>--Select--</option>
-                    <option value="booked">Scheduled</option>
-                    <option value="rescheduled">Rescheduled</option>
-                    <option value="visited">Billing done</option>
-                    <option value="consultation">Patient in</option>
-                    <option value="consultation_done">Consultation done</option>
-                </select>
-            </div>
-            <div class="col-sm-3 col-xs-12 ">
-            	<label>Start Date</label>
-              <input type="text" class="particular_date_filter form-control" id="start_date" name="start_date" value="<?php echo $start_date;?>" />
-            </div>
-            <div class="col-sm-3 col-xs-12 ">
-            	<label>End Date</label>
-                <input type="text" class="particular_date_filter form-control" id="end_date" name="end_date" value="<?php echo $end_date;?>" />
-            </div>
-            <div class="col-sm-3 col-xs-12 ">
-				        <label>Patient ID</label>
-                <input type="text" id="patient_id" name="patient_id"value="<?php echo $patient_id;?>" class="form-control" />
-            </div>
-            <div class="col-sm-3 col-xs-12 ">
-				        <label>Patient Name/Mobile</label>
-                <input type="text" id="patient_name" name="patient_name" value="<?php echo $patient_name;?>" class="form-control" placeholder="Enter patient name/mobile" />
-            </div>
-            <div class="col-sm-1" style="margin-top: 22px;">
-            	<button name="search" type="submit"  class="btn btn-primary">Search</button>
-            </div>
-           
+            <form action="<?php echo base_url().'doctor_appointments'; ?>" method="get">
+              <div class="col-sm-3 col-xs-12 ">
+                  <label>Filter by status</label>
+                    <select class="form-control" id="status" name="status" style="height:40px!important;">
+                      <option value=''>--Select--</option>
+                        <option value="booked">Scheduled</option>
+                        <option value="rescheduled">Rescheduled</option>
+                        <option value="visited">Billing done</option>
+                        <option value="consultation">Patient in</option>
+                        <option value="consultation_done">Consultation done</option>
+                    </select>
+                </div>
+                <div class="col-sm-3 col-xs-12 ">
+                  <label>Start Date</label>
+                  <input type="text" class="particular_date_filter form-control" id="start_date" name="start_date" value="<?php echo $start_date;?>" />
+                </div>
+                <div class="col-sm-3 col-xs-12 ">
+                  <label>End Date</label>
+                    <input type="text" class="particular_date_filter form-control" id="end_date" name="end_date" value="<?php echo $end_date;?>" />
+                </div>
+                <div class="col-sm-3 col-xs-12 ">
+                    <label>Patient ID</label>
+                    <input type="text" id="patient_id" name="patient_id"value="<?php echo $patient_id;?>" class="form-control" />
+                </div>
+                <div class="col-sm-3 col-xs-12 ">
+                    <label>Patient Name/Mobile</label>
+                    <input type="text" id="patient_name" name="patient_name" value="<?php echo $patient_name;?>" class="form-control" placeholder="Enter patient name/mobile" />
+                </div>
+                <div class="col-sm-1" style="margin-top: 22px;">
+                  <button name="search" type="submit"  class="btn btn-primary">Search</button>
+                </div>
             </form>  
             <div class="col-sm-1" style="margin-top: 22px;">
             	<a href="<?php echo base_url().'doctor_appointments'; ?>" style="text-decoration: none;">
