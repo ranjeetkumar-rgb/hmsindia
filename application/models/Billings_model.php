@@ -1,525 +1,297 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
 date_default_timezone_set('Asia/Calcutta');
 
-class Billingmodel_model extends CI_Model
+
+
+class Billings_model extends CI_Model
+
 {
-	function insert_appointments($data){
-		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "appointments` SET ";
-		$sqlArr = array();
-		foreach( $data as $key=> $value )
-		{
-			$sqlArr[] = " $key = '".addslashes($value)."'"	;
-		}		
-		$sql .= implode(',' , $sqlArr);
-		
-       	$res =  $this->db->query($sql);
-		if ($res)
-		{
-			return $this->db->insert_id();
-		}
-		else
-			return 0;
-	}
-	
-	function insert_crm_appointments($data){
-		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "crmappointments` SET ";
-		$sqlArr = array();
-		foreach( $data as $key=> $value )
-		{
-			$sqlArr[] = " $key = '".addslashes($value)."'"	;
-		}		
-		$sql .= implode(',' , $sqlArr);
-		
-       	$res =  $this->db->query($sql);
-		if ($res)
-		{
-			return $this->db->insert_id();
-		}
-		else
-			return 0;
-	}
-	
-	function check_appointments($appointment_id){
-		$result = array();
-		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where ID='$appointment_id' and (status='booked' OR status='rescheduled' OR status='in_clinic')";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-	}
-	
-	function update_appointment($appointment, $uhid){
-		$sql = "UPDATE ".$this->config->item('db_prefix')."appointments SET uhid='$uhid', status='visited', billed='1'  WHERE ID='$appointment'";
-        $this->db->query($sql);
-        return $this->db->affected_rows();
-	}
-	
-	function search_consultation_done($search_this, $search_by){
-		$result = array();
-		$sql_condition = '';
-		if($search_by == 'patient'){
-			$sql_condition = " patient_id='".$search_this."'";
-		}else if($search_by == 'phone'){
-			$sql_condition = " wife_phone='".$search_this."'";	
-		}else{
-			return $result;
-		}
-		
-		$sql = "Select ID, medicine_suggestion,procedure_suggestion,investation_suggestion,package_suggestion,medicine_billed,investigation_billed,procedure_billed,package_billed from ".$this->config->item('db_prefix')."doctor_consultation where".$sql_condition." order by ID DESC";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            $billed = false;
-            foreach($result as $bill){
-                if($bill['medicine_suggestion'] == 1 && $bill['medicine_billed'] == 0){
-                    $billed = true;
-                }else if($bill['procedure_suggestion'] == 1 && $bill['procedure_billed'] == 0){
-                    $billed = true;
-				}else if($bill['package_suggestion'] == 1 && $bill['package_billed'] == 0){
-                    $billed = true;	
-                }else if($bill['investation_suggestion'] == 1 && $bill['investigation_billed'] == 0){
-                    $billed = true;
-                }
-                if($billed == true){
-                    return $bill;
-                }
-            }
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-    }
-    
-	function after_consultation_billing($id){
-		$result = array();
-		$sql = "Select * from ".$this->config->item('db_prefix')."doctor_consultation where ID='$id' AND (medicine_billed= '0' OR investigation_billed='0' OR procedure_billed='0')";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-    }
-    
-    function investigation_insert($data){
-		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patient_investigations` SET ";
-		$sqlArr = array();
-		foreach( $data as $key=> $value )
-		{
-			$sqlArr[] = " $key = '".addslashes($value)."'";
-		}
-		$sql .= implode(',' , $sqlArr);
-       	$res =  $this->db->query($sql);
-		if ($res)
-		{
-			return $this->db->insert_id();
-		}
-		else
-			return 0;
-    }
-    
-	function patient_procedure_insert($data){
-		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patient_procedure` SET ";
-		$sqlArr = array();
-		foreach( $data as $key=> $value )
-		{
-			$sqlArr[] = " $key = '".addslashes($value)."'";
-		}
-		$sql .= implode(',' , $sqlArr);
-       	$res =  $this->db->query($sql);
-		if ($res)
-		{
-			return $this->db->insert_id();
-		}
-		else
-			return 0;
-	}
-	
-	function partial_consultation_count($wife_name, $patient_id){
-		$partial_consultation_billing = array();
-		$conditions = '';
-		if (!empty($patient_id)){
-			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($wife_name)){
-			$conditions .= " and wife_name like '$wife_name'";
-		}
-		/*if (!empty($start_date) && !empty($end_date)){
-			$conditions .= " and a.consultation_date between '".$start_date."' AND '".$end_date."' ";
-		}
-		else if (!empty($start_date) && empty($end_date)){
-			$conditions .= " and a.consultation_date='$start_date'";
-		}
-		else if (empty($start_date) && !empty($end_date)){
-			$conditions .= " and a.consultation_date='$end_date'";
-		}*/
-		$patient_payments_sql = "SELECT d.ID as doctor_consultation_id, d.doctor_id, d.patient_id, a.ID, a.wife_name, a.wife_phone from ".$this->config->item('db_prefix')."appointments a join ".$this->config->item('db_prefix')."doctor_consultation d   where d.appointment_id = a.ID and a.partial_billing=1 and d.medicine_billed=0 and d.investigation_billed = 0 and d.procedure_billed = 0";
-		$q = $this->db->query($patient_payments_sql);
-		return $q->num_rows();
-		
-	}
-	
-	function partial_consultation_pagination($limit, $page, $wife_name, $patient_id){
-		$partial_consultation_billing = array();
-		$conditions = '';
-		if(empty($page)){
-			$offset = 0;
-		}else{
-			$offset = ($page - 1) * $limit;
-		}
-		if (!empty($patient_id)){
-			$conditions .= " and d.patient_id='$patient_id'";
-		}
-		if (!empty($wife_name)){
-			$conditions .= " and a.wife_name='$wife_name'";
-		}
-		if (!empty($start_date) && !empty($end_date)){
-			$conditions .= " and a.consultation_date between '".$start_date."' AND '".$end_date."' ";
-		}
-		else if (!empty($start_date) && empty($end_date)){
-			$conditions .= " and a.consultation_date='$start_date'";
-		}
-		else if (empty($start_date) && !empty($end_date)){
-			$conditions .= " and a.consultation_date='$end_date'";
-		}
-		
-		
-		$procedure_sql = "SELECT d.ID as doctor_consultation_id, d.doctor_id, d.patient_id, a.ID, a.wife_name, a.wife_phone from ".$this->config->item('db_prefix')."appointments a join ".$this->config->item('db_prefix')."doctor_consultation d where d.appointment_id = a.ID and a.partial_billing=1 and d.medicine_billed=0 and d.investigation_billed = 0 and d.procedure_billed = 0 ".$conditions." order by d.ID desc limit ". $limit." OFFSET ".$offset."";
-		$procedure_q = $this->db->query($procedure_sql);
-		$procedure_billing_noreceipt = $procedure_q->result_array();
-		
-		return $procedure_billing_noreceipt;
-	}
-    
-	
-	function search_appointment($search_this, $search_by){
-		$result = array();
-		$sql_condition = '';
-		if($search_by == 'patient'){
-			$sql_condition = " paitent_id='".$search_this."'";
-		}else if($search_by == 'phone'){
-			$sql_condition = " wife_phone='".$search_this."'";	
-		}else{
-			return $result;
-		}
-		
-		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where".$sql_condition." and (status='booked' OR status='rescheduled')";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result;
-        }
-        else
-        {
-            return $result;
-        }
-	}
-	
-	function get_consultation_data($appointments_id){
-		$sql = "Select * from ".$this->config->item('db_prefix')."consultation where appointment_id='$appointments_id'";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-	}
-	
-	function search_patient($search_this, $search_by){
-		$result = array();
-		$sql_condition = '';
-		if($search_by == 'patient'){
-			$sql_condition = " patient_id='".$search_this."'";
-		}else if($search_by == 'phone'){
-		    $search_this = str_replace('+91', '', $search_this);
-			$sql_condition = " patient_phone='".$search_this."'";	
-		}else{
-			return $result;
-		}
-		
-		$sql = "Select * from ".$this->config->item('db_prefix')."patients where".$sql_condition;
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-	}
-	
-	function get_medicine_details($medicine){
-		$sql = "Select * from ".$this->config->item('db_prefix')."stocks where item_number='$medicine'";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-	}
-	
-	function get_brand_details($brand){
-		$sql = "Select * from ".$this->config->item('db_prefix')."brands where brand_number='$brand'";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-	}
-	
-	function get_investigation_details($investigation){
-		$sql = "Select * from ".$this->config->item('db_prefix')."investigation where ID='$investigation'";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-	}
-	
-/*	function get_master_investigation_details($investigation){
-		//$sql = "Select * from ".$this->config->item('db_prefix')."investigation where ID='$investigation'";
-	/*echo $sql = "SELECT inv.investigation, inv.code AS code, inv.ID AS inv_id, master.code AS master_code, inv.price, inv.center_id, inv.master_id, master.investigation_name
-FROM hms_investigation AS inv JOIN hms_master_investigations AS master ON inv.master_id = master.id WHERE inv.id IN ( SELECT MIN(id) FROM hms_investigation GROUP BY master_id ='$investigation')";
-       */
-		/*$sql = "SELECT inv.investigation, inv.code AS code, inv.ID AS inv_id,
-       master.code AS master_code, inv.price, inv.center_id,
-       inv.master_id, master.investigation_name
-FROM hms_investigation AS inv
-JOIN hms_master_investigations AS master ON inv.master_id = master.id
-WHERE inv.master_id = '$investigation'";
-		$q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-	} */
-	
-	function get_master_investigation_details($investigation){
-	$sql = "SELECT inv.investigation, inv.code AS code, inv.ID AS inv_id,
-	       master.code AS master_code, inv.price, inv.center_id,
-	       inv.master_id, master.investigation_name
-	FROM hms_investigation AS inv
-	JOIN hms_master_investigations AS master ON inv.master_id = master.id
-	WHERE inv.master_id = '$investigation'";
-	
-	$q = $this->db->query($sql);
-	$result = $q->result_array();
-	return $result; // return all rows instead of just the first one
-}
 
-	
-	function get_procedure_details($procedure){
-        $sql = "Select * from ".$this->config->item('db_prefix')."procedures where ID='$procedure'";
-        //echo $procedure;die;
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return $result[0];
-        }
-        else
-        {
-            return $result;
-        }
-    }
+/*	function get_billings_list(){
 
-    function export_billing_data($start, $end, $center, $type){
-        $consultation_result = $investigate_result = $procedure_result = $response = array();
-        $conditions = '';
-        if($type == "date_wise"){
-            if($center == 0){
-                if($start !== "" && $end !== ""){
-                    $conditions = " Where on_date between '".$start."' AND '".$end."' ";
-                }
-                if($center != 0){ $conditions .= ' AND billing_at="'.$center.'"'; }
-            }else{
-                if($start !== "" && $end !== ""){
-                    $conditions = " Where on_date between '".$start."' AND '".$end."' AND ";
-                }else{
-                    $conditions = " Where ";   
-                }
-                if($center != 0){ $conditions .= ' billing_at="'.$center.'"'; }
-            }
-        }else if($type == "billing_at"){
-            $conditions .= ' Where billing_at="'.$center.'"';
-        }else if($type == "billing_from"){
-            $conditions .= ' Where billing_from="'.$center.'"';
-        }
-       
-		$consultation_sql = "Select receipt_number,patient_id,totalpackage,fees as discounted_package,payment_done,remaining_amount,payment_method,billing_from,billing_at,on_date as date,status from ".$this->config->item('db_prefix')."consultation $conditions order by on_date desc";
-        //echo $consultation_sql;die;s
+		$consultation_result = $investigate_result = $procedure_result = array();
+		$condition = "";
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
+
+		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation $condition order by on_date desc";
         $consultation_q = $this->db->query($consultation_sql);
         $consultation_result = $consultation_q->result_array();
+
+		$investigate_sql = "Select * from ".$this->config->item('db_prefix')."patient_investigations $condition order by on_date desc";
+        $investigate_q = $this->db->query($investigate_sql);
+        $investigate_result = $investigate_q->result_array();
+
+		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."patient_procedure $condition order by on_date desc";
+        $procedure_q = $this->db->query($procedure_sql);
+        $procedure_result = $procedure_q->result_array();
+
+		$response = array();
+		$response = array('consultation_result' => $consultation_result, 'investigate_result' => $investigate_result, 'procedure_result' => $procedure_result);
+		return $response;
+	}
+*/
+	
+/*************Consultation Billings***************/
+	function export_consultation_billings($center, $start_date, $end_date, $patient_id){
+
+		$consultation_result = $response = array();
+        $conditions = '';
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+        if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		
+	    $consultation_sql = "Select DISTINCT receipt_number,patient_id, totalpackage,discount_amount, payment_done,remaining_amount, payment_method, billing_at, on_date as date, status from ".$this->config->item('db_prefix')."consultation where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 $conditions order by on_date desc";
+        $consultation_q = $this->db->query($investigation_sql);
+        $consultation_result = $investigation_q->result_array();
         if(!empty($consultation_result)){
             foreach($consultation_result as $key => $val){
+				$patient_name = $this->get_patient_name($val['patient_id']);
+				$patient_name1 = strtoupper($patient_name);
                 $response[] = array(
-                        'receipt_number' => $val['receipt_number'],
+				        'receipt_number' => $val['receipt_number'],
                         'patient_id' => $val['patient_id'],
-                        'totalpackage' => $val['totalpackage'],
-                        'discounted_package' => $val['discounted_package'],
+						'totalpackage' => $val['$totalpackage'],
+						'discount_amount' => $val['discount_amount'],
                         'payment_done' => $val['payment_done'],
-                        'remaining_amount' => $val['remaining_amount'],
+						'remaining_amount' => $val['remaining_amount'],
                         'payment_method' => $val['payment_method'],
-                        'billing_from' => $val['billing_from'],
                         'billing_at' => $val['billing_at'],
-                        'date' => $val['date'],
+						'date' => $val['date'],
                         'status' => $val['status'],
                         'billing_type' => 'Consultation',
                 );
             }
-        }
+        }    
+		return $response;
+    }
 
-		$investigate_sql = "Select receipt_number,patient_id,totalpackage,fees as discounted_package,payment_done,remaining_amount,payment_method,billing_from,billing_at,on_date as date,status from ".$this->config->item('db_prefix')."patient_investigations $conditions order by on_date desc";
-        $investigate_q = $this->db->query($investigate_sql);
-        $investigate_result = $investigate_q->result_array();
-        if(!empty($investigate_result)){
-            foreach($investigate_result as $key => $val){
+	function consultation_billings_count($center, $start_date, $end_date, $patient_id){
+		$consultation_result = array();
+		$conditions = '';
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+        if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+	    $consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 ".$conditions."";
+		$q = $this->db->query($consultation_sql);
+		return $q->num_rows();
+		
+	}
+	
+function consultation_billings_patination($limit, $page, $center, $start_date, $end_date, $patient_id){
+		$consultation_result = array();
+		$conditions = '';
+		if(empty($page)){
+			$offset = 0;
+		}else{
+			$offset = ($page - 1) * $limit;
+		}
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
+		if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+	    $consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
+		$consultation_q = $this->db->query($consultation_sql);
+		$consultation_result = $consultation_q->result_array();
+		return $consultation_result;
+}
+
+/*************Consultation Billings***************/
+	function export_registation_billings($center, $start_date, $end_date, $patient_id){
+
+		$consultation_result = $response = array();
+        $conditions = '';
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+        if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		
+	    $consultation_sql = "Select DISTINCT receipt_number,patient_id, totalpackage,discount_amount, payment_done,remaining_amount, payment_method, billing_at, on_date as date, status from ".$this->config->item('db_prefix')."registation where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 $conditions order by on_date desc";
+        $consultation_q = $this->db->query($investigation_sql);
+        $consultation_result = $investigation_q->result_array();
+        if(!empty($consultation_result)){
+            foreach($consultation_result as $key => $val){
+				$patient_name = $this->get_patient_name($val['patient_id']);
+				$patient_name1 = strtoupper($patient_name);
                 $response[] = array(
-                        'receipt_number' => $val['receipt_number'],
+				        'receipt_number' => $val['receipt_number'],
                         'patient_id' => $val['patient_id'],
-                        'totalpackage' => $val['totalpackage'],
-                        'discounted_package' => $val['discounted_package'],
+						'totalpackage' => $val['$totalpackage'],
+						'discount_amount' => $val['discount_amount'],
                         'payment_done' => $val['payment_done'],
-                        'remaining_amount' => $val['remaining_amount'],
+						'remaining_amount' => $val['remaining_amount'],
                         'payment_method' => $val['payment_method'],
-                        'billing_from' => $val['billing_from'],
                         'billing_at' => $val['billing_at'],
-                        'date' => $val['date'],
+						'date' => $val['date'],
+                        'status' => $val['status'],
+                        'billing_type' => 'Consultation',
+                );
+            }
+        }    
+		return $response;
+    }
+
+	function registation_billings_count($center, $start_date, $end_date, $patient_id){
+		$consultation_result = array();
+		$conditions = '';
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+        if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+	    $consultation_sql = "Select * from ".$this->config->item('db_prefix')."registation where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 ".$conditions."";
+		$q = $this->db->query($consultation_sql);
+		return $q->num_rows();
+		
+	}
+	
+function registation_billings_patination($limit, $page, $center, $start_date, $end_date, $patient_id){
+		$consultation_result = array();
+		$conditions = '';
+		if(empty($page)){
+			$offset = 0;
+		}else{
+			$offset = ($page - 1) * $limit;
+		}
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
+		if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+	    $consultation_sql = "Select * from ".$this->config->item('db_prefix')."registation where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
+		$consultation_q = $this->db->query($consultation_sql);
+		$consultation_result = $consultation_q->result_array();
+		return $consultation_result;
+}
+/*************Investigations Billings***************/
+
+	function export_investigations_billings($center, $start_date, $end_date, $patient_id){
+
+		$investigation_result = $response = array();
+        $conditions = '';
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+        if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		
+	    $investigation_sql = "Select DISTINCT receipt_number,patient_id, totalpackage,discount_amount, payment_done,remaining_amount, payment_method, billing_at, on_date as date, status from ".$this->config->item('db_prefix')."patient_investigations where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 $conditions order by on_date desc";
+        $investigation_q = $this->db->query($investigation_sql);
+        $investigation_result = $investigation_q->result_array();
+        if(!empty($investigation_result)){
+            foreach($investigation_result as $key => $val){
+				$patient_name = $this->get_patient_name($val['patient_id']);
+				$patient_name1 = strtoupper($patient_name);
+                $response[] = array(
+				        'receipt_number' => $val['receipt_number'],
+                        'patient_id' => $val['patient_id'],
+						'totalpackage' => $val['$totalpackage'],
+						'discount_amount' => $val['discount_amount'],
+                        'payment_done' => $val['payment_done'],
+						'remaining_amount' => $val['remaining_amount'],
+                        'payment_method' => $val['payment_method'],
+                        'billing_at' => $val['billing_at'],
+						'date' => $val['date'],
                         'status' => $val['status'],
                         'billing_type' => 'Investigation',
                 );
             }
-        }
-
-		$procedure_sql = "Select receipt_number,patient_id,totalpackage,fees as discounted_package,payment_done,remaining_amount,payment_method,billing_from,billing_at,on_date as date,status from ".$this->config->item('db_prefix')."patient_procedure $conditions order by on_date desc";
-        $procedure_q = $this->db->query($procedure_sql);
-        $procedure_result = $procedure_q->result_array();
-        if(!empty($procedure_result)){
-            foreach($procedure_result as $key => $val){
-                $response[] = array(
-                        'receipt_number' => $val['receipt_number'],
-                        'patient_id' => $val['patient_id'],
-                        'totalpackage' => $val['totalpackage'],
-                        'discounted_package' => $val['discounted_package'],
-                        'payment_done' => $val['payment_done'],
-                        'remaining_amount' => $val['remaining_amount'],
-                        'payment_method' => $val['payment_method'],
-                        'billing_from' => $val['billing_from'],
-                        'billing_at' => $val['billing_at'],
-                        'date' => $val['date'],
-                        'status' => $val['status'],
-                        'billing_type' => 'Procedure',
-                );
-            }
-        }
-        
-        $partial_sql = "Select billing_id,patient_id,payment_done,payment_method,billing_from,billing_at,on_date as date,status from ".$this->config->item('db_prefix')."patient_payments $conditions order by on_date desc";
-        $partial_q = $this->db->query($partial_sql);
-        $partial_result = $partial_q->result_array();
-        if(!empty($partial_result)){
-            foreach($partial_result as $key => $val){
-                $status = "";
-                if($val['status'] == 1){ $status = 'Approved'; }
-				else if($val['status'] == 2){ $status =  'Disapproved'; }
-				else{$status =  'Pending';}
-                $response[] = array(
-                        'receipt_number' => $val['billing_id'],
-                        'patient_id' => $val['patient_id'],
-                        'totalpackage' => '',
-                        'discounted_package' => '',
-                        'payment_done' => $val['payment_done'],
-                        'remaining_amount' => '',
-                        'payment_method' => $val['payment_method'],
-                        'billing_from' => $val['billing_from'],
-                        'billing_at' => $val['billing_at'],
-                        'date' => $val['date'],
-                        'status' => $status,
-                        'billing_type' => 'Partial Payment',
-                );
-            }
-        }
+        }    
 		return $response;
     }
-    
-    function upload_billing_receipt($patient_id, $receipt_number, $billing_type, $transaction_id, $transaction_img,$record_id=''){
-        $condition = "receipt_number";
-        if($billing_type == "patient_payments"){
-            $condition = "billing_id";
-        }
-        $sql = "UPDATE ".$this->config->item('db_prefix').$billing_type." SET `transaction_id`='$transaction_id',`transaction_img`='$transaction_img' WHERE ID='$record_id' AND patient_id='$patient_id' AND $condition='$receipt_number'";
-        $this->db->query($sql);
-        return $this->db->affected_rows();
-    }
 
-    function update_package_form($data, $receipt_number){
-        $sql = "UPDATE ".$this->config->item('db_prefix')."patient_procedure SET `package_form`='".$data['package_form']."' WHERE receipt_number='$receipt_number'";
-        $this->db->query($sql);
-        return $this->db->affected_rows();
-    }
-	
-	function update_doctor_consultation($receipt, $consultation_done, $medicine_billed, $investigation_billed, $procedure_billed){
-        $sql_condition = '';
-        if($medicine_billed == 1){
-            $sql_condition = ", medicine_billed='$medicine_billed'";
-        }if($investigation_billed == 1){
-            $sql_condition .= ", investigation_billed='$investigation_billed'";
-        }if($procedure_billed == 1){
-            $sql_condition = ", procedure_billed='$procedure_billed'";
-        }
-        $sql = "UPDATE ".$this->config->item('db_prefix')."doctor_consultation SET `receipt_number`='$receipt' ".$sql_condition." WHERE ID='$consultation_done'";
-        $this->db->query($sql);
-        return $this->db->affected_rows();
-	}
-	
-	/**********Billing Noreceipt Consultation**********/
-	
-	function billing_noreceipt_count($receipt_number, $start_date, $end_date, $patient_id){
-		$billing_noreceipt = array();
+	function investigation_billings_count($center, $start_date, $end_date, $patient_id){
+		$investigation_result = array();
 		$conditions = '';
-		if (!empty($patient_id)){
-			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($receipt_number)){
-			$conditions .= " and receipt_number='$receipt_number'";
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
 		}
 		if (!empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
@@ -530,135 +302,29 @@ WHERE inv.master_id = '$investigation'";
 		else if (empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date='$end_date'";
 		}
-		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."consultation where payment_method !='' AND (transaction_id='' OR transaction_id='0') AND transaction_img=''";
-		$q = $this->db->query($procedure_sql);
-		return $q->num_rows();
-		
-	}
-	
-	function billing_noreceipt_patination($limit, $page, $receipt_number, $start_date, $end_date, $patient_id){
-		$billing_noreceipt = array();
-		$conditions = '';
-		if(empty($page)){
-			$offset = 0;
-		}else{
-			$offset = ($page - 1) * $limit;
-		}
-		if (!empty($patient_id)){
+        if (!empty($patient_id)){
 			$conditions .= " and patient_id='$patient_id'";
 		}
-		if (!empty($receipt_number)){
-			$conditions .= " and receipt_number='$receipt_number'";
-		}
-		if (!empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
-		}
-		else if (!empty($start_date) && empty($end_date)){
-			$conditions .= " and on_date='$start_date'";
-		}
-		else if (empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date='$end_date'";
-		}
-		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."consultation where payment_method !='' AND (transaction_id='' OR transaction_id='0') AND transaction_img='' and 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
-		$procedure_q = $this->db->query($procedure_sql);
-		$billing_noreceipt = $procedure_q->result_array();
-		return $billing_noreceipt;
-	}
-	
-		/**********Billing Noreceipt Procedure**********/
-	
-	function procedure_noreceipt_count($receipt_number, $start_date, $end_date, $patient_id){
-		$procedure_billing_noreceipt = array();
-		$conditions = '';
-		if (!empty($patient_id)){
-			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($receipt_number)){
-			$conditions .= " and receipt_number='$receipt_number'";
-		}
-		if (!empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
-		}
-		else if (!empty($start_date) && empty($end_date)){
-			$conditions .= " and on_date='$start_date'";
-		}
-		else if (empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date='$end_date'";
-		}
-		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."patient_procedure where payment_method !='' AND (transaction_id='' OR transaction_id='0') AND transaction_img=''";
-		$q = $this->db->query($procedure_sql);
-		return $q->num_rows();
-		
-	}
-	
-	function procedure_noreceipt_pagination($limit, $page, $receipt_number, $start_date, $end_date, $patient_id){
-		$procedure_billing_noreceipt = array();
-		$conditions = '';
-		if(empty($page)){
-			$offset = 0;
-		}else{
-			$offset = ($page - 1) * $limit;
-		}
-		if (!empty($patient_id)){
-			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($receipt_number)){
-			$conditions .= " and receipt_number='$receipt_number'";
-		}
-		if (!empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
-		}
-		else if (!empty($start_date) && empty($end_date)){
-			$conditions .= " and on_date='$start_date'";
-		}
-		else if (empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date='$end_date'";
-		}
-		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."patient_procedure where payment_method !='' AND (transaction_id='' OR transaction_id='0') AND transaction_img='' and 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
-		$procedure_q = $this->db->query($procedure_sql);
-		$procedure_billing_noreceipt = $procedure_q->result_array();
-		return $procedure_billing_noreceipt;
-	}
-	
-		/**********Billing Noreceipt Investigation**********/
-	
-	function investigation_noreceipt_count($receipt_number, $start_date, $end_date, $patient_id){
-		$investigation_billing_noreceipt = array();
-		$conditions = '';
-		if (!empty($patient_id)){
-			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($receipt_number)){
-			$conditions .= " and receipt_number='$receipt_number'";
-		}
-		if (!empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
-		}
-		else if (!empty($start_date) && empty($end_date)){
-			$conditions .= " and on_date='$start_date'";
-		}
-		else if (empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date='$end_date'";
-		}
-		$investigation_sql = "Select * from ".$this->config->item('db_prefix')."patient_investigations where payment_method !='' AND (transaction_id='' OR transaction_id='0') AND transaction_img=''";
+	    $investigation_sql = "Select * from ".$this->config->item('db_prefix')."patient_investigations where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 ".$conditions."";
 		$q = $this->db->query($investigation_sql);
 		return $q->num_rows();
 		
 	}
 	
-	function investigation_noreceipt_pagination($limit, $page, $receipt_number, $start_date, $end_date, $patient_id){
-		$investigation_billing_noreceipt = array();
+function investigation_billings_patination($limit, $page, $center, $start_date, $end_date, $patient_id){
+		$investigation_result = array();
 		$conditions = '';
 		if(empty($page)){
 			$offset = 0;
 		}else{
 			$offset = ($page - 1) * $limit;
 		}
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
 		if (!empty($patient_id)){
 			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($receipt_number)){
-			$conditions .= " and receipt_number='$receipt_number'";
 		}
 		if (!empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
@@ -669,22 +335,21 @@ WHERE inv.master_id = '$investigation'";
 		else if (empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date='$end_date'";
 		}
-		$investigation_sql = "Select * from ".$this->config->item('db_prefix')."patient_investigations where payment_method !='' AND (transaction_id='' OR transaction_id='0') AND transaction_img='' and 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
+	    $investigation_sql = "Select * from ".$this->config->item('db_prefix')."patient_investigations where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
 		$investigation_q = $this->db->query($investigation_sql);
-		$investigation_billing_noreceipt = $investigation_q->result_array();
-		return $investigation_billing_noreceipt;
-	}
-	
-		/**********Billing Noreceipt Investigation**********/
-	
-	function patient_payments_noreceipt_count($billing_id, $start_date, $end_date, $patient_id){
-		$patient_payments_billing_noreceipt = array();
-		$conditions = '';
-		if (!empty($patient_id)){
-			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($billing_id)){
-			$conditions .= " and billing_id='$billing_id'";
+		$investigation_result = $investigation_q->result_array();
+		return $investigation_result;
+}
+
+/*************Procedure Billings***************/
+
+	function export_procedure_billings($center, $start_date, $end_date, $patient_id){
+
+		$procedure_result = $response = array();
+        $conditions = '';
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
 		}
 		if (!empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
@@ -695,25 +360,74 @@ WHERE inv.master_id = '$investigation'";
 		else if (empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date='$end_date'";
 		}
-		$patient_payments_sql = "Select * from ".$this->config->item('db_prefix')."patient_payments where payment_method !='' AND (transaction_id='' OR transaction_id='0') AND transaction_img=''";
-		$q = $this->db->query($patient_payments_sql);
+        if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		
+	    $procedure_sql = "Select DISTINCT receipt_number,patient_id, totalpackage,discount_amount, payment_done,remaining_amount, payment_method, billing_at, on_date as date, status from ".$this->config->item('db_prefix')."patient_procedure where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 $conditions order by on_date desc";
+        $procedure_q = $this->db->query($procedure_sql);
+        $procedure_result = $procedure_q->result_array();
+        if(!empty($procedure_result)){
+            foreach($procedure_result as $key => $val){
+				$patient_name = $this->get_patient_name($val['patient_id']);
+				$patient_name1 = strtoupper($patient_name);
+                $response[] = array(
+				        'receipt_number' => $val['receipt_number'],
+                        'patient_id' => $val['patient_id'],
+						'totalpackage' => $val['$totalpackage'],
+						'discount_amount' => $val['discount_amount'],
+                        'payment_done' => $val['payment_done'],
+						'remaining_amount' => $val['remaining_amount'],
+                        'payment_method' => $val['payment_method'],
+                        'billing_at' => $val['billing_at'],
+						'date' => $val['date'],
+                        'status' => $val['status'],
+                        'billing_type' => 'Procedure',
+                );
+            }
+        }    
+		return $response;
+    }
+
+	function procedure_billings_count($center, $start_date, $end_date, $patient_id){
+		$procedure_result = array();
+		$conditions = '';
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+        if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+	    $procedure_sql = "Select * from ".$this->config->item('db_prefix')."patient_procedure where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 ".$conditions."";
+		$q = $this->db->query($procedure_sql);
 		return $q->num_rows();
 		
 	}
 	
-	function patient_payments_noreceipt_pagination($limit, $page, $billing_id, $start_date, $end_date, $patient_id){
-		$patient_payments_billing_noreceipt = array();
+function procedure_billings_patination($limit, $page, $center, $start_date, $end_date, $patient_id){
+		$procedure_result = array();
 		$conditions = '';
 		if(empty($page)){
 			$offset = 0;
 		}else{
 			$offset = ($page - 1) * $limit;
 		}
+		if(isset($_SESSION['logged_billing_manager']['center'])){
+			$center = $_SESSION['logged_billing_manager']['center'];
+			$condition = " where billing_at='$center' ";
+		}
 		if (!empty($patient_id)){
 			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($billing_id)){
-			$conditions .= " and billing_id='$billing_id'";
 		}
 		if (!empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
@@ -724,41 +438,1257 @@ WHERE inv.master_id = '$investigation'";
 		else if (empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date='$end_date'";
 		}
-		$patient_payments_sql = "Select * from ".$this->config->item('db_prefix')."patient_payments where payment_method !='' AND (transaction_id='' OR transaction_id='0') AND transaction_img='' and 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
-		$patient_payments_q = $this->db->query($patient_payments_sql);
-		$patient_payments_billing_noreceipt = $patient_payments_q->result_array();
-		return $patient_payments_billing_noreceipt;
+	    $procedure_sql = "Select * from ".$this->config->item('db_prefix')."patient_procedure where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
+		$procedure_q = $this->db->query($procedure_sql);
+		$procedure_result = $procedure_q->result_array();
+		return $procedure_result;
+}
+
+	function get_billings_request_list(){
+
+		$consultation_result = $investigate_result = $procedure_result = array();
+
+		
+
+		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."billing_request where type='consultation'";
+
+        $consultation_q = $this->db->query($consultation_sql);
+
+        $consultation_result = $consultation_q->result_array();
+
+		
+
+		$investigate_sql = "Select * from ".$this->config->item('db_prefix')."billing_request where type='investigation'";
+
+        $investigate_q = $this->db->query($investigate_sql);
+
+        $investigate_result = $investigate_q->result_array();
+
+		
+
+		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."billing_request where type='procedure'";
+
+        $procedure_q = $this->db->query($procedure_sql);
+
+        $procedure_result = $procedure_q->result_array();
+
+		
+
+		$response = array();
+
+		$response = array('consultation_result' => $consultation_result, 'investigate_result' => $investigate_result, 'procedure_result' => $procedure_result);
+
+		return $response;
+
 	}
 
-	function update_freezing_data($data, $patient_id, $expiry_date, $renewal_type) {
-		// Safely escape patient_id, expiry_date, and renewal_type
-		$patient_id = $this->db->escape($patient_id);
-		$expiry_date = $this->db->escape($expiry_date);
-		$renewal_type = $this->db->escape($renewal_type);
 	
-		// Define the frozen samples that should be updated
-		$frozen_samples = ['Semen Freezing', 'Embryo Freezing', 'Egg Freezing'];
-	
-		// Escape and format the frozen samples for the SQL query
-		$frozen_samples = array_map([$this->db, 'escape'], $frozen_samples);
-		$frozen_samples_list = implode(',', $frozen_samples); // Join the array into a comma-separated list
-	
-		// Build and execute the SQL query
-		echo $sql = "UPDATE freezing SET `expiry_date` = $expiry_date, `renewal_type` = $renewal_type
-				WHERE iic_id = $patient_id 
-				AND frozen_sample IN ($frozen_samples_list)";
-		
-		$this->db->query($sql);
-		return $this->db->affected_rows();
-	}	
 
-	function patient_journey_data($data){
-		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patient_journey` SET ";
+	function patient_payments($data){
+
+		$response = array();
+
+		if($data['search_by'] == 'patient'){
+			$sql_condition = " patient_id='".$data['search_this']."'";
+		}else if($data['search_by'] == 'phone'){
+			$sql_condition = " patient_phone='".$data['search_this']."'";	
+		}else{
+			return $response;
+		}	
+
+		$patient_sql = "Select * from ".$this->config->item('db_prefix')."patients where $sql_condition";
+        $patient_q = $this->db->query($patient_sql);
+        $patient_result = $patient_q->result_array();
+		$patient_id = $patient_result[0]['patient_id'];	
+
+		$consultation_result = $procedure_result = $investigation_result = $remaining_billing = array();	
+
+		$procedure_sql = "Select receipt_number, payment_done, fees, remaining_amount, billing_from, billing_at, data from ".$this->config->item('db_prefix')."patient_procedure where patient_id='".$patient_id."' and status!='disapproved'";
+        $procedure_q = $this->db->query($procedure_sql);
+        $procedure_result = $procedure_q->result_array();
+
+		$consultation_sql = "Select receipt_number, payment_done, fees, remaining_amount, billing_from, billing_at from ".$this->config->item('db_prefix')."consultation where patient_id='".$patient_id."' and status!='disapproved'";
+        $consultation_q = $this->db->query($consultation_sql);
+		$consultation_result = $consultation_q->result_array();
+		
+		$investigation_sql = "Select receipt_number, payment_done, fees, remaining_amount, billing_from, billing_at from ".$this->config->item('db_prefix')."patient_investigations where patient_id='".$patient_id."' and status!='disapproved'";
+        $investigation_q = $this->db->query($investigation_sql);
+        $investigation_result = $investigation_q->result_array();
+
+		$total = 0;
+		foreach($consultation_result as $key => $val){
+			$done_sql = "Select sum(payment_done) as payment_done from ".$this->config->item('db_prefix')."patient_payments where patient_id='".$patient_id."' AND billing_id='".$val['receipt_number']."' AND status!='2'";
+			$done_q = $this->db->query($done_sql);
+			$done_result = $done_q->result_array();
+			//print_r($done_result);die;
+			if(count($done_result[0]) > 0){
+				$total = (round($val['payment_done'], 2)+round($done_result[0]['payment_done'], 2)); 
+				if($total < $val['fees']){
+					$remaining_billing[] = array(
+						'billing_id' => $val['receipt_number'],
+						'billing_at' => $val['billing_at'],
+						'billing_from' => $val['billing_from'],
+						'discounted_package' => $val['fees'],
+						'amount_paid' => $total,
+						'balance' => ($val['fees'] - $total),
+						'type' => 'consultation'											
+					);
+				}
+			}
+			
+		}
+
+		$total = 0;
+		foreach($investigation_result as $key => $val){
+			$done_sql = "Select sum(payment_done) as payment_done from ".$this->config->item('db_prefix')."patient_payments where patient_id='".$patient_id."' AND billing_id='".$val['receipt_number']."' AND status=1";
+			$done_q = $this->db->query($done_sql);
+			$done_result = $done_q->result_array();
+			$total = (round($val['payment_done'], 2)+round($done_result[0]['payment_done'], 2)); 
+			if($total < $val['fees']){
+				$remaining_billing[] = array(
+					'billing_id' => $val['receipt_number'],
+					'billing_at' => $val['billing_at'],
+					'billing_from' => $val['billing_from'],
+					'discounted_package' => $val['fees'],
+					'amount_paid' => $total,
+					'balance' => ($val['fees'] - $total),
+					'type' => 'investigation'
+				);
+			}
+		}	
+
+		$total = 0;
+		foreach($procedure_result as $key => $val){
+			$done_sql = "Select sum(payment_done) as payment_done from ".$this->config->item('db_prefix')."patient_payments where patient_id='".$patient_id."' AND billing_id='".$val['receipt_number']."' AND status=1";
+			$done_q = $this->db->query($done_sql);
+			$done_result = $done_q->result_array();
+			$total = (round($val['payment_done'], 2)+round($done_result[0]['payment_done'], 2)); 
+			if($total < $val['fees']){
+				$remaining_billing[] = array(
+					'billing_id' => $val['receipt_number'],
+					'billing_at' => $val['billing_at'],
+					'billing_from' => $val['billing_from'],
+					'discounted_package' => $val['fees'],
+					'amount_paid' => $total,
+					'balance' => ($val['fees'] - $total),
+					'type' => 'procedure',
+					'data' => $val['data']
+				);
+			}
+		}
+		
+		if(!empty($patient_result)){
+			$response = array('remaining_billing' => $remaining_billing, 'patient_id' =>$patient_id, 'wife_name' =>$patient_result[0]['wife_name'], 'patient_phone' => sting_masking($patient_result[0]['patient_phone']), 'wife_email' =>sting_masking($patient_result[0]['wife_email']), 'nationality' => $patient_result[0]['nationality'], 'status' => 1);
+		}else{
+			$response = array('status' => 0);
+		}
+		return $response;
+	}
+
+	function insert_patient_payment($data){
+		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patient_payments` SET ";
 		$sqlArr = array();
 		foreach( $data as $key=> $value )
 		{
 			$sqlArr[] = " $key = '".addslashes($value)."'"	;
-		}		
+		}
+		$sql .= implode(',' , $sqlArr);
+       	$res =  $this->db->query($sql);
+		if ($res)
+		{
+			return $this->db->insert_id();
+		}
+		else
+			return 0;
+	}
+
+	
+
+	function check_patient($search_this, $search_by){
+
+		$result = array();
+
+		$sql_condition = '';
+
+		if($search_by == 'patient'){
+
+			$sql_condition = " patient_id='".$search_this."'";
+
+		}else if($search_by == 'phone'){
+
+			$sql_condition = " patient_phone='".$search_this."'";	
+
+		}else{
+
+			return $result;
+
+		}
+
+		
+
+		$sql = "Select * from ".$this->config->item('db_prefix')."patients where".$sql_condition;
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function paitent_insert($data){
+
+		
+
+		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patients` SET ";
+
+		$sqlArr = array();
+
+		foreach( $data as $key=> $value )
+
+		{
+
+			$sqlArr[] = " $key = '".addslashes($value)."'";
+
+		}
+
+		$date = date("Y-m-d H:i:s");
+
+		$sqlArr[] = " add_date = '".addslashes($date)."'";
+
+		$sql .= implode(',' , $sqlArr);
+
+       	$res =  $this->db->query($sql);
+
+		if ($res)
+
+		{
+
+			return $this->db->insert_id();
+
+		}
+
+		else
+
+			return 0;
+
+	}
+
+	
+
+	function get_code($type){
+
+		$option = '';
+
+		$sql = "Select * from ".$this->config->item('db_prefix')."ids where type='".$type."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+			foreach($result as $key => $val){
+
+				$option .= '<option value="'.$val['code'].'">'.$val['code'].'</option>';
+
+			}
+
+            return $option;
+
+        }
+
+        else
+
+        {
+
+            return $option;
+
+        }
+
+	}
+
+	
+
+	function get_billings_details($receipt, $type){
+
+		$result = array();
+
+		$condition = '';
+
+		if($type == 'consultation'){
+
+			$condition = 'consultation';
+
+		}else if($type == 'investigation'){
+
+			$condition = 'patient_investigations';
+
+		}else if($type == 'procedure'){
+
+			$condition = 'patient_procedure';
+
+		}else{
+
+			return $result;
+
+		}
+
+		$sql = "SELECT * FROM `".$this->config->item('db_prefix').$condition."` WHERE `receipt_number`='".$receipt."'";
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function consultation_insert($data){
+
+		
+
+		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "consultation` SET ";
+
+		$sqlArr = array();
+
+		foreach( $data as $key=> $value )
+
+		{
+
+			$sqlArr[] = " $key = '".addslashes($value)."'";
+
+		}
+
+		$sql .= implode(',' , $sqlArr);
+
+       	$res =  $this->db->query($sql);
+
+		if ($res)
+
+		{
+
+			return $this->db->insert_id();
+
+		}
+
+		else
+
+			return 0;
+
+	}
+	
+	function registation_insert($data){
+
+		
+
+		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "registation` SET ";
+
+		$sqlArr = array();
+
+		foreach( $data as $key=> $value )
+
+		{
+
+			$sqlArr[] = " $key = '".addslashes($value)."'";
+
+		}
+
+		$sql .= implode(',' , $sqlArr);
+
+       	$res =  $this->db->query($sql);
+
+		if ($res)
+
+		{
+
+			return $this->db->insert_id();
+
+		}
+
+		else
+
+			return 0;
+
+	}
+
+	
+
+	function investigation_insert($data){
+
+		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patient_investigations` SET ";
+
+		$sqlArr = array();
+
+		foreach( $data as $key=> $value )
+
+		{
+
+			$sqlArr[] = " $key = '".addslashes($value)."'";
+
+		}
+
+		$sql .= implode(',' , $sqlArr);
+
+       	$res =  $this->db->query($sql);
+
+		if ($res)
+
+		{
+
+			return $this->db->insert_id();
+
+		}
+
+		else
+
+			return 0;
+
+	}
+
+
+
+	function patient_procedure_insert($data){
+
+		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patient_procedure` SET ";
+
+		$sqlArr = array();
+
+		foreach( $data as $key=> $value )
+
+		{
+
+			$sqlArr[] = " $key = '".addslashes($value)."'";
+
+		}
+
+		$sql .= implode(',' , $sqlArr);
+
+       	$res =  $this->db->query($sql);
+
+		if ($res)
+
+		{
+
+			return $this->db->insert_id();
+
+		}
+
+		else
+
+			return 0;
+
+	}
+
+	
+
+	function get_patient_name($patient_id){	
+
+		$result = array();
+
+		$sql = "Select wife_name from ".$this->config->item('db_prefix')."patients where patient_id='".$patient_id."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+        {
+            return $result[0]['wife_name'];
+        }
+        else
+        {
+            return "";
+        }
+	}
+
+	
+
+	function get_patient_details($patient_id){
+
+		
+
+		$result = array();
+
+		$sql = "Select * from ".$this->config->item('db_prefix')."patients where patient_id='".$patient_id."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+		
+
+	function get_sub_procedures($parent_procedure){
+
+		
+
+		$result = array();
+
+		$sql = "Select * from ".$this->config->item('db_prefix')."procedures where parent_id='".$parent_procedure."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result;
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function update_stock($serial, $qty){
+
+		$sql = "UPDATE ".config_item('db_prefix')."stocks SET `quantity` = `quantity` - ".$qty." WHERE item_number='".$serial."'";
+
+        $this->db->query($sql);
+
+        return 1;
+
+	}
+
+	
+
+	function update_disapproved_billing($receipt, $type){
+
+		$result = array();
+
+		$condition = '';
+
+		if($type == 'consultation'){
+
+			$condition = 'consultation';
+
+		}else if($type == 'investigation'){
+
+			$condition = 'patient_investigations';
+
+		}else if($type == 'procedure'){
+
+			$condition = 'patient_procedure';
+
+		}else{
+
+			return $result;
+
+		}
+
+		$sql = "UPDATE ".config_item('db_prefix').$condition." SET status='pending', reason_of_disapprove='', accepted='0' WHERE receipt_number='".$receipt."'";
+
+        $this->db->query($sql);
+
+        return 1;
+
+	}
+
+	
+
+	
+
+	function iic_share_update($receipt, $type, $share){
+
+		$result = array();
+
+		$sql = "UPDATE ".config_item('db_prefix')."patient_procedure SET `center_share` = '".$share."', share='1' WHERE receipt_number='".$receipt."'";
+
+        $this->db->query($sql);
+
+        return 1;
+
+	}
+
+	
+
+	
+
+	
+
+	function get_procedure_name($procedure){	
+
+		$result = array();
+
+		$sql = "Select procedure_name from ".$this->config->item('db_prefix')."procedures where ID='".$procedure."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0]['procedure_name'];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+	
+	function get_package_name($procedure){	
+
+		$result = array();
+
+		echo $sql = "Select package_name from ".$this->config->item('db_prefix')."procedure_package where procedure_id='".$procedure."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0]['package_name'];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function ajax_billing_from_data($billing_from){
+		$consultation_result = $investigate_result = $procedure_result = array();
+		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where billing_at='".$billing_from."'";
+        $consultation_q = $this->db->query($consultation_sql);
+        $consultation_result = $consultation_q->result_array();
+
+    	$investigate_sql = "Select * from ".$this->config->item('db_prefix')."patient_investigations where billing_at='".$billing_from."'";
+        $investigate_q = $this->db->query($investigate_sql);
+        $investigate_result = $investigate_q->result_array();
+
+		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."patient_procedure where billing_at='".$billing_from."'";
+        $procedure_q = $this->db->query($procedure_sql);
+        $procedure_result = $procedure_q->result_array();
+        
+        $patient_payment_sql = "Select * from ".$this->config->item('db_prefix')."patient_payments where billing_at='".$billing_from."'";
+        $patient_payment_q = $this->db->query($patient_payment_sql);
+        $patient_payment_result = $patient_payment_q->result_array();
+
+		$response = array();
+		$response = array('consultation_result' => $consultation_result, 'investigate_result' => $investigate_result, 'procedure_result' => $procedure_result, 'patient_payment_result' => $patient_payment_result);
+		return $response;
+	}
+	
+	function ajax_billing_source_data($billing_from){
+		$consultation_result = $investigate_result = $procedure_result = array();
+		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where billing_from='".$billing_from."'";
+        $consultation_q = $this->db->query($consultation_sql);
+        $consultation_result = $consultation_q->result_array();
+
+    	$investigate_sql = "Select * from ".$this->config->item('db_prefix')."patient_investigations where billing_from='".$billing_from."'";
+        $investigate_q = $this->db->query($investigate_sql);
+        $investigate_result = $investigate_q->result_array();
+
+		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."patient_procedure where billing_from='".$billing_from."'";
+        $procedure_q = $this->db->query($procedure_sql);
+        $procedure_result = $procedure_q->result_array();
+        
+        $patient_payment_sql = "Select * from ".$this->config->item('db_prefix')."patient_payments where billing_from='".$billing_from."'";
+        $patient_payment_q = $this->db->query($patient_payment_sql);
+        $patient_payment_result = $patient_payment_q->result_array();
+
+		$response = array();
+		$response = array('consultation_result' => $consultation_result, 'investigate_result' => $investigate_result, 'procedure_result' => $procedure_result, 'patient_payment_result' => $patient_payment_result);
+		return $response;
+	}
+
+	
+
+	function ajax_billing_date_data($start, $end){
+
+		$consultation_result = $investigate_result = $procedure_result = array();
+
+		
+
+		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where on_date between '".$start."' AND '".$end."'";
+
+        $consultation_q = $this->db->query($consultation_sql);
+
+        $consultation_result = $consultation_q->result_array();
+
+		if(!empty($consultation_result)){
+
+			$consultation_result = $consultation_result;
+
+		}
+
+		
+
+		$investigate_sql = "Select * from ".$this->config->item('db_prefix')."patient_investigations where on_date between '".$start."' AND '".$end."'";
+
+        $investigate_q = $this->db->query($investigate_sql);
+
+        $investigate_result = $investigate_q->result_array();
+
+		if(!empty($investigate_result)){
+
+			$investigate_result = $investigate_result;
+
+		}
+
+		
+
+		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."patient_procedure where on_date between '".$start."' AND '".$end."'";
+
+        $procedure_q = $this->db->query($procedure_sql);
+
+        $procedure_result = $procedure_q->result_array();
+
+		if(!empty($procedure_result)){
+
+			$procedure_result = $procedure_result;
+
+		}
+
+        $patient_payment_sql = "Select * from ".$this->config->item('db_prefix')."patient_payments where on_date between '".$start."' AND '".$end."'";
+        $patient_payment_q = $this->db->query($patient_payment_sql);
+        $patient_payment_result = $patient_payment_q->result_array();
+		if(!empty($patient_payment_result)){
+			$patient_payments_result = $patient_payment_result;
+		}
+		
+		$response = array();
+		$response = array('consultation_result' => $consultation_result, 'investigate_result' => $investigate_result, 'procedure_result' => $procedure_result,'patient_payments_result' => $patient_payments_result);
+		return $response;
+
+	}
+
+	
+
+	function ajax_center_billing_date_data($start, $end, $center){
+		$condition = " AND billing_at='".$center."'";
+		if($center == 0){
+			$condition = "";
+		}
+		$consultation_result = $investigate_result = $procedure_result = array();
+		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where on_date between '".$start."' AND '".$end."' $condition";
+		//echo $consultation_sql;die;
+        $consultation_q = $this->db->query($consultation_sql);
+        $consultation_result = $consultation_q->result_array();
+		if(!empty($consultation_result)){
+			$consultation_result = $consultation_result;
+		}
+
+		$investigate_sql = "Select * from ".$this->config->item('db_prefix')."patient_investigations where on_date between '".$start."' AND '".$end."' $condition";
+        $investigate_q = $this->db->query($investigate_sql);
+        $investigate_result = $investigate_q->result_array();
+		if(!empty($investigate_result)){
+			$investigate_result = $investigate_result;
+		}
+
+		$procedure_sql = "Select * from ".$this->config->item('db_prefix')."patient_procedure where on_date between '".$start."' AND '".$end."' $condition";
+        $procedure_q = $this->db->query($procedure_sql);
+        $procedure_result = $procedure_q->result_array();
+		if(!empty($procedure_result)){
+			$procedure_result = $procedure_result;
+		}
+		$response = array();
+		$response = array('consultation_result' => $consultation_result, 'investigate_result' => $investigate_result, 'procedure_result' => $procedure_result);
+		return $response;
+	}
+
+	function get_center($username){
+
+		$result = array();
+
+		$sql = "SELECT a.center_name, a.center_number FROM ".config_item('db_prefix')."centers as a, ".config_item('db_prefix')."employees as b WHERE a.center_number = b.center_id and b.username='".$username."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function get_patient_data($patient){
+
+		$result = array();
+
+		$sql = "SELECT * from ".config_item('db_prefix')."patients where patient_id='".$patient."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function get_center_name($center){
+
+		$result = array();
+
+		$sql = "Select center_name from ".$this->config->item('db_prefix')."centers where center_number='".$center."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0]['center_name'];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function get_investigation_name($investig){		
+
+		$result = array();
+
+		$sql = "Select investigation from ".$this->config->item('db_prefix')."investigation where ID='".$investig."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0]['investigation'];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function get_medicine_name($medicine){		
+
+		$result = array();
+
+		$sql = "Select item_name, company, brand_name from ".$this->config->item('db_prefix')."stocks where item_number='".$medicine."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+
+
+	function get_brand_name($brand){		
+
+		$result = array();
+
+		$sql = "Select name from ".$this->config->item('db_prefix')."brands where brand_number='".$brand."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0]['name'];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function check_discound_applied($receipt){
+
+		$sql = "Select count(*) as discount from ".$this->config->item('db_prefix')."discount_approval where receipt_number='".$receipt."' AND status='1' AND used='0'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0]['discount'];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	public function update_patients($data, $patient_id)
+
+    {	
+
+        $sql = "UPDATE " . config_item('db_prefix') . "patients SET ";
+
+		foreach( $data as $key=> $value )
+
+		{
+
+			$sqlArr[] = " $key = '".$value."'"	;
+
+		}
+
+		$sql .= implode(',' , $sqlArr);
+
+		$sql .= " WHERE patient_id = '".$patient_id."'";
+
+        $this->db->query($sql);
+
+        return 1;
+
+    }
+
+	
+
+	public function update_consultation($data, $receipt_number)
+
+    {	
+
+        $sql = "UPDATE " . config_item('db_prefix') . "consultation SET ";
+
+		foreach( $data as $key=> $value )
+
+		{
+
+			$sqlArr[] = " $key = '".$value."'"	;
+
+		}
+
+		$sql .= implode(',' , $sqlArr);
+
+		$sql .= " WHERE receipt_number = '".$receipt_number."'";
+
+        $this->db->query($sql);
+
+        return 1;
+
+    }
+
+	
+
+	public function update_investigation($data, $receipt_number)
+
+    {	
+
+        $sql = "UPDATE " . config_item('db_prefix') . "patient_investigations SET ";
+
+		foreach( $data as $key=> $value )
+
+		{
+
+			$sqlArr[] = " $key = '".$value."'"	;
+
+		}
+
+		$sql .= implode(',' , $sqlArr);
+
+		$sql .= " WHERE receipt_number = '".$receipt_number."'";
+
+        $this->db->query($sql);
+
+        return 1;
+
+    }
+
+	
+
+	public function update_procedure($data, $receipt_number)
+
+    {	
+
+        $sql = "UPDATE " . config_item('db_prefix') . "patient_procedure SET ";
+
+		foreach( $data as $key=> $value )
+
+		{
+
+			$sqlArr[] = " $key = '".$value."'"	;
+
+		}
+
+		$sql .= implode(',' , $sqlArr);
+
+		$sql .= " WHERE receipt_number = '".$receipt_number."'";
+
+        $this->db->query($sql);
+
+        return 1;
+
+    }
+
+	
+
+	function discount_lists($biller){
+
+		$result = array();
+
+		$sql = "Select * from ".$this->config->item('db_prefix')."discount_approval where biller='".$biller."'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result;
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function check_discount_code($discount_code,$patient_id,$receipt_number,$type)
+
+	{
+
+		$result = array();
+
+		$sql = "Select amount from ".$this->config->item('db_prefix')."discount_approval where receipt_number='".$receipt_number."' AND patient_id='".$patient_id."' AND type='".$type."' AND code='".$discount_code."' AND used='0' AND status='1'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0]['amount'];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+
+	
+
+	function update_discount_avail($discount_code){
+
+		$sql = "UPDATE ".config_item('db_prefix')."discount_approval SET `used` = '1' where code='".$discount_code."'";
+
+        $this->db->query($sql);
+
+        return 1;
+
+	}
+
+	function approve_purchase_order($ID){
+		// Get the current date and time
+		$current_date = date("Y-m-d H:i:s");
+	
+		// Correctly concatenate the current date and ensure it is wrapped in single quotes
+		$sql = "UPDATE `" . $this->config->item('db_prefix') . "patient_procedure` 
+				SET `request_date` = '" . $current_date . "', `status` = 'request' 
+				WHERE `ID` = '" . $ID . "'";
+		// Echo the SQL query for debugging
+		echo $sql;
+		// Execute the query
+		$this->db->query($sql);
+	
+		return 1;
+	}
+	
+	function get_transfer_data($ID){
+		$result = array();
+		$sql_condition = '';
+		$sql = "Select * from ".$this->config->item('db_prefix')."doctor_consultation where ID='".$ID."'";
+        $q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result[0];
+        }
+        else
+        {
+            return $result;
+        }
+	}
+
+	/*function add_product($data){
+		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "package` SET ";
+		$sqlArr = array();
+		foreach( $data as $key=> $value )
+		{
+			$sqlArr[] = " $key = '".addslashes($value)."'"	;
+		}
 		$sql .= implode(',' , $sqlArr);
 		
        	$res =  $this->db->query($sql);
@@ -768,6 +1698,145 @@ WHERE inv.master_id = '$investigation'";
 		}
 		else
 			return 0;
-	}
+	}*/
 	
+	public function update_product($data, $ID)
+{
+    $sql = "UPDATE " . config_item('db_prefix') . "doctor_consultation SET ";
+
+    $sqlArr = array();
+    foreach ($data as $key => $value) {
+        // Use CI's built-in escape function
+        $escaped_value = $this->db->escape($value);
+        $sqlArr[] = "`$key` = $escaped_value";
+    }
+
+    $sql .= implode(', ', $sqlArr);
+    $sql .= " WHERE ID = " . $this->db->escape($ID);
+
+    $this->db->query($sql);
+	
+	return $this->db->affected_rows();
+}
+
+	
+
+
+	function get_all_center_stocks($center_number, $start_date, $end_date, $patient_id){
+		$investigation_result = array();
+		$conditions = '';
+		if (!empty($center_number)){
+			$conditions .= " and center_number='$center_number'";
+		}
+		if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and add_on between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and add_on='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and add_on='$end_date'";
+		}
+	    $investigation_sql = "Select * from ".$this->config->item('db_prefix')."doctor_consultation where 1 ".$conditions."";
+		$q = $this->db->query($investigation_sql);
+		return $q->num_rows();
+	}
+
+	function get_all_center_stocks_patination($limit, $page, $center_number, $start_date, $end_date, $patient_id){
+		$conditions = '';
+		if(empty($page)){
+			$offset = 0;
+		}else{
+			$offset = ($page - 1) * $limit;
+		}
+		if (!empty($center_number)){
+			$conditions .= " and center_number='$center_number'";
+		}
+		if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and add_on between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and add_on='$start_date'";
+			
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and add_on='$end_date'";
+		}
+		$investigation_sql = "Select * from ".$this->config->item('db_prefix')."doctor_consultation where 1".$conditions." order by ID desc limit ". $limit." OFFSET ".$offset."";
+		$investigation_q = $this->db->query($investigation_sql);
+		$investigation_result = $investigation_q->result_array();
+		return $investigation_result;
+	} 
+
+	function export_all_center_stocks($center_number, $start, $end, $patient_id){
+		$investigation_result = $response = array();
+        $conditions = '';
+		if(!empty($center_number)){
+			$conditions .= ' and center_number="'.$center_number.'"';
+        }
+        if(!empty($start) && !empty($end)){
+            $conditions .= " and add_on between '".$start."' AND '".$end."' ";
+        }
+		if(!empty($patient_id)){
+			$conditions .= ' and patient_id="'.$patient_id.'"';
+        }
+		$investigation_sql = "Select DISTINCT patient_id, wife_name,wife_age, procedure_name_1,code_1,price_1,discount_1,after_discount_1,procedure_name_2,code_2,price_2,discount_2,after_discount_2,procedure_name_3,code_3,price_3,discount_3,after_discount_3,procedure_name_4,code_4,price_4,discount_4,after_discount_4, add_on from ".$this->config->item('db_prefix')."doctor_consultation where 1 $conditions order by ID desc ";
+        $investigation_q = $this->db->query($investigation_sql);
+        $investigation_result = $investigation_q->result_array();
+		if(!empty($investigation_result)){
+            foreach($investigation_result as $key => $val){
+				
+				$response[] = array(
+                        'patient_id' => $val['patient_id'],
+				        'wife_name' => $val['wife_name'],
+                        'wife_age' => $val['wife_age'],
+                        'procedure_name_1' => $val['procedure_name_1'],
+                        'code_1' => $val['code_1'],
+                        'price_1' => $val['price_1'],
+                        'discount_1' => $val['discount_1'],
+						'after_discount_1' => $val['after_discount_1'],
+						'procedure_name_2' => $val['procedure_name_2'],
+						'code_2' => $val['code_2'],
+                        'price_2' => $val['price_2'],
+						'discount_2' => $val['discount_2'],
+						'after_discount_2' => $val['after_discount_2'],
+                        'procedure_name_3' => $val['procedure_name_3'],
+                        'code_3' => $val['code_3'],
+                        'price_3' => $val['price_3'],
+                        'discount_3' => $val['discount_3'],
+						'after_discount_3' => $val['after_discount_3'],
+						'procedure_name_4' => $val['procedure_name_4'],
+                        'code_4' => $val['code_4'],
+                        'price_4' => $val['price_4'],
+                        'discount_4' => $val['discount_4'],
+						'after_discount_4' => $val['after_discount_4'],
+						'add_on' => $val['add_on'],
+                );
+            }
+        } 
+ 		return $response;
+    }
+	
+	function get_doctor_referral(){
+		$result = array();
+		$sql_condition = '';
+		$sql = "Select * from ".$this->config->item('db_prefix')."doctor_referral where status='1' ORDER by ID DESC";
+        $q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	}
+
 }

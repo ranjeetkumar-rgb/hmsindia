@@ -4,13 +4,6 @@ date_default_timezone_set('Asia/Calcutta');
 class Billingmodel_model extends CI_Model
 {
 	function insert_appointments($data){
-		// Remove camp-related fields as they don't exist in the appointments table
-		$camp_fields_to_remove = ['camp_selection', 'camp_center', 'camp_name', 'camp_description', 'start_date', 'end_date', 'center_id'];
-		foreach($camp_fields_to_remove as $field) {
-			if(isset($data[$field])) {
-				unset($data[$field]);
-			}
-		}
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "appointments` SET ";
 		$sqlArr = array();
 		foreach( $data as $key=> $value )
@@ -30,6 +23,7 @@ class Billingmodel_model extends CI_Model
 	
 	function insert_crm_appointments($data){
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "crmappointments` SET ";
+		$sqlArr = array();
 		foreach( $data as $key=> $value )
 		{
 			$sqlArr[] = " $key = '".addslashes($value)."'"	;
@@ -354,62 +348,13 @@ WHERE inv.master_id = '$investigation'";
 
 	
 	function get_procedure_details($procedure){
-        // $sql = "Select p.*, c.center_name, c.center_number from ".$this->config->item('db_prefix')."procedures p 
-        //         LEFT JOIN ".$this->config->item('db_prefix')."centers c ON FIND_IN_SET(c.center_number, p.center_id)
-        //         where p.ID='$procedure'";
-		// $sql = "SELECT p.* FROM ".$this->config->item('db_prefix')."procedures p  WHERE p.ID='$procedure'";
-		$sql = "Select * from ".$this->config->item('db_prefix')."procedures where ID='$procedure'";
+        $sql = "Select * from ".$this->config->item('db_prefix')."procedures where ID='$procedure'";
+        //echo $procedure;die;
         $q = $this->db->query($sql);
         $result = $q->result_array();
         if (!empty($result))
         {
-            $procedure_data = $result[0];
-            // Get current login user's center
-            $current_user_center = null;
-            if(isset($_SESSION['logged_billing_manager']['center'])) {
-                $current_user_center = $_SESSION['logged_billing_manager']['center'];
-            } elseif(isset($_SESSION['logged_stock_manager']['center'])) {
-                $current_user_center = $_SESSION['logged_stock_manager']['center'];
-            } elseif(isset($_SESSION['logged_accountant']['center'])) {
-                $current_user_center = $_SESSION['logged_accountant']['center'];
-            }
-            // Check if current user center exists in procedure center_id
-            if($current_user_center && $procedure_data['center_id']) {
-				$center_ids = explode(',', $procedure_data['center_id']);
-                if(in_array($current_user_center, $center_ids)) {
-				    $center_name =  $this->center_model->get_center_name_by_code($current_user_center);
-					if (!empty($center_name)) {
-						$procedure_data['center_name'] = $center_name['center_name'];
-						$procedure_data['center_number'] = $center_name['center_number'];
-						$procedure_data['hub_center_id'] = $center_name['center_number'];
-						$procedure_data['center_classification'] = 'no';
-					} else {
-						// Fallback if center not found
-						$procedure_data['center_name'] = 'Unknown Center';
-						$procedure_data['center_number'] = $current_user_center;
-						$procedure_data['hub_center_id'] = $current_user_center;
-						$procedure_data['center_classification'] = 'no';
-					}
-                } else {
-                    $this->load->model('hub_spoke_model');
-                    $center_classification = $this->hub_spoke_model->get_center_classification_for_billing($current_user_center);
-                    $procedure_data['center_name'] = $center_classification['relationship_name'];
-					// die;
-                    // if($center_classification['classification'] == 'spoke') {
-                    //     $procedure_data['center_name'] = $center_classification['hub_center_name'] . ' (Hub) - ' . $procedure_data['center_name'] . ' (Spoke)';
-                    // } else {
-                    //     $procedure_data['center_name'] = $procedure_data['center_name'] . ' (Hub)';
-                    // }
-                    $procedure_data['center_id'] = $center_classification['hub_center_id'];
-					$procedure_data['center_number'] = $center_classification['hub_center_id'];
-					$procedure_data['spoke_center_name'] = $center_classification['spoke_center_name'];
-					$procedure_data['spoke_center_id'] = $center_classification['spoke_center_id'];
-					$procedure_data['hub_center_name'] = $center_classification['hub_center_name'];
-					$procedure_data['hub_center_id'] = $center_classification['hub_center_id'];
-					$procedure_data['center_classification'] = 'yes';
-                }
-            }
-            return $procedure_data;
+            return $result[0];
         }
         else
         {
@@ -823,14 +768,6 @@ WHERE inv.master_id = '$investigation'";
 		}
 		else
 			return 0;
-	}
-
-
-	function get_center_name_by_code($center_id){
-		$sql = "Select * from ".$this->config->item('db_prefix')."centers where center_number='$center_id'";
-		$q = $this->db->query($sql);
-		$result = $q->result_array();
-		return $result[0]['center_name'];
 	}
 	
 }
