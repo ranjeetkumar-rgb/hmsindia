@@ -2,7 +2,7 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-require_once FCPATH . 'vendor/autoload.php';
+require '/var/www/html/vendor/autoload.php';
 
 use Mpdf\Mpdf;
 
@@ -50,8 +50,6 @@ class Billingcontroller extends CI_Controller {
 
 		$this->load->model('employee_model');
 		$this->load->model('appointment_model');
-		$this->load->model('camp_model');
-		$this->load->model('hub_spoke_model');
 		
 		$this->load->library("pagination");
 
@@ -62,18 +60,31 @@ class Billingcontroller extends CI_Controller {
 
 
 	public function appointment()
+
 	{
+
 		$logg = checklogin();
+
 		if($logg['status'] == true){
+
 			$data = array();
+
 			$template = get_header_template($logg['role']);
+
 			$this->load->view($template['header']);
+
 			$this->load->view('billing_view/appointment', $data);
+
 			$this->load->view($template['footer']);
+
 		}else{
+
 			header("location:" .base_url(). "");
+
 			die();
+
 		}
+
 	}
 
 
@@ -309,42 +320,76 @@ function partial_billing($appointment_id){
 	
 
 	public function consultation($appointment_id){
+
 		$logg = checklogin();
+
 		if($logg['status'] == true){
+
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_consultation'){
+
 				unset($_POST['action']);				
-				$_POST['receipt_number'] = check_billing_receipt(isset($_POST['receipt_number']) ? $_POST['receipt_number'] : '');
-				$appointment = isset($_POST['appointment_id']) ? $_POST['appointment_id'] : '';
-				$biller_id = isset($_POST['biller_id']) ? $_POST['biller_id'] : '';
-				$uhid = isset($_POST['uhid']) ? $_POST['uhid'] : '';
-				$donor_patient_id = isset($_POST['donor_patient_id']) ? $_POST['donor_patient_id'] : '';
-				$cash_payment = isset($_POST['cash_payment']) ? $_POST['cash_payment'] : '';
-				$card_payment = isset($_POST['card_payment']) ? $_POST['card_payment'] : '';
-				$upi_payment = isset($_POST['upi_payment']) ? $_POST['upi_payment'] : '';
-				$neft_payment = isset($_POST['neft_payment']) ? $_POST['neft_payment'] : '';
-				$wallet_payment = isset($_POST['wallet_payment']) ? $_POST['wallet_payment'] : '';
+
+				$_POST['receipt_number'] = check_billing_receipt($_POST['receipt_number']);
+
+				$appointment = $_POST['appointment_id'];
+
+				$biller_id = $_POST['biller_id'];
+				
+				$uhid = $_POST['uhid'];
+				$donor_patient_id = $_POST['donor_patient_id'];
+				
+				$cash_payment = $_POST['cash_payment'];
+				$card_payment = $_POST['card_payment'];
+				$upi_payment = $_POST['upi_payment'];
+				$neft_payment = $_POST['neft_payment'];
+				$wallet_payment = $_POST['wallet_payment'];
+				
+				// Appointment details
+
 				$appointments = $this->billingmodel_model->check_appointments($appointment);
-				// var_dump($appointments);die;
+
 				if(empty($appointments)){
+
 				    header("location:" .base_url(). "my_appointments?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
+
 					die();
+
 				}
+
 				if(empty($appointments['paitent_type']) && !isset($appointments['paitent_type']) && empty($appointments['wife_phone']) && !isset($appointments['wife_phone'])){
+
 				    header("location:" .base_url(). "my_appointments?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
+
 					die();
+
 				}
+
+				
+
 				$transaction_img = '';
+
 				if(!empty($_FILES['transaction_img']['tmp_name'])){
+
 					$dest_path = $this->config->item('upload_path');
+
 					$destination = $dest_path.'patient_files/';
+
 					$NewImageName = rand(4,10000)."-".$_FILES['transaction_img']['name'];
+
 					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
+
 					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
+
 					$_POST['transaction_img'] = $transaction_img;
+
 				}
+
 				$paitent_id = "";
+
 				if(isset($appointments['paitent_type']) && $appointments['paitent_type'] == 'exist_patient'){
+
 					$paitent_id = $appointments['paitent_id'];
+
 				}else{
 					$paitent_id = $_POST['patient_id'];
 					$patient_arr = array();
@@ -363,7 +408,62 @@ function partial_billing($appointment_id){
 				if($_POST['discount_amount'] == ''){ $_POST['discount_amount'] = 0; }
 				$series_number = $_POST['series_number'];
 				$consult = $this->billings_model->consultation_insert($_POST);
+				/*$sql5 = "Select * from ".$this->config->item('db_prefix')."appointments where wife_phone='".$appointments['wife_phone']."' and paitent_type='new_patient'";
+				$select_result5 = run_select_query($sql5);
+				
+				$sql_con = "SELECT * FROM " . $this->config->item('db_prefix') . "consultation WHERE patient_id = '" . $paitent_id . "' ORDER BY id ASC";
+				$select_con = run_select_query($sql_con);
+
+				if (!empty($select_con) && !empty($select_con['on_date'])) {
+					$visit_month = date('F y', strtotime($select_con['on_date']));
+					$only_date = date('Y-m-d', strtotime($select_con['on_date']));
+				} else {
+					$visit_month = date('F y', strtotime($_POST['on_date']));
+					$only_date = date('Y-m-d', strtotime($_POST['on_date']));
+				}
+
+				
+				$sql4 = "Select * from ".$this->config->item('db_prefix')."doctors where ID='".$_POST['doctor_id']."'";
+				$select_result4 = run_select_query($sql4);
+				
+				$data = array(
+					"lead_id" => trim($select_result5['crm_id']),
+					"visit_month" => $visit_month,
+					"first_visit_date" => $only_date,
+					"doctor_consulted" => $select_result4['name'],
+					"patient_id" => $_POST['patient_id'],
+					"patients_name" => $appointments['wife_name'],
+					"patients_source" => $select_result5['lead_source']
+				);
+
+				// Convert PHP array to JSON
+				$jsonData = json_encode($data);
+
+				$curl = curl_init();
+
+				curl_setopt_array($curl, array(
+				  CURLOPT_URL => 'https://flertility.in/lead/lead-journey/',
+				  CURLOPT_RETURNTRANSFER => true,
+				  CURLOPT_ENCODING => '',
+				  CURLOPT_MAXREDIRS => 10,
+				  CURLOPT_TIMEOUT => 0,
+				  CURLOPT_FOLLOWLOCATION => true,
+				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+				  CURLOPT_CUSTOMREQUEST => 'POST',
+				  CURLOPT_POSTFIELDS => $jsonData,  // Send JSON Data
+				  CURLOPT_HTTPHEADER => array(
+					'Content-Type: application/json',  // Specify JSON Content Type
+					'Accept: application/json'         // Expect JSON Response
+				  ),
+				));
+
+				$response = curl_exec($curl);
+				curl_close($curl); */
+				
+				//print_r($response);
+				
 			$curl = curl_init();
+
 			curl_setopt_array($curl, array(
 				CURLOPT_URL => "https://flertility.in/lead/lead-mobile-no/?mobile_no=" . urlencode($_POST['wife_phone']),
 				CURLOPT_RETURNTRANSFER => true,
@@ -374,63 +474,105 @@ function partial_billing($appointment_id){
 				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 				CURLOPT_CUSTOMREQUEST => 'GET',
 			));
+
 			$response = curl_exec($curl);
 			$err = curl_error($curl);
+
 			curl_close($curl);
+
 			if ($err) {
 				echo "cURL Error: $err";
 			} else {
 				$leadData = json_decode($response, true); // Decode JSON to associative array
+
 				if (!empty($leadData) && isset($leadData[0])) {
 					$lead = $leadData[0];
+
+					// Display lead info
 					echo "Lead ID: " . $lead['id'] . "<br>";
 					echo "Name: " . $lead['primary_name'] . "<br>";
 					echo "Mobile: " . $lead['mobile_country_code'] . " " . $lead['mobile'] . "<br>";
 					echo "Priority: " . $lead['priority'] . "<br>";
 					echo "Status: " . $lead['status'] . "<br>";
+
+					// Update local DB (CodeIgniter style)
 					$this->db->where('wife_phone', $lead['mobile']);
 					$this->db->update('hms_appointments', ['crm_id' => $lead['id']]);
+
 					echo "CRM ID updated successfully.";
 				} else {
 					echo "No lead data found.";
 				}
 			}
-			if($consult > 0){
-				$checkpatient_register = get_patient_detail($paitent_id);
-				if(isset($checkpatient_register) && !empty($checkpatient_register) && $checkpatient_register['whats_registers'] == 0){
-					$centre_namme = get_center_name($_POST['billing_at']);
-					whatsappregister($appointments['wife_phone'], json_encode(array("name" => $appointments['wife_name'], "iic_id" => $paitent_id, "center" => $centre_namme)));
-					
-					$this->db->where('patient_id', $paitent_id);
-					$this->db->update('hms_patients', array('whats_registers' => 1));
-				}
-				$insert_receipt = insert_receipt_log($_POST['receipt_number']);
-				$update_appointment = $this->billingmodel_model->update_appointment($appointment, $uhid);
-				$this->send_billing_receipt($biller_id, $paitent_id, $_POST['on_date'], $_POST['billing_from'], $_POST['receipt_number'], 'consultation');
-				$receipt_number = $_POST['receipt_number'];
-				header("location:" .base_url(). "accounts/details/$receipt_number?m=".base64_encode('Billing added successfully').'&t=consultation');
-				die();
-			}else{
-				header("location:" .base_url(). "my_appointments?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
-				die();
-			}				
+				//echo $response; die();
+
+				if($consult > 0){
+				    
+				    $checkpatient_register = get_patient_detail($paitent_id);
+    			    if(isset($checkpatient_register) && !empty($checkpatient_register) && $checkpatient_register['whats_registers'] == 0){
+    			        $centre_namme = get_center_name($_POST['billing_at']);
+    			        whatsappregister($appointments['wife_phone'], json_encode(array("name" => $appointments['wife_name'], "iic_id" => $paitent_id, "center" => $centre_namme)));
+    			        
+        		        $this->db->where('patient_id', $paitent_id);
+        		        $this->db->update('hms_patients', array('whats_registers' => 1));
+    			    }
+
+					$insert_receipt = insert_receipt_log($_POST['receipt_number']);
+
+					$update_appointment = $this->billingmodel_model->update_appointment($appointment, $uhid);
+
+					$this->send_billing_receipt($biller_id, $paitent_id, $_POST['on_date'], $_POST['billing_from'], $_POST['receipt_number'], 'consultation');
+
+					$receipt_number = $_POST['receipt_number'];
+
+					header("location:" .base_url(). "accounts/details/$receipt_number?m=".base64_encode('Billing added successfully').'&t=consultation');
+
+					die();
+
+				}else{
+
+					header("location:" .base_url(). "my_appointments?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+
+					die();
+
+				}				
+
 			}
+
+			
+
 			$data = array();
+
 			$appointments = $this->billingmodel_model->check_appointments($appointment_id);
+
 			if(!empty($appointments)){
+
 				$data['appointments'] = $appointments;							
+
 				$template = get_header_template($logg['role']);
+
 				$this->load->view($template['header']);
+
 				$this->load->view('billing_view/consultation', $data);
+
 				$this->load->view($template['footer']);
+
 			}else{
+
 				header("location:" .base_url(). "my_appointments?m=".base64_encode('Appointment not found/already billed!').'&t='.base64_encode('error'));
+
 				die();
+
 			}
+
 		}else{
+
 			header("location:" .base_url(). "");
+
 			die();
+
 		}
+
 	}
 	
 	
@@ -1246,396 +1388,857 @@ function partial_billing($appointment_id){
 
 
 	public function after_consultation_billing(){
+
 		$logg = checklogin();
+
 		if($logg['status'] == true){	
+
 			$medicine_billed = $investigation_billed = $procedure_billed = 0;
+
 			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_investigation"){
+
 				unset($_POST['action']);
+
+				//var_dump($_POST);die;
+
 				$post_arr = array();
+
 				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+
 				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
+
 				$post_arr['consultation_done'] = $_POST['consultation_done'];unset($_POST['consultation_done']);
+
 				$post_arr['billing_from'] = $_POST['billing_from'];unset($_POST['billing_from']);
+
 				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
+
 				$post_arr['paramedic_name'] = $_POST['paramedic_name'];unset($_POST['paramedic_name']);
+				
 				$date = new DateTime('now', new DateTimeZone('Asia/Kolkata'));  // Gets current time in IST
 				$formattedDate = $date->format('Y-m-d H:i:s');  // Formats as 'YYYY-MM-DD HH:MM:SS'
+
 				$post_arr['on_date'] = $formattedDate;
+
 				$post_arr['receipt_number'] = check_billing_receipt($_POST['receipt_number']);unset($_POST['receipt_number']);
+
 				$post_arr['billing_id'] = isset($_POST['billing_id'])?$_POST['billing_id']:''; unset($_POST['billing_id']);
+
 				$post_arr['biller_id'] = $_POST['biller_id']; unset($_POST['biller_id']);
+
 				$post_arr['subvention_charges'] = isset($_POST['subvention_charges'])?$_POST['subvention_charges']:0; unset($_POST['subvention_charges']);
+
 				$post_arr['transaction_id'] = ($_POST['transaction_id'])?$_POST['transaction_id']:0; unset($_POST['transaction_id']);
+
 				$transaction_img = '';
+
 				if(!empty($_FILES['transaction_img']['tmp_name'])){
+
 					$dest_path = $this->config->item('upload_path');
+
 					$destination = $dest_path.'patient_files/';
+
 					$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-". $_FILES['transaction_img']['name'];
+
 					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
+
 					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
+
 					$post_arr['transaction_img'] = $transaction_img;
+
 				}
+
 				$post_arr['hospital_id'] = isset($_POST['hospital_id'])?$_POST['hospital_id']:''; unset($_POST['hospital_id']);
+
+				//var_dump($_POST);die;
+
+				
+
 				$post_arr['payment_method'] = $_POST['payment_method'];unset($_POST['payment_method']);
+
 				$post_arr['status'] = 'pending';
-				if($_POST['payment_in'] == 'rs_payment'){
-					$post_arr['payment_done'] = $_POST['payment_done'];unset($_POST['payment_done']);
-					$post_arr['remaining_amount'] = $_POST['remaining_amount'];unset($_POST['remaining_amount']);
-					$post_arr['fees'] = ($_POST['rs_fees']);unset($_POST['rs_fees']);
-    				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
-    				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
-				}else{
-					$post_arr['usd_totalpackage'] = $_POST['usd_totalpackage'];unset($_POST['usd_totalpackage']);	
-					$post_arr['usd_fees'] = $_POST['usd_fees'];unset($_POST['usd_fees']);	
-					$post_arr['us_discount'] = $_POST['us_discount'];unset($_POST['us_discount']);	
-                    $post_arr['conversion_rate'] = get_converstion_rate();
-					$post_arr['payment_done'] = ($_POST['payment_done']*get_converstion_rate());unset($_POST['payment_done']);
-					$post_arr['remaining_amount'] = ($_POST['remaining_amount']*get_converstion_rate());unset($_POST['remaining_amount']);
-					$post_arr['fees'] = ($_POST['rs_totalpackage']-$_POST['rs_discount']);unset($_POST['rs_fees']);
-    				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
-    				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
-				}
-				$post_arr['payment_in'] = $_POST['payment_in'];unset($_POST['payment_in']);
-				$post_arr['origins'] = $_POST['origins'];unset($_POST['origins']);
-				$post_arr['series_number'] = $_POST['series_number'] ; unset($_POST['series_number']);
-				$male_medicine_array = $female_medicine_array = $medicine_array = $male_invest_array = $female_invest_array = $investigation_array = array();
-				if(isset($_POST['medicine_suggestion']) && $_POST['medicine_suggestion'] == 1){
-					foreach($_POST as $key => $val){
-						if (substr( $key, 0, 14 ) === "male_med_name_") {
-							$male_medicine_array[] = $key;
-						}
-						if (substr( $key, 0, 16 ) === "female_med_name_") {
-							$female_medicine_array[] = $key;
-						}
-					}
-					$male_number = $female_number = array();
-					foreach($male_medicine_array as $key => $val){
-							$explode = explode('male_med_name_', $val);
-							$male_number[] = $explode[1];
-					}
-					foreach($female_medicine_array as $key => $val){
-							$explode = explode('female_med_name_', $val);
-							$female_number[] = $explode[1];
-					}
-					$male_number = array_unique($male_number);
-					$female_number = array_unique($female_number);
-					foreach($male_number as $key => $val){
-						$medicine_array['male_medicine'][] = array(
-							'male_med_name' => $_POST['male_med_name_'.$val],
-							'male_med_unit_price' => $_POST['male_med_unit_price_'.$val],
-							'male_med_price' => $_POST['male_med_price_'.$val],
-							'male_med_dose' => $_POST['male_med_dose_'.$val],
-							'male_med_for' => $_POST['male_med_for_'.$val],
-							'male_med_when_start' => $_POST['male_med_when_start_'.$val],
-							'male_med_route' => $_POST['male_med_route_'.$val],
-							'male_med_frequency' => $_POST['male_med_frequency_'.$val],
-							'male_med_timing' => $_POST['male_med_timing_'.$val]
-						);
-					}
-					foreach($female_number as $key => $val){
-						$medicine_array['female_medicine'][] = array(
-							'female_med_name' => $_POST['female_med_name_'.$val],
-							'female_med_unit_price' => $_POST['female_med_unit_price_'.$val], 
-							'female_med_price' => $_POST['female_med_price_'.$val],
-							'female_med_dose' => $_POST['female_med_dose_'.$val],
-							'female_med_for' => $_POST['female_med_for_'.$val],
-							'female_med_when_start' => $_POST['female_med_when_start_'.$val],
-							'female_med_route' => $_POST['female_med_route_'.$val],
-							'female_med_frequency' => $_POST['female_med_frequency_'.$val],
-							'female_med_timing' => $_POST['female_med_timing_'.$val]
-						);
-					}
-					$post_arr['medicines'] = serialize($medicine_array);
-					$medicine_billed = 1;
-				}
-				if(isset($_POST['investation_suggestion']) && $_POST['investation_suggestion'] == 1){
-					foreach($_POST as $key => $val){
-						if (substr( $key, 0, 24 ) === "male_investigation_name_") {
-							$male_invest_array[] = $key;
-						}
-						if (substr( $key, 0, 26 ) === "female_investigation_name_") {
-							$female_invest_array[] = $key;
-						}
-					}
-					$male_invst_number = $female_invst_number = array();
-					foreach($male_invest_array as $key => $val){
-							$explode = explode('male_investigation_name_', $val);
-							$male_invst_number[] = $explode[1];
-					}
-					foreach($female_invest_array as $key => $val){
-							$explode = explode('female_investigation_name_', $val);
-							$female_invst_number[] = $explode[1];
-					}
-					$male_invst_number = array_unique($male_invst_number);
-					$female_invst_number = array_unique($female_invst_number);
-					foreach($male_invst_number as $key => $val){
-						$investigation_array['male_investigation'][] = array('male_investigation_name' => $_POST['male_investigation_name_'.$val], 'male_investigation_code' => $_POST['male_investigation_code_'.$val], 'male_investigation_price' => $_POST['male_investigation_price_'.$val], 'male_investigation_discount'=>$_POST['male_investigation_discount_'.$val]);
-					}
-					foreach($female_invst_number as $key => $val){
-						$investigation_array['female_investigation'][] = array('female_investigation_name' => $_POST['female_investigation_name_'.$val], 'female_investigation_code' => $_POST['female_investigation_code_'.$val], 'female_investigation_price' => $_POST['female_investigation_price_'.$val], 'female_investigation_discount'=>$_POST['female_investigation_discount_'.$val]);
-					}
-					$post_arr['investigations'] = serialize($investigation_array);
-					$investigation_billed = 1;
-				}
-                if($medicine_billed == 0){
-                    $medicine_billed = check_suggested($post_arr['consultation_done'], 'medicine_suggestion', 'medicine_billed');
-                }
-                if($investigation_billed == 0){
-                    $investigation_billed = check_suggested($post_arr['consultation_done'], 'investation_suggestion', 'investigation_billed');
-                }
-                if($procedure_billed == 0){
-                    $procedure_billed = check_suggested($post_arr['consultation_done'], 'procedure_suggestion', 'procedure_billed');
-                }
-				$investg = $this->billingmodel_model->investigation_insert($post_arr);
-				if($investg > 0){
-					$insert_receipt = insert_receipt_log($post_arr['receipt_number']);
-					$update_doctor_consultation = $this->billingmodel_model->update_doctor_consultation($post_arr['receipt_number'], $post_arr['consultation_done'], $medicine_billed, $investigation_billed, $procedure_billed);
-					$this->send_billing_receipt($post_arr['biller_id'], $post_arr['patient_id'], $post_arr['on_date'], $post_arr['billing_from'], $post_arr['receipt_number'], 'investigation');
-					header("location:" .base_url(). "accounts/details/".$post_arr['receipt_number']."?t=investigation");
-					die();
-				}else{
-					header("location:" .base_url(). "after-consultation?m=".base64_encode('something went wrong!').'&t='.base64_encode('error'));
-					die();
-				}
-			}
-			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_investigations"){
-				unset($_POST['action']);
-				$post_arr = array();
-				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
-				$post_arr['donor_patient_id'] = $_POST['donor_patient_id'];unset($_POST['donor_patient_id']);
-				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
-				$post_arr['consultation_done'] = $_POST['consultation_done'];unset($_POST['consultation_done']);
-				$post_arr['billing_from'] = $_POST['billing_from'];unset($_POST['billing_from']);
-				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
-				$post_arr['paramedic_name'] = $_POST['paramedic_name'];unset($_POST['paramedic_name']);
-				$post_arr['on_date'] = $_POST['on_date'];
-				$post_arr['receipt_number'] = check_billing_receipt($_POST['receipt_number']);unset($_POST['receipt_number']);
-				$post_arr['billing_id'] = isset($_POST['billing_id'])?$_POST['billing_id']:''; unset($_POST['billing_id']);
-				$post_arr['biller_id'] = $_POST['biller_id']; unset($_POST['biller_id']);
-				$post_arr['subvention_charges'] = isset($_POST['subvention_charges'])?$_POST['subvention_charges']:0; unset($_POST['subvention_charges']);
-				$post_arr['transaction_id'] = ($_POST['transaction_id'])?$_POST['transaction_id']:0; unset($_POST['transaction_id']);
-				$transaction_img = '';
-				if(!empty($_FILES['transaction_img']['tmp_name'])){
-					$dest_path = $this->config->item('upload_path');
-					$destination = $dest_path.'patient_files/';
-					$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-". $_FILES['transaction_img']['name'];
-					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
-					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
-					$post_arr['transaction_img'] = $transaction_img;
-				}
-				$post_arr['hospital_id'] = isset($_POST['hospital_id'])?$_POST['hospital_id']:''; unset($_POST['hospital_id']);
-				$post_arr['payment_method'] = $_POST['payment_method'];unset($_POST['payment_method']);
-				$post_arr['status'] = 'pending';
-				if($_POST['payment_in'] == 'rs_payment'){
-					$post_arr['payment_done'] = $_POST['payment_done'];unset($_POST['payment_done']);
-					$post_arr['remaining_amount'] = $_POST['remaining_amount'];unset($_POST['remaining_amount']);
-					$post_arr['fees'] = ($_POST['rs_fees']);unset($_POST['rs_fees']);
-    				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
-    				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
-				}else{
-					$post_arr['usd_totalpackage'] = $_POST['usd_totalpackage'];unset($_POST['usd_totalpackage']);	
-					$post_arr['usd_fees'] = $_POST['usd_fees'];unset($_POST['usd_fees']);	
-					$post_arr['us_discount'] = $_POST['us_discount'];unset($_POST['us_discount']);	
-                    $post_arr['conversion_rate'] = get_converstion_rate();
-					$post_arr['payment_done'] = ($_POST['payment_done']*get_converstion_rate());unset($_POST['payment_done']);
-					$post_arr['remaining_amount'] = ($_POST['remaining_amount']*get_converstion_rate());unset($_POST['remaining_amount']);
-					$post_arr['fees'] = ($_POST['rs_totalpackage']-$_POST['rs_discount']);unset($_POST['rs_fees']);
-    				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
-    				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
-				}
-				$post_arr['payment_in'] = $_POST['payment_in'];unset($_POST['payment_in']);
-				$post_arr['cash_payment'] = $_POST['cash_payment'];unset($_POST['cash_payment']);
-				$post_arr['card_payment'] = $_POST['card_payment'];unset($_POST['card_payment']);
-				$post_arr['upi_payment'] = $_POST['upi_payment'];unset($_POST['upi_payment']);
-				$post_arr['neft_payment'] = $_POST['neft_payment'];unset($_POST['neft_payment']);
-				$post_arr['wallet_payment'] = $_POST['wallet_payment'];unset($_POST['wallet_payment']);
-                $post_arr['origins'] = $_POST['origins'];unset($_POST['origins']);
-				$post_arr['series_number'] = $_POST['series_number'] ; unset($_POST['series_number']);
-				$male_medicine_array = $female_medicine_array = $medicine_array = $male_invest_array = $female_invest_array = $investigation_array = array();
-				if(isset($_POST['medicine_suggestion']) && $_POST['medicine_suggestion'] == 1){
-					foreach($_POST as $key => $val){
-						if (substr( $key, 0, 14 ) === "male_med_name_") {
-							$male_medicine_array[] = $key;
-						}
-						if (substr( $key, 0, 16 ) === "female_med_name_") {
-							$female_medicine_array[] = $key;
-						}
-					}
-					$male_number = $female_number = array();
-					foreach($male_medicine_array as $key => $val){
-							$explode = explode('male_med_name_', $val);
-							$male_number[] = $explode[1];
-					}
-					foreach($female_medicine_array as $key => $val){
-							$explode = explode('female_med_name_', $val);
-							$female_number[] = $explode[1];
-					}
-					$male_number = array_unique($male_number);
-					$female_number = array_unique($female_number);
-					foreach($male_number as $key => $val){
-						$medicine_array['male_medicine'][] = array(
-							'male_med_name' => $_POST['male_med_name_'.$val],
-							'male_med_unit_price' => $_POST['male_med_unit_price_'.$val],
-							'male_med_price' => $_POST['male_med_price_'.$val],
-							'male_med_dose' => $_POST['male_med_dose_'.$val],
-							'male_med_for' => $_POST['male_med_for_'.$val],
-							'male_med_when_start' => $_POST['male_med_when_start_'.$val],
-							'male_med_route' => $_POST['male_med_route_'.$val],
-							'male_med_frequency' => $_POST['male_med_frequency_'.$val],
-							'male_med_timing' => $_POST['male_med_timing_'.$val]
-						);
-					}
-					foreach($female_number as $key => $val){
-						$medicine_array['female_medicine'][] = array(
-							'female_med_name' => $_POST['female_med_name_'.$val],
-							'female_med_unit_price' => $_POST['female_med_unit_price_'.$val], 
-							'female_med_price' => $_POST['female_med_price_'.$val],
-							'female_med_dose' => $_POST['female_med_dose_'.$val],
-							'female_med_for' => $_POST['female_med_for_'.$val],
-							'female_med_when_start' => $_POST['female_med_when_start_'.$val],
-							'female_med_route' => $_POST['female_med_route_'.$val],
-							'female_med_frequency' => $_POST['female_med_frequency_'.$val],
-							'female_med_timing' => $_POST['female_med_timing_'.$val]
-						);
-					}
-					$post_arr['medicines'] = serialize($medicine_array);
-					$medicine_billed = 1;
-				}
-				if(isset($_POST['investation_suggestion']) && $_POST['investation_suggestion'] == 1){
-					foreach($_POST as $key => $val){
-						if (substr( $key, 0, 24 ) === "male_investigation_name_") {
-							$male_invest_array[] = $key;
-						}
-						if (substr( $key, 0, 26 ) === "female_investigation_name_") {
-							$female_invest_array[] = $key;
-						}
-					}
-					$male_invst_number = $female_invst_number = array();
-					foreach($male_invest_array as $key => $val){
-							$explode = explode('male_investigation_name_', $val);
-							$male_invst_number[] = $explode[1];
-					}
-					foreach($female_invest_array as $key => $val){
-							$explode = explode('female_investigation_name_', $val);
-							$female_invst_number[] = $explode[1];
-					}
-					$male_invst_number = array_unique($male_invst_number);
-					$female_invst_number = array_unique($female_invst_number);
-					foreach($male_invst_number as $key => $val){
-						$investigation_array['male_investigation'][] = array('male_investigation_name' => $_POST['male_investigation_name_'.$val], 'male_investigation_code' => $_POST['male_investigation_code_'.$val], 'male_investigation_price' => $_POST['male_investigation_price_'.$val], 'male_investigation_discount'=>$_POST['male_investigation_discount_'.$val]);
-					}
-					foreach($female_invst_number as $key => $val){
-						$investigation_array['female_investigation'][] = array('female_investigation_name' => $_POST['female_investigation_name_'.$val], 'female_investigation_code' => $_POST['female_investigation_code_'.$val], 'female_investigation_price' => $_POST['female_investigation_price_'.$val], 'female_investigation_discount'=>$_POST['female_investigation_discount_'.$val]);
-					}
-					$post_arr['investigations'] = serialize($investigation_array);
-					$investigation_billed = 1;
-				}
-                if($medicine_billed == 0){
-                    $medicine_billed = check_suggested($post_arr['consultation_done'], 'medicine_suggestion', 'medicine_billed');
-                }
-                if($investigation_billed == 0){
-                    $investigation_billed = check_suggested($post_arr['consultation_done'], 'investation_suggestion', 'investigation_billed');
-                }
-                if($procedure_billed == 0){
-                    $procedure_billed = check_suggested($post_arr['consultation_done'], 'procedure_suggestion', 'procedure_billed');
-                }
-				$investg = $this->billingmodel_model->investigation_insert($post_arr);
-				if($investg > 0){
-					$insert_receipt = insert_receipt_log($post_arr['receipt_number']);
-					$update_doctor_consultation = $this->billingmodel_model->update_doctor_consultation($post_arr['receipt_number'], $post_arr['consultation_done'], $medicine_billed, $investigation_billed, $procedure_billed);
-					$this->send_billing_receipt($post_arr['biller_id'], $post_arr['patient_id'], $post_arr['on_date'], $post_arr['billing_from'], $post_arr['receipt_number'], 'investigation');
-					header("location:" .base_url(). "accounts/details/".$post_arr['receipt_number']."?t=investigation");
-					die();
-				}else{
-					header("location:" .base_url(). "after-consultation?m=".base64_encode('something went wrong!').'&t='.base64_encode('error'));
-					die();
-				}
-			}
-			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_procedure"){
-				$post_arr = array();
-				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
-				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
-				$post_arr['consultation_done'] = $_POST['consultation_done'];unset($_POST['consultation_done']);
-				$post_arr['billing_from'] = $_POST['billing_from'];unset($_POST['billing_from']);
-				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
-				$post_arr['on_date'] = $_POST['on_date'];unset($_POST['on_date']);
-				//$post_arr['receipt_number'] = check_billing_receipt($_POST['receipt_number']);unset($_POST['receipt_number']);
-				$post_arr['billing_id'] = isset($_POST['billing_id'])?$_POST['billing_id']:''; unset($_POST['billing_id']);
-				$post_arr['biller_id'] = $_POST['biller_id']; unset($_POST['biller_id']);
-				$post_arr['billing_type'] = $_POST['billing_type'];
-				$post_arr['transaction_id'] = ($_POST['transaction_id'])?$_POST['transaction_id']:0; unset($_POST['transaction_id']);
-				$post_arr['subvention_charges'] = isset($_POST['subvention_charges'])?$_POST['subvention_charges']:0; unset($_POST['subvention_charges']);
-				$transaction_img = '';
-				if(!empty($_FILES['transaction_img']['tmp_name'])){
-					$dest_path = $this->config->item('upload_path');
-					$destination = $dest_path.'patient_files/';
-					$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-". $_FILES['transaction_img']['name'];
-					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
-					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
-					$post_arr['transaction_img'] = $transaction_img;
-				}
-				$post_arr['hospital_id'] = isset($_POST['hospital_id'])?$_POST['hospital_id']:''; unset($_POST['hospital_id']);
-				$package_form = '';
-				if(!empty($_FILES['package_form']['tmp_name'])){
-					$dest_path = $this->config->item('upload_path');
-					$destination = $dest_path.'package_form/';
-					$NewImageName = rand(4,10000)."-".$post_arr['receipt_number']."-". $_FILES['package_form']['name'];
-					$package_form = base_url().'assets/package_form/'.$NewImageName;
-					move_uploaded_file($_FILES['package_form']['tmp_name'], $destination.$NewImageName);
-				}
-				$post_arr['package_form'] = $package_form;
-				$post_arr['payment_method'] = $_POST['payment_method'];unset($_POST['payment_method']);
-				$post_arr['cash_payment'] = $_POST['cash_payment'];unset($_POST['cash_payment']);
-				$post_arr['card_payment'] = $_POST['card_payment'];unset($_POST['card_payment']);
-				$post_arr['upi_payment'] = $_POST['upi_payment'];unset($_POST['upi_payment']);
-				$post_arr['neft_payment'] = $_POST['neft_payment'];unset($_POST['neft_payment']);
-				$post_arr['wallet_payment'] = $_POST['wallet_payment'];unset($_POST['wallet_payment']);
-				$post_arr['origins'] = $_POST['origins']; unset($_POST['origins']);
-				$post_arr['series_number'] = $_POST['series_number'] ; unset($_POST['series_number']);
-				$post_arr['expiry_date'] = $_POST['expiry_date'] ; unset($_POST['expiry_date']);
-				$post_arr['renewal_type'] = $_POST['renewal_type'] ; unset($_POST['renewal_type']);
-				$post_arr['status'] = 'pending';
+
+	            
+
 				//var_dump($_POST); echo "<br/><br/><br/><br/>";
+
 				if($_POST['payment_in'] == 'rs_payment'){
+
 					$post_arr['payment_done'] = $_POST['payment_done'];unset($_POST['payment_done']);
+
 					$post_arr['remaining_amount'] = $_POST['remaining_amount'];unset($_POST['remaining_amount']);
+
+					
+
 					$post_arr['fees'] = ($_POST['rs_fees']);unset($_POST['rs_fees']);
+
     				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
+
     				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
+
 				}else{
+
 					$post_arr['usd_totalpackage'] = $_POST['usd_totalpackage'];unset($_POST['usd_totalpackage']);	
+
 					$post_arr['usd_fees'] = $_POST['usd_fees'];unset($_POST['usd_fees']);	
+
 					$post_arr['us_discount'] = $_POST['us_discount'];unset($_POST['us_discount']);	
+
+
+
                     $post_arr['conversion_rate'] = get_converstion_rate();
+
 					$post_arr['payment_done'] = ($_POST['payment_done']*get_converstion_rate());unset($_POST['payment_done']);
+
 					$post_arr['remaining_amount'] = ($_POST['remaining_amount']*get_converstion_rate());unset($_POST['remaining_amount']);
+
+					
+
 					$post_arr['fees'] = ($_POST['rs_totalpackage']-$_POST['rs_discount']);unset($_POST['rs_fees']);
+
     				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
+
     				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
+
 				}
+
+				
+
+		        //var_dump($post_arr);die;
+
+				$post_arr['payment_in'] = $_POST['payment_in'];unset($_POST['payment_in']);
+				
+				$post_arr['origins'] = $_POST['origins'];unset($_POST['origins']);
+				
+				$post_arr['series_number'] = $_POST['series_number'] ; unset($_POST['series_number']);
+				
+				$male_medicine_array = $female_medicine_array = $medicine_array = $male_invest_array = $female_invest_array = $investigation_array = array();
+
+				// Medicine Start
+
+				if(isset($_POST['medicine_suggestion']) && $_POST['medicine_suggestion'] == 1){
+
+					
+
+					foreach($_POST as $key => $val){
+
+						if (substr( $key, 0, 14 ) === "male_med_name_") {
+
+							$male_medicine_array[] = $key;
+
+						}
+
+						if (substr( $key, 0, 16 ) === "female_med_name_") {
+
+							$female_medicine_array[] = $key;
+
+						}
+
+					}
+
+
+
+					$male_number = $female_number = array();
+
+					foreach($male_medicine_array as $key => $val){
+
+							$explode = explode('male_med_name_', $val);
+
+							$male_number[] = $explode[1];
+
+					}
+
+					foreach($female_medicine_array as $key => $val){
+
+							$explode = explode('female_med_name_', $val);
+
+							$female_number[] = $explode[1];
+
+					}
+
+					$male_number = array_unique($male_number);
+
+					$female_number = array_unique($female_number);
+
+					
+
+					foreach($male_number as $key => $val){
+
+						$medicine_array['male_medicine'][] = array(
+
+							'male_med_name' => $_POST['male_med_name_'.$val],
+
+							'male_med_unit_price' => $_POST['male_med_unit_price_'.$val],
+
+							'male_med_price' => $_POST['male_med_price_'.$val],
+
+							'male_med_dose' => $_POST['male_med_dose_'.$val],
+
+							'male_med_for' => $_POST['male_med_for_'.$val],
+
+							'male_med_when_start' => $_POST['male_med_when_start_'.$val],
+
+							'male_med_route' => $_POST['male_med_route_'.$val],
+
+							'male_med_frequency' => $_POST['male_med_frequency_'.$val],
+
+							'male_med_timing' => $_POST['male_med_timing_'.$val]
+
+						);
+
+					}
+
+					foreach($female_number as $key => $val){
+
+						$medicine_array['female_medicine'][] = array(
+
+							'female_med_name' => $_POST['female_med_name_'.$val],
+
+							'female_med_unit_price' => $_POST['female_med_unit_price_'.$val], 
+
+							'female_med_price' => $_POST['female_med_price_'.$val],
+
+							'female_med_dose' => $_POST['female_med_dose_'.$val],
+
+							'female_med_for' => $_POST['female_med_for_'.$val],
+
+							'female_med_when_start' => $_POST['female_med_when_start_'.$val],
+
+							'female_med_route' => $_POST['female_med_route_'.$val],
+
+							'female_med_frequency' => $_POST['female_med_frequency_'.$val],
+
+							'female_med_timing' => $_POST['female_med_timing_'.$val]
+
+						);
+
+					}
+
+					
+
+					$post_arr['medicines'] = serialize($medicine_array);
+
+					$medicine_billed = 1;
+
+				}
+
+				// Medicine End
+
+
+
+				// Investigation Start
+
+				if(isset($_POST['investation_suggestion']) && $_POST['investation_suggestion'] == 1){
+
+					foreach($_POST as $key => $val){
+
+						if (substr( $key, 0, 24 ) === "male_investigation_name_") {
+
+							$male_invest_array[] = $key;
+
+						}
+
+						if (substr( $key, 0, 26 ) === "female_investigation_name_") {
+
+							$female_invest_array[] = $key;
+
+						}
+
+					}
+
+
+
+					$male_invst_number = $female_invst_number = array();
+
+					foreach($male_invest_array as $key => $val){
+
+							$explode = explode('male_investigation_name_', $val);
+
+							$male_invst_number[] = $explode[1];
+
+					}
+
+					foreach($female_invest_array as $key => $val){
+
+							$explode = explode('female_investigation_name_', $val);
+
+							$female_invst_number[] = $explode[1];
+
+					}
+
+					$male_invst_number = array_unique($male_invst_number);
+
+					$female_invst_number = array_unique($female_invst_number);
+
+					
+
+					foreach($male_invst_number as $key => $val){
+
+						$investigation_array['male_investigation'][] = array('male_investigation_name' => $_POST['male_investigation_name_'.$val], 'male_investigation_code' => $_POST['male_investigation_code_'.$val], 'male_investigation_price' => $_POST['male_investigation_price_'.$val], 'male_investigation_discount'=>$_POST['male_investigation_discount_'.$val]);
+
+					}
+
+					foreach($female_invst_number as $key => $val){
+
+						$investigation_array['female_investigation'][] = array('female_investigation_name' => $_POST['female_investigation_name_'.$val], 'female_investigation_code' => $_POST['female_investigation_code_'.$val], 'female_investigation_price' => $_POST['female_investigation_price_'.$val], 'female_investigation_discount'=>$_POST['female_investigation_discount_'.$val]);
+
+					}
+
+					$post_arr['investigations'] = serialize($investigation_array);
+
+					$investigation_billed = 1;
+
+				}
+
+				// Investigation End
+
+                if($medicine_billed == 0){
+                    $medicine_billed = check_suggested($post_arr['consultation_done'], 'medicine_suggestion', 'medicine_billed');
+                }
+                if($investigation_billed == 0){
+                    $investigation_billed = check_suggested($post_arr['consultation_done'], 'investation_suggestion', 'investigation_billed');
+                }
+                if($procedure_billed == 0){
+                    $procedure_billed = check_suggested($post_arr['consultation_done'], 'procedure_suggestion', 'procedure_billed');
+                }
+
+				$investg = $this->billingmodel_model->investigation_insert($post_arr);
+
+				if($investg > 0){
+
+					$insert_receipt = insert_receipt_log($post_arr['receipt_number']);
+
+
+
+					$update_doctor_consultation = $this->billingmodel_model->update_doctor_consultation($post_arr['receipt_number'], $post_arr['consultation_done'], $medicine_billed, $investigation_billed, $procedure_billed);
+
+					$this->send_billing_receipt($post_arr['biller_id'], $post_arr['patient_id'], $post_arr['on_date'], $post_arr['billing_from'], $post_arr['receipt_number'], 'investigation');
+
+					header("location:" .base_url(). "accounts/details/".$post_arr['receipt_number']."?t=investigation");
+
+					die();
+
+				}else{
+
+					header("location:" .base_url(). "after-consultation?m=".base64_encode('something went wrong!').'&t='.base64_encode('error'));
+
+					die();
+
+				}
+
+			}
+			
+			
+			
+
+			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_investigations"){
+
+				unset($_POST['action']);
+
+				//var_dump($_POST);die;
+
+				$post_arr = array();
+
+				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+				
+				$post_arr['donor_patient_id'] = $_POST['donor_patient_id'];unset($_POST['donor_patient_id']);
+
+				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
+
+				$post_arr['consultation_done'] = $_POST['consultation_done'];unset($_POST['consultation_done']);
+
+				$post_arr['billing_from'] = $_POST['billing_from'];unset($_POST['billing_from']);
+
+				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
+
+				$post_arr['paramedic_name'] = $_POST['paramedic_name'];unset($_POST['paramedic_name']);
+
+				$post_arr['on_date'] = $_POST['on_date'];
+
+				$post_arr['receipt_number'] = check_billing_receipt($_POST['receipt_number']);unset($_POST['receipt_number']);
+
+				$post_arr['billing_id'] = isset($_POST['billing_id'])?$_POST['billing_id']:''; unset($_POST['billing_id']);
+
+				$post_arr['biller_id'] = $_POST['biller_id']; unset($_POST['biller_id']);
+
+				$post_arr['subvention_charges'] = isset($_POST['subvention_charges'])?$_POST['subvention_charges']:0; unset($_POST['subvention_charges']);
+
+				$post_arr['transaction_id'] = ($_POST['transaction_id'])?$_POST['transaction_id']:0; unset($_POST['transaction_id']);
+
+				$transaction_img = '';
+
+				if(!empty($_FILES['transaction_img']['tmp_name'])){
+
+					$dest_path = $this->config->item('upload_path');
+
+					$destination = $dest_path.'patient_files/';
+
+					$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-". $_FILES['transaction_img']['name'];
+
+					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
+
+					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
+
+					$post_arr['transaction_img'] = $transaction_img;
+
+				}
+
+				$post_arr['hospital_id'] = isset($_POST['hospital_id'])?$_POST['hospital_id']:''; unset($_POST['hospital_id']);
+
+				//var_dump($_POST);die;
+
+				
+
+				$post_arr['payment_method'] = $_POST['payment_method'];unset($_POST['payment_method']);
+
+				$post_arr['status'] = 'pending';
+
+	            
+
+				//var_dump($_POST); echo "<br/><br/><br/><br/>";
+
+				if($_POST['payment_in'] == 'rs_payment'){
+
+					$post_arr['payment_done'] = $_POST['payment_done'];unset($_POST['payment_done']);
+
+					$post_arr['remaining_amount'] = $_POST['remaining_amount'];unset($_POST['remaining_amount']);
+
+					
+
+					$post_arr['fees'] = ($_POST['rs_fees']);unset($_POST['rs_fees']);
+
+    				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
+
+    				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
+
+				}else{
+
+					$post_arr['usd_totalpackage'] = $_POST['usd_totalpackage'];unset($_POST['usd_totalpackage']);	
+
+					$post_arr['usd_fees'] = $_POST['usd_fees'];unset($_POST['usd_fees']);	
+
+					$post_arr['us_discount'] = $_POST['us_discount'];unset($_POST['us_discount']);	
+
+
+
+                    $post_arr['conversion_rate'] = get_converstion_rate();
+
+					$post_arr['payment_done'] = ($_POST['payment_done']*get_converstion_rate());unset($_POST['payment_done']);
+
+					$post_arr['remaining_amount'] = ($_POST['remaining_amount']*get_converstion_rate());unset($_POST['remaining_amount']);
+
+					
+
+					$post_arr['fees'] = ($_POST['rs_totalpackage']-$_POST['rs_discount']);unset($_POST['rs_fees']);
+
+    				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
+
+    				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
+
+				}
+
+				
+
+		        //var_dump($post_arr);die;
+
+				$post_arr['payment_in'] = $_POST['payment_in'];unset($_POST['payment_in']);
+				
+				$post_arr['cash_payment'] = $_POST['cash_payment'];unset($_POST['cash_payment']);
+				$post_arr['card_payment'] = $_POST['card_payment'];unset($_POST['card_payment']);
+				$post_arr['upi_payment'] = $_POST['upi_payment'];unset($_POST['upi_payment']);
+				$post_arr['neft_payment'] = $_POST['neft_payment'];unset($_POST['neft_payment']);
+				$post_arr['wallet_payment'] = $_POST['wallet_payment'];unset($_POST['wallet_payment']);
+
+                $post_arr['origins'] = $_POST['origins'];unset($_POST['origins']);
+				
+				$post_arr['series_number'] = $_POST['series_number'] ; unset($_POST['series_number']);
+
+				$male_medicine_array = $female_medicine_array = $medicine_array = $male_invest_array = $female_invest_array = $investigation_array = array();
+
+				// Medicine Start
+
+				if(isset($_POST['medicine_suggestion']) && $_POST['medicine_suggestion'] == 1){
+
+					
+
+					foreach($_POST as $key => $val){
+
+						if (substr( $key, 0, 14 ) === "male_med_name_") {
+
+							$male_medicine_array[] = $key;
+
+						}
+
+						if (substr( $key, 0, 16 ) === "female_med_name_") {
+
+							$female_medicine_array[] = $key;
+
+						}
+
+					}
+
+
+
+					$male_number = $female_number = array();
+
+					foreach($male_medicine_array as $key => $val){
+
+							$explode = explode('male_med_name_', $val);
+
+							$male_number[] = $explode[1];
+
+					}
+
+					foreach($female_medicine_array as $key => $val){
+
+							$explode = explode('female_med_name_', $val);
+
+							$female_number[] = $explode[1];
+
+					}
+
+					$male_number = array_unique($male_number);
+
+					$female_number = array_unique($female_number);
+
+					
+
+					foreach($male_number as $key => $val){
+
+						$medicine_array['male_medicine'][] = array(
+
+							'male_med_name' => $_POST['male_med_name_'.$val],
+
+							'male_med_unit_price' => $_POST['male_med_unit_price_'.$val],
+
+							'male_med_price' => $_POST['male_med_price_'.$val],
+
+							'male_med_dose' => $_POST['male_med_dose_'.$val],
+
+							'male_med_for' => $_POST['male_med_for_'.$val],
+
+							'male_med_when_start' => $_POST['male_med_when_start_'.$val],
+
+							'male_med_route' => $_POST['male_med_route_'.$val],
+
+							'male_med_frequency' => $_POST['male_med_frequency_'.$val],
+
+							'male_med_timing' => $_POST['male_med_timing_'.$val]
+
+						);
+
+					}
+
+					foreach($female_number as $key => $val){
+
+						$medicine_array['female_medicine'][] = array(
+
+							'female_med_name' => $_POST['female_med_name_'.$val],
+
+							'female_med_unit_price' => $_POST['female_med_unit_price_'.$val], 
+
+							'female_med_price' => $_POST['female_med_price_'.$val],
+
+							'female_med_dose' => $_POST['female_med_dose_'.$val],
+
+							'female_med_for' => $_POST['female_med_for_'.$val],
+
+							'female_med_when_start' => $_POST['female_med_when_start_'.$val],
+
+							'female_med_route' => $_POST['female_med_route_'.$val],
+
+							'female_med_frequency' => $_POST['female_med_frequency_'.$val],
+
+							'female_med_timing' => $_POST['female_med_timing_'.$val]
+
+						);
+
+					}
+
+					
+
+					$post_arr['medicines'] = serialize($medicine_array);
+
+					$medicine_billed = 1;
+
+				}
+
+				// Medicine End
+
+
+
+				// Investigation Start
+
+				if(isset($_POST['investation_suggestion']) && $_POST['investation_suggestion'] == 1){
+
+					foreach($_POST as $key => $val){
+
+						if (substr( $key, 0, 24 ) === "male_investigation_name_") {
+
+							$male_invest_array[] = $key;
+
+						}
+
+						if (substr( $key, 0, 26 ) === "female_investigation_name_") {
+
+							$female_invest_array[] = $key;
+
+						}
+
+					}
+
+
+
+					$male_invst_number = $female_invst_number = array();
+
+					foreach($male_invest_array as $key => $val){
+
+							$explode = explode('male_investigation_name_', $val);
+
+							$male_invst_number[] = $explode[1];
+
+					}
+
+					foreach($female_invest_array as $key => $val){
+
+							$explode = explode('female_investigation_name_', $val);
+
+							$female_invst_number[] = $explode[1];
+
+					}
+
+					$male_invst_number = array_unique($male_invst_number);
+
+					$female_invst_number = array_unique($female_invst_number);
+
+					
+
+					foreach($male_invst_number as $key => $val){
+
+						$investigation_array['male_investigation'][] = array('male_investigation_name' => $_POST['male_investigation_name_'.$val], 'male_investigation_code' => $_POST['male_investigation_code_'.$val], 'male_investigation_price' => $_POST['male_investigation_price_'.$val], 'male_investigation_discount'=>$_POST['male_investigation_discount_'.$val]);
+
+					}
+
+					foreach($female_invst_number as $key => $val){
+
+						$investigation_array['female_investigation'][] = array('female_investigation_name' => $_POST['female_investigation_name_'.$val], 'female_investigation_code' => $_POST['female_investigation_code_'.$val], 'female_investigation_price' => $_POST['female_investigation_price_'.$val], 'female_investigation_discount'=>$_POST['female_investigation_discount_'.$val]);
+
+					}
+
+					$post_arr['investigations'] = serialize($investigation_array);
+
+					$investigation_billed = 1;
+
+				}
+
+				// Investigation End
+
+                if($medicine_billed == 0){
+                    $medicine_billed = check_suggested($post_arr['consultation_done'], 'medicine_suggestion', 'medicine_billed');
+                }
+                if($investigation_billed == 0){
+                    $investigation_billed = check_suggested($post_arr['consultation_done'], 'investation_suggestion', 'investigation_billed');
+                }
+                if($procedure_billed == 0){
+                    $procedure_billed = check_suggested($post_arr['consultation_done'], 'procedure_suggestion', 'procedure_billed');
+                }
+
+				$investg = $this->billingmodel_model->investigation_insert($post_arr);
+
+				if($investg > 0){
+
+					$insert_receipt = insert_receipt_log($post_arr['receipt_number']);
+
+
+
+					$update_doctor_consultation = $this->billingmodel_model->update_doctor_consultation($post_arr['receipt_number'], $post_arr['consultation_done'], $medicine_billed, $investigation_billed, $procedure_billed);
+
+					$this->send_billing_receipt($post_arr['biller_id'], $post_arr['patient_id'], $post_arr['on_date'], $post_arr['billing_from'], $post_arr['receipt_number'], 'investigation');
+
+					header("location:" .base_url(). "accounts/details/".$post_arr['receipt_number']."?t=investigation");
+
+					die();
+
+				}else{
+
+					header("location:" .base_url(). "after-consultation?m=".base64_encode('something went wrong!').'&t='.base64_encode('error'));
+
+					die();
+
+				}
+
+			}
+
+
+
+			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_procedure"){
+
+				unset($_POST['action']);				
+
+				$post_arr = array();
+
+				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+
+				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
+
+				$post_arr['consultation_done'] = $_POST['consultation_done'];unset($_POST['consultation_done']);
+
+				$post_arr['billing_from'] = $_POST['billing_from'];unset($_POST['billing_from']);
+
+				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
+
+				$post_arr['on_date'] = $_POST['on_date'];unset($_POST['on_date']);
+
+				//$post_arr['receipt_number'] = check_billing_receipt($_POST['receipt_number']);unset($_POST['receipt_number']);
+
+				$post_arr['billing_id'] = isset($_POST['billing_id'])?$_POST['billing_id']:''; unset($_POST['billing_id']);
+
+				$post_arr['biller_id'] = $_POST['biller_id']; unset($_POST['biller_id']);
+				
+				$post_arr['billing_type'] = $_POST['billing_type'];
+
+				$post_arr['transaction_id'] = ($_POST['transaction_id'])?$_POST['transaction_id']:0; unset($_POST['transaction_id']);
+
+				$post_arr['subvention_charges'] = isset($_POST['subvention_charges'])?$_POST['subvention_charges']:0; unset($_POST['subvention_charges']);
+
+				$transaction_img = '';
+
+				if(!empty($_FILES['transaction_img']['tmp_name'])){
+
+					$dest_path = $this->config->item('upload_path');
+
+					$destination = $dest_path.'patient_files/';
+
+					$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-". $_FILES['transaction_img']['name'];
+
+					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
+
+					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
+
+					$post_arr['transaction_img'] = $transaction_img;
+
+				}
+
+				$post_arr['hospital_id'] = isset($_POST['hospital_id'])?$_POST['hospital_id']:''; unset($_POST['hospital_id']);
+
+				$package_form = '';
+
+				if(!empty($_FILES['package_form']['tmp_name'])){
+
+					$dest_path = $this->config->item('upload_path');
+
+					$destination = $dest_path.'package_form/';
+
+					$NewImageName = rand(4,10000)."-".$post_arr['receipt_number']."-". $_FILES['package_form']['name'];
+
+					$package_form = base_url().'assets/package_form/'.$NewImageName;
+
+					move_uploaded_file($_FILES['package_form']['tmp_name'], $destination.$NewImageName);
+
+				}
+
+				$post_arr['package_form'] = $package_form;
+
+				$post_arr['payment_method'] = $_POST['payment_method'];unset($_POST['payment_method']);
+				
+				$post_arr['cash_payment'] = $_POST['cash_payment'];unset($_POST['cash_payment']);
+				$post_arr['card_payment'] = $_POST['card_payment'];unset($_POST['card_payment']);
+				$post_arr['upi_payment'] = $_POST['upi_payment'];unset($_POST['upi_payment']);
+				$post_arr['neft_payment'] = $_POST['neft_payment'];unset($_POST['neft_payment']);
+				$post_arr['wallet_payment'] = $_POST['wallet_payment'];unset($_POST['wallet_payment']);
+				
+				$post_arr['origins'] = $_POST['origins']; unset($_POST['origins']);
+				
+				$post_arr['series_number'] = $_POST['series_number'] ; unset($_POST['series_number']);
+
+				$post_arr['expiry_date'] = $_POST['expiry_date'] ; unset($_POST['expiry_date']);
+
+				$post_arr['renewal_type'] = $_POST['renewal_type'] ; unset($_POST['renewal_type']);
+
+				$post_arr['status'] = 'pending';
+
+				//var_dump($_POST); echo "<br/><br/><br/><br/>";
+
+				if($_POST['payment_in'] == 'rs_payment'){
+
+					$post_arr['payment_done'] = $_POST['payment_done'];unset($_POST['payment_done']);
+
+					$post_arr['remaining_amount'] = $_POST['remaining_amount'];unset($_POST['remaining_amount']);
+					
+					$post_arr['fees'] = ($_POST['rs_fees']);unset($_POST['rs_fees']);
+
+    				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
+
+    				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
+
+				}else{
+
+					$post_arr['usd_totalpackage'] = $_POST['usd_totalpackage'];unset($_POST['usd_totalpackage']);	
+
+					$post_arr['usd_fees'] = $_POST['usd_fees'];unset($_POST['usd_fees']);	
+
+					$post_arr['us_discount'] = $_POST['us_discount'];unset($_POST['us_discount']);	
+
+                    $post_arr['conversion_rate'] = get_converstion_rate();
+
+					$post_arr['payment_done'] = ($_POST['payment_done']*get_converstion_rate());unset($_POST['payment_done']);
+
+					$post_arr['remaining_amount'] = ($_POST['remaining_amount']*get_converstion_rate());unset($_POST['remaining_amount']);
+				
+					$post_arr['fees'] = ($_POST['rs_totalpackage']-$_POST['rs_discount']);unset($_POST['rs_fees']);
+
+    				$post_arr['totalpackage'] = $_POST['rs_totalpackage'];unset($_POST['rs_totalpackage']);
+
+    				$post_arr['discount_amount'] = $_POST['rs_discount'];unset($_POST['rs_discount']);
+
+				}
+
 				$post_arr['center_share'] = $post_arr['fees'];
 				$post_arr['share'] = 1;
+				
 				//var_dump($post_arr);die;
+
 				$post_arr['payment_in'] = $_POST['payment_in'];unset($_POST['payment_in']);
+
                 $extract_procedure_array = $procedure_array = array();
+
 				// Procedure Start
+
 				if(isset($_POST['procedure_suggestion']) && $_POST['procedure_suggestion'] == 1){
+
 					foreach($_POST as $key => $val){
+
 						if (substr( $key, 0, 14 ) === "sub_procedure_") {
+
 							$extract_procedure_array[] = $key;
+
 						}
+
 					}
+
+					
+
 					$male_number = array();
+
 					foreach($extract_procedure_array as $key => $val){
+
 						$explode = explode('sub_procedure_', $val);
+
 						$male_number[] = $explode[1];
+
 					}
+
 					$male_number = array_unique($male_number);
                     //$post_arr['receipt_number'] = $_POST['receipt_number'];unset($_POST['receipt_number']);
 					//print_r($post_arr['receipt_number']);exit();
+					
+
 					/*foreach($male_number as $key => $val){
+						
 						$procedure_array['patient_procedures'][] = array('sub_procedure' => $_POST['sub_procedure_'.$val], 'sub_procedures_code' => $_POST['sub_procedures_code_'.$val], 'sub_procedures_price' => $_POST['sub_procedures_price_'.$val], 'sub_procedures_discount' => $_POST['sub_procedures_discount_'.$val], 'sub_procedures_paid_price' => $_POST['sub_procedures_paid_price_'.$val]);
+                        
 					}*/
+					
 					foreach($male_number as $key => $val) {
 						// Calculate values
 						$totalpackage = $_POST['sub_procedures_price_'.$val];
@@ -1645,6 +2248,7 @@ function partial_billing($appointment_id){
 						$remaining_amount = $fees - $payment_done;
 						$post_arr['receipt_number'] = $_POST['receipt_number_'.$val];
 						$post_arr['payment_method'] = $_POST['payment_method_'.$val];
+						
 						// Create procedure array
 						$procedure_array = [
 							'patient_procedures' => [
@@ -1657,10 +2261,13 @@ function partial_billing($appointment_id){
 								]
 							]
 						];
+						
 						// Serialize data
 						$post_arr['data'] = serialize($procedure_array);
+						
 						$date = new DateTime('now', new DateTimeZone('Asia/Kolkata'));  // Gets current time in IST
 						$formattedDate = $date->format('Y-m-d H:i:s');  // Formats as 'YYYY-MM-DD HH:MM:SS'
+						
 						// Build and execute query
 					      $query = "INSERT INTO `hms_patient_procedure` 
 							(appointment_id, consultation_done, patient_id, procedure_parent, on_date, 
@@ -1698,11 +2305,18 @@ function partial_billing($appointment_id){
 						
 						$result = run_form_query($query);
 					}
+					
 					//$post_arr['data'] = serialize($procedure_array);
+					
 					$procedure_billed = 1;
+					
+					
 				}
+				
 				// Procedure End
+
 				//	var_dump($post_arr);die;
+
                 if($medicine_billed == 0){
                     $medicine_billed = check_suggested($post_arr['consultation_done'], 'medicine_suggestion', 'medicine_billed');
                 }
@@ -1712,7 +2326,9 @@ function partial_billing($appointment_id){
                 if($procedure_billed == 0){
                     $procedure_billed = check_suggested($post_arr['consultation_done'], 'procedure_suggestion', 'procedure_billed');
                 }
+
 				//$p_procd = $this->billingmodel_model->patient_procedure_insert($post_arr);
+				
 				$_POST['procedure_suggestion'];unset($_POST['procedure_suggestion']);
 				for ($i = 1; $i <= 30; $i++) {
 					if (isset($_POST["sub_procedure_$i"])) {
@@ -1725,12 +2341,16 @@ function partial_billing($appointment_id){
 					}
 				}
 				$_POST['po_id'];unset($_POST['po_id']);
+				
 				//$post_arr['data'] = serialize($procedure_array);
 				$data = unserialize($post_arr['data']);
+
 				// Accessing the sub_procedure
 				$subProcedure = $data['patient_procedures'][0]['sub_procedure'];	
+				
 				$procedure_sql = "SELECT ID, procedure_name, category FROM hms_procedures WHERE ID = '$subProcedure'";
 				$proc_result = run_select_query($procedure_sql);
+				
 				//$_POST['sub_procedure_1'] = $subProcedure;
 				$_POST['package_amount'] = $post_arr['totalpackage'];
 				$_POST['discount_amount'] = $post_arr['discount_amount'];
@@ -1741,13 +2361,18 @@ function partial_billing($appointment_id){
 				$_POST['centre_booking'] = $post_arr['billing_from'];
 				$_POST['package_after_discount'] = $post_arr['fees'];
 				$_POST['payment_received'] = $post_arr['payment_done'];
+				
 				$_POST['booking_month'] = date('F d', strtotime($_POST['booking_date']));
+				
 				$sql_con = "SELECT * FROM " . $this->config->item('db_prefix') . "consultation WHERE patient_id = '" . $post_arr['patient_id'] . "' ORDER BY id ASC";
 				$select_con = run_select_query($sql_con);
+
 				$visit_month = date('F y', strtotime($select_con['on_date']));
 				$first_visit_date = date('Y-m-d', strtotime($select_con['on_date']));
+				
 				$sql_doct_con = "SELECT * FROM " . $this->config->item('db_prefix') . "consultation WHERE appointment_id = '" . $_POST['appointment_id'] . "'";
 				$select_doc_con = run_select_query($sql_doct_con);
+				
 				$sql_doctor_consultation = "SELECT * FROM " . $this->config->item('db_prefix') . "doctor_consultation WHERE appointment_id = '" . $_POST['appointment_id'] . "'";
 				$select_doctor_consultation = run_select_query($sql_doctor_consultation);
 				
@@ -1763,7 +2388,7 @@ function partial_billing($appointment_id){
 				$_POST['crm_id'] = $select_result5['crm_id'];
 				$_POST['visit_month'] = $visit_month;
 				$_POST['first_visit_date'] = $first_visit_date;
-				// $result = $this->billingmodel_model->patient_journey_data($_POST);
+				$result = $this->billingmodel_model->patient_journey_data($_POST);
 
 				$data = array(
 					"lead_id" => trim($select_result5['crm_id']),
@@ -1851,30 +2476,53 @@ function partial_billing($appointment_id){
 				}
 
 			}
-			if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_package"){
+			
+			 if(isset($_POST['action']) && !empty($_POST['action']) && $_POST['action'] == "add_package"){
+
 				unset($_POST['action']);				
+
 				$post_arr = array();
+
 				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
+
 				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
+
 				$post_arr['consultation_done'] = $_POST['consultation_done'];unset($_POST['consultation_done']);
+
 				$post_arr['billing_from'] = $_POST['billing_from'];unset($_POST['billing_from']);
+
 				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
+
 				$post_arr['on_date'] = $_POST['on_date'];unset($_POST['on_date']);
+
 				//$post_arr['receipt_number'] = check_billing_receipt($_POST['receipt_number']);unset($_POST['receipt_number']);
+
 				$post_arr['billing_id'] = isset($_POST['billing_id'])?$_POST['billing_id']:''; unset($_POST['billing_id']);
+
 				$post_arr['biller_id'] = $_POST['biller_id']; unset($_POST['biller_id']);
+
 				$post_arr['transaction_id'] = ($_POST['transaction_id'])?$_POST['transaction_id']:0; unset($_POST['transaction_id']);
+
 				$post_arr['subvention_charges'] = isset($_POST['subvention_charges'])?$_POST['subvention_charges']:0; unset($_POST['subvention_charges']);
+
 				$transaction_img = '';
+
 				if(!empty($_FILES['transaction_img']['tmp_name'])){
+
 					$dest_path = $this->config->item('upload_path');
+
 					$destination = $dest_path.'patient_files/';
+
 					$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-". $_FILES['transaction_img']['name'];
+
 					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
+
 					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
+
 					$post_arr['transaction_img'] = $transaction_img;
 
 				}
+
 				$post_arr['hospital_id'] = isset($_POST['hospital_id'])?$_POST['hospital_id']:''; unset($_POST['hospital_id']);
 
 				$package_form = '';
@@ -2214,32 +2862,23 @@ function partial_billing($appointment_id){
 				}
 
 			}
+			
 			if(isset($_GET['t']) && !empty($_GET['t']) && isset($_GET['i']) && !empty($_GET['i'])){
+
 				$consultation_details = $this->billingmodel_model->after_consultation_billing($_GET['i']);
+
+				
+
 				if(count($consultation_details) > 0){
+
 					$data['billing_details'] = $consultation_details;
+
 					$data['converstion_rate'] = get_converstion_rate();
-					// Get centers data for dynamic dropdown
-					$data['centers'] = $this->center_model->get_centers();
-					// Get current user's center
-					$data['current_user_center'] = '';
-					if(isset($_SESSION['logged_billing_manager']['center'])) {
-						$data['current_user_center'] = $_SESSION['logged_billing_manager']['center'];
-					} elseif(isset($_SESSION['logged_accountant']['center'])) {
-						$data['current_user_center'] = $_SESSION['logged_accountant']['center'];
-					} elseif(isset($_SESSION['logged_stock_manager']['center'])) {
-						$data['current_user_center'] = $_SESSION['logged_stock_manager']['center'];
-					} elseif(isset($_SESSION['logged_telecaller']['center'])) {
-						$data['current_user_center'] = $_SESSION['logged_telecaller']['center'];
-					} elseif(isset($_SESSION['logged_counselor']['center'])) {
-						$data['current_user_center'] = $_SESSION['logged_counselor']['center'];
-					} elseif(isset($_SESSION['logged_embryologist']['center'])) {
-						$data['current_user_center'] = $_SESSION['logged_embryologist']['center'];
-					}
 
 					$template = get_header_template($logg['role']);
 
 					$this->load->view($template['header']);
+
 					$this->load->view('billing_view/billing_after_consultation', $data);
 
 					$this->load->view($template['footer']);
@@ -2253,13 +2892,17 @@ function partial_billing($appointment_id){
 				}
 
 			}else{
+
 				header("location:" .base_url(). "after-consultation?m=".base64_encode('consultation not found!').'&t='.base64_encode('error'));
+
 				die();
 
 			}
 
 		}else{
+
 			header("location:" .base_url(). "");
+
 			die();
 
 		}
@@ -2762,23 +3405,45 @@ function partial_billing($appointment_id){
 	
 
 	public function booking(){
+
 		$logg = checklogin();
+
 		if($logg['status'] == true){
+
 			unset($_POST['action']);unset($_POST['phone_number']);
+
 			$patient_phone = $_POST['wife_phone'];
+
+						    
+
 			if($_POST['paitent_type'] == "exist_patient" && !empty($_POST['paitent_id'])){
+
 				$check_patient_medical_info = check_patient_medical_info($_POST['paitent_id']);
+
 				if($check_patient_medical_info == 1){
+
 					$_POST['follow_up_appointment'] = 1;
+
 				}
+
  			}
+
+ 			
+
  			$appointments = $this->billingmodel_model->search_appointment($patient_phone, "phone");
+
 			if(count($appointments) > 0){
+
 				header("location:" .base_url(). "appointment?m=".base64_encode('Appointment already booked. Go to my appointments').'&t='.base64_encode('error'));
+
 				die();
+
 			}
+
 			$_POST['appointment_added'] = date('Y-m-d H:i:s');
+			
 			$curl = curl_init();
+				
 				if (strpos($_POST['lead_source'], "D/S") === false) {
 					$data = [
 						"api_key" => "83661358790533838050723166537248941TTR",
@@ -2787,14 +3452,21 @@ function partial_billing($appointment_id){
 						"country_code" => "+91",
 						"lead_source" => $_POST['lead_source'],
 						"lead_source_url" => "HMS",
+						"from_hms" => "true",
 						"city" => "",
 						"email" => $_POST['wife_email'],
 						"center_id" => $_POST['appoitment_for']
 					];
+
+					// send $data to API here
+
 				} else {
 					echo "Lead source contains 'D/S'. Data not sent.";
 				}
+
+				// Encode array to JSON
 				$jsonData = json_encode($data);
+
 				curl_setopt_array($curl, array(
 					CURLOPT_URL => 'https://flertility.in/lead/create-lead-api/',
 					CURLOPT_RETURNTRANSFER => true,
@@ -2809,10 +3481,17 @@ function partial_billing($appointment_id){
 						'Content-Type: application/json'
 					),
 				));
+
 				$response = curl_exec($curl);
+
 				curl_close($curl);
+				
+				// Initialize cURL
+			
 			$appointment = $this->billingmodel_model->insert_appointments($_POST);
+			
 			$curl = curl_init();
+
 			curl_setopt_array($curl, array(
 				CURLOPT_URL => "https://flertility.in/lead/lead-mobile-no/?mobile_no=" . urlencode($_POST['wife_phone']),
 				CURLOPT_RETURNTRANSFER => true,
@@ -2823,145 +3502,137 @@ function partial_billing($appointment_id){
 				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 				CURLOPT_CUSTOMREQUEST => 'GET',
 			));
+
 			$response = curl_exec($curl);
 			$err = curl_error($curl);
+
 			curl_close($curl);
+
 			if ($err) {
 				echo "cURL Error: $err";
 			} else {
 				$leadData = json_decode($response, true); // Decode JSON to associative array
+
 				if (!empty($leadData) && isset($leadData[0])) {
 					$lead = $leadData[0];
+
+					// Display lead info
 					echo "Lead ID: " . $lead['id'] . "<br>";
 					echo "Name: " . $lead['primary_name'] . "<br>";
 					echo "Mobile: " . $lead['mobile_country_code'] . " " . $lead['mobile'] . "<br>";
 					echo "Priority: " . $lead['priority'] . "<br>";
 					echo "Status: " . $lead['status'] . "<br>";
+
 					// Update local DB (CodeIgniter style)
 					$this->db->where('wife_phone', $lead['mobile']);
 					$this->db->update('hms_appointments', ['crm_id' => $lead['id']]);
+
 					echo "CRM ID updated successfully.";
 				} else {
 					echo "No lead data found.";
 				}
 			}
+
 			if($appointment > 0){
+				
+				
 				$centre_details = get_centre_details($_POST['appoitment_for']);
-				// Get camp details if camp is selected
-				$camp_details = null;
-				if(isset($_POST['camp_selection']) && !empty($_POST['camp_selection'])){
-					$this->load->model('camp_model');
-					$camp_details = $this->camp_model->get_camp_data($_POST['camp_selection']);
-				}
+				
 				$checkpatient_register = get_patient_detail_by_phone($_POST['wife_phone']);
 				if(empty($checkpatient_register)){
-					// Include camp information in registration if available, otherwise use center information
-					$registration_data = array(
-						"name" => $_POST['wife_name'], 
-						"iic_id" => $paitent_id, 
-						"billed" => '1'
-					);
-					if($camp_details && isset($camp_details['location']) && !empty($camp_details['location'])){
-						$registration_data["camp"] = $camp_details['camp_name'];
-						$registration_data["camp_location"] = $camp_details['location'];
-					} else {
-						$registration_data["center"] = $centre_details['center_name'];
-					}
-			       whatsappregister($patient_phone, json_encode($registration_data));
+			       whatsappregister($patient_phone, json_encode(array("name" => $_POST['wife_name'], "iic_id" => $paitent_id, "center" => $centre_details['center_name'], "billed"=> '1')));
 			   }
+			    
              //   $checkpatient_register = get_patient_detail_by_phone($_POST['wife_phone']);
 			 //   if(empty($checkpatient_register)){
 			 //       whatsappregister($patient_phone, json_encode(array("name" => $_POST['wife_name'])));
 			 //   }
+			    
 				$doctor_details = doctor_details($_POST['appoitmented_doctor']);
+
                 $centre_details = get_centre_details($_POST['appoitment_for']);
-				// Prepare location information - prioritize camp location over center location
-				$location_info = "";
-				if($camp_details && isset($camp_details['location']) && !empty($camp_details['location'])){
-					// Show ONLY LOCATION, NO CAMP NAME
-					$location_info = $camp_details['location'];
-				} else {
-					$location_info = isset($centre_details['center_location']) ? $centre_details['center_location'] : "";
-				}
 				$appointwhatmsg = array();
-				// Use camp name if available, otherwise use center name
-				$facility_name = "";
-				if($camp_details && isset($camp_details['camp_name']) && !empty($camp_details['camp_name'])){
-					$facility_name = $camp_details['camp_name'];
-				} else {
-					$facility_name = $centre_details['center_name'];
-				}
-				$appointwhatmsg = array($_POST['wife_name'], $facility_name, date("d-m-Y", strtotime($_POST['appoitmented_date'])), $_POST['appoitmented_slot'], $location_info);
-                // Log the data being sent to WhatsApp for debugging
-                error_log("WhatsApp appointment data - Phone: " . $patient_phone . ", Name: " . $_POST['wife_name'] . ", Facility: " . $facility_name . ", Date: " . date("d-m-Y", strtotime($_POST['appoitmented_date'])) . ", Slot: " . $_POST['appoitmented_slot'] . ", Location: " . $location_info);
-                $appointsendmsg = whatsappappointment($patient_phone, $_POST['wife_name'], $facility_name, date("d-m-Y", strtotime($_POST['appoitmented_date'])), $_POST['appoitmented_slot'], $location_info);
-                // Log WhatsApp result for debugging
-                if(isset($appointsendmsg['status']) && $appointsendmsg['status'] == 0) {
-                    error_log("WhatsApp appointment message failed: " . $appointsendmsg['message'] . " for phone: " . $patient_phone);
-                }
+				$appointwhatmsg = array($_POST['wife_name'], $centre_details['center_name'], date("d-m-Y", strtotime($_POST['appoitmented_date'])), $_POST['appoitmented_slot'], isset($centre_details['center_location'])?$centre_details['center_location']:"");
+                $appointsendmsg = whatsappappointment($patient_phone, implode(',', $appointwhatmsg));
+                
 				$patient_to = $patient_subject = $patient_message = $doctor_to = $doctor_subject = $doctor_message = "";
+
 				//Patient emails
+
 				$patient_to = $_POST['wife_email'];
+
 				$patient_subject = "Appointment booked";
-				// Include camp information in email if available, otherwise use center information
-				$location_info_email = "";
-				if($camp_details && isset($camp_details['location']) && !empty($camp_details['location'])){
-					$location_info_email = "<br/><br/><strong>Camp Details:</strong><br/>Camp: " . $camp_details['camp_name'] . "<br/>Location: " . $camp_details['location'];
-				} else {
-					$location_info_email = "<br/><br/><strong>Center:</strong> " . $centre_details['center_name'] . "<br/><strong>Address:</strong> " . $centre_details['center_address'];
-				}
-				$patient_message = "Hi ".$_POST['wife_name'].",<br/> Your appointment has been scheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".<br/>".$location_info_email;
-				// Include camp information in SMS if available, otherwise use center information
-				$sms_location_info = "";
-				if($camp_details && isset($camp_details['location']) && !empty($camp_details['location'])){
-					$sms_location_info = " Camp: " . $camp_details['camp_name'] . " at " . $camp_details['location'];
-				} else {
-					$sms_location_info = " Center: " . $centre_details['center_name'];
-				}
-				$sms_message = "Hi ".$_POST['wife_name'].", Your appointment has been scheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".".$sms_location_info;
+
+				$patient_message = "Hi ".$_POST['wife_name'].",<br/> Your appointment has been scheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
+
+				$sms_message = "Hi ".$_POST['wife_name'].", Your appointment has been scheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
+
 				send_mail($patient_to, $patient_subject, $patient_message);
+
 				send_sms($patient_phone, $sms_message);
+
+				
+
 				//Doctor emails
+
 				$doctor_to = $doctor_details['email'];
+
 				$doctor_subject = "New appointment";
-				// Include camp information in doctor email if available, otherwise use center information
-				$doctor_location_info = "";
-				if($camp_details && isset($camp_details['location']) && !empty($camp_details['location'])){
-					$doctor_location_info = "<br/><br/><strong>Camp Details:</strong><br/>Camp: " . $camp_details['camp_name'] . "<br/>Location: " . $camp_details['location'];
-				} else {
-					$doctor_location_info = "<br/><br/><strong>Center:</strong> " . $centre_details['center_name'] . "<br/><strong>Address:</strong> " . $centre_details['center_address'];
-				}
-				$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Appointment has been scheduled on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".<br/><br/><strong>Patient:</strong> ".$_POST['wife_name'].$doctor_location_info;
+
+				$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Appointment has been scheduled on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
+
 				send_mail($doctor_to, $doctor_subject, $doctor_message);
+
+				
+
 				header("location:" .base_url(). "appointment?m=".base64_encode('Appointment booked!').'&t='.base64_encode('success'));
+
 				die();
+
 			}else{
+
 				header("location:" .base_url(). "appointment?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+
 				die();
+
 			}
+
 		}else{
+
 			header("location:" .base_url(). "");
+
 			die();
+
 		}
+
 	}
 
 	
 
+	public function search_doctor(){
 
-
-	public function search_doctor()
-	{
 		$centre_id = $_POST['centre_id'];
+
 		$doctors = $this->doctors_model->center_doctors($centre_id);
+
 		$option = "";
+
 		$option = "<option value=''>Select</option>";
+
 		if(!empty($doctors)){
+
 			foreach($doctors as $key => $val){
+
 				$option .= "<option value='".$val['ID']."'>".$val['name']."</option>";
+
 			}
+
 		}
+
 		echo json_encode($option);
+
 		die;		
+
 	}
 
 	
@@ -3527,7 +4198,9 @@ public function billing_noreceipt_patient_payments(){
 	
 
 	function get_procedure_details($procedure){
+
 		$details = $this->billingmodel_model->get_procedure_details($procedure);
+
 		return $details;
 
 	}
@@ -3594,192 +4267,4 @@ public function billing_noreceipt_patient_payments(){
 		$mpdf->Output();
 	}
 	
-	// Get camps by center for appointment form
-	public function get_camps_by_center(){
-		// Set proper headers
-		header('Content-Type: text/html; charset=utf-8');
-		header('Cache-Control: no-cache, must-revalidate');
-		
-		try {
-			$center_number = $this->input->post('center_id');
-			
-			if(empty($center_number)){
-				echo '<option value="">Please select a center first</option>';
-				exit;
-			}
-			
-			// Log for debugging
-			log_message('debug', 'Getting camps for center: ' . $center_number);
-			
-			$camps = $this->camp_model->get_camps_by_center($center_number);
-			
-			// Log for debugging
-			log_message('debug', 'Camps found: ' . print_r($camps, true));
-			
-			$options = '<option value="">Select Camp</option>';
-			if(!empty($camps)){
-				foreach($camps as $camp){
-					$options .= '<option value="'.htmlspecialchars($camp['camp_number']).'">'.htmlspecialchars($camp['camp_name']).'</option>';
-				}
-			} else {
-				$options = '<option value="">No camps available for this center</option>';
-			}
-			
-			echo $options;
-			
-		} catch (Exception $e) {
-			log_message('error', 'Error in get_camps_by_center: ' . $e->getMessage());
-			echo '<option value="">Error loading camps</option>';
-		}
-		
-		exit;
-	}
-	
-	// Test method to debug database issues
-	public function test_camp_db(){
-		header('Content-Type: text/html; charset=utf-8');
-		
-		try {
-			// Check if camps table exists
-			$table_name = $this->config->item('db_prefix') . 'camps';
-			$table_exists = $this->db->table_exists($table_name);
-			
-			echo "<h3>Database Debug Info:</h3>";
-			echo "<p>Database Prefix: " . $this->config->item('db_prefix') . "</p>";
-			echo "<p>Camps Table: " . $table_name . " - " . ($table_exists ? 'EXISTS' : 'NOT FOUND') . "</p>";
-			
-			if($table_exists){
-				// Get table fields
-				$fields = $this->db->list_fields($table_name);
-				echo "<p>Table Fields: " . implode(', ', $fields) . "</p>";
-				
-				// Check centers table
-				$centers_table = $this->config->item('db_prefix') . 'centers';
-				$centers_exists = $this->db->table_exists($centers_table);
-				echo "<p>Centers Table: " . $centers_table . " - " . ($centers_exists ? 'EXISTS' : 'NOT FOUND') . "</p>";
-				
-				// Test a simple query
-				$test_query = "SELECT COUNT(*) as count FROM " . $table_name;
-				$result = $this->db->query($test_query);
-				if($result){
-					$count = $result->row()->count;
-					echo "<p>Total Camps: " . $count . "</p>";
-				}
-			}
-			
-		} catch (Exception $e) {
-			echo "<p>Error: " . $e->getMessage() . "</p>";
-		}
-		
-		exit;
-	}
-	
-	// Check templates after camp creation
-	public function check_camp_templates(){
-		// Set proper headers
-		header('Content-Type: application/json; charset=utf-8');
-		header('Cache-Control: no-cache, must-revalidate');
-		
-		$camp_number = $this->input->post('camp_number');
-		$center_number = $this->input->post('center_id');
-		
-		if(empty($camp_number) || empty($center_number)){
-			echo json_encode(array('status' => 'error', 'message' => 'Missing required parameters'));
-			exit;
-		}
-		
-		// Get camp details
-		$camp_data = $this->camp_model->get_camp_data($camp_number);
-		
-		// Get center ID from center number
-		$center_data = $this->center_model->get_item_data($center_number);
-		$center_id = $center_data ? $center_data['ID'] : 0;
-		
-		// Check if templates exist for this camp
-		$templates = $this->check_camp_templates_exist($camp_number, $center_id);
-		
-		$response = array(
-			'camp_data' => $camp_data,
-			'templates_exist' => $templates,
-			'status' => 'success'
-		);
-		
-		echo json_encode($response);
-		exit;
-	}
-	
-	// Private method to check if templates exist for camp
-	private function check_camp_templates_exist($camp_number, $center_id)
-	{
-		$email_templates = $this->check_email_templates($camp_number, $center_id);
-		$sms_templates = $this->check_sms_templates($camp_number, $center_id);
-		$consent_forms = $this->check_consent_forms($camp_number, $center_id);
-		return ($email_templates || $sms_templates || $consent_forms);
-	}
-	
-	// Check email templates for camp
-	private function check_email_templates($camp_number, $center_id){
-		$template_dir = FCPATH . 'application/email-templates/';
-		$files = glob($template_dir . '*.html');
-		return !empty($files);
-	}
-	
-	// Check SMS templates for camp
-	private function check_sms_templates($camp_number, $center_id){
-		return true;
-	}
-	
-	// Check consent forms for camp
-	private function check_consent_forms($camp_number, $center_id){
-		return true;
-	}
-	
-	// Create new camp and check templates
-	public function create_camp_and_check_templates(){
-		header('Content-Type: application/json; charset=utf-8');
-		header('Cache-Control: no-cache, must-revalidate');
-		$center_number = $this->input->post('center_id');
-		$camp_name = $this->input->post('camp_name');
-		if(empty($center_number) || empty($camp_name)){
-			echo json_encode(array('status' => 'error', 'message' => 'Center and camp name are required.'));
-			exit;
-		}
-		$center_data = $this->center_model->get_item_data($center_number);
-		if(!$center_data || !isset($center_data['ID'])){
-			echo json_encode(array('status' => 'error', 'message' => 'Invalid center selected.'));
-			exit;
-		}
-		$camp_data = array(
-			'camp_name' => $camp_name,
-			'center_id' => $center_data['ID'],
-			'camp_description' => $this->input->post('camp_description', true),
-			'start_date' => $this->input->post('start_date'),
-			'end_date' => $this->input->post('end_date'),
-			'status' => '1'
-		);
-		$camp_id = $this->camp_model->add_camp($camp_data);
-		if($camp_id > 0){
-			$camp_number = $this->db->insert_id();
-			$camp_data = $this->camp_model->get_camp_data($camp_number);
-			$templates_exist = $this->check_camp_templates_exist($camp_number, $center_data['ID']);
-			$response = array(
-				'status' => 'success',
-				'message' => 'Camp created successfully!',
-				'camp_data' => $camp_data,
-				'templates_exist' => $templates_exist
-			);
-		} else {
-			$response = array(
-				'status' => 'error',
-				'message' => 'Failed to create camp'
-			);
-		}
-		echo json_encode($response);
-		exit;
-	}
-
-	function get_center_name_by_code($center_id){
-		$name = $this->billingmodel_model->get_center_name_by_code($center_id);
-		return $name;
-	}
 }
