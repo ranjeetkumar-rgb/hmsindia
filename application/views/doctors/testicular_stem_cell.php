@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-content">
         <div class="row" id="myfrm2">
-		<div class="col-lg-12"><img src="https://infra.indiaivf.website//assets/images/India-IVF-Logo-Option-5.png" class="center" style="width:250px;margin:0px 300px;"></div>
+		<div class="col-lg-12"><img src="https://indiaivf.website//assets/images/India-IVF-Logo-Option-5.png" class="center" style="width:250px;margin:0px 300px;"></div>
             <div class="ga-pro">
 			
                 <h2 style="text-align: center;">IN VITRO FERTILIZATION CENTER</h2>
@@ -98,7 +98,7 @@ RESULTING CHILD.
 <div class="card">
     <div class="card-content">
         <div class="row" id="myfrm2">
-		<div class="col-lg-12"><img src="https://infra.indiaivf.website//assets/images/India-IVF-Logo-Option-5.png" class="center" style="width:250px;margin:0px 300px;"></div>
+		<div class="col-lg-12"><img src="https://indiaivf.website//assets/images/India-IVF-Logo-Option-5.png" class="center" style="width:250px;margin:0px 300px;"></div>
             <div class="ga-pro">
 				<h3 style="text-align: center; margin: 10px 0px;">IN VITRO FERTILIZATION CENTER</h3>
                 <h2 style="text-align: center;">INFORMATION AND CONSENT FORM</h2>

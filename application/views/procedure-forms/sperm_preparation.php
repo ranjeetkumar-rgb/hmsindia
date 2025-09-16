@@ -1112,7 +1112,7 @@
  <table class="table table-bordered table-hover table-sm tableMg" style="font-size: 12px;">
  <thead>  
  <tr>
-   <td style="width:50%;border-top:1px solid;border-left:1px solid;border-bottom:1px solid;padding:5px;" colspan="6"><img src="https://infra.indiaivf.website/assets/images/india-ivf-logo.webp"></td>
+   <td style="width:50%;border-top:1px solid;border-left:1px solid;border-bottom:1px solid;padding:5px;" colspan="6"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
    <td style="width:50%;border-top:1px solid;border-right:1px solid;border-bottom:1px solid;padding:5px;" colspan="6"><h3 style="margin-top:20px;">SEMEN PREPARATION</h3></td>
    </tr> 
         </thead>

@@ -731,7 +731,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <div class="row" id="print_this_section" style="display:none;">
 <table style="border:1px solid;width:100%;padding:5px;" class="fg45yu">
    <tr>
-   <td style="width:50%;padding:5px;" colspan="2"><img src="https://infra.indiaivf.website/assets/images/india-ivf-logo.webp"></td>
+   <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
    <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">DAY2-DAY 5 FET PRESCRIPTION</h3></td>
    </tr>
 </table>

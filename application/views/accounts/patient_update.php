@@ -68,12 +68,12 @@ if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_POST['submit'])) {
         //echo json_encode(array('status' => 1, 'message' => 'Appointment has been booked!'));
         //exit;
 		$_SESSION['message'] = "Appointment has been Reschedule successfully!";
-        header("Location: https://infra.indiaivf.website/accounts/patient_update?ID=" . urlencode($ID));
+        header("Location: https://indiaivf.website/accounts/patient_update?ID=" . urlencode($ID));
         exit;
 		
     } else {
         $_SESSION['message'] = "Appointment Reschedule failed!";
-        header("Location: https://infra.indiaivf.website/accounts/patient_update?ID=" . urlencode($ID));
+        header("Location: https://indiaivf.website/accounts/patient_update?ID=" . urlencode($ID));
         exit;
     }*/
 	
@@ -210,7 +210,7 @@ curl_close($ch);
     // }
 } 
 
-header("Location: https://infra.indiaivf.website/accounts/patient_update?ID=" . urlencode($ID));
+header("Location: https://indiaivf.website/accounts/patient_update?ID=" . urlencode($ID));
 exit;
 	
 }

@@ -7,7 +7,7 @@
 <table>
 <tr>
 <th style="color: red;">
-<img src="https://infra.indiaivf.website/indiaivf.jpeg" style="width:300px">
+<img src="https://indiaivf.website/indiaivf.jpeg" style="width:300px">
 </th>
 <td>
 
@@ -75,7 +75,7 @@
 <table>
 <tr>
 <th style="color: red;">
-<img src="https://infra.indiaivf.website/indiaivf.jpeg" style="width:300px">
+<img src="https://indiaivf.website/indiaivf.jpeg" style="width:300px">
 </th>
 <td>
 
@@ -204,7 +204,7 @@ Consultant <span id="username25" style="border-bottom: 1px dotted;"><input type=
 <table>
 <tr>
 <th style="color: red;">
-<img src="https://infra.indiaivf.website/indiaivf.jpeg" style="width:300px">
+<img src="https://indiaivf.website/indiaivf.jpeg" style="width:300px">
 </th>
 <td>
 

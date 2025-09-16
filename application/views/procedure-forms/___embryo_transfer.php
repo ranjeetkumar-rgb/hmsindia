@@ -221,7 +221,7 @@
     <input type="hidden" value="pending" name="status"> 
     		<table style="border:1px solid;width:100%;padding:5px;" class="fg45yu">
    <tr>
-   <td style="width:50%;padding:5px;" colspan="10"><img src="https://infra.indiaivf.website/assets/images/india-ivf-logo.webp"></td>
+   <td style="width:50%;padding:5px;" colspan="10"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
    <td style="width:50%;padding:5px;" colspan="10"><h3 style="margin-top:20px;">EMBRYO TRANSFER/ FROZEN EMBRYO TRANSFER</h3></td>
    </tr>
 </table>
@@ -867,7 +867,7 @@
                 <tr>
 <td colspan="2" style="border:1px solid #cdcdcd;">
 
-        			   <img src="https://infra.indiaivf.website/assets/images/india-ivf-logo.webp">
+        			   <img src="https://indiaivf.website/assets/images/india-ivf-logo.webp">
 
         			</td>
 					<td colspan="2" style="border:1px solid #cdcdcd;"><center><h3>EMBRYO TRANSFER/ FROZEN EMBRYO TRANSFER</h3></center></td>
