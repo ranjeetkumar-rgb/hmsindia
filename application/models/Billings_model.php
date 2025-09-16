@@ -1706,9 +1706,22 @@ function procedure_billings_patination($limit, $page, $center, $start_date, $end
 
     $sqlArr = array();
     foreach ($data as $key => $value) {
+        // Skip fields that might not exist in the database or are empty
+        if ($key === 'booking_amount_40' || $key === 'booking_amount_50') {
+            // Skip these fields if they're empty to avoid NOT NULL constraint errors
+            if (empty($value)) {
+                continue;
+            }
+        }
+        
         // Use CI's built-in escape function
         $escaped_value = $this->db->escape($value);
         $sqlArr[] = "`$key` = $escaped_value";
+    }
+
+    if (empty($sqlArr)) {
+        // No valid fields to update
+        return 0;
     }
 
     $sql .= implode(', ', $sqlArr);

@@ -2352,20 +2352,21 @@ public function procedure_billings(){
 		if($logg['status'] == true){
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'addprocedure'){
 				unset($_POST['action']);
-				$post_arr['total_after_discount'] = $_POST['total_after_discount'];unset($_POST['total_after_discount']);
-				$post_arr['booking_amount'] = $_POST['booking_amount'];unset($_POST['booking_amount']);
-				$post_arr['booking_amount_40'] = $_POST['booking_amount_40'];unset($_POST['booking_amount_40']);
-				$post_arr['booking_amount_50'] = $_POST['booking_amount_50'];unset($_POST['booking_amount_50']);
-				$post_arr['counsellor_signature'] = $_POST['counsellor_signature'];unset($_POST['counsellor_signature']);
-				$post_arr['coordinator_signature'] = $_POST['coordinator_signature'];unset($_POST['coordinator_signature']);
-				$post_arr['add_on'] = $_POST['add_on'];unset($_POST['add_on']);
-				$post_arr['center_number'] = $_POST['center_number'];unset($_POST['center_number']);
-				$post_arr['package_name'] = $_POST['package_name'];unset($_POST['package_name']);
-				$post_arr['status'] = $_POST['status'];unset($_POST['status']);
-				$post_arr['package_date'] = $_POST['package_date'];unset($_POST['package_date']);
-				$post_arr['booking_date'] = $_POST['booking_date'];unset($_POST['booking_date']);
-				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
-				$post_arr['employee_number'] = $_POST['employee_number'];unset($_POST['employee_number']);
+				$post_arr['total_after_discount'] = isset($_POST['total_after_discount']) ? $_POST['total_after_discount'] : '';unset($_POST['total_after_discount']);
+				$post_arr['booking_amount'] = isset($_POST['booking_amount']) ? $_POST['booking_amount'] : '';unset($_POST['booking_amount']);
+				$post_arr['booking_amount_40'] = isset($_POST['booking_amount_40']) ? $_POST['booking_amount_40'] : '';unset($_POST['booking_amount_40']);
+				$post_arr['booking_amount_50'] = isset($_POST['booking_amount_50']) ? $_POST['booking_amount_50'] : '';unset($_POST['booking_amount_50']);
+				$post_arr['counsellor_signature'] = isset($_POST['counsellor_signature']) ? $_POST['counsellor_signature'] : '';unset($_POST['counsellor_signature']);
+				$post_arr['coordinator_signature'] = isset($_POST['coordinator_signature']) ? $_POST['coordinator_signature'] : '';unset($_POST['coordinator_signature']);
+				$post_arr['add_on'] = isset($_POST['add_on']) ? $_POST['add_on'] : '';unset($_POST['add_on']);
+				$post_arr['center_number'] = isset($_POST['center_number']) ? $_POST['center_number'] : '';unset($_POST['center_number']);
+				$post_arr['package_name'] = isset($_POST['package_name']) ? $_POST['package_name'] : '';unset($_POST['package_name']);
+				$post_arr['status'] = isset($_POST['status']) ? $_POST['status'] : '';unset($_POST['status']);
+				$post_arr['package_date'] = isset($_POST['package_date']) ? $_POST['package_date'] : '';unset($_POST['package_date']);
+				$post_arr['booking_date'] = isset($_POST['booking_date']) ? $_POST['booking_date'] : '';unset($_POST['booking_date']);
+				$post_arr['appointment_id'] = isset($_POST['appointment_id']) ? $_POST['appointment_id'] : '';unset($_POST['appointment_id']);
+				$post_arr['patient_id'] = isset($_POST['patient_id']) ? $_POST['patient_id'] : '';unset($_POST['patient_id']);
+				$post_arr['employee_number'] = isset($_POST['employee_number']) ? $_POST['employee_number'] : '';unset($_POST['employee_number']);
                 
 				$icounte = $mcounte = $ccounte = $spcounte = 1;
 				$i_counte = $m_counte = $c_counte = $s_pcounte = array();
@@ -2476,21 +2477,21 @@ public function procedure_billings(){
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_product'){
 				unset($_POST['action']);
 				
-				$post_arr['total_after_discount'] = $_POST['total_after_discount'];unset($_POST['total_after_discount']);
-				$post_arr['booking_amount'] = $_POST['booking_amount'];unset($_POST['booking_amount']);
-				$post_arr['booking_amount_40'] = $_POST['booking_amount_40'];unset($_POST['booking_amount_40']);
-				$post_arr['booking_amount_50'] = $_POST['booking_amount_50'];unset($_POST['booking_amount_50']);
-				$post_arr['counsellor_signature'] = $_POST['counsellor_signature'];unset($_POST['counsellor_signature']);
-				$post_arr['coordinator_signature'] = $_POST['coordinator_signature'];unset($_POST['coordinator_signature']);
-				$post_arr['add_on'] = $_POST['add_on'];unset($_POST['add_on']);
-				$post_arr['center_number'] = $_POST['center_number'];unset($_POST['center_number']);
-				$post_arr['package_name'] = $_POST['package_name'];unset($_POST['package_name']);
-				$post_arr['status'] = $_POST['status'];unset($_POST['status']);
-				$post_arr['package_date'] = $_POST['package_date'];unset($_POST['package_date']);
-				$post_arr['booking_date'] = $_POST['booking_date'];unset($_POST['booking_date']);
-				$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
-				$post_arr['appointment_id'] = $_POST['appointment_id'];unset($_POST['appointment_id']);
-				$post_arr['employee_number'] = $_POST['employee_number'];unset($_POST['employee_number']);
+				$post_arr['total_after_discount'] = isset($_POST['total_after_discount']) ? $_POST['total_after_discount'] : '';unset($_POST['total_after_discount']);
+				$post_arr['booking_amount'] = isset($_POST['booking_amount']) ? $_POST['booking_amount'] : '';unset($_POST['booking_amount']);
+				$post_arr['booking_amount_40'] = isset($_POST['booking_amount_40']) ? $_POST['booking_amount_40'] : '';unset($_POST['booking_amount_40']);
+				$post_arr['booking_amount_50'] = isset($_POST['booking_amount_50']) ? $_POST['booking_amount_50'] : '';unset($_POST['booking_amount_50']);
+				$post_arr['counsellor_signature'] = isset($_POST['counsellor_signature']) ? $_POST['counsellor_signature'] : '';unset($_POST['counsellor_signature']);
+				$post_arr['coordinator_signature'] = isset($_POST['coordinator_signature']) ? $_POST['coordinator_signature'] : '';unset($_POST['coordinator_signature']);
+				$post_arr['add_on'] = isset($_POST['add_on']) ? $_POST['add_on'] : '';unset($_POST['add_on']);
+				$post_arr['center_number'] = isset($_POST['center_number']) ? $_POST['center_number'] : '';unset($_POST['center_number']);
+				$post_arr['package_name'] = isset($_POST['package_name']) ? $_POST['package_name'] : '';unset($_POST['package_name']);
+				$post_arr['status'] = isset($_POST['status']) ? $_POST['status'] : '';unset($_POST['status']);
+				$post_arr['package_date'] = isset($_POST['package_date']) ? $_POST['package_date'] : '';unset($_POST['package_date']);
+				$post_arr['booking_date'] = isset($_POST['booking_date']) ? $_POST['booking_date'] : '';unset($_POST['booking_date']);
+				$post_arr['patient_id'] = isset($_POST['patient_id']) ? $_POST['patient_id'] : '';unset($_POST['patient_id']);
+				$post_arr['appointment_id'] = isset($_POST['appointment_id']) ? $_POST['appointment_id'] : '';unset($_POST['appointment_id']);
+				$post_arr['employee_number'] = isset($_POST['employee_number']) ? $_POST['employee_number'] : '';unset($_POST['employee_number']);
                 
 				$icounte = $mcounte = $ccounte = $spcounte = 1;
 				$i_counte = $m_counte = $c_counte = $s_pcounte = array();
