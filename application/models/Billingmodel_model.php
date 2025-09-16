@@ -753,6 +753,17 @@ WHERE inv.master_id = '$investigation'";
 	}	
 
 	function patient_journey_data($data){
+		// Ensure husband_name is present, get it from patient data if missing
+		if (!isset($data['husband_name']) || empty($data['husband_name'])) {
+			if (isset($data['patient_id']) && !empty($data['patient_id'])) {
+				$patient_sql = "Select husband_name from ".$this->config->item('db_prefix')."patients where patient_id='".$data['patient_id']."'";
+				$patient_result = run_select_query($patient_sql);
+				$data['husband_name'] = $patient_result['husband_name'] ?? '';
+			} else {
+				$data['husband_name'] = '';
+			}
+		}
+		
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patient_journey` SET ";
 		$sqlArr = array();
 		foreach( $data as $key=> $value )
