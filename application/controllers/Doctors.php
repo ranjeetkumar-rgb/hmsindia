@@ -1964,19 +1964,19 @@ class Doctors extends CI_Controller {
 					$lead = $leadData[0];
 
 					// Display lead info
-					echo "Lead ID: " . $lead['id'] . "<br>";
-					echo "Name: " . $lead['primary_name'] . "<br>";
-					echo "Mobile: " . $lead['mobile_country_code'] . " " . $lead['mobile'] . "<br>";
-					echo "Priority: " . $lead['priority'] . "<br>";
-					echo "Status: " . $lead['status'] . "<br>";
+					// echo "Lead ID: " . $lead['id'] . "<br>";
+					// echo "Name: " . $lead['primary_name'] . "<br>";
+					// echo "Mobile: " . $lead['mobile_country_code'] . " " . $lead['mobile'] . "<br>";
+					// echo "Priority: " . $lead['priority'] . "<br>";
+					// echo "Status: " . $lead['status'] . "<br>";
 
 					// Update local DB (CodeIgniter style)
 					$this->db->where('wife_phone', $lead['mobile']);
 					$this->db->update('hms_appointments', ['crm_id' => $lead['id']]);
 
-					echo "CRM ID updated successfully.";
+					// echo "CRM ID updated successfully.";
 				} else {
-					echo "No lead data found.";
+					// echo "No lead data found.";
 				}
 			}
 					
