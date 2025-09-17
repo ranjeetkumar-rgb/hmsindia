@@ -11,7 +11,7 @@ function checklogin(){
 	$return = array('status' => true, 'role'=>$_SESSION['logged_stock_manager']['role']);
 	return $return;
   }else if(isset($_SESSION['logged_billing_manager'])){
-    $return = array('status' => true, 'role'=>$_SESSION['logged_billing_manager']['role']);
+    $return = array('status' => true, 'role'=>isset($_SESSION['logged_billing_manager']['role']) ? $_SESSION['logged_billing_manager']['role'] : 'billing_manager');
 	return $return;
   }else if(isset($_SESSION['logged_telecaller'])){
     $return = array('status' => true, 'role'=>$_SESSION['logged_telecaller']['role']);
@@ -3044,33 +3044,21 @@ function run_form_query($query){
 
 
 function run_select_query($query){
-
     $ci= &get_instance();
-
     $ci->load->database();
-
-    // Check if query is empty or invalid
     if(empty($query) || trim($query) == ''){
         return array();
     }
-
     try {
         $query_result = $ci->db->query($query);
-
         if($query_result === FALSE){
             return array();
         }
-
         $result = $query_result->result_array();
-
         if(!empty($result)){
-
             return $result[0];
-
         }else{
-
             return array();
-
         }
     } catch (Exception $e) {
         return array();

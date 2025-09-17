@@ -38,27 +38,20 @@ class Centers extends CI_Controller {
 		$logg = checklogin();
 		if($logg['status'] == true){
 			if(isset($_POST['action']) && $_POST['action'] == 'add_item'){
-			    
-			    // Debug: Log the POST data
+				var_dump($_POST);
 			    log_message('debug', 'POST data received: ' . print_r($_POST, true));
-			    
-			    // Validate required fields
 			    $required_fields = ['center_name', 'type', 'center_address'];
 			    $missing_fields = [];
-			    
 			    foreach($required_fields as $field) {
 			        if(empty($_POST[$field])) {
 			            $missing_fields[] = $field;
 			        }
 			    }
-			    
 			    if(!empty($missing_fields)) {
 			        $error_msg = 'Missing required fields: ' . implode(', ', $missing_fields);
 			        header("location:" . base_url() . "centers/add?m=" . base64_encode($error_msg) . '&t=' . base64_encode('error'));
 			        die();
 			    }
-			    
-			    // Handle file upload
 			    if(!empty($_FILES['upload_photo_1']['tmp_name'])){
 			        $dest_path = $this->config->item('upload_path');
 			        $destination = $dest_path.'center/';
