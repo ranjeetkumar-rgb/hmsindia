@@ -179,7 +179,7 @@ $filename = "Billing";
 $from = "+919971934495";
 $authorizationKey = "key_FRwBDvK22S";
 
-$publicFileUrl = "https://infra.indiaivf.website/assets/whatsapp-pdf/" . basename($file);
+$publicFileUrl = "https://indiaivf.website/assets/whatsapp-pdf/" . basename($file);
 
 // Create the data array
 $data = [

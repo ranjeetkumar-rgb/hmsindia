@@ -36,7 +36,7 @@ class Accounts extends CI_Controller {
             
             require_once $dest_path. '/mpdf/vendor/autoload.php';
             $filename= $dest_path."whatsapp-pdf/".$NewImageName.".pdf";
-			//$filename= "https://infra.indiaivf.website/assets/whatsapp-pdf/".$NewImageName.".pdf";
+			//$filename= "https://indiaivf.website/assets/whatsapp-pdf/".$NewImageName.".pdf";
             $mpdf = new \Mpdf\Mpdf();
             $mpdf->WriteHTML($paitent_html);
             $mpdf->Output($filename,'F');

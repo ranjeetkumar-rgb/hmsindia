@@ -1692,7 +1692,7 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <div class="ga-pro">
 <table style="border:1px solid;width:100%;padding:5px;" class="fg45yu">
 <tr>
-   <td style="width:50%;padding:5px;" colspan="2"><img src="https://infra.indiaivf.website/assets/images/india-ivf-logo.webp"></td>
+   <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
    <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Discharge Summary</h3></td>
 </tr>
 </table>

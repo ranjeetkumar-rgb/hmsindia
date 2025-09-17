@@ -7,7 +7,7 @@
 <table>
 <tr>
 <th style="color: red;">
-<img src="https://infra.indiaivf.website/indiaivf.jpeg" style="width:300px">
+<img src="https://indiaivf.website/indiaivf.jpeg" style="width:300px">
 </th>
 <td>
 <table width="100%">
@@ -73,7 +73,7 @@ Name-<span id="username96" style="border-bottom: 1px dotted;"> <input type="text
 <table>
 <tr>
 <th style="color: red;">
-<img src="https://infra.indiaivf.website/indiaivf.jpeg" style="width:300px">
+<img src="https://indiaivf.website/indiaivf.jpeg" style="width:300px">
 </th>
 <td>
 
@@ -202,7 +202,7 @@ Phone: <span id="username34" style="border-bottom: 1px dotted;"><input type="tex
 <table>
 <tr>
 <th style="color: red;">
-<img src="https://infra.indiaivf.website/indiaivf.jpeg" style="width:300px">
+<img src="https://indiaivf.website/indiaivf.jpeg" style="width:300px">
 </th>
 <td>
 

@@ -70,7 +70,7 @@
 			$environment = 'staging';
 		}
 		// Production
-		elseif (strpos($host, 'infra.indiaivf.website') !== false || strpos($host, '139.84.175.88') !== false) {
+		elseif (strpos($host, 'indiaivf.website') !== false || strpos($host, '139.84.175.88') !== false) {
 			$environment = 'production';
 		}
 		else {

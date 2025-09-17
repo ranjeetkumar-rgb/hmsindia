@@ -5,7 +5,7 @@
 <div class="card-content">
 <div class="row" id="myfrm">
 <div class="ga-pro">
-<div class="col-lg-12"><img src="https://infra.indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>
+<div class="col-lg-12"><img src="https://indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>
 <h4 style="text-align:center;margin: 10px 0px;">IN VITRO FERTILIZATION CENTER</h4>
 <h3 style="text-align:center;margin: 10px 0px;">INFORMED AND CONSENT FORM</h3>
 <form action="" enctype='multipart/form-data' method="post">  

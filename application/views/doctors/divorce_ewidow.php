@@ -1,7 +1,7 @@
 <div class="card">
     <div class="card-content">
         <div class="row" id="myfrm2">
-		<div class="col-lg-12"><img src="https://infra.indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>
+		<div class="col-lg-12"><img src="https://indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>
             <div class="ga-pro">
 			
                 <h2 style="text-align: center;">FORM 1</h2>
