@@ -467,7 +467,7 @@ hr {
                 </select>
             </div>
 		</div>
-		 <div class="row" id="camp_center_div" style="display: none; margin-top: 10px;">            
+		 <!-- <div class="row" id="camp_center_div" style="display: none; margin-top: 10px;">            
             <div class="form-group col-sm-6 col-xs-12 role">
                 <label for="statuss">Camp Centre (Required)</label>
                 <select name="camp_center" class="empty-field" id="camp_center">
@@ -479,7 +479,7 @@ hr {
                     <?php } ?>
                 </select>
             </div>
-         </div>
+         </div> -->
          <div class="clearfix"></div>
 	     <div class="form-group col-sm-12 col-xs-12">
 	        <input type="submit" id="submitbutton" class="btn btn-large" value="Book Appointment" />
