@@ -1186,16 +1186,17 @@ public function investigation_sales(){
 			if(empty($per_page)){
 				$per_page = 0;
 			}
-			$center = $this->input->get('billing_at', true);
-			$start_date = $this->input->get('start_date', true);
-			$end_date = $this->input->get('end_date', true);
-			$patient_id = $this->input->get('iic_id', true);
-			$payment_method = $this->input->get('payment_method', true);
-			$export_billing = $this->input->get('export-billing', true);
-			
-			$config = array();
-        	$config["base_url"] = base_url() . "accounts/medicie_sales";
-        	$config["total_rows"] = $this->accounts_model->patient_investigation_count($center, $start_date, $end_date, $patient_id, $payment_method);
+		$center = $this->input->get('billing_at', true);
+		$start_date = $this->input->get('start_date', true);
+		$end_date = $this->input->get('end_date', true);
+		$patient_id = $this->input->get('iic_id', true);
+		$payment_method = $this->input->get('payment_method', true);
+		$status = $this->input->get('status', true);
+		$export_billing = $this->input->get('export-billing', true);
+		
+		$config = array();
+    	$config["base_url"] = base_url() . "accounts/medicie_sales";
+    	$config["total_rows"] = $this->accounts_model->patient_investigation_count($center, $status, $start_date, $end_date, $patient_id, $payment_method);
         	$config["per_page"] = 50;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
@@ -3417,15 +3418,17 @@ public function moulist(){
 			if(empty($per_page)){
 				$per_page = 0;
 			}
-			$center = $this->input->get('billing_at', true);
-			$start_date = $this->input->get('start_date', true);
-			$end_date = $this->input->get('end_date', true);
-			$patient_id = $this->input->get('iic_id', true);
-			$export_billing = $this->input->get('export-billing', true);
-			
-			$config = array();
-        	$config["base_url"] = base_url() . "accounts/investigation_billings";
-        	$config["total_rows"] = $this->accounts_model->patient_investigation_count($center, $start_date, $end_date, $patient_id);
+		$center = $this->input->get('billing_at', true);
+		$start_date = $this->input->get('start_date', true);
+		$end_date = $this->input->get('end_date', true);
+		$patient_id = $this->input->get('iic_id', true);
+		$status = $this->input->get('status', true);
+		$payment_method = $this->input->get('payment_method', true);
+		$export_billing = $this->input->get('export-billing', true);
+		
+		$config = array();
+    	$config["base_url"] = base_url() . "accounts/investigation_billings";
+    	$config["total_rows"] = $this->accounts_model->patient_investigation_count($center, $status, $start_date, $end_date, $patient_id, $payment_method);
         	$config["per_page"] = 10;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
