@@ -5,7 +5,7 @@
 <div class="card-content">
 <div class="row" id="myfrm">
 <div class="ga-pro">
-<div class="col-lg-12"><img src="https://indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>
+<div class="col-lg-12"><img src="https://infra.indiaivf.website/Anaesthesia.jpeg" class="center" style="width:250px;margin:0px 300px;"></div>
 <h2 style="text-align:center;">FORM 6</h2>
 <h3 style="text-align:center;margin: 10px 0px;">[See rule 13(f) (i) ]</h3>
 <h3 style="text-align:center;margin: 10px 0px;">INFORMED CONSENT FORM TO BE SIGNED BY THE COUPLE OR WOMAN </h3>
