@@ -439,30 +439,20 @@
    <?php } ?>
 </div>
 </div>
+<!-- Include print fix script -->
+<script src="<?php echo base_url('assets/js/print-fix.js'); ?>"></script>
+
 <script>
    function printDiv() 
    {
-     $('.hide_print').hide();
-     $('#print_this_section').css('display', 'block');
-     $('tr#medinfologo_tr').css('display', 'table-row');
-     var divToPrint=document.getElementById('print_this_section');
-     var newWin=window.open('','Print-Window');
-     newWin.document.open();
-     newWin.document.write('<html><body onload="window.print()">'+divToPrint.innerHTML+'</body></html>');
-     newWin.document.close();
-   //   setTimeout(function(){newWin.close();},10);
-   //   window.location.reload();
+     // Use the enhanced print function from print-fix.js
+     window.printDiv('print_this_section');
    }
    
    $(document).on('click',"a.followprint_btn",function(e) {
-       $('tr#followlogo_tr').css('display', 'table-row');
-       var divToPrint=document.getElementById($(this).data('printid'));
-       var newWin=window.open('','Print-Window');
-       newWin.document.open();
-       newWin.document.write('<html><body onload="window.print()">'+divToPrint.innerHTML+'</body></html>');
-       newWin.document.close();
-       setTimeout(function(){newWin.close();},10);
-       window.location.reload();
+       e.preventDefault();
+       var printId = $(this).data('printid');
+       window.followPrint(printId);
    });
    
    
