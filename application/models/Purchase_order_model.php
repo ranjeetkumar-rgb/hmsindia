@@ -37,7 +37,6 @@ class Purchase_order_model extends CI_Model {
     public function purchase_order_pagination($limit, $start, $filters = [])
     {
         $this->apply_filters($filters);
-
         $this->db->order_by('id', 'DESC');
         $query = $this->db->get('hms_purchase_orders', $limit, $start);
         return $query->result_array();

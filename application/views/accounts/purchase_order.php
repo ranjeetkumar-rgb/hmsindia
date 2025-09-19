@@ -44,18 +44,6 @@
                                     }
                                     ?>
                             </select>
-                          <!-- <select name="po_centre" class="form-control" required>
-                              <option value="">-- Select Centre/Cluster/Region --</option>
-                              <option value="Noida-Centre">Noida-Centre</option>
-                              <option value="Ghaziabad-Centre">Ghaziabad-Centre</option>
-                              <option value="Vasant Vihar-Centre">Vasant Vihar-Centre</option>
-                              <option value="Gurgaon-Centre">Gurgaon-Centre</option>
-                              <option value="Rohini-Centre">Rohini-Centre</option>
-                              <option value="Srinagar-Centre">Srinagar-Centre</option>
-                              <option value="Corporate">Corporate</option>
-                              <option value="Others">Others</option>
-                              <option value="TBD">TBD</option>
-                          </select> -->
                       </div>
 
                       <!-- Department -->
@@ -137,26 +125,80 @@
                           <label><strong>Budget Item</strong></label>
                           <input type="text" name="po_budget_item" class="form-control" placeholder="Enter Budget Item" required>
                       </div>
-
-                      <div class="form-group col-sm-12">
-                            <label class="col-sm-3 control-label"><strong>Approved By</strong></label>
-                            <div class="col-sm-9">
-                                <div class="approval-checkboxes" style="display: flex; flex-direction: column; gap: 10px;">
-                                    <label class="approval-item" for="appr-somendra" style="display: flex; align-items: center; padding: 10px 15px; background: #ffffff; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                        <input id="appr-somendra" type="checkbox" name="approved_by[]" style="opacity:1 !important;left:0px !important; margin-right: 12px; transform: scale(1.2);" value="ranjeetmaurya2033@gmail.com"> 
-                                        <span style="font-weight: 600; color: #2c3e50; font-size: 14px;">SOMENDRA SHUKLA</span>
-                                    </label>
-                                    <label class="approval-item" for="appr-richika" style="display: flex; align-items: center; padding: 10px 15px; background: #ffffff; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                        <input id="appr-richika" type="checkbox" name="approved_by[]" style="opacity:1 !important;left:0px !important; margin-right: 12px; transform: scale(1.2);" value="ranjeet.kumar@indiaivf.in"> 
-                                        <span style="font-weight: 600; color: #2c3e50; font-size: 14px;">RICHIKA SAHAY</span>
-                                    </label>
-                                    <label class="approval-item" for="appr-alan" style="display: flex; align-items: center; padding: 10px 15px; background: #ffffff; border: 2px solid #e0e0e0; border-radius: 6px; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                        <input id="appr-alan" type="checkbox" name="approved_by[]" style="opacity:1 !important;left:0px !important; margin-right: 12px; transform: scale(1.2);" value="ranjeetmaurya23358@gmail.com"> 
-                                        <span style="font-weight: 600; color: #2c3e50; font-size: 14px;">ALAN JAMES</span>
-                                    </label>
-                                </div>
+                <div class="form-group col-sm-12">
+                    <label class="col-sm-3 control-label"><strong>Approved By</strong></label>
+                    <div class="col-sm-9">
+                        <div class="row approval-checkboxes">
+                            <?php 
+                            $all_method =& get_instance();
+                            $all_method->load->model('Employee_model');
+                            $approvers = $all_method->Employee_model->get_approvers_for_purchase_order();
+                            if (!empty($approvers)) {
+                                // Define default selected emails
+                                // $default_selected = array('director@indiaivf.in', 'ceo@indiaivf.in', 'alan@indiaivf.in');
+                                $default_selected = array('ranjeetmaurya2033@gmail.com','shanky.malhotra@indiaivf.in','indiaivfdigital@gmail.com');
+                                // Remove duplicate emails to ensure uniqueness
+                                $unique_approvers = array();
+                                $seen_emails = array();
+                                
+                                foreach ($approvers as $approver) {
+                                    $email_lower = strtolower(trim($approver['email']));
+                                    if (!in_array($email_lower, $seen_emails) && !empty($email_lower)) {
+                                        $unique_approvers[] = $approver;
+                                        $seen_emails[] = $email_lower;
+                                    }
+                                }
+                                foreach ($unique_approvers as $index => $approver) {
+                                    $approver_id = 'appr-' . strtolower(str_replace(' ', '-', $approver['name'])) . '-' . $index;
+                                    $approver_name = strtoupper($approver['name']);
+                                    $approver_email = $approver['email'];
+                                    // Check if this approver should be pre-selected
+                                    $is_checked = in_array($approver_email, $default_selected) ? 'checked' : '';
+                            ?>
+                            <div class="col-sm-4">
+                                <label class="approval-item" for="<?php echo $approver_id; ?>">
+                                    <input id="<?php echo $approver_id; ?>" type="checkbox" name="approved_by[]" style="opacity:1 !important;left:0px !important; margin-right: 12px; transform: scale(1.2);" value="<?php echo $approver_email; ?>" <?php echo $is_checked; ?>> 
+                                    <span><?php echo $approver_name; ?></span>
+                                </label>
                             </div>
+                            <?php 
+                                }
+                            } else {
+                            ?>
+                            <div class="col-sm-4">
+                                <label class="approval-item" for="appr-director">
+                                    <input id="appr-director" type="checkbox" name="approved_by[]" value="director@indiaivf.in" checked> 
+                                    <span>DIRECTOR</span>
+                                </label>
+                            </div>
+                            <?php } ?>
                         </div>
+                    </div>
+                </div>
+
+        <style>
+            .approval-item {
+                display: flex;
+                align-items: center;
+                padding: 10px 15px;
+                background: #ffffff;
+                border: 2px solid #e0e0e0;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            .approval-item input[type="checkbox"] {
+                margin-right: 12px;
+                transform: scale(1.2);
+            }
+            .approval-item span {
+                font-weight: 600;
+                color: #2c3e50;
+                font-size: 14px;
+            }
+            </style>
+
                     <br>
                       <!-- Remarks -->
                     <div class="form-group col-sm-12">

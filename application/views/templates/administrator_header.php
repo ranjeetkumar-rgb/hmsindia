@@ -162,6 +162,7 @@
               <li> <a href="<?php echo base_url(); ?>accounts/reconciliation">Center Reconciliation</a> </li>
               <li> <a href="<?php echo base_url(); ?>accounts/purchase-orders">Purchase Order</a> </li>
               <li> <a href="<?php echo base_url(); ?>accounts/purchase-orders-list">Purchase Order List</a> </li>
+              <li> <a href="<?php echo base_url(); ?>my-approvals">My Approvals</a> </li>
         </ul>
       </li>
       <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Manage Billing<span class="fa arrow"></span></a>
@@ -187,7 +188,7 @@
         <ul class="nav nav-second-level">
           <li> <a href="<?php echo base_url(); ?>new_purchase_orders">New Purchase Orders</a> </li>
           <li> <a href="<?php echo base_url(); ?>new_purchase_orders/add">Add New PO</a> </li>
-          
+          <li> <a href="<?php echo base_url(); ?>my-approvals">My Approvals</a> </li>
           <li> <a href="<?php echo base_url(); ?>new_purchase_orders/status">Pending Purchase Orders</a> </li>
         </ul>
       </li>

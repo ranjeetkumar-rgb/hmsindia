@@ -49,6 +49,8 @@ $route['doctor-login'] = 'doctors/login';
 
 $route['patient_details/(:any)'] = 'accounts/patient_details/$1';
 
+$route['my-approvals'] = 'accounts/my_approvals';
+
 $route['patient-profile'] = 'welcome/patient_profile';
 
 $route['404_override'] = 'welcome/not_found';

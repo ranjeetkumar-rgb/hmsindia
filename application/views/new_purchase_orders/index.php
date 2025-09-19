@@ -107,33 +107,37 @@
                <tbody>
                   <?php if (!empty($purchase_orders)): ?>
                      <?php foreach ($purchase_orders as $po): ?>
+                        <?php if (!is_array($po)) continue; // Skip if not an array ?>
                         <tr class="odd gradeX">
                            <td>
-                              <strong><?php echo $po['po_number']; ?></strong>
+                              <strong><?php echo !empty($po['po_number']) ? $po['po_number'] : 'N/A'; ?></strong>
                            </td>
                            <?php
                            $all_method->load->model('Vendors_model');
-                           $vendor_name = $all_method->Vendors_model->get_vendor_data_by_vendor_number($po['vendor_number']);
-                           $vendor_name = $vendor_name[0]['name'];
+                           $vendor_data = $all_method->Vendors_model->get_vendor_data_by_vendor_number($po['vendor_number']);
+                           $vendor_name = (!empty($vendor_data) && isset($vendor_data[0]['name'])) ? $vendor_data[0]['name'] : 'N/A';
                            ?>
                            <td><?php echo $vendor_name; ?></td>
                            <?php
                             $ship_to = $all_method->get_center_name($po['ship_to']);
                             $bill_to = $all_method->get_center_name($po['bill_to']);
+                            $ship_to = !empty($ship_to) ? $ship_to : 'N/A';
+                            $bill_to = !empty($bill_to) ? $bill_to : 'N/A';
                            ?>
                            <td><?php echo $bill_to; ?></td>
                            <td><?php echo $ship_to; ?></td> 
-                           <td><?php echo $po['department']; ?></td>
+                           <td><?php echo !empty($po['department']) ? $po['department'] : 'N/A'; ?></td>
                            <td>
                               <span class="label label-info">
-                                 ₹<?php echo number_format($po['total_amount'], 2); ?>
+                                 ₹<?php echo number_format(!empty($po['total_amount']) ? $po['total_amount'] : 0, 2); ?>
                               </span>
                            </td>
                            <td>
                               <?php 
                               $status_class = '';
                               $status_text = '';
-                              switch($po['status']) {
+                              $status = !empty($po['status']) ? $po['status'] : 'pending';
+                              switch($status) {
                                  case 'pending':
                                     $status_class = 'label-warning';
                                     $status_text = 'Pending';
@@ -150,45 +154,49 @@
                                     $status_class = 'label-info';
                                     $status_text = 'Completed';
                                     break;
+                                 default:
+                                    $status_class = 'label-default';
+                                    $status_text = 'Unknown';
+                                    break;
                               }
                               ?>
                               <span class="label <?php echo $status_class; ?>">
                                  <?php echo $status_text; ?>
                               </span>
                            </td>
-                           <td><?php echo date('d/m/Y H:i', strtotime($po['created_at'])); ?></td>
+                           <td><?php echo !empty($po['created_at']) ? date('d/m/Y H:i', strtotime($po['created_at'])) : 'N/A'; ?></td>
                            <td>
                               <div class="btn-group" role="group">
-                                 <a href="<?php echo base_url('new_purchase_orders/view/' . $po['id']); ?>" 
+                                 <a href="<?php echo base_url('new_purchase_orders/view/' . (!empty($po['id']) ? $po['id'] : '0')); ?>" 
                                     class="btn btn-xs btn-info" title="View">
                                     <i class="fa fa-eye"></i>
                                  </a>
                                  
                                  <!-- Edit button - disabled if approved or completed -->
-                                 <?php if ($po['status'] == 'pending' || $po['status'] == 'rejected'): ?>
-                                    <a href="<?php echo base_url('new_purchase_orders/edit/' . $po['id']); ?>" 
+                                 <?php if ($status == 'pending' || $status == 'rejected'): ?>
+                                    <a href="<?php echo base_url('new_purchase_orders/edit/' . (!empty($po['id']) ? $po['id'] : '0')); ?>" 
                                        class="btn btn-xs btn-warning" title="Edit">
                                        <i class="fa fa-edit"></i>
                                     </a>
                                  <?php else: ?>
-                                    <button class="btn btn-xs btn-warning" title="Edit Disabled - Order is <?php echo ucfirst($po['status']); ?>" disabled>
+                                    <button class="btn btn-xs btn-warning" title="Edit Disabled - Order is <?php echo ucfirst($status); ?>" disabled>
                                        <i class="fa fa-edit"></i>
                                     </button>
                                  <?php endif; ?>
                                  
                                  <!-- Approve/Reject buttons - Only for administrators -->
-                                 <?php if (isset($user_role) && $user_role == 'administrator' && $po['status'] == 'pending'): ?>
-                                    <a href="<?php echo base_url('new_purchase_orders/approve/' . $po['id']); ?>" 
+                                 <?php if (isset($user_role) && $user_role == 'administrator' && $status == 'pending'): ?>
+                                    <a href="<?php echo base_url('new_purchase_orders/approve/' . (!empty($po['id']) ? $po['id'] : '0')); ?>" 
                                        class="btn btn-xs btn-success" title="Approve"
                                        onclick="return confirm('Are you sure you want to approve this purchase order?')">
                                        <i class="fa fa-check"></i>
                                     </a>
-                                    <a href="<?php echo base_url('new_purchase_orders/reject/' . $po['id']); ?>" 
+                                    <a href="<?php echo base_url('new_purchase_orders/reject/' . (!empty($po['id']) ? $po['id'] : '0')); ?>" 
                                        class="btn btn-xs btn-danger" title="Reject"
                                        onclick="return confirm('Are you sure you want to reject this purchase order?')">
                                        <i class="fa fa-times"></i>
                                     </a>
-                                 <?php elseif ($po['status'] == 'pending'): ?>
+                                 <?php elseif ($status == 'pending'): ?>
                                     <button class="btn btn-xs btn-success" title="Approve - Administrator Only" disabled>
                                        <i class="fa fa-check"></i>
                                     </button>
@@ -198,16 +206,16 @@
                                  <?php endif; ?>
                                  
                                  <!-- Print button - Only for approved and completed orders -->
-                                 <?php if ($po['status'] == 'approved' || $po['status'] == 'completed'): ?>
-                                    <a href="<?php echo base_url('new_purchase_orders/print_po/' . $po['id']); ?>" 
+                                 <?php if ($status == 'approved' || $status == 'completed'): ?>
+                                    <a href="<?php echo base_url('new_purchase_orders/print_po/' . (!empty($po['id']) ? $po['id'] : '0')); ?>" 
                                        class="btn btn-xs btn-primary" title="Print Purchase Order" target="_blank">
                                        <i class="fa fa-print"></i>
                                     </a>
                                  <?php endif; ?>
                                  
                                  <!-- Complete button -->
-                                 <?php if ($po['status'] == 'approved'): ?>
-                                    <a href="<?php echo base_url('new_purchase_orders/complete/' . $po['id']); ?>" 
+                                 <?php if ($status == 'approved'): ?>
+                                    <a href="<?php echo base_url('new_purchase_orders/complete/' . (!empty($po['id']) ? $po['id'] : '0')); ?>" 
                                        class="btn btn-xs btn-info" title="Mark Complete"
                                        onclick="return confirm('Are you sure you want to mark this purchase order as completed?')">
                                        <i class="fa fa-flag-checkered"></i>
@@ -225,7 +233,7 @@
                      <?php endforeach; ?>
                   <?php else: ?>
                      <tr>
-                        <td colspan="8" class="text-center text-muted">
+                        <td colspan="9" class="text-center text-muted">
                            <i class="fa fa-inbox fa-3x" style="margin-bottom: 10px;"></i>
                            <br>No purchase orders found
                         </td>
@@ -281,8 +289,17 @@ $(document).ready(function() {
     // Initialize DataTable
     $('#new_purchase_orders_list').DataTable({
         "pageLength": 25,
-        "order": [[ 6, "desc" ]],
-        "responsive": true
+        "order": [[ 7, "desc" ]], // Sort by Created Date (column 7)
+        "responsive": true,
+        "columnDefs": [
+            { "orderable": false, "targets": 8 }, // Disable sorting on Actions column
+            { "defaultContent": "", "targets": "_all" } // Provide default content for empty cells
+        ],
+        "language": {
+            "emptyTable": "No purchase orders found"
+        },
+        "processing": true, // Show processing indicator
+        "deferRender": true // Defer rendering for better performance
     });
 });
 </script>

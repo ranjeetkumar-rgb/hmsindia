@@ -6055,6 +6055,60 @@ public function partial_procedure(){
                 throw new Exception("Invalid or expired approval link.");
             }
             
+            // Check if this approver has already responded (via dashboard or email)
+            if ($approver_token['status'] !== 'pending') {
+                $status_text = ucfirst($approver_token['status']);
+                $status_color = ($approver_token['status'] === 'approved') ? '#28a745' : '#dc3545';
+                $status_icon = ($approver_token['status'] === 'approved') ? '✓' : '✗';
+                
+                if (ob_get_level()) {
+                    ob_end_clean();
+                }
+                
+                echo "
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset=\"UTF-8\">
+                    <title>Purchase Order Already {$status_text}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f5f5f5; }
+                        .status-box { 
+                            border: 2px solid {$status_color}; 
+                            border-radius: 10px; 
+                            padding: 30px; 
+                            margin: 20px auto; 
+                            max-width: 500px;
+                            background-color: #f9f9f9;
+                        }
+                        .status-icon { font-size: 48px; color: {$status_color}; }
+                        .status-text { color: {$status_color}; font-weight: bold; font-size: 24px; }
+                        .back-link { margin-top: 20px; }
+                        .back-link a { 
+                            color: #007bff; 
+                            text-decoration: none; 
+                            padding: 10px 20px; 
+                            border: 1px solid #007bff; 
+                            border-radius: 5px;
+                        }
+                        .back-link a:hover { background-color: #007bff; color: white; }
+                    </style>
+                </head>
+                <body>
+                    <div class='status-box'>
+                        <div class='status-icon'>{$status_icon}</div>
+                        <div class='status-text'>Purchase Order Already {$status_text}</div>
+                        <p>This purchase order has already been {$approver_token['status']} by you.</p>
+                        <p>You can no longer change your decision through this email link.</p>
+                        <div class='back-link'>
+                            <a href='" . base_url() . "'>Go to Dashboard</a>
+                        </div>
+                    </div>
+                </body>
+                </html>";
+                return;
+            }
+            
             // Get the purchase order details using the PO number from the approver token
             $po = $this->Purchase_order_model->get_purchase_order_by_id($approver_token['po_number']);
             if (!$po) {
@@ -6338,6 +6392,60 @@ public function partial_procedure(){
             $approver_token = $this->Purchase_order_model->get_approver_token_details($token);
             if (!$approver_token) {
                 throw new Exception("Invalid or expired approval link.");
+            }
+            
+            // Check if this approver has already responded (via dashboard or email)
+            if ($approver_token['status'] !== 'pending') {
+                $status_text = ucfirst($approver_token['status']);
+                $status_color = ($approver_token['status'] === 'approved') ? '#28a745' : '#dc3545';
+                $status_icon = ($approver_token['status'] === 'approved') ? '✓' : '✗';
+                
+                if (ob_get_level()) {
+                    ob_end_clean();
+                }
+                
+                echo "
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset=\"UTF-8\">
+                    <title>Purchase Order Already {$status_text}</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f5f5f5; }
+                        .status-box { 
+                            border: 2px solid {$status_color}; 
+                            border-radius: 10px; 
+                            padding: 30px; 
+                            margin: 20px auto; 
+                            max-width: 500px;
+                            background-color: #f9f9f9;
+                        }
+                        .status-icon { font-size: 48px; color: {$status_color}; }
+                        .status-text { color: {$status_color}; font-weight: bold; font-size: 24px; }
+                        .back-link { margin-top: 20px; }
+                        .back-link a { 
+                            color: #007bff; 
+                            text-decoration: none; 
+                            padding: 10px 20px; 
+                            border: 1px solid #007bff; 
+                            border-radius: 5px;
+                        }
+                        .back-link a:hover { background-color: #007bff; color: white; }
+                    </style>
+                </head>
+                <body>
+                    <div class='status-box'>
+                        <div class='status-icon'>{$status_icon}</div>
+                        <div class='status-text'>Purchase Order Already {$status_text}</div>
+                        <p>This purchase order has already been {$approver_token['status']} by you.</p>
+                        <p>You can no longer change your decision through this email link.</p>
+                        <div class='back-link'>
+                            <a href='" . base_url() . "'>Go to Dashboard</a>
+                        </div>
+                    </div>
+                </body>
+                </html>";
+                return;
             }
             
             // Get the purchase order details using the PO number from the approver token
@@ -6746,6 +6854,220 @@ public function partial_procedure(){
 		redirect('accounts/purchase-orders-list');
 	}
 
+	/**
+	 * Dashboard approval for logged-in users
+	 * Allows users to approve/reject POs they are assigned to approve
+	 */
+	public function dashboard_approve_po($po_number, $action)
+	{
+		$logg = checklogin();
+		if($logg['status'] != true){
+			header("location:" .base_url(). "");
+			die();
+		}
 
+		try {
+			$this->load->model('Purchase_order_model');
+			
+			// Get current user's email from session
+			$user_email = $this->_get_current_user_email();
+			if (!$user_email) {
+				throw new Exception("User email not found in session.");
+			}
+			
+			// Get the purchase order details
+			$po = $this->Purchase_order_model->get_purchase_order_by_id($po_number);
+			if (!$po) {
+				throw new Exception("Purchase order not found.");
+			}
+			
+			// Check if user is assigned as an approver for this PO
+			if (empty($po['approver_tokens'])) {
+				throw new Exception("No approvers assigned to this purchase order.");
+			}
+			
+			$approver_tokens = json_decode($po['approver_tokens'], true);
+			if (!$approver_tokens) {
+				throw new Exception("Invalid approver data.");
+			}
+			
+			// Find the user's token in the approver list
+			$user_token = null;
+			foreach ($approver_tokens as $token_data) {
+				if ($token_data['email'] === $user_email) {
+					$user_token = $token_data['token'];
+					break;
+				}
+			}
+			
+			if (!$user_token) {
+				throw new Exception("You are not authorized to approve this purchase order.");
+			}
+			
+			// Check if user has already responded
+			$user_token_data = $this->Purchase_order_model->get_approver_token_details($user_token);
+			if (!$user_token_data) {
+				throw new Exception("Invalid approval token.");
+			}
+			
+			if ($user_token_data['status'] !== 'pending') {
+				throw new Exception("You have already responded to this purchase order.");
+			}
+			
+			// Process the approval using existing logic
+			$approver_status = ($action == 'approve') ? 'approved' : 'rejected';
+			$approver_updated = $this->Purchase_order_model->update_approver_token_status(
+				$user_token, 
+				$approver_status, 
+				$action == 'approve' ? 'Approved via dashboard by ' . $user_email : 'Rejected via dashboard by ' . $user_email
+			);
+			
+			if (!$approver_updated) {
+				throw new Exception("Failed to update approval status.");
+			}
+			
+			// Update main PO status using existing logic
+			$all_tokens = json_decode($po['approver_tokens'], true);
+			$total_approvers = count($all_tokens);
+			$approved_count = 0;
+			$rejected_count = 0;
+			
+			foreach ($all_tokens as $token_data) {
+				if ($token_data['status'] === 'approved') {
+					$approved_count++;
+				} elseif ($token_data['status'] === 'rejected') {
+					$rejected_count++;
+				}
+			}
+			
+			// Determine final status
+			if ($total_approvers == 1) {
+				$status = ($approved_count == 1) ? '1' : (($rejected_count == 1) ? '0' : '2');
+			} else {
+				$majority_threshold = ceil($total_approvers / 2);
+				if ($approved_count >= $majority_threshold) {
+					$status = '1';
+				} elseif ($rejected_count >= $majority_threshold) {
+					$status = '0';
+				} else {
+					$status = '2';
+				}
+			}
+			
+			// Update the main PO status
+			$po_updated = $this->Purchase_order_model->update_status($po['po_number'], $status);
+			if (!$po_updated) {
+				throw new Exception("Failed to update PO status.");
+			}
+			
+			// Send status update email
+			$status_text = ($status == '1') ? 'Approved' : (($status == '0') ? 'Rejected' : 'Partially Approved');
+			$this->_send_po_status_update_email($po, $status, $status_text);
+			
+			// Set success message
+			$action_text = ($action == 'approve') ? 'approved' : 'rejected';
+			$this->session->set_flashdata('success', "Purchase Order #{$po_number} has been {$action_text} successfully!");
+			
+		} catch (Exception $e) {
+			log_message('error', 'Dashboard PO Approval Failed: ' . $e->getMessage());
+			$this->session->set_flashdata('error', 'Error: ' . $e->getMessage());
+		}
+		
+		redirect('accounts/purchase_order_list');
+	}
+
+	/**
+	 * Get current user's email from session
+	 */
+	private function _get_current_user_email()
+	{
+		$logg = checklogin();
+		if (!$logg['status']) {
+			return null;
+		}
+		
+		$role = $logg['role'];
+		$session_key = 'logged_' . $role;
+		
+		if (isset($_SESSION[$session_key]['email'])) {
+			return $_SESSION[$session_key]['email'];
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Get pending approvals for current user
+	 */
+	public function get_pending_approvals()
+	{
+		$logg = checklogin();
+		if($logg['status'] != true){
+			header("location:" .base_url(). "");
+			die();
+		}
+
+		$user_email = $this->_get_current_user_email();
+		if (!$user_email) {
+			return [];
+		}
+
+		$this->load->model('Purchase_order_model');
+		
+		// Get all POs where user is an approver and status is pending
+		$this->db->select('*');
+		$this->db->from('hms_purchase_orders');
+		$this->db->like('approver_tokens', $user_email);
+		$this->db->where('status', '2'); // Pending status
+		$query = $this->db->get();
+		$all_pos = $query->result_array();
+		
+		$pending_approvals = [];
+		foreach ($all_pos as $po) {
+			if (!empty($po['approver_tokens'])) {
+				$approver_tokens = json_decode($po['approver_tokens'], true);
+				if ($approver_tokens) {
+					foreach ($approver_tokens as $token_data) {
+						if ($token_data['email'] === $user_email && $token_data['status'] === 'pending') {
+							$pending_approvals[] = $po;
+							break;
+						}
+					}
+				}
+			}
+		}
+		
+		return $pending_approvals;
+	}
+
+	/**
+	 * My Approvals page - shows POs pending user's approval
+	 */
+	public function my_approvals()
+	{
+		$logg = checklogin();
+		if($logg['status'] != true){
+			header("location:" .base_url(). "");
+			die();
+		}
+
+		$user_email = $this->_get_current_user_email();
+		if (!$user_email) {
+			$this->session->set_flashdata('error', 'User email not found in session.');
+			redirect('dashboard');
+		}
+
+		// Get pending approvals for current user
+		$pending_approvals = $this->get_pending_approvals();
+		
+		$data = array();
+		$data['pending_approvals'] = $pending_approvals;
+		$data['user_email'] = $user_email;
+		
+		$template = get_header_template($logg['role']);
+		$this->load->view($template['header']);
+		$this->load->view('accounts/my_approvals', $data);
+		$this->load->view($template['footer']);
+	}
 
 } 

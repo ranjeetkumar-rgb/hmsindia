@@ -106,6 +106,7 @@
         <ul class="nav nav-second-level">
           <li> <a href="<?php echo base_url(); ?>new_purchase_orders">New Purchase Orders</a> </li>
           <li> <a href="<?php echo base_url(); ?>new_purchase_orders/add">Add New PO</a> </li>
+          <li> <a href="<?php echo base_url(); ?>my-approvals">My Approvals</a> </li>
           <!-- purchase order status -->
         </ul>
       </li>

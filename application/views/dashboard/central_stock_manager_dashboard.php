@@ -3,6 +3,23 @@
     <h1 class="page-header"> Dashboard </h1>
    
   </div>
+  <div id="page-inner">
+    <div class="dashboard-cards">
+      <div class="row">
+        <div class="col-xs-12 col-sm-6 col-md-3">
+          <div class="card horizontal cardIcon waves-effect waves-dark">
+            <a href="<?php echo base_url(); ?>my-approvals" style="text-decoration: none; color: inherit;">
+              <div class="card-stacked purple">
+                <div class="card-content">
+                  <h3><i class="fa fa-check-circle" style="font-size: 2em;"></i></h3>
+                </div>
+                <div class="card-action"> <strong>MY APPROVALS</strong> </div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   <!--<div id="page-inner">-->
   <!--  <div class="dashboard-cards">-->
   <!--    <div class="row">-->

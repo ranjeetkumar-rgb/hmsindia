@@ -332,10 +332,34 @@
                     <td><?php echo $vl['po_budget_item']; ?></td>
                     <td>
                         <?php 
+                        // Get current user's email for dashboard approval check
+                        $current_user_email = '';
+                        $logg = checklogin();
+                        if ($logg['status']) {
+                            $role = $logg['role'];
+                            $session_key = 'logged_' . $role;
+                            if (isset($_SESSION[$session_key]['email'])) {
+                                $current_user_email = $_SESSION[$session_key]['email'];
+                            }
+                        }
+                        
                         if (!empty($vl['approver_tokens'])) {
                             $approver_tokens = json_decode($vl['approver_tokens'], true);
                             if ($approver_tokens) {
                                 echo '<div class="approver-status-list">';
+                                
+                                // Check if current user is an approver and can approve
+                                $user_can_approve = false;
+                                $user_approval_status = '';
+                                
+                                foreach ($approver_tokens as $token_data) {
+                                    if ($token_data['email'] === $current_user_email) {
+                                        $user_can_approve = true;
+                                        $user_approval_status = $token_data['status'];
+                                        break;
+                                    }
+                                }
+                                
                                 foreach ($approver_tokens as $token_data) {
                                     $email = $token_data['email'];
                                     $status = $token_data['status'];
@@ -366,6 +390,12 @@
                                     echo '<div style="display: flex; align-items: center; margin-bottom: 4px;">';
                                     echo '<span class="status-icon" style="color: ' . $status_color . '; font-weight: bold;">' . $status_icon . '</span>';
                                     echo '<span class="status-text" style="color: #333;">' . $status_text . '</span>';
+                                    
+                                    // Show "You" indicator for current user
+                                    if ($email === $current_user_email) {
+                                        echo '<span style="margin-left: 8px; background-color: #007bff; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: bold;">YOU</span>';
+                                    }
+                                    
                                     echo '</div>';
                                     echo '<div class="approver-email">' . $email . '</div>';
                                     
@@ -380,6 +410,23 @@
                                     echo '</div>';
                                 }
                                 echo '</div>';
+                                
+                                // Show dashboard approval buttons for current user if they can approve
+                                if ($user_can_approve && $user_approval_status === 'pending') {
+                                    echo '<div class="dashboard-approval-buttons" style="margin-top: 10px; padding: 10px; background-color: #e3f2fd; border-radius: 4px; border: 1px solid #2196f3;">';
+                                    echo '<div style="text-align: center; margin-bottom: 8px;">';
+                                    echo '<strong style="color: #1976d2;">Your Approval Required</strong>';
+                                    echo '</div>';
+                                    echo '<div style="text-align: center;">';
+                                    echo '<a href="' . base_url('accounts/dashboard_approve_po/' . $vl['po_number'] . '/approve') . '" class="btn btn-success btn-sm" onclick="return confirm(\'Are you sure you want to APPROVE this Purchase Order?\')" style="margin-right: 10px;">';
+                                    echo '<i class="glyphicon glyphicon-ok"></i> Approve';
+                                    echo '</a>';
+                                    echo '<a href="' . base_url('accounts/dashboard_approve_po/' . $vl['po_number'] . '/reject') . '" class="btn btn-danger btn-sm" onclick="return confirm(\'Are you sure you want to REJECT this Purchase Order?\')">';
+                                    echo '<i class="glyphicon glyphicon-remove"></i> Reject';
+                                    echo '</a>';
+                                    echo '</div>';
+                                    echo '</div>';
+                                }
                                 
                                 // Show summary
                                 $pending_count = 0;
@@ -794,6 +841,55 @@ select {
 
 .alert-success .close:hover {
     opacity: .75;
+}
+
+/* Dashboard Approval Buttons Styling */
+.dashboard-approval-buttons {
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #e3f2fd;
+    border-radius: 4px;
+    border: 1px solid #2196f3;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(33, 150, 243, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(33, 150, 243, 0); }
+}
+
+.dashboard-approval-buttons .btn {
+    margin: 0 5px;
+    padding: 8px 16px;
+    font-weight: 600;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.dashboard-approval-buttons .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.dashboard-approval-buttons .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.dashboard-approval-buttons .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
+
+.dashboard-approval-buttons .btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+.dashboard-approval-buttons .btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
 }
 </style>
 	

@@ -156,6 +156,52 @@ class Employee_model extends CI_Model
             return 0;
         }
 	}
+	
+	// Get approvers for purchase order based on roles and status
+	function get_approvers_for_purchase_order(){
+		$result = array();
+		$approval_roles = array('administrator', 'accountant', 'billing_manager', 'stock_manager', 'central_stock_manager');
+		// Build SQL condition for roles
+		$role_condition = "role IN ('" . implode("','", $approval_roles) . "')";
+		$sql = "SELECT name, email, role FROM " . $this->config->item('db_prefix') . "employees 
+				WHERE status = '1' AND email IS NOT NULL AND email != '' AND $role_condition
+				ORDER BY role, name ASC";
+        $q = $this->db->query($sql);
+        $result = $q->result_array();
+        $used_emails = array();
+        $special_approvers = array(
+            array(
+                'name' => 'DIRECTOR Richika Sahay Shukla',
+                // 'email' => 'director@indiaivf.in',
+				'email' => 'ranjeetmaurya2033@gmail.com',
+                'role' => 'director'
+            ),
+            array(
+                'name' => 'CEO',
+                // 'email' => 'ceo@indiaivf.in',
+                'email' => 'ranjeetmaurya2033@gmail.com',
+                'role' => 'ceo'
+            ),
+            array(
+                'name' => 'Alan',
+                // 'email' => 'alan@indiaivf.in',
+                'email' => 'ranjeetmaurya2033@gmail.com',
+                'role' => 'Director'
+            )
+        );
+        // First, collect all emails from existing results
+        foreach($result as $approver) {
+            $used_emails[] = strtolower($approver['email']);
+        }
+        // Add special approvers only if their emails are not already present
+        foreach($special_approvers as $special_approver) {
+            if(!in_array(strtolower($special_approver['email']), $used_emails)) {
+                array_unshift($result, $special_approver);
+                $used_emails[] = strtolower($special_approver['email']);
+            }
+        }
+        return $result;
+	}
 }
 // END Stock_model class
 

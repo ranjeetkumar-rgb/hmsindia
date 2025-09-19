@@ -15,6 +15,9 @@
 <link href="<?php echo base_url();?>assets/css/morris/morris-0.4.3.min.css" rel="stylesheet" />
 <!-- Custom Styles-->
 <link href="<?php echo base_url();?>assets/css/custom-styles.css" rel="stylesheet" />
+<!-- Blue Pink Theme -->
+<link href="<?php echo base_url();?>assets/css/blue-pink-theme.css" rel="stylesheet" />
+
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <!-- jQuery Js -->
 <link rel="stylesheet" href="<?php echo base_url();?>assets/css/jquery-ui.css">

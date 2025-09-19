@@ -3,7 +3,7 @@
 
         <div class="logo">
 
-            <a href="<?php echo base_url(); ?>"><img src="<?php echo base_url(); ?>assets/images/IndiaIVFClinic_logo.png" /></a>
+            <a href="<?php echo base_url(); ?>"><img src="<?php echo base_url(); ?>assets/images/India-IVF-Logo-Option-5.png" alt="India IVF Clinic" style="width: 100%; height: 100%;" /></a>
 
         </div>
 
