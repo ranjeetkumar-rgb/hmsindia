@@ -5,21 +5,42 @@
  * This file tests the staging email configuration to ensure it works correctly.
  * Run this file from your staging environment to verify email functionality.
  * 
- * This is a standalone test that bypasses CodeIgniter authentication.
+ * This is a completely standalone test that bypasses CodeIgniter completely.
  */
 
 // Set environment to staging for testing
 define('ENVIRONMENT', 'staging');
 
-// Include only the necessary files without CodeIgniter bootstrap
-require_once('application/config/config.php');
-require_once('application/helpers/myhelper_helper.php');
-require_once('smtpmailer/class.phpmailer.php');
+// Include only PHPMailer - no CodeIgniter files
+require_once('application/smtpmailer/class.phpmailer.php');
 
-// Load staging email configuration
+// Load staging email configuration manually (bypassing CodeIgniter security)
 $staging_config_file = 'application/config/staging/email.php';
 if (file_exists($staging_config_file)) {
-    include($staging_config_file);
+    // Read the file content and extract config values
+    $config_content = file_get_contents($staging_config_file);
+    
+    // Extract config values using regex
+    preg_match('/\$config\[\'mail_host\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $config_content, $host_match);
+    preg_match('/\$config\[\'mail_username\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $config_content, $username_match);
+    preg_match('/\$config\[\'mail_password\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $config_content, $password_match);
+    preg_match('/\$config\[\'mail_from_emailid\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $config_content, $from_email_match);
+    preg_match('/\$config\[\'mail_from_name\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $config_content, $from_name_match);
+    preg_match('/\$config\[\'mail_port\'\]\s*=\s*(\d+);/', $config_content, $port_match);
+    preg_match('/\$config\[\'mail_encryption\'\]\s*=\s*[\'"]([^\'"]+)[\'"];/', $config_content, $encryption_match);
+    preg_match('/\$config\[\'mail_debug\'\]\s*=\s*(true|false);/', $config_content, $debug_match);
+    
+    // Set config values
+    $config = array(
+        'mail_host' => $host_match[1] ?? 'smtp.gmail.com',
+        'mail_username' => $username_match[1] ?? '',
+        'mail_password' => $password_match[1] ?? '',
+        'mail_from_emailid' => $from_email_match[1] ?? '',
+        'mail_from_name' => $from_name_match[1] ?? '',
+        'mail_port' => (int)($port_match[1] ?? 587),
+        'mail_encryption' => $encryption_match[1] ?? 'tls',
+        'mail_debug' => ($debug_match[1] ?? 'false') === 'true'
+    );
 } else {
     echo "<p style='color: red;'>❌ Staging email config file not found: $staging_config_file</p>";
     exit;
