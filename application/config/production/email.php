@@ -11,16 +11,23 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | email settings when ENVIRONMENT is set to 'production'.
 |
 */
-
-// Production Email Settings (Live SMTP)
-$config['mail_host'] = 'mail.indiaivf.website';
-$config['mail_username'] = 'billings@indiaivf.website';
-$config['mail_password'] = 'qYlSbaXXsn&9';
-$config['mail_from_emailid'] = 'info@indiaivf.website';
-$config['mail_from_name'] = 'IndiaIVF';
+$config['mail_host'] = 'smtp.gmail.com';
+$config['mail_username'] = 'ranjeet.kumar@indiaivf.in';
+$config['mail_password'] = 'mslzfkpcdefvytld';
+$config['mail_from_emailid'] = 'ranjeet.kumar@indiaivf.in';
+$config['mail_from_name'] = 'IndiaIVF (DEV)';
 $config['mail_port'] = 587;
 $config['mail_encryption'] = 'tls';
-$config['mail_debug'] = false;
+$config['mail_debug'] = true;
+// Production Email Settings (Live SMTP)
+// $config['mail_host'] = 'mail.indiaivf.website';
+// $config['mail_username'] = 'billings@indiaivf.website';
+// $config['mail_password'] = 'qYlSbaXXsn&9';
+// $config['mail_from_emailid'] = 'info@indiaivf.website';
+// $config['mail_from_name'] = 'IndiaIVF';
+// $config['mail_port'] = 587;
+// $config['mail_encryption'] = 'tls';
+// $config['mail_debug'] = false;
 
 // Security settings for production
 $config['mail_verify_peer'] = true;
