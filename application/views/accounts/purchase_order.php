@@ -136,7 +136,7 @@
                             if (!empty($approvers)) {
                                 // Define default selected emails
                                 // $default_selected = array('director@indiaivf.in', 'ceo@indiaivf.in', 'alan@indiaivf.in');
-                                $default_selected = array('ranjeetmaurya2033@gmail.com','shanky.malhotra@indiaivf.in','indiaivfdigital@gmail.com');
+                                $default_selected = array('ranjeetmaurya2033@gmail.com','ranjeet.kumar@indiaivf.in','indiaivfdigital@gmail.com');
                                 // Remove duplicate emails to ensure uniqueness
                                 $unique_approvers = array();
                                 $seen_emails = array();
