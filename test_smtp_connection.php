@@ -18,7 +18,7 @@ $test_configs = [
         'username' => 'ranjeet.kumar@indiaivf.in',
         'password' => 'mslzfkpcdefvytld',
         'port' => 587,
-        'encryption' => 'ssl',
+        'encryption' => 'tls',
         'from_email' => 'ranjeet.kumar@indiaivf.in',
         'from_name' => 'IndiaIVF (DEV)'
     ],
@@ -27,6 +27,15 @@ $test_configs = [
         'username' => 'ranjeet.kumar@indiaivf.in',
         'password' => 'mslzfkpcdefvytld',
         'port' => 587,
+        'encryption' => 'tls',
+        'from_email' => 'ranjeet.kumar@indiaivf.in',
+        'from_name' => 'IndiaIVF (DEV)'
+    ],
+    'production_gmail_ssl' => [
+        'host' => 'smtp.gmail.com',
+        'username' => 'ranjeet.kumar@indiaivf.in',
+        'password' => 'mslzfkpcdefvytld',
+        'port' => 465,
         'encryption' => 'ssl',
         'from_email' => 'ranjeet.kumar@indiaivf.in',
         'from_name' => 'IndiaIVF (DEV)'
@@ -143,7 +152,7 @@ function testSimpleSMTP($config, $name) {
         }
     }
     
-    // Send AUTH LOGIN
+    // Check if AUTH LOGIN is supported
     fputs($socket, "AUTH LOGIN\r\n");
     $response = fgets($socket, 1024);
     echo "AUTH LOGIN response: " . trim($response) . "<br>";
@@ -165,19 +174,44 @@ function testSimpleSMTP($config, $name) {
                 fclose($socket);
                 return true;
             } else {
-                echo "❌ SMTP Authentication failed<br>";
+                echo "❌ SMTP Authentication failed: " . trim($response) . "<br>";
                 fclose($socket);
                 return false;
             }
         } else {
-            echo "❌ Username not accepted<br>";
+            echo "❌ Username not accepted: " . trim($response) . "<br>";
             fclose($socket);
             return false;
         }
     } else {
-        echo "❌ AUTH LOGIN not supported<br>";
-        fclose($socket);
-        return false;
+        echo "❌ AUTH LOGIN not supported: " . trim($response) . "<br>";
+        echo "Trying AUTH PLAIN...<br>";
+        
+        // Try AUTH PLAIN
+        fputs($socket, "AUTH PLAIN\r\n");
+        $response = fgets($socket, 1024);
+        echo "AUTH PLAIN response: " . trim($response) . "<br>";
+        
+        if (strpos($response, '334') === 0) {
+            $auth_string = base64_encode("\0" . $username . "\0" . $password);
+            fputs($socket, $auth_string . "\r\n");
+            $response = fgets($socket, 1024);
+            echo "AUTH PLAIN result: " . trim($response) . "<br>";
+            
+            if (strpos($response, '235') === 0) {
+                echo "✅ SMTP Authentication successful with PLAIN!<br>";
+                fclose($socket);
+                return true;
+            } else {
+                echo "❌ AUTH PLAIN failed: " . trim($response) . "<br>";
+                fclose($socket);
+                return false;
+            }
+        } else {
+            echo "❌ AUTH PLAIN not supported: " . trim($response) . "<br>";
+            fclose($socket);
+            return false;
+        }
     }
 }
 
