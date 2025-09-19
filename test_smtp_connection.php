@@ -18,7 +18,7 @@ $test_configs = [
         'username' => 'ranjeet.kumar@indiaivf.in',
         'password' => 'mslzfkpcdefvytld',
         'port' => 587,
-        'encryption' => 'tls',
+        'encryption' => 'ssl',
         'from_email' => 'ranjeet.kumar@indiaivf.in',
         'from_name' => 'IndiaIVF (DEV)'
     ],
@@ -27,16 +27,16 @@ $test_configs = [
         'username' => 'ranjeet.kumar@indiaivf.in',
         'password' => 'mslzfkpcdefvytld',
         'port' => 587,
-        'encryption' => 'tls',
+        'encryption' => 'ssl',
         'from_email' => 'ranjeet.kumar@indiaivf.in',
         'from_name' => 'IndiaIVF (DEV)'
     ],
     'production_live' => [
         'host' => 'mail.indiaivf.website',
-        'username' => 'billings@indiaivf.website',
-        'password' => 'qYlSbaXXsn&9',
+        'username' => 'ranjeet.kumar@indiaivf.in',
+        'password' => 'mslzfkpcdefvytld',
         'port' => 587,
-        'encryption' => 'tls',
+        'encryption' => 'ssl',
         'from_email' => 'info@indiaivf.website',
         'from_name' => 'IndiaIVF'
     ]
