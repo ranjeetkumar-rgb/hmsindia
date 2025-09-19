@@ -135,9 +135,8 @@
                             $approvers = $all_method->Employee_model->get_approvers_for_purchase_order();
                             if (!empty($approvers)) {
                                 // Define default selected emails
-                                // $default_selected = array('director@indiaivf.in', 'ceo@indiaivf.in', 'alan@indiaivf.in');
-                                $default_selected = array('ranjeetmaurya2033@gmail.com','ranjeet.kumar@indiaivf.in','indiaivfdigital@gmail.com');
-                                // Remove duplicate emails to ensure uniqueness
+                                $default_selected = array('director@indiaivf.in', 'ceo@indiaivf.in', 'alan@indiaivf.in');
+                                // $default_selected = array('shanky.malhotra@indiaivf.in','ranjeet.kumar@indiaivf.in','indiaivfdigital@gmail.com');
                                 $unique_approvers = array();
                                 $seen_emails = array();
                                 
