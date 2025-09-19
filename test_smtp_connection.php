@@ -1,268 +1,102 @@
 <?php
 /**
- * SMTP Connection Test Script
- * Tests SMTP connectivity for different environments
+ * CORRECTED SMTP Connection and Sending Test Script
+ * This script will provide clear PASS/FAIL results for different connection types.
  */
 
 // Set error reporting
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "<h2>SMTP Connection Test</h2>";
+echo "<h2>Corrected SMTP Connection & Sending Test</h2>";
+echo "<p>This script will test both connectivity and authentication for different configurations.</p>";
 echo "<hr>";
 
-// Test configurations for different environments
+// Ensure PHPMailer classes are available
+// You must have PHPMailer installed and these paths correct for the script to work.
+if (file_exists('application/smtpmailer/class.phpmailer.php')) {
+    require_once 'application/smtpmailer/class.phpmailer.php';
+    require_once 'application/smtpmailer/class.smtp.php';
+} else {
+    echo "<h3 style='color: red;'>❌ ERROR: PHPMailer files not found. Please check the paths.</h3>";
+    exit;
+}
+
+// Test configurations
 $test_configs = [
-    'staging' => [
-        'host' => 'smtp.gmail.com',
+    'Gmail / Google Workspace (TLS)' => [
+        'host' => 'smtp.gmail.com', // or 'smtp-relay.gmail.com' for Google Workspace
         'username' => 'ranjeet.kumar@indiaivf.in',
-        'password' => 'mslzfkpcdefvytld',
+        'password' => 'mslzfkpcdefvytld', // Use App Password
         'port' => 587,
-        'encryption' => 'tls',
+        'secure' => 'tls',
         'from_email' => 'ranjeet.kumar@indiaivf.in',
-        'from_name' => 'IndiaIVF (DEV)'
+        'from_name' => 'IndiaIVF Test'
     ],
-    'production_gmail' => [
-        'host' => 'smtp.gmail.com',
-        'username' => 'ranjeet.kumar@indiaivf.in',
-        'password' => 'mslzfkpcdefvytld',
-        'port' => 587,
-        'encryption' => 'tls',
-        'from_email' => 'ranjeet.kumar@indiaivf.in',
-        'from_name' => 'IndiaIVF (DEV)'
-    ],
-    'production_gmail_ssl' => [
+    'Gmail / Google Workspace (SSL)' => [
         'host' => 'smtp.gmail.com',
         'username' => 'ranjeet.kumar@indiaivf.in',
         'password' => 'mslzfkpcdefvytld',
         'port' => 465,
-        'encryption' => 'ssl',
+        'secure' => 'ssl',
         'from_email' => 'ranjeet.kumar@indiaivf.in',
-        'from_name' => 'IndiaIVF (DEV)'
+        'from_name' => 'IndiaIVF Test'
     ],
-    'production_live' => [
+    'Mail.IndiaIVF.website' => [
         'host' => 'mail.indiaivf.website',
         'username' => 'ranjeet.kumar@indiaivf.in',
-        'password' => 'mslzfkpcdefvytld',
+        'password' => 'mslzfkpcdefvytld', // Use your mail server password
         'port' => 587,
-        'encryption' => 'ssl',
+        'secure' => 'tls',
         'from_email' => 'info@indiaivf.website',
         'from_name' => 'IndiaIVF'
     ]
 ];
 
-// Function to test SMTP connection
-function testSMTPConnection($config, $name) {
+// Function to run a full PHPMailer test
+function testPHPMailer($config, $name) {
     echo "<h3>Testing: {$name}</h3>";
     echo "<table border='1' cellpadding='5' cellspacing='0'>";
     echo "<tr><th>Setting</th><th>Value</th></tr>";
     echo "<tr><td>Host</td><td>{$config['host']}</td></tr>";
     echo "<tr><td>Port</td><td>{$config['port']}</td></tr>";
-    echo "<tr><td>Encryption</td><td>{$config['encryption']}</td></tr>";
+    echo "<tr><td>Security</td><td>{$config['secure']}</td></tr>";
     echo "<tr><td>Username</td><td>{$config['username']}</td></tr>";
-    echo "<tr><td>Password</td><td>***" . substr($config['password'], -3) . "</td></tr>";
     echo "<tr><td>From Email</td><td>{$config['from_email']}</td></tr>";
-    echo "<tr><td>From Name</td><td>{$config['from_name']}</td></tr>";
-    echo "</table>";
-    
-    // Test 1: Basic socket connection
-    echo "<br><strong>Test 1: Basic Socket Connection</strong><br>";
-    $socket = @fsockopen($config['host'], $config['port'], $errno, $errstr, 10);
-    if ($socket) {
-        echo "✅ Socket connection successful<br>";
-        fclose($socket);
-    } else {
-        echo "❌ Socket connection failed: {$errstr} ({$errno})<br>";
-        return false;
-    }
-    
-    // Test 2: PHPMailer SMTP connection
-    echo "<br><strong>Test 2: PHPMailer SMTP Connection</strong><br>";
-    
-    if (file_exists('application/smtpmailer/class.phpmailer.php')) {
-        require_once 'application/smtpmailer/class.phpmailer.php';
-        require_once 'application/smtpmailer/class.smtp.php';
-        
-        $mail = new PHPMailer();
+    echo "</table><br>";
+
+    $mail = new PHPMailer(true);
+    try {
         $mail->isSMTP();
-        $mail->Host = $config['host'];
-        $mail->SMTPAuth = true;
-        $mail->Username = $config['username'];
-        $mail->Password = $config['password'];
-        $mail->SMTPSecure = $config['encryption'];
-        $mail->Port = $config['port'];
-        $mail->SMTPDebug = 0; // Set to 2 for verbose debugging
-        $mail->Timeout = 10;
-        
-        try {
-            if ($mail->smtpConnect()) {
-                echo "✅ PHPMailer SMTP connection successful!<br>";
-                $mail->smtpClose();
-                return true;
-            } else {
-                echo "❌ PHPMailer SMTP connection failed!<br>";
-                return false;
-            }
-        } catch (Exception $e) {
-            echo "❌ PHPMailer Error: " . $e->getMessage() . "<br>";
-            return false;
+        $mail->Host       = $config['host'];
+        $mail->SMTPAuth   = true;
+        $mail->Username   = $config['username'];
+        $mail->Password   = $config['password'];
+        $mail->SMTPSecure = $config['secure'];
+        $mail->Port       = $config['port'];
+        $mail->SMTPDebug  = 2; // Enable verbose debug output
+        $mail->setFrom($config['from_email'], $config['from_name']);
+        $mail->addAddress('ranjeet.kumar@indiaivf.in', 'Ranjeet'); // Test recipient
+        $mail->isHTML(true);
+        $mail->Subject = 'SMTP Test from ' . $name;
+        $mail->Body    = 'This is a **test email** sent from the Vultr server via ' . $name . '.';
+
+        if ($mail->send()) {
+            echo "<p style='color: green; font-weight: bold;'>✅ SUCCESS: Email sent successfully!</p>";
+        } else {
+            echo "<p style='color: red; font-weight: bold;'>❌ FAIL: Email could not be sent.</p>";
+            echo "<p>Mailer Error: " . $mail->ErrorInfo . "</p>";
         }
-    } else {
-        echo "❌ PHPMailer not found<br>";
-        return false;
+    } catch (Exception $e) {
+        echo "<p style='color: red; font-weight: bold;'>❌ EXCEPTION: An error occurred.</p>";
+        echo "<p>Mailer Error: " . $e->getMessage() . "</p>";
     }
 }
 
-// Test 3: Simple SMTP test without PHPMailer
-function testSimpleSMTP($config, $name) {
-    echo "<br><strong>Test 3: Simple SMTP Test</strong><br>";
-    
-    $host = $config['host'];
-    $port = $config['port'];
-    $username = $config['username'];
-    $password = $config['password'];
-    
-    $socket = @fsockopen($host, $port, $errno, $errstr, 10);
-    if (!$socket) {
-        echo "❌ Cannot connect to {$host}:{$port}<br>";
-        return false;
-    }
-    
-    // Read initial response
-    $response = fgets($socket, 1024);
-    echo "Server response: " . trim($response) . "<br>";
-    
-    // Send EHLO command
-    fputs($socket, "EHLO localhost\r\n");
-    $response = fgets($socket, 1024);
-    echo "EHLO response: " . trim($response) . "<br>";
-    
-    // Start TLS if needed
-    if ($config['encryption'] === 'tls') {
-        fputs($socket, "STARTTLS\r\n");
-        $response = fgets($socket, 1024);
-        echo "STARTTLS response: " . trim($response) . "<br>";
-        
-        if (strpos($response, '220') === 0) {
-            echo "✅ STARTTLS successful<br>";
-        } else {
-            echo "❌ STARTTLS failed<br>";
-            fclose($socket);
-            return false;
-        }
-    }
-    
-    // Check if AUTH LOGIN is supported
-    fputs($socket, "AUTH LOGIN\r\n");
-    $response = fgets($socket, 1024);
-    echo "AUTH LOGIN response: " . trim($response) . "<br>";
-    
-    if (strpos($response, '334') === 0) {
-        // Send username
-        fputs($socket, base64_encode($username) . "\r\n");
-        $response = fgets($socket, 1024);
-        echo "Username response: " . trim($response) . "<br>";
-        
-        if (strpos($response, '334') === 0) {
-            // Send password
-            fputs($socket, base64_encode($password) . "\r\n");
-            $response = fgets($socket, 1024);
-            echo "Password response: " . trim($response) . "<br>";
-            
-            if (strpos($response, '235') === 0) {
-                echo "✅ SMTP Authentication successful!<br>";
-                fclose($socket);
-                return true;
-            } else {
-                echo "❌ SMTP Authentication failed: " . trim($response) . "<br>";
-                fclose($socket);
-                return false;
-            }
-        } else {
-            echo "❌ Username not accepted: " . trim($response) . "<br>";
-            fclose($socket);
-            return false;
-        }
-    } else {
-        echo "❌ AUTH LOGIN not supported: " . trim($response) . "<br>";
-        echo "Trying AUTH PLAIN...<br>";
-        
-        // Try AUTH PLAIN
-        fputs($socket, "AUTH PLAIN\r\n");
-        $response = fgets($socket, 1024);
-        echo "AUTH PLAIN response: " . trim($response) . "<br>";
-        
-        if (strpos($response, '334') === 0) {
-            $auth_string = base64_encode("\0" . $username . "\0" . $password);
-            fputs($socket, $auth_string . "\r\n");
-            $response = fgets($socket, 1024);
-            echo "AUTH PLAIN result: " . trim($response) . "<br>";
-            
-            if (strpos($response, '235') === 0) {
-                echo "✅ SMTP Authentication successful with PLAIN!<br>";
-                fclose($socket);
-                return true;
-            } else {
-                echo "❌ AUTH PLAIN failed: " . trim($response) . "<br>";
-                fclose($socket);
-                return false;
-            }
-        } else {
-            echo "❌ AUTH PLAIN not supported: " . trim($response) . "<br>";
-            fclose($socket);
-            return false;
-        }
-    }
-}
-
-// Run tests for each configuration
+// Run tests
 foreach ($test_configs as $name => $config) {
     echo "<hr>";
-    $result1 = testSMTPConnection($config, $name);
-    $result2 = testSimpleSMTP($config, $name);
-    
-    echo "<br><strong>Overall Result for {$name}:</strong> ";
-    if ($result1 && $result2) {
-        echo "<span style='color: green;'>✅ ALL TESTS PASSED</span><br>";
-    } else {
-        echo "<span style='color: red;'>❌ SOME TESTS FAILED</span><br>";
-    }
-}
-
-echo "<hr>";
-echo "<h3>Network Diagnostics</h3>";
-
-// Test DNS resolution
-echo "<strong>DNS Resolution Test:</strong><br>";
-$hosts_to_test = ['mail.indiaivf.website', 'smtp.gmail.com'];
-foreach ($hosts_to_test as $host) {
-    $ip = gethostbyname($host);
-    if ($ip !== $host) {
-        echo "✅ {$host} resolves to {$ip}<br>";
-    } else {
-        echo "❌ {$host} DNS resolution failed<br>";
-    }
-}
-
-// Test port connectivity
-echo "<br><strong>Port Connectivity Test:</strong><br>";
-$ports_to_test = [
-    ['mail.indiaivf.website', 587],
-    ['mail.indiaivf.website', 25],
-    ['smtp.gmail.com', 587],
-    ['smtp.gmail.com', 465]
-];
-
-foreach ($ports_to_test as $test) {
-    $host = $test[0];
-    $port = $test[1];
-    $socket = @fsockopen($host, $port, $errno, $errstr, 5);
-    if ($socket) {
-        echo "✅ {$host}:{$port} is open<br>";
-        fclose($socket);
-    } else {
-        echo "❌ {$host}:{$port} is closed or filtered ({$errstr})<br>";
-    }
+    testPHPMailer($config, $name);
 }
 
 echo "<hr>";
