@@ -25,7 +25,7 @@ if (file_exists('application/smtpmailer/class.phpmailer.php')) {
 // Test configurations
 $test_configs = [
     'Gmail / Google Workspace (TLS)' => [
-        'host' => 'smtp.gmail.com', // or 'smtp-relay.gmail.com' for Google Workspace
+        'host' => 'smtp-relay.gmail.com', // or 'smtp-relay.gmail.com' for Google Workspace
         'username' => 'ranjeet.kumar@indiaivf.in',
         'password' => 'mslzfkpcdefvytld', // Use App Password
         'port' => 587,
@@ -34,7 +34,7 @@ $test_configs = [
         'from_name' => 'IndiaIVF Test'
     ],
     'Gmail / Google Workspace (SSL)' => [
-        'host' => 'smtp.gmail.com',
+        'host' => 'smtp-relay.gmail.com',
         'username' => 'ranjeet.kumar@indiaivf.in',
         'password' => 'mslzfkpcdefvytld',
         'port' => 465,
