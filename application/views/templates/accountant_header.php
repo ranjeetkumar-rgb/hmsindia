@@ -61,7 +61,7 @@
 <!--/. NAV TOP  -->
 <nav class="navbar-default navbar-side" style="overflow:scroll;height:100%" role="navigation">
   <div class="sidebar-collapse">
-  <?php if ($_SESSION['logged_accountant']['username'] == "alan@tomorrowcapital.in" || $_SESSION['logged_accountant']['username'] == "Anshul@tomorrowcapital.in") { ?>
+  <?php if ($_SESSION['logged_accountant']['username'] == "Anshul@tomorrowcapital.in") { ?>
     <ul class="nav" id="main-menu">
        <li> <a class="active-menu waves-effect waves-dark" href="<?php echo base_url(); ?>"><i class="fa fa-dashboard"></i> Dashboard</a> </li>
        <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Manage Accounts<span class="fa arrow"></span></a>
