@@ -84,6 +84,8 @@ assets/consent_book/*
 !assets/consent_book/.gitkeep
 assets/center/*
 !assets/center/.gitkeep
+!assets/images/
+!assets/images/**
 
 # ===========================================
 # Database and Backups
