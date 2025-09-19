@@ -17,7 +17,7 @@ $config['mail_password'] = 'mslzfkpcdefvytld';
 $config['mail_from_emailid'] = 'ranjeet.kumar@indiaivf.in';
 $config['mail_from_name'] = 'IndiaIVF (DEV)';
 $config['mail_port'] = 587;
-$config['mail_encryption'] = 'ssl';
+$config['mail_encryption'] = 'tls';
 $config['mail_debug'] = true;
 
 // Security settings for production
