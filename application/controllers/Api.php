@@ -248,52 +248,46 @@ class Api extends CI_Controller {
                         fwrite($fp, json_encode($data));
                         fclose($fp);*/
 				
-				if($appointment > 0){
-					// welcome template
-					/*$checkpaitent= get_patient_by_number($mobile);
-					if(!empty($checkpaitent)){
-					    $data = "\n".date('d-m-y H:i:s')."======in if======"."\n";;
-                        $fp = fopen('app_data.txt', 'a');
-                        fwrite($fp, $data);
-                        fclose($fp);
-                        
-					    $checkpatient_register = get_patient_detail($checkpaitent['patient_id']);
-					    if(isset($checkpatient_register) && !empty($checkpatient_register) && $checkpatient_register['whats_registers'] == 0){
-        			        $centre_details = get_centre_details($appointment_for);
-        			        whatsappregister($appoint_arr['wife_phone'], json_encode(array("name" => $appoint_arr['wife_name'], "iic_id" => $checkpaitent['patient_id'], "center" => $centre_details['center_name'])));
-        			        
-            		        $this->db->where('patient_id', $paitent_id);
-            		        $this->db->update('hms_patients', array('whats_registers' => 1));
-        			    }
+					if($appointment > 0){
+						if (!empty($camp_selection) && $camp_selection > 0) {
+							$centre_details = get_camp_centre_details($camp_selection);
+							$appointwhatmsg = array();
+							$appointwhatmsg = array($appoint_arr['wife_name'], $centre_details['camp_name'], date("d-m-Y", strtotime($appoint_arr['appoitmented_date'])), $appoint_arr['appoitmented_slot'], isset($centre_details['location'])?$centre_details['location']:"");
+							$appointsendmsg = whatsappappointment(
+								$appoint_arr['wife_phone'], 
+							$appoint_arr['wife_name'],
+							$centre_details['camp_name'],
+							date("d-m-Y", strtotime($appoint_arr['appoitmented_date'])),
+							$appoint_arr['appoitmented_slot'],
+							isset($centre_details['location'])?$centre_details['location']:"",
+						"appointment_confirmation");
+						
+						$response = array('status' => 1, 'message'=> 'Appointment has been booked!');
+						echo json_encode($response);
+						die;
+						} else {
+							// Camp selection 0 hai, normal centre lena hai
+							$centre_details = get_centre_details($appointment_for);
+							$appointwhatmsg = array();
+							$appointwhatmsg = array($appoint_arr['wife_name'], $centre_details['center_name'], date("d-m-Y", strtotime($appoint_arr['appoitmented_date'])), $appoint_arr['appoitmented_slot'], isset($centre_details['center_location'])?$centre_details['center_location']:"");
+							$appointsendmsg = whatsappappointment(
+							$appoint_arr['wife_phone'], 
+							$appoint_arr['wife_name'],
+							$centre_details['center_name'],
+							date("d-m-Y", strtotime($appoint_arr['appoitmented_date'])),
+							$appoint_arr['appoitmented_slot'],
+							isset($centre_details['center_location'])?$centre_details['center_location']:"",
+						"appointment_confirmation");
+						
+						$response = array('status' => 1, 'message'=> 'Appointment has been booked!');
+						echo json_encode($response);
+						die;
+						}
 					}else{
-					    $data = "\n".date('d-m-y H:i:s')."======in else======"."\n";;
-                        $fp = fopen('app_data.txt', 'a');
-                        fwrite($fp, $data);
-                        fclose($fp);
-					    whatsappregister($appoint_arr['wife_phone'], json_encode(array("name" => $appoint_arr['wife_name'])));
-					}*/
-					
-					// appointment confirmations
-					$centre_details = get_centre_details($appointment_for);
-					$appointwhatmsg = array();
-					$appointwhatmsg = array($appoint_arr['wife_name'], $centre_details['center_name'], date("d-m-Y", strtotime($appoint_arr['appoitmented_date'])), $appoint_arr['appoitmented_slot'], isset($centre_details['center_location'])?$centre_details['center_location']:"");
-					$appointsendmsg = whatsappappointment(
-						$appoint_arr['wife_phone'], 
-						$appoint_arr['wife_name'],
-						$centre_details['center_name'],
-						date("d-m-Y", strtotime($appoint_arr['appoitmented_date'])),
-						$appoint_arr['appoitmented_slot'],
-						isset($centre_details['center_location'])?$centre_details['center_location']:"",
-					"appointment_confirmation");
-					
-					$response = array('status' => 1, 'message'=> 'Appointment has been booked!');
-					echo json_encode($response);
-					die;
-				}else{
-					$response = array('status' => 0, 'message'=> 'Appointment booking failed');
-					echo json_encode($response);
-					die;
-				}
+						$response = array('status' => 0, 'message'=> 'Appointment booking failed');
+						echo json_encode($response);
+						die;
+					}
 			}
 			
 		}else{
