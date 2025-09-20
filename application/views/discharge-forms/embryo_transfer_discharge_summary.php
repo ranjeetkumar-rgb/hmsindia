@@ -1025,10 +1025,10 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <p>500MG</p>
 </td>
 <td width="76">
-<p>Tab</p>
+<p>1 Tab</p>
 </td>
 <td width="83">
-<p>weekly</p>
+<p>Twice Daily</p>
 </td>
 <td width="68">
 <p>After meals</p>
@@ -1656,8 +1656,6 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
   <p>Serum beta HCG blood test 15days after embryo transfer</p>
   <p></p>  
   
-  <label for="Discharge">Review with Dr Richika Sahay on</label>
-  <input type="date" class="Review" name="Review_doctor" value="<?php echo isset($select_result['Review_doctor'])?$select_result['Review_doctor']:""; ?>">
 
 </div>
 
@@ -1693,7 +1691,7 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <table style="border:1px solid;width:100%;padding:5px;" class="fg45yu">
 <tr>
    <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
-   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Discharge Summary</h3></td>
+   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Embryo Transfer</h3></td>
 </tr>
 </table>
 <table width="100%" class="vb45rt">
@@ -2614,10 +2612,10 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <p>500MG</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>Tab</p>
+<p>1 Tab</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>weekly</p>
+<p>Twice Daily</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
 <p>After meals</p>
@@ -3241,15 +3239,9 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 </tr>
 
 <tr>
-<td width="100%" colspan="4" style="border:1px solid;padding:5px;">
+<td width="100%" colspan="8" style="border:1px solid;padding:5px;">
 <label for="BP"><b>Follow Up Advice:</b>Serum beta HCG blood test 15days after embryo transfer. </label>
 <?php echo isset($select_result['Doctor_name'])?$select_result['Doctor_name']:""; ?>
- 
-</td>
-
-<td width="100%" colspan="4" style="border:1px solid;padding:5px;">
-<label for="followup">Review with Dr Richika Sahay on</label>
-  <?php echo isset($select_result['Review_doctor'])?$select_result['Review_doctor']:""; ?>
  
 </td>
 </tr>

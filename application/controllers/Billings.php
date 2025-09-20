@@ -1219,8 +1219,9 @@ public function procedure_billings(){
 							<td style="width: 50%;"></td>
 						</tr>
 						</tbody></table>';
-		$sent = send_mail('himanshu@ichelon.in|'.$patient_data['wife_email'].'', 'IndiaIVF Billing Receipt', $mail_html);
-		return $sent;
+		// $sent = send_mail('himanshu@ichelon.in|'.$patient_data['wife_email'].'', 'IndiaIVF Billing Receipt', $mail_html);
+		return ;
+		// return $sent;
 	}
 	
 	function consultation_billing_receipt($receipt, $type, $currency){

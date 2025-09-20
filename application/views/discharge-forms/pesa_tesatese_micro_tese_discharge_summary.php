@@ -195,32 +195,9 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <label for="Rt">sperms seen /not seen Right Testes</label><br>
  <textarea name="Lt" style="width:100%; height:80px!important;"  > <?php echo isset($select_result['Lt'])?$select_result['Lt']:""; ?></textarea>
  <label for="Lt">sperms seen /not seen Left Testes </label><br>
-
-
-
-  <input type="radio" id="Sperms" name="Sperms" value="Sperms frozen" <?php if(isset($select_result['Sperms']) && $select_result['Sperms']== "Sperms frozen"){ echo "checked";} ?>>
-  <label for="age1">Sperms frozen</label><br>
-  <input type="radio" id="Sperms" name="Sperms" value="Not frozen" <?php if(isset($select_result['Sperms']) && $select_result['Sperms'] == "Not frozen"){ echo "checked";} ?>>
-  <label for="age2">Not frozen</label><br>  
-
-
-<br>
-  <label for="Freezing">Freezing Details:</label>
-   <textarea name="Freezing" style="width:100%; height:80px!important;"  > <?php echo isset($select_result['Freezing'])?$select_result['Freezing']:""; ?></textarea>
-
-  <label for="frozen">If frozen renewal date</label>
-  
-  
-   <input type="date" class="frozen" name="frozen" value="<?php echo isset($select_result['frozen'])?$select_result['frozen']:""; ?>">
-  
-<br>
-
-  <p>Note: sperms may not survive cryopreservation process, which means on thawing nothing, or lesser quantity will be retrieved</p>
-
+ 
 </div>  
 </div>  
-  
-
 
 <div class="sec21">
 <label for="Senior Embryologist">Senior Embryologist</label>
@@ -241,7 +218,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <table style="border:1px solid;width:100%;padding:5px;" class="fg45yu">
    <tr>
    <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
-   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Discharge Summary</h3><strong>Department of Embryology</strong></td>
+   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Discharge Summary</h3><strong>PESA / TESA / TESE / MICRO TESE</strong></td>
    </tr>
 </table>
 
@@ -335,35 +312,6 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </td>
 <td colspan="2" style="width:100%;border:1px solid;padding:5px;">
 <strong>sperms seen /not seen Left Testes : <textarea name="Lt" style="width:100%; height:80px!important;"  > <?php echo isset($select_result['Lt'])?$select_result['Lt']:""; ?></textarea></strong>
-</td>
-</tr>
-
-<tr>
-<td colspan="4" style="width:100%;border:1px solid;padding:5px;">
-<input type="radio" id="Sperms" name="Sperms" value="Sperms frozen" <?php if(isset($select_result['Sperms']) && $select_result['Sperms']== "Sperms frozen"){ echo "checked";} ?>>
-  <label for="age1">Sperms frozen</label><br>
-  <input type="radio" id="Sperms" name="Sperms" value="Not frozen" <?php if(isset($select_result['Sperms']) && $select_result['Sperms'] == "Not frozen"){ echo "checked";} ?>>
-  <label for="age2">Not frozen</label>
-</td>
-</tr>
-
-<tr>
-<td colspan="4" style="width:100%;border:1px solid;padding:5px;">
-<label for="Freezing">Freezing Details:</label>
-<textarea name="Freezing" style="width:100%; height:80px!important;"  > <?php echo isset($select_result['Freezing'])?$select_result['Freezing']:""; ?></textarea>
-</td>
-</tr>
-
-<tr>
-<td colspan="4" style="width:100%;border:1px solid;padding:5px;">
-<label for="frozen">If frozen renewal date</label>
-<?php echo isset($select_result['frozen'])?$select_result['frozen']:""; ?>
-</td>
-</tr>
-
-<tr>
-<td colspan="4" style="width:100%;border:1px solid;padding:5px;">
-<p>Note: sperms may not survive cryopreservation process, which means on thawing nothing, or lesser quantity will be retrieved</p>
 </td>
 </tr>
 

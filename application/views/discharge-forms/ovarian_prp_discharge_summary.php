@@ -456,7 +456,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <p>Endofert Tab 2MG</p>
 </td>
 <td width="76">
-<p>1TAB</p>
+<p>1 TAB</p>
 </td>
 <td width="76">
 <p>Oral</p>
@@ -476,7 +476,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <p>immediately</p>
 </td>
 <td width="57">
-<p>30 Days</p>
+<p>14 Days</p>
 </td>
 </tr>
 <tr>
@@ -920,10 +920,10 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <p>500MG</p>
 </td>
 <td width="76">
-<p>Tab</p>
+<p>1 Tab</p>
 </td>
 <td width="83">
-<p>once Daily</p>
+<p>Twice Daily</p>
 </td>
 <td width="68">
 <p>After meals</p>
@@ -932,7 +932,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <p>immediately</p>
 </td>
 <td width="57">
-<p>5 Days</p>
+<p>3 Days</p>
 </td>
 </tr>
 <tr>
@@ -949,7 +949,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <p>Tab</p>
 </td>
 <td width="83">
-<p>once Daily</p>
+<p>Twice Daily</p>
 </td>
 <td width="68">
 <p>After meals</p>
@@ -958,7 +958,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <p>immediately</p>
 </td>
 <td width="57">
-<p>5 Days</p>
+<p>14 Days</p>
 </td>
 </tr>
 <?php
@@ -1665,6 +1665,66 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 </td>
 </tr>
 <?php } ?>
+<?php
+$medicine = 'Biophil DHEA';
+?>
+<tr>
+<td>
+ <input type="checkbox" class="checkmedicine" name="applicablemedicine[]" value="<?= $medicine ?>" <?php if(!empty($select_result['applicablemedicine']) && in_array($medicine,$applicablemedicine)){echo "checked";}?>>
+</td>
+<td width="117">
+<p><?= $medicine ?></p>
+</td>
+<td width="76">
+<p>1 Cap</p>
+</td>
+<td width="76">
+<p>Oral</p>
+</td>
+<td width="83">
+<p>Once daily
+<strong></strong></p>
+</td>
+<td width="68">
+<p>After meals</p>
+</td>
+<td width="71">
+<p>immediately</p>
+</td>
+<td width="57">
+<p>30 Days</p>
+</td>
+</tr>
+<?php
+$medicine = 'Women Fertility Tea';
+?>
+<tr>
+<td>
+ <input type="checkbox" class="checkmedicine" name="applicablemedicine[]" value="<?= $medicine ?>" <?php if(!empty($select_result['applicablemedicine']) && in_array($medicine,$applicablemedicine)){echo "checked";}?>>
+</td>
+<td width="117">
+<p><?= $medicine ?></p>
+</td>
+<td width="76">
+<p></p>
+</td>
+<td width="76">
+<p>Oral</p>
+</td>
+<td width="83">
+<p>Once daily
+<strong></strong></p>
+</td>
+<td width="68">
+<p>After meals</p>
+</td>
+<td width="71">
+<p>immediately</p>
+</td>
+<td width="57">
+<p>30 Days</p>
+</td>
+</tr>
 <tr>
 <td width="12.5%">
 <p>There are No Substitutes</p>
@@ -2088,7 +2148,7 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <p>immediately</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>30 Days</p>
+<p>14 Days</p>
 </td>
 </tr>
 <?php } ?>
@@ -2562,10 +2622,10 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <p>500MG</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>Tab</p>
+<p>1 Tab</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>once Daily</p>
+<p>Twice Daily</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
 <p>After meals</p>
@@ -2574,7 +2634,7 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <p>immediately</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>5 Days</p>
+<p>3 Days</p>
 </td>
 </tr>
 <?php } ?>
@@ -2593,7 +2653,7 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <p>Tab</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>once Daily</p>
+<p>Twice  Daily</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
 <p>After meals</p>
@@ -2602,7 +2662,7 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <p>immediately</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>5 Days</p>
+<p>14 Days</p>
 </td>
 </tr>
 <?php } ?>
@@ -3307,6 +3367,70 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 </td>
 <td width="57" style="border:1px solid;padding:5px;">
 <p></p>
+</td>
+</tr>
+<?php } ?>
+<?php
+$medicine = 'Biophil DHEA';
+if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applicablemedicine)) {
+?>
+<tr>
+<td>
+    <input type="checkbox" class="checkmedicine" name="" value="<?= $medicine ?>" checked> 
+</td>
+<td width="117">
+<p><?= $medicine ?></p>
+</td>
+<td width="76">
+<p>1 Cap</p>
+</td>
+<td width="76">
+<p>Oral</p>
+</td>
+<td width="83">
+<p>Once daily
+<strong></strong></p>
+</td>
+<td width="68">
+<p>After meals</p>
+</td>
+<td width="71">
+<p>immediately</p>
+</td>
+<td width="57">
+<p>30 Days</p>
+</td>
+</tr>
+<?php } ?>
+<?php
+$medicine = 'Women Fertility Tea';
+if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applicablemedicine)) {
+?>
+<tr>
+<td>
+    <input type="checkbox" class="checkmedicine" name="" value="<?= $medicine ?>" checked> 
+</td>
+<td width="117">
+<p><?= $medicine ?></p>
+</td>
+<td width="76">
+<p></p>
+</td>
+<td width="76">
+<p>Oral</p>
+</td>
+<td width="83">
+<p>Once daily
+<strong></strong></p>
+</td>
+<td width="68">
+<p>After meals</p>
+</td>
+<td width="71">
+<p>immediately</p>
+</td>
+<td width="57">
+<p>30 Days</p>
 </td>
 </tr>
 <?php } ?>

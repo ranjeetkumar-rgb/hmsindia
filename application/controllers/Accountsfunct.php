@@ -344,7 +344,7 @@ class Accounts extends CI_Controller {
 						
 						<div class='action-section'>
 							<h3>Action Required</h3>
-							<p style='margin: 0 0 20px 0; color: #856404;'>Please review all details and make your approval decision</p>
+							<p style='margin: 0 0 20px 0; color:#e5e5e5;'>Please review all details and make your approval decision</p>
 							<a href='{$review_url}' class='btn-review'>
 							   Review Purchase Order Details
 							</a>

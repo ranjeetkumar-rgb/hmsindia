@@ -618,7 +618,7 @@ function partial_billing($appointment_id){
 
 		$biller_emails = $biller_details['email'];
 
-		$sent = send_mail($biller_emails.'|'.$patient_data['wife_email'].'', 'IndiaIVF Billing Receipt', $mail_html);
+		// $sent = send_mail($biller_emails.'|'.$patient_data['wife_email'].'', 'IndiaIVF Billing Receipt', $mail_html);
 
 		
 
@@ -638,13 +638,14 @@ function partial_billing($appointment_id){
 
 				<a href="'.base_url().'accounts/front_approve/'.$billing_key.'?t='.$type.'&u=disapproved&r=Wrong billing">Disapprove</a>';
 
-			$sent = send_mail($account_email, 'IndiaIVF Billing Approval', $account_html);
+			// $sent = send_mail($account_email, 'IndiaIVF Billing Approval', $account_html);
 
 		}
 
 		
 
-		return $sent;
+		return ;
+		// return $sent;
 
 	}
 

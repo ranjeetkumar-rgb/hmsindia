@@ -50,7 +50,7 @@
             </div>-->
             </form>
         </div>
-         <div class="clearfix"></div>
+		<div class="clearfix"></div>
         <div class="card-content">
           <div class="table-responsive">
             <table class="table table-striped table-bordered table-hover" id="investigation_billing_list">

@@ -154,20 +154,10 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </td>
 </tr>
 <tr>
-<td width="50%" colspan="5">
-<label>No. of oocytes retrieved </label> 
+<td width="100%" colspan="10">
+<label>No. of oocytes retrieved with grading</label> 
 <textarea name="oocytes_retrieved" style="width:100%; height:80px!important;"> <?php echo isset($select_result['oocytes_retrieved'])?$select_result['oocytes_retrieved']:""; ?></textarea>
  </td>
-<td colspan="5" width="50%">
-<label>Grading of oocyte: </label> 
-<textarea name="Grading_oocyte" style="width:100%; height:80px!important;"> <?php echo isset($select_result['Grading_oocyte'])?$select_result['Grading_oocyte']:""; ?></textarea>
-</td>
-</tr>
-<tr>
-<td colspan="10" width="100%">
-<label>Egg number and grading while freezing </label> 
-<textarea name="freezing" style="width:100%; height:80px!important;"> <?php echo isset($select_result['freezing'])?$select_result['freezing']:""; ?></textarea>
-</td>
 </tr>
 
 <tr>
@@ -212,9 +202,6 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </tr>
 </tbody>
 </table> 
-<div class="sec2">
-<p style="margin:10px 0px;">Note: embryos/eggs may not survive cryopreservation process, which means on thawing nothing, or lesser quantity will be retrieved.</p>
-</div>  
 </div>  
  
 
@@ -239,7 +226,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <table style="border:1px solid;width:100%;padding:5px;" class="fg45yu">
 <tr>
    <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
-   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Discharge Summary</h3><strong>Department of Embryology</strong></td>
+   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Discharge Summary</h3><strong>Department of Embryology OPU</strong></td>
 </tr>
 </table>
 
@@ -299,21 +286,10 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </td>
 </tr>
 <tr>
-<td colspan="5" style="width:50%; border:1px solid; padding:5px;">
-<label>No. of oocytes retrieved </label> 
+<td colspan="10" style="width:100%; border:1px solid; padding:5px;">
+<label>No. of oocytes retrieved with grading</label> 
 <textarea style="width:100%; height:80px!important;"> <?php echo isset($select_result['oocytes_retrieved'])?$select_result['oocytes_retrieved']:""; ?></textarea>
  </td>
-<td colspan="5" style="width:50%; border:1px solid; padding:5px;">
-<label>Grading of oocyte: </label> 
-<textarea style="width:100%; height:80px!important;"> <?php echo isset($select_result['Grading_oocyte'])?$select_result['Grading_oocyte']:""; ?></textarea>
-</td>
-</tr>
-
-<tr>
-<td colspan="10" style="width:100%; border:1px solid; padding:5px;">
-<label>Egg number and grading while freezing </label> 
-<textarea name="freezing" style="width:100%; height:80px!important;"> <?php echo isset($select_result['freezing'])?$select_result['freezing']:""; ?></textarea>
-</td>
 </tr>
 
 <tr>
@@ -354,12 +330,6 @@ $appoitmented_date = $_GET['appoitmented_date'];
   <label for="age1">Yes</label><br>
   <input type="radio" id="Ooactive" name="Ooactive" value="No" <?php if(isset($select_result['Ooactive']) && $select_result['Ooactive'] == "No"){ echo "checked";} ?>>
   <label for="age2">No</label><br> 
-</td>
-</tr>
-
-<tr>
-<td colspan="10" style="width:100%; border:1px solid; padding:5px;">
-<p style="margin:10px 0px;">Note: embryos/eggs may not survive cryopreservation process, which means on thawing nothing, or lesser quantity will be retrieved.</p>
 </td>
 </tr>
 

@@ -220,10 +220,10 @@ $Fragmented= ((!empty($SMALL_HALO)?$SMALL_HALO:0)+(!empty($WITHOUT_HALO)?$WITHOU
 
  $encoded_data = json_encode($rating_data);
 ?>
-
+<!--
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script type="text/javascript">
 google.load("visualization", "1", {packages:["corechart"]});
 google.setOnLoadCallback(drawChart);
@@ -356,7 +356,7 @@ function drawChart()
 </tbody>
 </table>
 
-</div>
+</div>-->
 
 <p style="font-weight:600; font-size: 20px; text-decoration: underline;">Interpretation of Result:</p>
 <div class="bvfg45tr">
@@ -521,10 +521,10 @@ $Fragmented= ((!empty($SMALL_HALO)?$SMALL_HALO:0)+(!empty($WITHOUT_HALO)?$WITHOU
 
  $encoded_data = json_encode($rating_data);
 ?>
-
+<!--
 
 <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
 <script type="text/javascript">
 google.load("visualization", "1", {packages:["corechart"]});
 google.setOnLoadCallback(drawChart);
@@ -642,7 +642,7 @@ function drawChart()
 </table>
 
 </div>
-
+-->
 
 <table class="bv45rt" width="100%">
 <tr>

@@ -62,7 +62,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <div class="ga-pro">
 <table class="fg45yu">
    <tr><td style="text-align: center;border:0px;"><h3 style="margin-top:20px;">Department of Embryology</h3></td></tr>
-   <tr><td style="text-align: center;border:0px;"><h4>Embryo Dischrge Summary</h4></td></tr>
+   <tr><td style="text-align: center;border:0px;"><h4>Embryo Transfer Dischrge Summary</h4></td></tr>
 </table>
     
 <form action="" enctype='multipart/form-data' method="post">
@@ -139,7 +139,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </tr>
 <tr>
 <td colspan="2" width="17%">
-<p>Embryo Transfer </p>
+<p>Fresh Embryo Transfer </p>
 <input type="radio" id="Embryo_Transfer" name="Embryo_Transfer" value="Yes" <?php if(isset($select_result['Embryo_Transfer']) && $select_result['Embryo_Transfer']== "Yes"){ echo "checked";} ?>>
   <label for="age1">Yes</label><br>
   <input type="radio" id="Embryo_Transfer" name="Embryo_Transfer" value="No" <?php if(isset($select_result['Embryo_Transfer']) && $select_result['Embryo_Transfer'] == "No"){ echo "checked";} ?>>
@@ -189,17 +189,17 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <table width="100%" class="vb45rt">
 <tbody>
 <tr>
-<td colspan="2" width="50%">
+<!--<td colspan="2" width="50%">
 <label for="fertilization">Day 1 fertilization status </label>
 <textarea name="fertilization_status" style="width:100%; height:80px!important"  > <?php echo isset($select_result['fertilization_status'])?$select_result['fertilization_status']:""; ?> </textarea>
-</td>
+</td>-->
 <td width="50%">
-<label for="embryo-transfer">Date of fresh /frozen embryo transfer with number and grading</label>
+<label for="embryo-transfer">Detail of fresh /frozen embryo transfer with number and grading</label>
 <textarea name="fresh_embryo_transfer" style="width:100%; height:80px!important"  > <?php echo isset($select_result['fresh_embryo_transfer'])?$select_result['fresh_embryo_transfer']:""; ?> </textarea>
 
 </td>
 </tr>
-
+<!--
 <tr>
 <td colspan="2" width="50%">
 <label for="fertilization">Date of cryopreservation of embryos with number and grading</label>
@@ -216,7 +216,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <label for="embryo-transfer">Remaining embryos after transfer</label>
 <textarea name="embryos_after_transfer" style="width:100%; height:80px!important"  > <?php echo isset($select_result['embryos_after_transfer'])?$select_result['embryos_after_transfer']:""; ?> </textarea>
 </td>
-</tr>
+</tr>-->
 </tbody>
 </table> 
 
@@ -237,9 +237,9 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <input type="radio" id="ETG" name="etg" value="C"  <?php if(isset($select_result['etg']) && $select_result['etg'] == "C"){echo 'checked="checked"'; }?>>
 <label for="ETG">C</label><br>
 
-
+<!--
 <p style="margin:10px 0px;">Note: embryos/eggs may not survive cryopreservation process, which means on thawing nothing or lesser quantity will be retrieved.</p>
-
+-->
 
 
 
@@ -265,7 +265,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <table style="border:1px solid;width:100%;padding:5px;" class="fg45yu">
    <tr>
    <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
-   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Department of Embryology</h3><strong>Embryo Dischrge Summary</strong></td>
+   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Department of Embryology</h3><strong>Embryo Transfer Dischrge Summary</strong></td>
    </tr>
 </table>
     
@@ -327,7 +327,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </tr>
 <tr>
 <td colspan="2" width="17%" style="border:1px solid;padding:5px;">
-<p>Embryo Transfer </p>
+<p>Fresh Embryo Transfer </p>
 <input type="radio" id="Embryo_Transfer" name="Embryo_Transfer" value="Yes" <?php if(isset($select_result['Embryo_Transfer']) && $select_result['Embryo_Transfer']== "Yes"){ echo "checked";} ?>>
   <label for="age1">Yes</label><br>
   <input type="radio" id="Embryo_Transfer" name="Embryo_Transfer" value="No" <?php if(isset($select_result['Embryo_Transfer']) && $select_result['Embryo_Transfer'] == "No"){ echo "checked";} ?>>
@@ -383,17 +383,17 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </tr>
 
 <tr>
-<td colspan="2" width="50%" style="border:1px solid;padding:5px;">
+<!--<td colspan="2" width="50%" style="border:1px solid;padding:5px;">
 <label for="fertilization">Day 1 fertilization status </label>
 <textarea name="fertilization_status" style="width:100%; height:80px!important"  > <?php echo isset($select_result['fertilization_status'])?$select_result['fertilization_status']:""; ?> </textarea>
-</td>
+</td>-->
 <td width="50%" style="border:1px solid;padding:5px;">
-<label for="embryo-transfer">Date of fresh /frozen embryo transfer with number and grading</label>
+<label for="embryo-transfer">Detail of fresh /frozen embryo transfer with number and grading</label>
 <textarea name="fresh_embryo_transfer" style="width:100%; height:80px!important"  > <?php echo isset($select_result['fresh_embryo_transfer'])?$select_result['fresh_embryo_transfer']:""; ?> </textarea>
 
 </td>
 </tr>
-
+<!--
 <tr>
 <td colspan="4" width="100%" style="border:1px solid;padding:5px;">
 <label for="fertilization">Date of cryopreservation of embryos with number and grading</label>
@@ -413,7 +413,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <textarea name="embryos_after_transfer" style="width:100%; height:50px!important"  > <?php echo isset($select_result['embryos_after_transfer'])?$select_result['embryos_after_transfer']:""; ?> </textarea>
 </td>
 </tr>
-
+-->
 <tr>
 <td colspan="4" width="100%" style="border:1px solid;padding:5px;">
 <input type="radio" id="easy" name="embryo_transfer_process" value="Easy embryo transfer" <?php if(isset($select_result['embryo_transfer_process']) && $select_result['embryo_transfer_process'] == "Easy embryo transfer"){ echo "checked";} ?>>
@@ -434,12 +434,12 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <label for="ETG">C</label>
 </td>
 </tr>
-
+<!--
 <tr>
 <td colspan="4" width="100%" style="border:1px solid;padding:5px;">
 <p style="margin:10px 0px;">Note: embryos/eggs may not survive cryopreservation process, which means on thawing nothing or lesser quantity will be retrieved.</p>
 </td>
-</tr>
+</tr>-->
 <tr>
 <td colspan="4" width="100%" style="border:1px solid;padding:5px;">
  <label for="Senior Embryologist">Senior Embryologist</label>

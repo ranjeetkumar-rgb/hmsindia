@@ -4,13 +4,8 @@ $appoitmented_date = $_GET['appoitmented_date'];
     if(isset($_POST['submit'])){
         unset($_POST['submit']);
 		
-		   
-			     	if (!empty($appoitmented_date)) {
-			$sql = "SELECT * FROM `intra_uterine_insemination_discharge_summary` WHERE iic_id='$iic_id' AND appoitmented_date='$appoitmented_date'";
-	} else {
-			$sql = "SELECT * FROM `intra_uterine_insemination_discharge_summary` WHERE iic_id='$iic_id'";
-	}
-	$select_result = run_select_query($sql);
+		   $sql = "SELECT * FROM `intra_uterine_insemination_discharge_summary` WHERE iic_id='$iic_id' and appoitmented_date='$appoitmented_date'";
+           $select_result = run_select_query($sql); 
 	    
         if(empty($select_result)){
             // mysql query to insert data
@@ -45,12 +40,8 @@ $appoitmented_date = $_GET['appoitmented_date'];
 		  die();
         }
     }
-		     	if (!empty($appoitmented_date)) {
-			$sql = "SELECT * FROM `intra_uterine_insemination_discharge_summary` WHERE iic_id='$iic_id' AND appoitmented_date='$appoitmented_date'";
-	} else {
-			$sql = "SELECT * FROM `intra_uterine_insemination_discharge_summary` WHERE iic_id='$iic_id'";
-	}
-	$select_result = run_select_query($sql);
+	$sql = "SELECT * FROM `intra_uterine_insemination_discharge_summary` WHERE iic_id='$iic_id' and appoitmented_date='$appoitmented_date'";
+    $select_result = run_select_query($sql);
 	
 	$sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where paitent_id='".$iic_id."'";
 	$select_result1 = run_select_query($sql1);
@@ -164,21 +155,6 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </tr>
 <tr>
 <td width="50%">
-<strong>Insemination by</strong>
-</td>
-<td colspan="2" width="50%">
-
-
-  <input type="radio" id="Husband" name="Husband" value="Husband Sperm" <?php if(isset($select_result['Husband']) && $select_result['Husband'] == "Husband Sperm"){echo 'checked="checked"'; } ?>>
-  <label for="Husband">Husband Sperm</label><br>
-  <input type="radio" id="Donor" name="Husband" value="Donor Sperm" <?php if(isset($select_result['Husband']) && $select_result['Husband'] == "Donor Sperm"){ echo "checked";} ?>>
-  <label for="Donor">Donor Sperm</label><br>  
-
-
-</td>
-</tr>
-<tr>
-<td width="50%">
 <strong>Appearance of Sample</strong>
 </td>
 <td colspan="2" width="50%">
@@ -267,7 +243,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <table style="border:1px solid;width:100%;padding:5px;" class="fg45yu">
 <tr>
    <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
-   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Discharge Summary</h3><strong>Department of Embryology</strong></td>
+   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Discharge Summary</h3><strong>Department of Embryology IUI</strong></td>
 </tr>
 </table>
 <form action="" enctype='multipart/form-data' method="post">
@@ -331,17 +307,6 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </td>
 <td colspan="2" style="width:50%; border:1px solid; padding:5px;">
 <strong>Date of procedure:  <?php echo isset($select_result['date_of_procedure'])?$select_result['date_of_procedure']:""; ?></strong>
-</td>
-</tr>
-<tr>
-<td colspan="2" style="width:50%; border:1px solid; padding:5px;">
-<strong>Insemination by</strong>
-</td>
-<td colspan="2" style="width:50%; border:1px solid; padding:5px;">
-  <input type="radio" id="Husband" name="Husband" value="Husband Sperm" <?php if(isset($select_result['Husband']) && $select_result['Husband'] == "Husband Sperm"){echo 'checked="checked"'; } ?>>
-  <label for="Husband">Husband Sperm</label><br>
-  <input type="radio" id="Donor" name="Husband" value="Donor Sperm" <?php if(isset($select_result['Husband']) && $select_result['Husband'] == "Donor Sperm"){ echo "checked";} ?>>
-  <label for="Donor">Donor Sperm</label><br>  
 </td>
 </tr>
 

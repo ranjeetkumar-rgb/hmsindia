@@ -1078,10 +1078,10 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <p>500MG</p>
 </td>
 <td width="76">
-<p>Tab</p>
+<p>1 Tab</p>
 </td>
 <td width="83">
-<p>weekly</p>
+<p>Twice Daily</p>
 </td>
 <td width="68">
 <p>After meals</p>
@@ -2546,10 +2546,10 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <p>500MG</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>Tab</p>
+<p>1 Tab</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>weekly</p>
+<p>Twice Daily</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
 <p>After meals</p>

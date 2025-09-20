@@ -56,7 +56,10 @@ $appoitmented_date = $_GET['appoitmented_date'];
 	$select_result2 = run_select_query($sql2);
 	
 	$sql3 = "Select * from ".$this->config->item('db_prefix')."centers where center_number='".$select_result2['appoitment_for']."'";
-	$select_result3 = run_select_query($sql3);		
+	$select_result3 = run_select_query($sql3);	
+
+	$sql_semen_freezing = "Select * from ".$this->config->item('db_prefix')."semen_freezing where patient_id='".$iic_id."'";
+	$select_semen_freezing = run_select_query($sql_semen_freezing);		
 ?>
  <form action="" enctype='multipart/form-data' method="post">
   
@@ -131,7 +134,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 </tr>
  <tr>
     <td colspan="2" width="50%">Date of Semen Collection:: <input type="date" id="date" name="date" value="<?php echo isset($select_result['date'])?$select_result['date']:""; ?>">  </td>
-    <td>Date of Freezing: <input type="date" id="date_of_freezing" name="date_of_freezing" value="<?php echo isset($select_result['date_of_freezing'])?$select_result['date_of_freezing']:""; ?>">  </td>
+    <td>Date of Freezing: <input type="date" id="date_of_freezing" name="date_of_freezing" required="" readonly="" style="background: #f1f1f1;" value="<?php echo isset($select_semen_freezing['date'])?$select_semen_freezing['date']:""; ?>">  </td>
  </tr>
  <tr>
 <td colspan="4">
@@ -143,7 +146,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <tr>
 <td colspan="4">
 <strong>Number of Vials Frozen:
-<textarea name="Freezing" id="Freezing"><?php echo isset($select_result['Freezing'])?$select_result['Freezing']:""; ?></textarea>
+<textarea name="Freezing" id="Freezing" required="" readonly="" style="background: #f1f1f1;"><?php echo isset($select_semen_freezing['no_0'])?$select_semen_freezing['no_0']:""; ?></textarea>
 </strong>
 </td>
 </tr>
@@ -154,18 +157,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <tbody>
 <tr>
 <td colspan="6" width="100%">
-<p style="font-size: 20px; font-weight: 600; text-decoration: underline;">Semen Analysis Before Freezing:</p>
-</td>
-</tr>
-<tr>
-<td colspan="2" width="33%">
-<p><strong>Volume</strong></p>
-</td>
-<td width="33%">
-<p><input type="text" class="minutes" name="t_minutes" value="<?php echo isset($select_result['t_minutes'])?$select_result['t_minutes']:""; ?>"> Millions/Ejaculate</p>
-</td>
-<td width="33%">
-<p>ml</p>
+<p style="font-size: 20px; font-weight: 600; text-decoration: underline;">Semen Parameter Before Freezing:</p>
 </td>
 </tr>
 <tr>
@@ -220,7 +212,11 @@ Prepared By:- <input type="text" style="width:100%" class="Prepared" name="prepa
 Checked By:-  <input type="text" style="width:100%" class="Prepared" name="checked_by" value="<?php echo isset($select_result['checked_by'])?$select_result['checked_by']:""; ?>">
 </td>
 </tr>
-
+<tr>
+<td colspan="4"style="width:100%; border:1px solid; padding:5px;">
+<label for="other">Note: Sperm Freezing may not survive cryopreservation process, which means on thawing nothing, or lesser quantity will be retrieved.</label>
+</td>
+</tr>
 </table>
 
 <div class="col-sm-4" style="margin-top: 10px;">
@@ -280,14 +276,9 @@ Checked By:-  <input type="text" style="width:100%" class="Prepared" name="check
 
 <table width="100%" class="fg45yu3">
 <tr>
-    <td colspan="6" style="width:100%; border:1px solid; padding:5px;"> <p style="font-size: 20px;">Semen Analysis Before Freezing:</p></td>
+    <td colspan="6" style="width:100%; border:1px solid; padding:5px;"> <p style="font-size: 20px;">Semen Parameter Before Freezing:</p></td>
 </tr>
  
-<tr>
-    <td colspan="2" style="width:33%; border:1px solid; padding:5px;"><strong>Volume :</strong></td>
-    <td colspan="2" style="width:33%; border:1px solid; padding:5px;"><?php echo isset($select_result['t_minutes'])?$select_result['t_minutes']:""; ?></td>
-    <td colspan="2" style="width:33%; border:1px solid; padding:5px;"> ml</td>
-</tr>
 <tr>
     <td colspan="2" style="width:33%; border:1px solid; padding:5px;"><strong>Sperm Count :</strong></td>
     <td colspan="2" style="width:33%; border:1px solid; padding:5px;"><?php echo isset($select_result['Sperm_minutes'])?$select_result['Sperm_minutes']:""; ?></td>
@@ -319,7 +310,11 @@ Prepared By:- <?php echo isset($select_result['prepared_by'])?$select_result['pr
 Checked By:-  <?php echo isset($select_result['checked_by'])?$select_result['checked_by']:""; ?>
 </td>
 </tr>
-
+<tr>
+<td colspan="4"style="width:100%; border:1px solid; padding:5px;">
+<label for="other">Note: Sperm Freezing may not survive cryopreservation process, which means on thawing nothing, or lesser quantity will be retrieved.</label>
+</td>
+</tr>
 </table>
 </div>
 </div>

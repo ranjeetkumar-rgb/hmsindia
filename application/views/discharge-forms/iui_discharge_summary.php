@@ -145,7 +145,7 @@ $appoitmented_date = $_GET['appoitmented_date'];
 ?>
 
 <div class="ga-pro">
-<h3>Discharge Summary</h3>
+<h3>IUI Discharge Summary</h3>
 
   <form action="" enctype='multipart/form-data' method="post">
   <input type="hidden" value="<?php echo $updated_by; ?>" class="form" name="updated_by">
@@ -1041,10 +1041,10 @@ $appoitmented_date = $_GET['appoitmented_date'];
 <p>500MG</p>
 </td>
 <td width="76">
-<p>Tab</p>
+<p>1 Tab</p>
 </td>
 <td width="83">
-<p>weekly</p>
+<p>Twice Daily</p>
 </td>
 <td width="68">
 <p>After meals</p>
@@ -1573,7 +1573,7 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <table style="border:1px solid;width:100%;padding:5px;" class="fg45yu">
    <tr>
    <td style="width:50%;padding:5px;" colspan="2"><img src="https://indiaivf.website/assets/images/india-ivf-logo.webp"></td>
-   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">Discharge Summary</h3></td>
+   <td style="width:50%;padding:5px;" colspan="2"><h3 style="margin-top:20px;">IUI Discharge Summary</h3></td>
    </tr>
 </table>
 <table width="100%" class="vb45rt">
@@ -2505,10 +2505,10 @@ if (!empty($select_result['applicablemedicine']) && in_array($medicine, $applica
 <p>500MG</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>Tab</p>
+<p>1 Tab</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
-<p>weekly</p>
+<p>Twice Daily</p>
 </td>
 <td width="100" style="border:1px solid;padding:5px;">
 <p>After meals</p>
