@@ -51,6 +51,10 @@ $route['patient_details/(:any)'] = 'accounts/patient_details/$1';
 
 $route['my-approvals'] = 'accounts/my_approvals';
 
+$route['user-approval-stats'] = 'accounts/user_approval_stats';
+
+$route['debug-users'] = 'accounts/debug_users';
+
 $route['patient-profile'] = 'welcome/patient_profile';
 
 $route['404_override'] = 'welcome/not_found';

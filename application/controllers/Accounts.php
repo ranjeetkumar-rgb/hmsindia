@@ -6985,7 +6985,7 @@ public function partial_procedure(){
 		if (!$logg['status']) {
 			return null;
 		}
-		
+
 		$role = $logg['role'];
 		$session_key = 'logged_' . $role;
 		
@@ -6994,6 +6994,219 @@ public function partial_procedure(){
 		}
 		
 		return null;
+	}
+
+	/**
+	 * Get all users for filter dropdown - only users involved in PO approvals
+	 */
+	private function get_all_users()
+	{
+		$users = [];
+		
+		try {
+			// Get users from approver_tokens in purchase orders (only users who have been involved in PO approvals)
+			$this->db->select('approver_tokens');
+			$this->db->from('hms_purchase_orders');
+			$this->db->where('approver_tokens IS NOT NULL');
+			$this->db->where('approver_tokens !=', '');
+			$query = $this->db->get();
+			
+			$seen_emails = [];
+			foreach ($query->result_array() as $row) {
+				$tokens = json_decode($row['approver_tokens'], true);
+				if ($tokens) {
+					foreach ($tokens as $token_data) {
+						if (!empty($token_data['email']) && !in_array($token_data['email'], $seen_emails)) {
+							// Try to get the user's name from employees table
+							$name = $this->get_user_name_by_email($token_data['email']);
+							
+							$users[] = [
+								'name' => $name ? $name : $token_data['email'], // Use actual name if found, otherwise use email
+								'email' => $token_data['email']
+							];
+							$seen_emails[] = $token_data['email'];
+						}
+					}
+				}
+			}
+		} catch (Exception $e) {
+			log_message('error', 'Failed to get users from purchase orders: ' . $e->getMessage());
+		}
+		
+		// Sort by name
+		usort($users, function($a, $b) {
+			return strcmp($a['name'], $b['name']);
+		});
+		
+		return $users;
+	}
+
+	/**
+	 * Get user name by email from employees table
+	 */
+	private function get_user_name_by_email($email)
+	{
+		try {
+			$query = $this->db->select('name')
+				->from('hms_employees')
+				->where('email', $email)
+				->limit(1)
+				->get();
+			
+			if ($query->num_rows() > 0) {
+				$result = $query->row_array();
+				return $result['name'];
+			}
+		} catch (Exception $e) {
+			log_message('error', 'Failed to get user name for email ' . $email . ': ' . $e->getMessage());
+		}
+		
+		return null;
+	}
+
+	/**
+	 * Check pending orders for any specific user
+	 */
+	public function check_user_pending_orders()
+	{
+		$user_email = $this->input->get('user_email');
+		
+		if (empty($user_email)) {
+			$this->output->set_content_type('application/json')
+				->set_status_header(400)
+				->set_output(json_encode([
+					'status' => 'error', 
+					'message' => 'User email is required'
+				]));
+			return;
+		}
+		
+		$this->load->model('Purchase_order_model');
+		$pending_orders = $this->Purchase_order_model->get_pending_orders_for_user($user_email);
+		$pending_count = count($pending_orders);
+		
+		$this->output->set_content_type('application/json')
+			->set_status_header(200)
+			->set_output(json_encode([
+				'status' => 'success',
+				'user_email' => $user_email,
+				'pending_count' => $pending_count,
+				'pending_orders' => $pending_orders
+			]));
+	}
+
+	/**
+	 * Check user approval statistics - standalone feature
+	 */
+	public function user_approval_stats()
+	{
+		$logg = checklogin();
+		if($logg['status'] != true){
+			header("location:" .base_url(). "");
+			die();
+		}
+
+		$data = array();
+		$data['user_stats'] = null;
+		$data['searched_user'] = '';
+		
+		// Get current user's email
+		$current_user_email = $this->_get_current_user_email();
+		
+		// Get filters from request
+		$filters = [
+			'status_filter' => $this->input->get('status_filter'),
+			'po_number' => $this->input->get('po_number')
+		];
+		$data['filters'] = $filters;
+		
+		// Get user email from search, or use current user if no search
+		$search_user = $this->input->get('user_email');
+		if (empty($search_user) && !empty($current_user_email)) {
+			$search_user = $current_user_email;
+		}
+		
+		if (!empty($search_user)) {
+			$this->load->model('Purchase_order_model');
+			$data['user_stats'] = $this->Purchase_order_model->get_user_approval_stats($search_user, $filters);
+			$data['searched_user'] = $search_user;
+		}
+		
+		// Get all users for dropdown
+		$data['all_users'] = $this->get_all_users();
+		
+		// Pass current user email to view
+		$data['current_user_email'] = $current_user_email;
+		
+		// Debug: Log the number of users found
+		log_message('info', 'Found ' . count($data['all_users']) . ' users for dropdown');
+		
+		$template = get_header_template($logg['role']);
+		$data['user_role'] = $logg['role'];
+		$this->load->view($template['header']);
+		$this->load->view('accounts/user_approval_stats', $data);
+		$this->load->view($template['footer']);
+	}
+
+	/**
+	 * Debug method to check database tables
+	 */
+	public function debug_users()
+	{
+		$logg = checklogin();
+		if($logg['status'] != true){
+			header("location:" .base_url(). "");
+			die();
+		}
+
+		echo "<h3>Debug: User Tables Check</h3>";
+		
+		// Check hms_employees table
+		echo "<h4>hms_employees table:</h4>";
+		try {
+			$query = $this->db->select('name, email, username, status')
+				->from('hms_employees')
+				->limit(10)
+				->get();
+			
+			echo "<p>Total rows: " . $query->num_rows() . "</p>";
+			if ($query->num_rows() > 0) {
+				echo "<table border='1'><tr><th>Name</th><th>Email</th><th>Username</th><th>Status</th></tr>";
+				foreach ($query->result_array() as $row) {
+					echo "<tr><td>{$row['name']}</td><td>{$row['email']}</td><td>{$row['username']}</td><td>{$row['status']}</td></tr>";
+				}
+				echo "</table>";
+			}
+		} catch (Exception $e) {
+			echo "<p style='color: red;'>Error: " . $e->getMessage() . "</p>";
+		}
+		
+		// Check purchase orders for approver tokens
+		echo "<h4>Purchase Orders with Approver Tokens:</h4>";
+		try {
+			$query = $this->db->select('po_number, approver_tokens')
+				->from('hms_purchase_orders')
+				->where('approver_tokens IS NOT NULL')
+				->where('approver_tokens !=', '')
+				->limit(5)
+				->get();
+			
+			echo "<p>Total POs with tokens: " . $query->num_rows() . "</p>";
+			foreach ($query->result_array() as $row) {
+				echo "<p><strong>PO:</strong> {$row['po_number']}<br>";
+				echo "<strong>Tokens:</strong> " . htmlspecialchars($row['approver_tokens']) . "</p>";
+			}
+		} catch (Exception $e) {
+			echo "<p style='color: red;'>Error: " . $e->getMessage() . "</p>";
+		}
+		
+		// Test get_all_users method
+		echo "<h4>get_all_users() method result (PO Approvers Only):</h4>";
+		$users = $this->get_all_users();
+		echo "<p>Found " . count($users) . " users who have been involved in PO approvals</p>";
+		foreach ($users as $user) {
+			echo "<p>{$user['name']} - {$user['email']}</p>";
+		}
 	}
 
 	/**

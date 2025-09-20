@@ -269,4 +269,169 @@ class Purchase_order_model extends CI_Model {
         }
     }
 
+    /**
+     * Get pending purchase orders for a specific user
+     * @param string $user_email User email to check pending orders for
+     * @return array Array of pending purchase orders
+     */
+    public function get_pending_orders_for_user($user_email)
+    {
+        try {
+            $this->db->select('*');
+            $this->db->from('hms_purchase_orders');
+            $this->db->like('approver_tokens', $user_email);
+            $this->db->where('status', '2'); // Pending status
+            $query = $this->db->get();
+            $all_pos = $query->result_array();
+            
+            $pending_orders = [];
+            
+            foreach ($all_pos as $po) {
+                if (!empty($po['approver_tokens'])) {
+                    $approver_tokens = json_decode($po['approver_tokens'], true);
+                    if ($approver_tokens) {
+                        foreach ($approver_tokens as $token_data) {
+                            if ($token_data['email'] === $user_email && $token_data['status'] === 'pending') {
+                                $pending_orders[] = $po;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return $pending_orders;
+        } catch (Exception $e) {
+            log_message('error', 'Failed to get pending orders for user: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Get count of pending purchase orders for a specific user
+     * @param string $user_email User email to check pending orders for
+     * @return int Count of pending orders
+     */
+    public function get_pending_orders_count_for_user($user_email)
+    {
+        $pending_orders = $this->get_pending_orders_for_user($user_email);
+        return count($pending_orders);
+    }
+
+    /**
+     * Get user approval statistics - approved, disapproved, pending counts
+     * @param string $user_email User email to get stats for
+     * @param array $filters Additional filters (status_filter, po_number)
+     * @return array User approval statistics
+     */
+    public function get_user_approval_stats($user_email, $filters = [])
+    {
+        try {
+            $stats = [
+                'user_email' => $user_email,
+                'total_approved' => 0,
+                'total_disapproved' => 0,
+                'total_pending' => 0,
+                'total_involved' => 0,
+                'po_approved' => 0,
+                'po_disapproved' => 0,
+                'po_pending' => 0,
+                'approval_details' => []
+            ];
+            
+            // Get all purchase orders where this user is involved as an approver
+            $this->db->select('*');
+            $this->db->from('hms_purchase_orders');
+            $this->db->like('approver_tokens', $user_email);
+            
+            // Apply PO number filter if provided
+            if (!empty($filters['po_number'])) {
+                $this->db->like('po_number', $filters['po_number']);
+            }
+            
+            $query = $this->db->get();
+            $all_pos = $query->result_array();
+            
+            foreach ($all_pos as $po) {
+                if (!empty($po['approver_tokens'])) {
+                    $approver_tokens = json_decode($po['approver_tokens'], true);
+                    if ($approver_tokens) {
+                        foreach ($approver_tokens as $token_data) {
+                            if ($token_data['email'] === $user_email) {
+                                // Apply status filter if provided
+                                if (!empty($filters['status_filter']) && $token_data['status'] !== $filters['status_filter']) {
+                                    continue;
+                                }
+                                
+                                $stats['total_involved']++;
+                                
+                                $po_info = [
+                                    'po_number' => $po['po_number'],
+                                    'po_centre' => $po['po_centre'],
+                                    'po_department' => $po['po_department'],
+                                    'po_name_of_vendor' => $po['po_name_of_vendor'],
+                                    'po_po_total' => $po['po_po_total'],
+                                    'created_at' => $po['created_at'],
+                                    'status' => $token_data['status'], // User's approval status
+                                    'po_status' => $po['status'], // Overall PO status
+                                    'approved_at' => isset($token_data['approved_at']) ? $token_data['approved_at'] : null,
+                                    'remarks' => isset($token_data['remarks']) ? $token_data['remarks'] : ''
+                                ];
+                                
+                                switch ($token_data['status']) {
+                                    case 'approved':
+                                        $stats['total_approved']++;
+                                        break;
+                                    case 'rejected':
+                                        $stats['total_disapproved']++;
+                                        break;
+                                    case 'pending':
+                                        $stats['total_pending']++;
+                                        break;
+                                }
+                                
+                                // Count PO overall status
+                                switch ($po['status']) {
+                                    case '1':
+                                        $stats['po_approved']++;
+                                        break;
+                                    case '0':
+                                        $stats['po_disapproved']++;
+                                        break;
+                                    case '2':
+                                    default:
+                                        $stats['po_pending']++;
+                                        break;
+                                }
+                                
+                                $stats['approval_details'][] = $po_info;
+                                break; // User can only appear once per PO
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // Sort approval details by created date (newest first)
+            usort($stats['approval_details'], function($a, $b) {
+                return strtotime($b['created_at']) - strtotime($a['created_at']);
+            });
+            
+            return $stats;
+        } catch (Exception $e) {
+            log_message('error', 'Failed to get user approval stats: ' . $e->getMessage());
+            return [
+                'user_email' => $user_email,
+                'total_approved' => 0,
+                'total_disapproved' => 0,
+                'total_pending' => 0,
+                'total_involved' => 0,
+                'po_approved' => 0,
+                'po_disapproved' => 0,
+                'po_pending' => 0,
+                'approval_details' => []
+            ];
+        }
+    }
+
 }
