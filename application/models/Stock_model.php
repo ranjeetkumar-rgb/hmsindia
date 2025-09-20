@@ -2669,11 +2669,11 @@ class Stock_model extends CI_Model
 				}
 				
 				//$final_consumables_arr =[];
+				$final_consumables123 = [];
 				
 				foreach($_consumables_name_arr as $_key => $_value){
 					
-					$final_consumables123 = $_value;
-					array_push($final_consumables123);
+					array_push($final_consumables123, $_value);
 					$response[] = array(
 				        'on_date' => $val['on_date'],
                         'patient_id' => $val['patient_id'],
