@@ -8,6 +8,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+
 echo "<h2>HMS India - Clear Redirect Loop</h2>";
 echo "<hr>";
 
