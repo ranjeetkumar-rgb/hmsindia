@@ -56,7 +56,7 @@
                 <div class="card-content">
                   <h3><i class="fa fa-check-circle" style="font-size: 2em;"></i></h3>
                 </div>
-                <div class="card-action"> <strong>MY APPROVALS</strong> </div>
+                <!-- <div class="card-action"> <strong>MY APPROVALS</strong> </div> -->
               </div>
             </a>
           </div>

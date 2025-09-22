@@ -4,7 +4,7 @@
    
   </div>
   <div id="page-inner">
-    <div class="dashboard-cards">
+    <!-- <div class="dashboard-cards">
       <div class="row">
         <div class="col-xs-12 col-sm-6 col-md-3">
           <div class="card horizontal cardIcon waves-effect waves-dark">
@@ -19,7 +19,7 @@
           </div>
         </div>
       </div>
-    </div>
+    </div> -->
   <!--<div id="page-inner">-->
   <!--  <div class="dashboard-cards">-->
   <!--    <div class="row">-->
