@@ -5548,5 +5548,36 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		}
 	}
 
-	
+        
+	function get_lead_source($patient_id){
+        $result = array();
+        $select_query = "SELECT * FROM hms_appointments WHERE paitent_id='$patient_id'";
+        $select_result = run_select_query($select_query); 
+        $sql = "Select * from ".$this->config->item('db_prefix')."appointments where wife_phone='".$select_result['wife_phone']."' AND paitent_type='new_patient'";
+        $q = $this->db->query($sql);
+        $result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result[0]['lead_source'];
+        }
+        else
+        {
+            return $result;
+        }
+    }
+	function get_counselor_name($appointment_id) {
+    $sql = "SELECT * 
+            FROM ".$this->config->item('db_prefix')."doctor_consultation 
+            WHERE appointment_id='".$appointment_id."' 
+              AND status='1'";
+    $q = $this->db->query($sql);
+    $result = $q->result_array();
+    if (!empty($result)) {
+        return $result[0]['counsellor_signature']; // return string
+    } else {
+        return ''; // return empty string instead of array
+    }
+}
+
+
 }

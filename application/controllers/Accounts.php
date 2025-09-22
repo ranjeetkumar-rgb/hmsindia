@@ -5,11 +5,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Accounts extends CI_Controller {
 	public function __construct()
 	{
-
 		// Load parent's constructor.
-
        	parent::__construct();
-        
 		$this->load->database();
 		$this->load->helper('form');
         $this->load->helper('url_helper');
@@ -7282,5 +7279,13 @@ public function partial_procedure(){
 		$this->load->view('accounts/my_approvals', $data);
 		$this->load->view($template['footer']);
 	}
+    function get_lead_source($patient_id){
+        $name = $this->accounts_model->get_lead_source($patient_id);
+        return $name;
+    }
+	function get_counselor_name($appointment_id){
+        $name = $this->accounts_model->get_counselor_name($appointment_id);
+        return $name;
+    }
 
 } 
