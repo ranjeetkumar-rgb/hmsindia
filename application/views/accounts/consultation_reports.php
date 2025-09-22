@@ -19,7 +19,7 @@
 					    ?>
                 </select>
             </div>
-			<div class="col-sm-2 col-xs-12" style="margin-top:10px;">
+			<div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>Payment Type </label>
                 <select class="form-control" id="payment_method" name="payment_method">
 				    <option value=''>--Select From--</option>
@@ -34,29 +34,37 @@
 					<option value="cheque" mode="Cheque">Cheque</option>
                 </select>
             </div>
+			<div class="col-sm-3 col-xs-12" style="margin-top:10px;">
+            	<label>Reason For Visit </label>
+                <select class="form-control" id="reason_of_visit" name="reason_of_visit">
+				    <option value=''>--Select From--</option>
+					<option value="First Visit" mode="First Visit">First Visit</option>
+                    <option value="Consulted Not Booked" mode="Consulted Not Booked">Consulted Not Booked</option>
+                    <option value="FOLLOW UP VISIT" mode="FOLLOW UP VISIT">Follow up Visit</option>
+					<option value="PROCEDURE" mode="PROCEDURE">Procedure</option>
+                    <option value="TVS" mode="TVS">TVS</option>
+                    
+                </select>
+            </div>
             <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>Start Date</label>
               <input type="text" class="particular_date_filter form-control" id="start_date" name="start_date" value="<?php echo $start_date;?>" />
             </div>
-            <div class="col-sm-2 col-xs-12" style="margin-top:10px;">
+            <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>End Date</label>
                 <input type="text" class="particular_date_filter form-control" id="end_date" name="end_date" value="<?php echo $end_date;?>" />
             </div>
-            <div class="col-sm-2 col-xs-12" style="margin-top:10px;">
+            <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>IIC ID </label>
                 <input type="text" class="form-control" id="iic_id" name="iic_id" value="<?php echo $patient_id;?>" />
             </div>
-            <div class="col-sm-1" style="margin-top: 10px;">
+            <div class="col-sm-3" style="margin-top: 30px;">
             	<button name="btnsearch" id="btnsearch" type="submit"  class="btn btn-primary">Search</button>
-            </div>
-            <div class="col-sm-1" style="margin-top: 10px;">
-            	<a href="<?php echo base_url().'accounts/consultation_patients'; ?>" style="text-decoration: none;">
+            	<a href="<?php echo base_url().'accounts/consultation_reports'; ?>" style="text-decoration: none;">
                 <button name="btnreset" id="btnreset" type="button"  class="btn btn-secondary">RESET</button>
                </a>
-            </div>
-            <div class="col-sm-2" style="margin-top: 10px;">
             	<a href="<?php echo base_url('accounts/consultation-reports'); ?>" style="text-decoration: none;">
-                <button name="export-billing" type="submit"  class="btn btn-secondary" id="export-billing">Export Reports</button>
+                <button name="export-consultation-reports" type="submit"  class="btn btn-secondary" id="export-consultation-reports">Export Reports</button>
                </a>
             </div>	
 		  </form>  
@@ -74,13 +82,12 @@
                   <th>Receipt number</th>
                   <th>On Date</th>
                   <th>Total</th>
-                  <th>Discount amount</th>
-				  <th>Received amount</th>
-                  <th>Mode</th>
+                  <th>Received amount</th>
                   <th>Center</th>
 				  <th>Reason For Visit</th>
-				  <th>Consultation Id</th>
-				  <th>Reason For Free</th>
+				  <th>Doctor Name</th>
+				  <th>Lead Source</th>
+				  <th>Counsor Name</th>
                </tr>
               </thead>
               <tbody id="consultation_result">
@@ -99,13 +106,12 @@
                   <td><?php echo $vl['receipt_number']?></td>
                   <td><?php echo $vl['on_date']?></td>
 				  <td><?php echo $vl['totalpackage']?></td>
-                  <td><?php echo $vl['discount_amount']?></td>
-				  <td><?php echo $vl['payment_done']?></td>
-                  <td><?php echo $currency.$vl['payment_method']?></td>
+                  <td><?php echo $vl['payment_done']?></td>
                   <td><?php echo $all_method->get_center_name($vl['billing_at']); ?></td>
 				  <td><?php echo $vl['reason_of_visit']?></td>
-				  <td><?php echo $vl['consultation_id'] ?></td>
-                  <td><?php echo $vl['free_reason'] ?></td>                 
+				  <td><?php echo $all_method->get_doctor_name($vl['doctor_id']); ?></td>
+				  <td><?php echo $all_method->get_lead_source($vl['patient_id']); ?></td>
+				  <td><?php echo $all_method->get_counselor_name($vl['appointment_id']); ?></td>
                  
                 </tr>
                  <?php 
@@ -114,12 +120,29 @@
 				$total_payment_done += $vl['payment_done'];
 				 ?>
               <?php $count++;} ?>
+			  <!-- Your table content here -->
+
+<!-- Pagination display -->
+
 			   <tr>
                 <td colspan="5">
-                <p class="custom-pagination"><?php echo $links; ?></p>
+        <!-- Item count display -->
+        <div class="pagination-info">
+            <?php if ($total_items > 0): ?>
+                Showing <?php echo $start_item; ?> to <?php echo $end_item; ?> of <?php echo $total_items; ?> items
+            <?php else: ?>
+                No items found
+            <?php endif; ?>
+        </div>
+        
+        <!-- Pagination links -->
+        <div class="custom-pagination">
+            <?php echo $pagination_links; ?>
+        </div>
+    </td>
                 </td><td><?php echo $total_totalpackage; ?></td>
-				<td><?php echo $total_discount_amount; ?></td>
 				<td><?php echo $total_payment_done; ?></td>
+				<td colspan="5"></td>
               </tr>
 
               </tbody>

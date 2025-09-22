@@ -121,7 +121,7 @@
         
         <div class="col-md-12 mt-3">
             <a href="<?php echo base_url('accounts/purchase_order'); ?>" class="btn btn-primary pull-right mr-2">Add Purchase Order</a>
-            <a href="<?php echo base_url('user-approval-stats'); ?>" class="btn btn-info pull-right mr-2">User Approval Stats</a>
+            <!-- <a href="<?php echo base_url('user-approval-stats'); ?>" class="btn btn-info pull-right mr-2">User Approval Stats</a> -->
         </div>
         <hr>
         <div class="clearfix"></div>
