@@ -33,7 +33,8 @@
 <nav class="navbar navbar-default top-navbar" role="navigation">
   <div class="navbar-header">
     <button type="button" class="navbar-toggle waves-effect waves-dark" data-toggle="collapse" data-target=".sidebar-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
-    <a class="navbar-brand waves-effect waves-dark" href="<?php echo base_url(); ?>"><strong>IndiaIVF</strong></a>
+    <a class="navbar-brand waves-effect waves-dark logo_section" href="<?php echo base_url(); ?>">
+      <img src="<?php echo base_url(); ?>assets/images/IndiaIVFClinic_logo.png" /></a>
     <div id="sideNav" href=""><i class="material-icons dp48">toc</i></div>
   </div>
   <?php $notice = get_center_notification(); ?>

@@ -33,7 +33,8 @@
 <nav class="navbar navbar-default top-navbar" role="navigation">
   <div class="navbar-header">
     <button type="button" class="navbar-toggle waves-effect waves-dark" data-toggle="collapse" data-target=".sidebar-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
-    <a class="navbar-brand waves-effect waves-dark" href="<?php echo base_url(); ?>"><strong>IndiaIVF</strong></a>
+    <a class="navbar-brand waves-effect waves-dark logo_section" href="<?php echo base_url(); ?>">
+      <img src="<?php echo base_url(); ?>assets/images/IndiaIVFClinic_logo.png" /></a>
     <div id="sideNav" href=""><i class="material-icons dp48">toc</i></div>
   </div>
   <?php $notice = get_center_notification(); ?>
@@ -136,11 +137,12 @@
 		  <li> <a href="<?php echo base_url(); ?>accounts/procedure_origin">Procedure</a> </li>
 		  <li> <a href="<?php echo base_url(); ?>stocks/medicine_origin">Medicine</a> </li>
 		</ul>
-      </li>
-	  <li> <a href="<?php echo base_url(); ?>doctors/patient_general_instructions" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>General Instructions</a></li>
-	<li> <a href="<?php echo base_url(); ?>accounts/revenue_potential" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Revenue Potential</a></li>
-	<li> <a href="<?php echo base_url(); ?>accounts/patient_center_wise_report" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Patient Journey</a></li>
-	<li> <a href="<?php echo base_url(); ?>doctors/patient_duration" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>OPD Consultation Duration</a></li>
+    </li>
+    <li><a href="<?php echo base_url(); ?>doctors/patient_general_instructions" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>General Instructions</a></li>
+    <li><a href="<?php echo base_url(); ?>accounts/revenue_potential" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Revenue Potential</a></li>
+    <li><a href="<?php echo base_url(); ?>accounts/patient_center_wise_report" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Patient Journey</a></li>
+    <li><a href="<?php echo base_url(); ?>doctors/patient_duration" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>OPD Consultation Duration</a></li>
+    <li><a href="<?php echo base_url(); ?>orders/accounts/revenue_potential" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Revenue Potential</a></li>
 	</ul>
   </div>
 </nav>

@@ -32,7 +32,9 @@
       <nav class="navbar navbar-default top-navbar" role="navigation">
          <div class="navbar-header">
             <button type="button" class="navbar-toggle waves-effect waves-dark" data-toggle="collapse" data-target=".sidebar-collapse"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
-            <a class="navbar-brand waves-effect waves-dark" href="<?php echo base_url(); ?>"><strong>IndiaIVF</strong></a>
+            <!-- <a class="navbar-brand waves-effect waves-dark" href="<?php echo base_url(); ?>"><strong>IndiaIVF</strong></a> -->
+                <a class="navbar-brand waves-effect waves-dark logo_section" href="<?php echo base_url(); ?>">
+                  <img src="<?php echo base_url(); ?>assets/images/IndiaIVFClinic_logo.png" /></a>
             <div id="sideNav" href=""><i class="material-icons dp48">toc</i></div>
          </div>
          <ul class="nav navbar-top-links navbar-right">
@@ -194,6 +196,7 @@
                <li><a class="waves-effect waves-dark" href="<?php echo base_url(); ?>procedures"><i class="fa fa-sitemap"></i>Procedures List</a> </li>
                <li><a class="waves-effect waves-dark" href="<?php echo base_url(); ?>stocks/all_center_stocks"><i class="fa fa-sitemap"></i> All Center Stocks</a> </li>
                <li> <a href="<?php echo base_url(); ?>accounts/patient_center_wise_report" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Patient Journey</a></li>
+               <li> <a href="<?php echo base_url(); ?>orders/accounts/revenue_potential" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Revenue Potential</a></li>
             </ul>
             <?php } ?>
          </div>

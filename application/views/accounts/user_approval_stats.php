@@ -90,9 +90,9 @@
             <form method="GET" action="<?php echo base_url('accounts/user_approval_stats'); ?>">
                 <div class="row">
                     <!-- User Filter -->
-                    <div class="col-md-4">
+                    <small class="text-muted">(Only users involved in PO approvals)</small>
+                    <div class="col-md-3">
                         <label><strong>Select User:</strong></label>
-                        <small class="text-muted">(Only users involved in PO approvals)</small>
                         <select name="user_email" class="form-control" required>
                             <option value="">-- Select User --</option>
                             <?php 
@@ -109,7 +109,7 @@
                     </div>
                     
                     <!-- Status Filter -->
-                    <div class="col-md-3">
+                    <div class="col-md-3 mt-4">
                         <label><strong>Status Filter:</strong></label>
                         <select name="status_filter" class="form-control">
                             <option value="">-- All Statuses --</option>
@@ -120,17 +120,20 @@
                     </div>
                     
                     <!-- PO Number Filter -->
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label><strong>PO Number:</strong></label>
                         <input type="text" name="po_number" class="form-control" placeholder="Enter PO Number" value="<?php echo isset($filters['po_number']) ? $filters['po_number'] : ''; ?>">
                     </div>
                     
                     <!-- Search Button -->
-                    <div class="col-md-2">
+                    <div class="col-md-4 mt-4 d-flex">
                         <label>&nbsp;</label><br>
                         <button type="submit" class="btn btn-primary">
                             <i class="glyphicon glyphicon-search"></i> Search
                         </button>
+                        <a href="<?php echo base_url('accounts/user_approval_stats'); ?>" class="btn btn-secondary">
+                            <i class="glyphicon glyphicon-refresh"></i> Reset
+                        </a>
                     </div>
                 </div>
                 
@@ -201,7 +204,7 @@
                             <th>Vendor</th>
                             <th>Amount</th>
                             <th>User Status</th>
-                            <th>PO Status</th>
+                            <!-- <th>PO Status</th> -->
                             <th>Action Date</th>
                             <th>Remarks</th>
                         </tr>
@@ -219,33 +222,7 @@
                                     <?php echo ucfirst($detail['status']); ?>
                                 </span>
                             </td>
-                            <td>
-                                <?php 
-                                // Get PO overall status
-                                $po_status = isset($detail['po_status']) ? $detail['po_status'] : '2';
-                                $po_status_text = '';
-                                $po_status_class = '';
-                                
-                                switch ($po_status) {
-                                    case '1':
-                                        $po_status_text = 'Approved';
-                                        $po_status_class = 'status-approved';
-                                        break;
-                                    case '0':
-                                        $po_status_text = 'Disapproved';
-                                        $po_status_class = 'status-disapproved';
-                                        break;
-                                    case '2':
-                                    default:
-                                        $po_status_text = 'Pending';
-                                        $po_status_class = 'status-pending';
-                                        break;
-                                }
-                                ?>
-                                <span class="status-badge <?php echo $po_status_class; ?>">
-                                    <?php echo $po_status_text; ?>
-                                </span>
-                            </td>
+                          
                             <td>
                                 <?php if ($detail['approved_at']): ?>
                                     <?php echo date('d M Y H:i', strtotime($detail['approved_at'])); ?>
