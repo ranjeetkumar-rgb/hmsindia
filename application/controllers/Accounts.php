@@ -5745,7 +5745,7 @@ public function partial_procedure(){
 			</body>
 			</html>";
 			$subject = "Approval Needed: Purchase Order #{$po_number}";
-			$to_email = !empty($approver_email) ? $approver_email : 'shanky.malhotra@indiaivf.in';
+			$to_email = !empty($approver_email) ? $approver_email : 'accounts@indiaivf.in';
 			$sent = send_mail($to_email, $subject, $message);
 			if (!$sent) {
 				log_message('error', 'PO Approval Email Failed for PO: ' . $po_number);
@@ -6027,7 +6027,7 @@ public function partial_procedure(){
 			
 			$subject = "Purchase Order #{$po_data['po_number']} - {$status_text}";
 			// Get creator email from session or use default
-			$creator_email = 'shanky.malhotra@indiaivf.in'; // Default fallback
+			$creator_email = 'accounts@indiaivf.in'; // Default fallback
 			$sent = send_mail($creator_email, $subject, $message);
 			if (!$sent) {
 				log_message('error', 'PO Status Update Email Failed for PO: ' . $po_data['po_number']);

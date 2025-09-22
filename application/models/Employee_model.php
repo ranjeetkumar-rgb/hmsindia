@@ -173,19 +173,16 @@ class Employee_model extends CI_Model
             array(
                 'name' => 'DIRECTOR Richika Sahay Shukla',
                 'email' => 'director@indiaivf.in',
-				// 'email' => 'shanky.malhotra@indiaivf.in',
                 'role' => 'director'
             ),
             array(
                 'name' => 'CEO',
                 'email' => 'ceo@indiaivf.in',
-                // 'email' => 'shanky.malhotra@indiaivf.in',
                 'role' => 'ceo'
             ),
             array(
                 'name' => 'Alan',
                 'email' => 'alan@indiaivf.in',
-                // 'email' => 'shanky.malhotra@indiaivf.in',
                 'role' => 'Director'
             )
         );
