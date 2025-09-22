@@ -142,7 +142,7 @@
     <li><a href="<?php echo base_url(); ?>accounts/revenue_potential" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Revenue Potential</a></li>
     <li><a href="<?php echo base_url(); ?>accounts/patient_center_wise_report" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Patient Journey</a></li>
     <li><a href="<?php echo base_url(); ?>doctors/patient_duration" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>OPD Consultation Duration</a></li>
-    <li><a href="<?php echo base_url(); ?>orders/accounts/revenue_potential" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Revenue Potential</a></li>
+    <li><a href="<?php echo base_url(); ?>accounts/revenue_potential" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Revenue Potential</a></li>
 	</ul>
   </div>
 </nav>
