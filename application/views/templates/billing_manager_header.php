@@ -77,7 +77,7 @@
       </li>
       
       <!-- NEW MODERN APPOINTMENTS SECTION -->
-      <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Modern Appointments<span class="fa arrow"></span></a>
+      <!-- <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Modern Appointments<span class="fa arrow"></span></a>
         <ul class="nav nav-second-level">
 	        <li><a href="<?php echo base_url(); ?>modern-appointments/index"><i class="fa fa-sitemap"></i>Appointments list</a></li>
 	        <li><a href="<?php echo base_url(); ?>modern-appointments/create"><i class="fa fa-plus-circle"></i> Book Appointment</a></li>
@@ -85,7 +85,7 @@
 	        <li><a href="<?php echo base_url(); ?>modern-appointments/reports"><i class="fa fa-sitemap"></i>Reports</a></li>
 	        <li><a href="<?php echo base_url(); ?>modern-appointments/settings"><i class="fa fa-cog"></i> Settings</a></li>
         </ul>
-      </li>
+      </li> -->
       
       <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Manage Billing<span class="fa arrow"></span></a>
         <ul class="nav nav-second-level">
