@@ -180,7 +180,7 @@
 								$sql = "SELECT SUM(fees) AS total_fees, SUM(totalpackage) AS total_package, SUM(discount_amount) AS total_discount FROM `hms_patient_procedure` WHERE appointment_id='" . $vl['appointment_id'] . "' AND patient_id='".$vl['patient_id']."' AND status IN ('pending', 'approved')  ";
 								$amount_result = run_select_query($sql);
 
-								echo "Total Package: ".$amount_result['total_package']."<br>";
+								//echo "Total Package: ".$amount_result['total_package']."<br>";
 								echo "Total Discount: ". $amount_result['total_discount']."<br>";
 								echo "Total Fees: ".$amount_result['total_fees']."<br>";
 							?>
