@@ -57,9 +57,9 @@
                   <th style="width: 280px;">Investigation Billing Price</th>
                   <th style="width: 280px;">Procedure Advice Price</th>
                   <th style="width: 280px;">Procedure Billing Price</th>
-				  <th style="width: 280px;">Medicine Advice Price</th>
+				  <!--<th style="width: 280px;">Medicine Advice Price</th>
 				  <th style="width: 280px;">Discharge Summry Price</th>
-				  <th style="width: 280px;">Medicine Billing Price</th>
+				  <th style="width: 280px;">Medicine Billing Price</th> -->
 				</tr>
               </thead>
               <tbody id="appointment_body">
@@ -180,17 +180,17 @@
 								$sql = "SELECT SUM(fees) AS total_fees, SUM(totalpackage) AS total_package, SUM(discount_amount) AS total_discount FROM `hms_patient_procedure` WHERE appointment_id='" . $vl['appointment_id'] . "' AND patient_id='".$vl['patient_id']."' AND status IN ('pending', 'approved')  ";
 								$amount_result = run_select_query($sql);
 
-								//echo "Total Package: ".$amount_result['total_package']."<br>";
+								echo "Total Package: ".$amount_result['total_package']."<br>";
 								echo "Total Discount: ". $amount_result['total_discount']."<br>";
 								echo "Total Fees: ".$amount_result['total_fees']."<br>";
 							?>
 					    </td>
-						<td>
+						<!-- <td>
 							<table id="medicine_list_table">
                        
                         <tbody>
 		<?php 
-		$grand_total = 0; // ✅ Initialize total outside the loop
+		/* $grand_total = 0; // ✅ Initialize total outside the loop
 		$female_med_count = 1;
 		$maleserialized_data = $vl['male_medicine_suggestion_list'];
 		// ✅ Unserialize the data
@@ -546,8 +546,8 @@ foreach ($hysteroscopyapplicablemedicine as $hysteroscopymed) {
             $select_result5 = run_select_query($sql5);
 			echo "Total Amount: ".round($select_result5['total_fees'],2)."<br>";
 			echo "Total Discount: ". round($select_result5['total_discount'],2)."<br>";
-            echo "Total Receive: ".round($select_result5['total_payment_done'],2)."<br>";
-			?></td>
+            echo "Total Receive: ".round($select_result5['total_payment_done'],2)."<br>";*/
+			?></td>-->
 				</tr>
                     <?php $count++; } ?>
                     <tr>
