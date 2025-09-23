@@ -102,7 +102,11 @@
 			   ?>
                 <tr class="odd gradeX">
                   <td><?php echo $count; ?></td>
-                  <td><?php echo $count; ?></td>
+                  <td><?php 
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
+	                $select_appoint = run_select_query($sql1);
+                  
+                  echo $select_appoint['crm_id']; ?></td>
                   <td><?php echo $vl['patient_id']; ?></td>
                   <td><?php $patient_name = $all_method->get_patient_name($vl['patient_id']); echo strtoupper($patient_name); ?></td>
                   <td><?php echo $vl['receipt_number']?></td>
