@@ -12,13 +12,13 @@
             <p class="page-subtitle">Comprehensive inventory management for all stock items</p>
           </div>
         </div>
-        <div class="col-md-4 text-right">
+        <!-- <div class="col-md-4 text-right">
           <div class="header-actions">
-            <a href="<?php echo base_url('stocks/Central-Medicine'); ?>" class="btn btn-export">
+            <a href="<?php echo base_url('stocks/stocks?export-billing=1&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&generic_name=' . urlencode($generic_name) . '&item_name=' . urlencode($item_name) . '&batch_number=' . urlencode($batch_number) . '&item_number=' . urlencode($item_number)); ?>" class="btn btn-export">
               <i class="fa fa-file-excel-o"></i> Export Medicine
             </a>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
@@ -122,6 +122,9 @@
             <a href="<?php echo base_url().'stocks/stocks'; ?>" class="btn btn-reset-modern">
               <i class="fa fa-refresh"></i>
               <span>Reset</span>
+            </a>
+            <a href="<?php echo base_url('stocks/stocks?export-billing=1&start_date=' . urlencode($start_date) . '&end_date=' . urlencode($end_date) . '&generic_name=' . urlencode($generic_name) . '&item_name=' . urlencode($item_name) . '&batch_number=' . urlencode($batch_number) . '&item_number=' . urlencode($item_number)); ?>" class="btn btn-export">
+              <i class="fa fa-file-excel-o"></i> Export Medicine
             </a>
           </div>
         </div>
