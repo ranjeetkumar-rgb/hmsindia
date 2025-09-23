@@ -151,7 +151,7 @@
               <i class="fa fa-refresh"></i>
               <span>Reset</span>
             </a>
-            <a href="<?php echo base_url('stocks/All-Center-Medicine'); ?>" class="btn btn-export-modern">
+            <a href="#" id="exportBtn" class="btn btn-export-modern">
               <i class="fa fa-file-excel-o"></i>
               <span>Export</span>
             </a>
@@ -1176,3 +1176,35 @@ $(function() {
   background: #a8a8a8;
 }
 </style>
+
+<script>
+$(document).ready(function() {
+    // Handle export button click
+    $('#exportBtn').click(function(e) {
+        e.preventDefault();
+        
+        // Get form values
+        var startDate = $('#start_date').val();
+        var endDate = $('#end_date').val();
+        var genericName = $('#generic_name').val();
+        var itemName = $('#item_name').val();
+        var batchNumber = $('#batch_number').val();
+        var itemNumber = $('#item_number').val();
+        var employeeNumber = $('#employee_number').val();
+        
+        // Build export URL with parameters
+        var exportUrl = '<?php echo base_url("stocks/All-Center-Medicine"); ?>?export-billing=1';
+        
+        if (startDate) exportUrl += '&start_date=' + encodeURIComponent(startDate);
+        if (endDate) exportUrl += '&end_date=' + encodeURIComponent(endDate);
+        if (genericName) exportUrl += '&generic_name=' + encodeURIComponent(genericName);
+        if (itemName) exportUrl += '&item_name=' + encodeURIComponent(itemName);
+        if (batchNumber) exportUrl += '&batch_number=' + encodeURIComponent(batchNumber);
+        if (itemNumber) exportUrl += '&item_number=' + encodeURIComponent(itemNumber);
+        if (employeeNumber) exportUrl += '&employee_number=' + encodeURIComponent(employeeNumber);
+        
+        // Redirect to export URL
+        window.location.href = exportUrl;
+    });
+});
+</script>

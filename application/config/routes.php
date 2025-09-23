@@ -367,4 +367,7 @@ $route['new_purchase_orders/approve/(:any)'] = 'new_purchase_orders/approve/$1';
 $route['new_purchase_orders/reject/(:any)'] = 'new_purchase_orders/reject/$1';
 $route['new_purchase_orders/complete/(:any)'] = 'new_purchase_orders/complete/$1';
 
+// Stock export routes
+$route['stocks/All-Center-Medicine'] = 'stocks/all_center_stocks';
+
 
