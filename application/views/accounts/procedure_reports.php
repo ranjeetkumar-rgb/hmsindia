@@ -81,21 +81,25 @@
             <table class="table table-striped table-bordered table-hover" id="procedure_billing_list">
               <thead>
                 <tr>
-				  <th>S.No.</th>
+				          <th>S.No.</th>
+                  <th>CRM ID</th>
                   <th>IIC ID</th>
                   <th>Patient name</th>
                   <th>Receipt number</th>
                   <th>On Date</th>
                   <th>Total</th>
                   <th>Discount Amount</th>
-				  <th>Discount Package</th>
-				  <th>Receive Amount</th>
+				          <th>Discount Package</th>
+				          <th>Receive Amount</th>
                   <th>Mode</th>
                   <th>Center</th>
-				  <th>Origins</th>
-				  <th>Employee Name</th>
-				  <th>Procedure</th>
-				  <th>Type</th>
+				          <th>Origins</th>
+				          <th>Employee Name</th>
+				          <th>Procedure</th>
+				          <th>Type</th>
+                   <th>Doctor Name</th>
+				          <th>Lead Source</th>
+				          <th>Counselor Name</th>
                 </tr>
               </thead>
               <tbody id="procedure_result">
@@ -108,6 +112,7 @@
 						    $currency = '';
                 $current_balance = $all_method->get_current_balance($vl['patient_id']); ?>
                 <tr class="odd gradeX">
+                  <td><?php echo $count; ?></td>
                   <td><?php echo $count; ?></td>
                   <td><a href="<?php echo base_url().'accounts/procedure_advice'; ?>/<?php echo $vl['patient_id']; ?>"><?php echo $vl['patient_id']; ?></a></td>
                   <td><?php 
@@ -162,7 +167,9 @@
 					 }
 				}
 				  ?>
-                 
+                  <td><?php echo $all_method->get_doctor_name($vl['doctor_id']); ?></td>
+				  <td><?php echo $all_method->get_lead_source($vl['patient_id']); ?></td>
+				  <td><?php echo $all_method->get_counselor_name($vl['appointment_id']); ?></td>
                 </tr>
               <?php $count++;} ?>
               </tbody>			  
