@@ -123,11 +123,11 @@
                   <td><?php echo $vl['on_date']?></td>
                   <td><?php echo $vl['totalpackage']?></td>
                   <td><?php echo $vl['discount_amount']?></td>
-				  <td><?php echo $vl['fees']?></td>
-				  <td><?php echo $vl['payment_done']?></td>
+				          <td><?php echo $vl['fees']?></td>
+				          <td><?php echo $vl['payment_done']?></td>
                   <td><?php echo $vl['payment_method']; ?></td>
-				  <td><?php echo $all_method->get_center_name($vl['billing_at']); ?></td>
-				  <td><?php 
+				          <td><?php echo $all_method->get_center_name($vl['billing_at']); ?></td>
+				          <td><?php 
 				      $sql2 = "Select * from ".$this->config->item('db_prefix')."centers where center_number='".$vl['origins']."'"; 
 			            $query = $this->db->query($sql2);
                             $select_result2 = $query->result(); 
@@ -167,7 +167,11 @@
 					 }
 				}
 				  ?>
-                  <td><?php echo $all_method->get_doctor_name($vl['doctor_id']); ?></td>
+                  <td><?php 
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."doctor_consultation where appointment_id='".$vl['appointment_id']."'";
+	                $select_result1 = run_select_query($sql1);
+                  
+                  echo $all_method->get_doctor_name($select_result1['doctor_id']); ?></td>
 				  <td><?php echo $all_method->get_lead_source($vl['patient_id']); ?></td>
 				  <td><?php echo $all_method->get_counselor_name($vl['appointment_id']); ?></td>
                 </tr>
