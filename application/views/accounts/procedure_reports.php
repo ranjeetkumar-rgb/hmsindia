@@ -113,7 +113,11 @@
                 $current_balance = $all_method->get_current_balance($vl['patient_id']); ?>
                 <tr class="odd gradeX">
                   <td><?php echo $count; ?></td>
-                  <td><?php echo $count; ?></td>
+                  <td><?php 
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
+	                $select_appoint = run_select_query($sql1);
+                  
+                  echo $select_appoint['crm_id']; ?></td>
                   <td><a href="<?php echo base_url().'accounts/procedure_advice'; ?>/<?php echo $vl['patient_id']; ?>"><?php echo $vl['patient_id']; ?></a></td>
                   <td><?php 
                     $patient_name = $all_method->get_patient_name($vl['patient_id']);
