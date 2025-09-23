@@ -517,7 +517,7 @@
                         foreach($sub_procedure_suggestion_list as $key => $val){
                           $sub_procedure_details = $all_method->get_procedure_details($val); //var_dump($val);die;
                         
-                            if (!empty($sub_procedure_details['code']) && in_array($sub_procedure_details['code'], ["IP55", "IP56", "IP57", "IP58", "IP89", "IP91", "IP68", "IP69", "IPD1", "IPD2", "IP67", "IP175", "IP176", "IP177", "IP178", "IP221", "IP222", "IP223", "IP224", "IP225", "IP227", "IP229", "IP231", "IP233", "IP235", "IP237", "IP239", "IP241", "IP62", "IP64", "IP13", "IP22", "IP23", "IP70", "IP36", "IP245", "IP218", "IP219", "INT222","IP101","IP250","IP251","IPD2INT","IPD1INT","INT228","INT227","INT220","IPD5","IP01D","IP286","IP450","IP452","IP289","INT67","IP451","IP02","IP218","IP45","IP11","IP459","IP14","IP298","IP04","IP64","IP601"])) {
+                            if (!empty($sub_procedure_details['code']) && in_array($sub_procedure_details['code'], ["IP55", "IP56","IP16", "IP57", "IP58", "IP89", "IP91", "IP68", "IP69", "IPD1", "IPD2", "IP67", "IP175", "IP176", "IP177", "IP178", "IP221", "IP222", "IP223", "IP224", "IP225", "IP227", "IP229", "IP231", "IP233", "IP235", "IP237", "IP239", "IP241", "IP62", "IP64", "IP13", "IP22", "IP23", "IP70", "IP36", "IP245", "IP218", "IP219", "INT222","IP101","IP250","IP251","IPD2INT","IPD1INT","INT228","INT227","INT220","IPD5","IP01D","IP286","IP450","IP452","IP289","INT67","IP451","IP02","IP218","IP45","IP11","IP459","IP14","IP298","IP04","IP64","IP601"])) {
                         ?>
                      <tr>
                         <td><?php echo $sub_procedure_details['procedure_name']; ?>
