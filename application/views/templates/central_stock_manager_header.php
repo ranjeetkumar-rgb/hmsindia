@@ -102,13 +102,7 @@
           <li><a href="<?php echo base_url(); ?>stocks/patient_items">Patient consumption</a></li>
          
 		</ul>
-      <!-- <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Manage Purchase Orders<span class="fa arrow"></span></a>
-        <ul class="nav nav-second-level">
-          <li> <a href="<?php echo base_url(); ?>new_purchase_orders">New Purchase Orders</a> </li>
-          <li> <a href="<?php echo base_url(); ?>new_purchase_orders/add">Add New PO</a> </li>
-          <!-- purchase order status -->
-        </ul>
-      </li> -->
+  
       <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Return<span class="fa arrow"></span></a>
         <ul class="nav nav-second-level">
 		  <li> <a href="<?php echo base_url(); ?>stocks/return_list">Return Item</a> </li>
