@@ -81,21 +81,25 @@
             <table class="table table-striped table-bordered table-hover" id="procedure_billing_list">
               <thead>
                 <tr>
-				  <th>S.No.</th>
+				          <th>S.No.</th>
+                  <th>CRM ID</th>
                   <th>IIC ID</th>
                   <th>Patient name</th>
                   <th>Receipt number</th>
                   <th>On Date</th>
                   <th>Total</th>
                   <th>Discount Amount</th>
-				  <th>Discount Package</th>
-				  <th>Receive Amount</th>
+				          <th>Discount Package</th>
+				          <th>Receive Amount</th>
                   <th>Mode</th>
                   <th>Center</th>
-				  <th>Origins</th>
-				  <th>Employee Name</th>
-				  <th>Procedure</th>
-				  <th>Type</th>
+				          <th>Origins</th>
+				          <th>Employee Name</th>
+				          <th>Procedure</th>
+				          <th>Type</th>
+                   <th>Doctor Name</th>
+				          <th>Lead Source</th>
+				          <th>Counselor Name</th>
                 </tr>
               </thead>
               <tbody id="procedure_result">
@@ -109,6 +113,11 @@
                 $current_balance = $all_method->get_current_balance($vl['patient_id']); ?>
                 <tr class="odd gradeX">
                   <td><?php echo $count; ?></td>
+                  <td><?php 
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
+	                $select_appoint = run_select_query($sql1);
+                  
+                  echo $select_appoint['crm_id']; ?></td>
                   <td><a href="<?php echo base_url().'accounts/procedure_advice'; ?>/<?php echo $vl['patient_id']; ?>"><?php echo $vl['patient_id']; ?></a></td>
                   <td><?php 
                     $patient_name = $all_method->get_patient_name($vl['patient_id']);
@@ -118,11 +127,11 @@
                   <td><?php echo $vl['on_date']?></td>
                   <td><?php echo $vl['totalpackage']?></td>
                   <td><?php echo $vl['discount_amount']?></td>
-				  <td><?php echo $vl['fees']?></td>
-				  <td><?php echo $vl['payment_done']?></td>
+				          <td><?php echo $vl['fees']?></td>
+				          <td><?php echo $vl['payment_done']?></td>
                   <td><?php echo $vl['payment_method']; ?></td>
-				  <td><?php echo $all_method->get_center_name($vl['billing_at']); ?></td>
-				  <td><?php 
+				          <td><?php echo $all_method->get_center_name($vl['billing_at']); ?></td>
+				          <td><?php 
 				      $sql2 = "Select * from ".$this->config->item('db_prefix')."centers where center_number='".$vl['origins']."'"; 
 			            $query = $this->db->query($sql2);
                             $select_result2 = $query->result(); 
@@ -162,7 +171,13 @@
 					 }
 				}
 				  ?>
-                 
+                  <td><?php 
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."doctor_consultation where appointment_id='".$vl['appointment_id']."'";
+	                $select_result1 = run_select_query($sql1);
+                  
+                  echo $all_method->get_doctor_name($select_result1['doctor_id']); ?></td>
+				  <td><?php echo $all_method->get_lead_source($vl['patient_id']); ?></td>
+				  <td><?php echo $all_method->get_counselor_name($vl['appointment_id']); ?></td>
                 </tr>
               <?php $count++;} ?>
               </tbody>			  

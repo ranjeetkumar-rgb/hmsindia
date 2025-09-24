@@ -6,7 +6,7 @@ class Center_model extends CI_Model
 	function get_centers(){
 		$result = array();
 		$sql_condition = '';
-		$sql = "Select * from ".$this->config->item('db_prefix')."centers  ORDER by ID DESC";
+		$sql = "Select * from ".$this->config->item('db_prefix')."centers where status='1'  ORDER by ID DESC";
         $q = $this->db->query($sql);
         $result = $q->result_array();
         if (!empty($result))

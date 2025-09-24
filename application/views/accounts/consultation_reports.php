@@ -77,17 +77,18 @@
               <thead>
                 <tr>
                   <th>S.No.</th>
+                  <th>CRM ID</th>
                   <th>IIC ID</th>
                   <th>Patient name</th>
                   <th>Receipt number</th>
-                  <th>On Date</th>
+                  <th>Consultation Date and Time</th>
                   <th>Total</th>
                   <th>Received amount</th>
                   <th>Center</th>
-				  <th>Reason For Visit</th>
-				  <th>Doctor Name</th>
-				  <th>Lead Source</th>
-				  <th>Counsor Name</th>
+				          <th>Reason For Visit</th>
+				          <th>Doctor Name</th>
+				          <th>Lead Source</th>
+				          <th>Counselor Name</th>
                </tr>
               </thead>
               <tbody id="consultation_result">
@@ -101,6 +102,11 @@
 			   ?>
                 <tr class="odd gradeX">
                   <td><?php echo $count; ?></td>
+                  <td><?php 
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
+	                $select_appoint = run_select_query($sql1);
+                  
+                  echo $select_appoint['crm_id']; ?></td>
                   <td><?php echo $vl['patient_id']; ?></td>
                   <td><?php $patient_name = $all_method->get_patient_name($vl['patient_id']); echo strtoupper($patient_name); ?></td>
                   <td><?php echo $vl['receipt_number']?></td>
