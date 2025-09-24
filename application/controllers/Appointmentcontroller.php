@@ -236,7 +236,7 @@ class Appointmentcontroller extends CI_Controller {
 				$patient_to = $appointment_details['wife_email'];
 				$patient_subject = "Appointment rescheduled";
 				$patient_message = "Hi ".$appointment_details['wife_name'].",<br/> Your appointment is rescheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
-				send_mail($patient_to, $patient_subject, $patient_message);
+				// send_mail($patient_to, $patient_subject, $patient_message);
 				$patient_phone = $appointment_details['wife_phone'];
 				$sms_message = "Hi ".$appointment_details['wife_name'].", Your appointment is rescheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
 				send_sms($patient_phone, $sms_message);
@@ -244,7 +244,7 @@ class Appointmentcontroller extends CI_Controller {
 				$doctor_to = $doctor_details['email'];
 				$doctor_subject = "Appointment rescheduled";
 				$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Appointment is rescheduled on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
-				send_mail($doctor_to, $doctor_subject, $doctor_message);
+				// send_mail($doctor_to, $doctor_subject, $doctor_message);
 
 				header("location:" .base_url(). "my_appointments?m=".base64_encode('Appointment rescheduled!').'&t='.base64_encode('success'));
 				die();
@@ -273,7 +273,7 @@ class Appointmentcontroller extends CI_Controller {
 				$patient_to = $appointment_details['wife_email'];
 				$patient_subject = "Appointment rescheduled";
 				$patient_message = "Hi ".$appointment_details['wife_name'].",<br/> Your appointment is rescheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
-				send_mail($patient_to, $patient_subject, $patient_message);
+				// send_mail($patient_to, $patient_subject, $patient_message);
 				$patient_phone = $appointment_details['wife_phone'];
 				$sms_message = "Hi ".$appointment_details['wife_name'].", Your appointment is rescheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
 				send_sms($patient_phone, $sms_message);
@@ -281,7 +281,7 @@ class Appointmentcontroller extends CI_Controller {
 				$doctor_to = $doctor_details['email'];
 				$doctor_subject = "Appointment rescheduled";
 				$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Appointment is rescheduled on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
-				send_mail($doctor_to, $doctor_subject, $doctor_message);
+				// send_mail($doctor_to, $doctor_subject, $doctor_message);
 				header("location:" .base_url(). "telecaller-appointments?m=".base64_encode('Appointment rescheduled!').'&t='.base64_encode('success'));
 				die();
 			}else{
@@ -402,14 +402,14 @@ class Appointmentcontroller extends CI_Controller {
 					$patient_to = $patient_details['wife_email'];
 					$patient_subject = "Followup appointment booked";
 					$patient_message = "Hi ".$patient_details['wife_name'].",<br/> Your followup appointment is booked with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($appointment_arr['appoitmented_date']))." at ".$appointment_arr['appoitmented_slot'].".";
-					send_mail($patient_to, $patient_subject, $patient_message);
+					// send_mail($patient_to, $patient_subject, $patient_message);
 					$sms_message = "Hi ".$patient_details['wife_name'].", Your followup appointment is booked with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($appointment_arr['appoitmented_date']))." at ".$appointment_arr['appoitmented_slot'].".";
 					send_sms($patient_phone, $sms_message);
 					//Doctor emails
 					$doctor_to = $doctor_details['email'];
 					$doctor_subject = "Followup appointment";
 					$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Followup Appointment is booked on ".date("d-m-Y", strtotime($appointment_arr['appoitmented_date']))." at ".$appointment_arr['appoitmented_slot'].".";
-					send_mail($doctor_to, $doctor_subject, $doctor_message);
+					// send_mail($doctor_to, $doctor_subject, $doctor_message);
 					header("location:" .base_url()."follow-up-appointment?m=".base64_encode('Followup booked successfully!').'&t='.base64_encode('success'));
 					die();
 				}else{
