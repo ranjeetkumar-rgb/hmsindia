@@ -69,13 +69,18 @@
               <thead>
                 <tr>
                   <th>S.No.</th>
+                  <th>CRM ID</th>
                   <th>IIC ID</th>
                   <th>Patient name</th>
                   <th>On Date</th>
                   <th>Total</th>
                   <th>Discount amount</th>
-				  <th>Received amount</th>
+				          <th>Received amount</th>
                   <th>Center</th>
+                   <th>Reason For Visit</th>
+				          <th>Doctor Name</th>
+				          <th>Lead Source</th>
+				          <th>Counselor Name</th>
 				</tr>
               </thead>
               <tbody id="consultation_result">
@@ -86,6 +91,11 @@
 			   ?>
                 <tr class="odd gradeX">
                   <td><?php echo $count; ?></td>
+                  <td><?php 
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
+	                $select_appoint = run_select_query($sql1);
+                  
+                  echo $select_appoint['crm_id']; ?></td>
                   <td><?php echo $vl['patient_id']; ?></td>
                   <td><?php $patient_name = $all_method->get_patient_name($vl['patient_id']); echo strtoupper($patient_name); ?></td>
                   <td><?php echo $vl['on_date']?></td>
@@ -93,6 +103,10 @@
                   <td><?php echo $vl['discount_amount']?></td>
 				  <td><?php echo $vl['payment_done']?></td>
                   <td><?php echo $all_method->get_center_name($vl['billing_at']); ?></td>
+                  <td><?php echo $vl['reason_of_visit']?></td>
+				  <td><?php echo $all_method->get_doctor_name($vl['doctor_id']); ?></td>
+				  <td><?php echo $all_method->get_lead_source($vl['patient_id']); ?></td>
+				  <td><?php echo $all_method->get_counselor_name($vl['appointment_id']); ?></td>
 				</tr>
                  <?php $count++;} ?>
 			   <tr>
