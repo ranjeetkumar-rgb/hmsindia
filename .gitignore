@@ -186,3 +186,18 @@ composer.phar
 /application/config/production/config.php
 
 
+# ===========================================
+# Extra: Assets Cleanup
+# ===========================================
+
+# Ignore archives and compressed packages
+assets/**/*.zip
+assets/**/*.tar.gz
+assets/**/*.gz
+
+# Ignore FTP control files
+assets/**/.ftpquota
+
+# Ignore mpdf and similar vendor libraries stored in assets
+assets/mpdf/*
+!assets/mpdf/.gitkeep
