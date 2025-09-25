@@ -1884,14 +1884,15 @@ public function procedure_reports(){
 			}
 			$center = $this->input->get('billing_at', true);
 			$start_date = $this->input->get('start_date', true);
-			$end_date = $this->input->get('end_date', true);
+			$end_date = $this->input->get('end_date', true);reason_of_visit
 			$patient_id = $this->input->get('iic_id', true);
+			$reason_of_visit = $this->input->get('reason_of_visit', true);
 			$export_billing = $this->input->get('export-billing', true);
 			$paid_amount = 0;
 			$discounted_package = 0;
 			$total_package = 0;
 			if (isset($export_billing)){
-				$data = $this->accounts_model->export_consultation_data($start_date, $end_date, $center, $patient_id);
+				$data = $this->accounts_model->export_consultation_data($start_date, $end_date, $center, $patient_id, $reason_of_visit);
 				header('Content-Type: text/csv; charset=utf-8');
 				header('Content-Disposition: attachment; filename=Consultation-Reports-'.$start_date.'-'.$end_date.'.csv');
 				$fp = fopen('php://output','w');
@@ -1930,7 +1931,7 @@ public function procedure_reports(){
 
 			$config = array();
         	$config["base_url"] = base_url() . "accounts/consultation_origin";
-        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center,$status, $start_date, $end_date, $patient_id);
+        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit);
         	$config["per_page"] = 10;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
@@ -1941,7 +1942,7 @@ public function procedure_reports(){
         	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
 			
         	$data["links"] = $this->pagination->create_links();
-			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $status, $start_date, $end_date, $patient_id,$type);
+			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $reason_of_visit);
 			$data["billing_at"] = $center;
 			$data["start_date"] = $start_date;
 			$data["end_date"] = $end_date;
