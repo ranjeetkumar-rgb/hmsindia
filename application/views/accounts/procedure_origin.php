@@ -70,6 +70,7 @@
             <table class="table table-striped table-bordered table-hover" id="procedure_billing_list">
               <thead>
                 <tr>
+				  <th>CRM ID</th>
 				  <th>IIC ID</th>
                   <th>Patient name</th>
                   <th>On Date</th>
@@ -80,6 +81,9 @@
                   <th>Center Of Origin</th>
 				  <th>Procedure Name & Code</th>
 				  <th>Category</th>
+				  <th>Doctor Name</th>
+				  <th>Lead Source</th>
+				  <th>Counselor Name</th>
                 </tr>
               </thead>
               <tbody id="procedure_result">
@@ -141,7 +145,13 @@
 						  else{
 							  echo '<tr class="odd gradeX"><td>';
 					  echo $vl['patient_id'];
-					  echo '</td><td>';
+					 
+					   echo '</td><td>';
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
+	                $select_appoint = run_select_query($sql1);
+                  
+                  echo $select_appoint['crm_id'];
+				   echo '</td><td>';
 					      $patient_name = $all_method->get_patient_name($vl['patient_id']);
                       echo strtoupper($patient_name);
 					  echo '</td><td>';
@@ -180,7 +190,13 @@
 				}
 				 }
 				  ?>
-                 
+                  <td><?php 
+                  $sql1 = "Select * from ".$this->config->item('db_prefix')."doctor_consultation where appointment_id='".$vl['appointment_id']."'";
+	                $select_result1 = run_select_query($sql1);
+                  
+                  echo $all_method->get_doctor_name($select_result1['doctor_id']); ?></td>
+				  <td><?php echo $all_method->get_lead_source($vl['patient_id']); ?></td>
+				  <td><?php echo $all_method->get_counselor_name($vl['appointment_id']); ?></td>
                 </tr>
               <?php $count++;} ?>
               <tr>
