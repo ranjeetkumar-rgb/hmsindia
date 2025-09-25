@@ -2651,9 +2651,9 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 	function patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit){
 		$consultation_result = array();
 		$conditions = '';
-		if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
-			$conditions = ' and billing_at="'.$_SESSION['logged_accountant']['center'].'"'; 
-		}
+		//if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
+		//	$conditions = ' and billing_at="'.$_SESSION['logged_accountant']['center'].'"'; 
+		//}
         if (!empty($center)){
 			$conditions .= " and billing_at='$center'";
 		}
@@ -2672,7 +2672,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		else if (empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date='$end_date'";
 		}
-		$consultation_sql = "Select COUNT(*) as total from ".$this->config->item('db_prefix')."consultation where 1 ".$conditions."";
+		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where 1 ".$conditions."";
 		$q = $this->db->query($consultation_sql);
 		return $q->num_rows();
     }
@@ -2706,7 +2706,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		else if (empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date='$end_date'";
 		}
-		$consultation_sql = "Select COUNT(*) as total from ".$this->config->item('db_prefix')."consultation where 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
+		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
 		$consultation_q = $this->db->query($consultation_sql);
 		$consultation_result = $consultation_q->result_array();
 		return $consultation_result;
