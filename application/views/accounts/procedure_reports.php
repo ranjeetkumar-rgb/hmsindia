@@ -19,37 +19,8 @@
 					    ?>
                 </select>
             </div>
-            <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
-            	<label>Filter by billing at</label>
-                <select class="form-control" id="biller_id" name="biller_id">
-                	<option value=''>--Select From--</option>
-                    <?php $all_emplyee = $all_method->get_stock_user();
-						            foreach($all_emplyee as $key => $val){ //var_dump($val);die;
-                          if($employee_number == $val['name']){
-                            echo '<option value="'.$val['employee_number'].'" selected>'.$val['name'].'</option>';
-                          }else{
-		                        echo '<option value="'.$val['employee_number'].'">'.$val['name'].'</option>';
-                          }
-                    	  } 
-					    ?>
-                </select>
-            </div>
-			<div class="col-sm-2 col-xs-12" style="margin-top:10px;">
-            	<label>Payment Type </label>
-                <select class="form-control" id="payment_method" name="payment_method">
-				    <option value=''>--Select From--</option>
-                    <option value="cash" mode="Cash">Cash</option>
-					<option value="neft" mode="NEFT">NEFT</option>
-                    <option value="rtgs" mode="RTGS">RTGS</option>
-                    <option value="card" mode="Card">Card</option>
-                    <option value="upi" mode="UPI">UPI</option>
-                    <option value="insurance" mode="Insurance">Insurance</option>
-					<option value="wallets" mode="Wallets">Wallets</option>
-					<option value="loan" mode="loan">Financing Loan</option>
-					<option value="cheque" mode="Cheque">Cheque</option>
-                </select>
-            </div>
-            <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
+           
+			      <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>Start Date</label>
               <input type="text" class="particular_date_filter form-control" id="start_date" name="start_date" value="<?php echo $start_date;?>" />
             </div>
@@ -161,6 +132,7 @@
 							foreach ($select_result1 as $res_val){
 								 echo ' <td>';
 								 echo $res_val->procedure_name;
+                 echo " = ". $v2_data['sub_procedures_code'];
 								 echo " = ". $v2_data['sub_procedures_price'];
 								 echo " Paid Amount = ". $v2_data['sub_procedures_paid_price'];
 								 echo '</td>';
@@ -180,6 +152,11 @@
 				  <td><?php echo $all_method->get_counselor_name($vl['appointment_id']); ?></td>
                 </tr>
               <?php $count++;} ?>
+               <tr>
+                <td colspan="5">
+                <p class="custom-pagination"><?php echo $links; ?></p>
+               
+              </tr>
               </tbody>			  
             </table>
           </div>
