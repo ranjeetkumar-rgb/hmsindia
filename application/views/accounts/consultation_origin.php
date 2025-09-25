@@ -85,7 +85,10 @@
 			  $count=1; foreach($consultation_result as $ky => $vl){
 			  			$patient_data = get_patient_detail($vl['patient_id']);
             $currency = '';
+
+            echo. $total;
 			   ?>
+
                 <tr class="odd gradeX">
                   <td><?php echo $count; ?></td>
                   <td><?php 

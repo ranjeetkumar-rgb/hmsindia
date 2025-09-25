@@ -1884,7 +1884,7 @@ public function procedure_reports(){
 			}
 			$center = $this->input->get('billing_at', true);
 			$start_date = $this->input->get('start_date', true);
-			$end_date = $this->input->get('end_date', true);reason_of_visit
+			$end_date = $this->input->get('end_date', true);
 			$patient_id = $this->input->get('iic_id', true);
 			$reason_of_visit = $this->input->get('reason_of_visit', true);
 			$export_billing = $this->input->get('export-billing', true);

@@ -2672,7 +2672,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		else if (empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date='$end_date'";
 		}
-		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where 1 ".$conditions."";
+		$consultation_sql = "Select COUNT(*) as total from ".$this->config->item('db_prefix')."consultation where 1 ".$conditions."";
 		$q = $this->db->query($consultation_sql);
 		return $q->num_rows();
     }
@@ -2706,7 +2706,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		else if (empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date='$end_date'";
 		}
-		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
+		$consultation_sql = "Select COUNT(*) as total from ".$this->config->item('db_prefix')."consultation where 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
 		$consultation_q = $this->db->query($consultation_sql);
 		$consultation_result = $consultation_q->result_array();
 		return $consultation_result;
