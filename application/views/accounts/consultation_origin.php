@@ -86,7 +86,7 @@
 			  			$patient_data = get_patient_detail($vl['patient_id']);
             $currency = '';
 
-            echo "Showing " . count($consultations) . " of " . $total . " consultations";
+            echo  $total;
 
 			   ?>
 
