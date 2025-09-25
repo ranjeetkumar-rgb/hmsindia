@@ -19,19 +19,16 @@
 					    ?>
                 </select>
             </div>
-			<div class="col-sm-2 col-xs-12" style="margin-top:10px;">
-            	<label>Payment Type </label>
-                <select class="form-control" id="payment_method" name="payment_method">
+			<div class="col-sm-3 col-xs-12" style="margin-top:10px;">
+            	<label>Reason For Visit </label>
+                <select class="form-control" id="reason_of_visit" name="reason_of_visit">
 				    <option value=''>--Select From--</option>
-                    <option value="cash" mode="Cash">Cash</option>
-					<option value="neft" mode="NEFT">NEFT</option>
-                    <option value="rtgs" mode="RTGS">RTGS</option>
-                    <option value="card" mode="Card">Card</option>
-                    <option value="upi" mode="UPI">UPI</option>
-                    <option value="insurance" mode="Insurance">Insurance</option>
-					<option value="wallets" mode="Wallets">Wallets</option>
-					<option value="loan" mode="loan">Financing Loan</option>
-					<option value="cheque" mode="Cheque">Cheque</option>
+					<option value="First Visit" mode="First Visit">First Visit</option>
+                    <option value="Consulted Not Booked" mode="Consulted Not Booked">Consulted Not Booked</option>
+                    <option value="FOLLOW UP VISIT" mode="FOLLOW UP VISIT">Follow up Visit</option>
+					<option value="PROCEDURE" mode="PROCEDURE">Procedure</option>
+                    <option value="TVS" mode="TVS">TVS</option>
+                    
                 </select>
             </div>
             <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
@@ -72,7 +69,7 @@
                   <th>CRM ID</th>
                   <th>IIC ID</th>
                   <th>Patient name</th>
-                  <th>On Date</th>
+                  <th>Consultation Date and Time</th>
                   <th>Total</th>
                   <th>Discount amount</th>
 				          <th>Received amount</th>

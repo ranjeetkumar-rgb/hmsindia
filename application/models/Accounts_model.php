@@ -2648,7 +2648,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		return $response;
     } 
 	
-	function patient_consultation_count($center,$status, $start_date, $end_date, $patient_id){
+	function patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit){
 		$consultation_result = array();
 		$conditions = '';
 		if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
@@ -2657,8 +2657,8 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
         if (!empty($center)){
 			$conditions .= " and billing_at='$center'";
 		}
-		if (!empty($status)){
-			$conditions .= " and status='$status'";
+		if (!empty($reason_of_visit)){
+			$conditions .= " and reason_of_visit='$reason_of_visit'";
 		}
 		if (!empty($patient_id)){
 			$conditions .= " and patient_id='$patient_id'";
@@ -2677,7 +2677,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		return $q->num_rows();
     }
 	
-	function patient_consultation_report_patination($limit, $page, $center, $start_date, $end_date, $patient_id, $status){
+	function patient_consultation_report_patination($limit, $page, $center, $start_date, $end_date, $patient_id, $reason_of_visit){
 		$consultation_result = array();
 		$conditions = '';
 		if(empty($page)){
@@ -2685,17 +2685,17 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		}else{
 			$offset = ($page - 1) * $limit;
 		}
-		if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
-			$conditions = ' and billing_at="'.$_SESSION['logged_accountant']['center'].'"'; 
-		}
+		//if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
+		//	$conditions = ' and billing_at="'.$_SESSION['logged_accountant']['center'].'"'; 
+		//}
 		if (!empty($center)){
 			$conditions .= " and billing_at='$center'";
 		}
 		if (!empty($patient_id)){
 			$conditions .= " and patient_id='$patient_id'";
 		}
-		if (!empty($status)){
-			$conditions .= " and status='$status'";
+		if (!empty($reason_of_visit)){
+			$conditions .= " and reason_of_visit='$reason_of_visit'";
 		}
 		if (!empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
