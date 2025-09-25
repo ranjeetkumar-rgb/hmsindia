@@ -72,7 +72,7 @@
                   <th>CRM ID</th>
                   <th>IIC ID</th>
                   <th>Patient name</th>
-                  <th>On Date</th>
+                  <th>Consultation Date and Time</th>
                   <th>Total</th>
                   <th>Discount amount</th>
 				          <th>Received amount</th>
