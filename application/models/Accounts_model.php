@@ -2651,9 +2651,9 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 	function patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit){
 		$consultation_result = array();
 		$conditions = '';
-		if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
-			$conditions = ' and billing_at="'.$_SESSION['logged_accountant']['center'].'"'; 
-		}
+		//if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
+		//	$conditions = ' and billing_at="'.$_SESSION['logged_accountant']['center'].'"'; 
+		//}
         if (!empty($center)){
 			$conditions .= " and billing_at='$center'";
 		}
