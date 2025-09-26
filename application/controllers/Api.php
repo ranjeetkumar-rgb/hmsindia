@@ -157,6 +157,8 @@ class Api extends CI_Controller {
 		$mobile = str_replace("+91-", "", $data['Phone']);
 		$appointment_time = $data['ActivityDateTime'];
 		$extra_fields = $data['Fields'];
+		$lead_source = $data['lead_source'];
+		$camp_selection = $data['mx_Camp_Location'];
 		
 		if(!empty($first_name) && !empty($mobile)){
 			
@@ -188,6 +190,7 @@ class Api extends CI_Controller {
 				$appoint_arr['nationality'] = "indian";
 				$appoint_arr['crm_id'] = $crm_id;
 				$appoint_arr['reason_of_visit'] = $note;
+				$appoint_arr['lead_source'] = $lead_source;
 				$appointment_for = "";
 				$appoitmented_doctor = "";
 				$appoitmented_date = "";
@@ -195,6 +198,9 @@ class Api extends CI_Controller {
 				foreach ($extra_fields as $row){
 					if($row['SchemaName'] == "mx_Centre_Location"){
 						$appointment_for = $row['Value']; 
+					}
+					if($row['SchemaName'] == "mx_Camp_Location"){
+						$camp_selection = $row['Value']; 
 					}
 					if($row['SchemaName'] == "mx_Doctor"){
 						$appoitmented_doctor = $row['Value']; 
@@ -237,6 +243,7 @@ class Api extends CI_Controller {
 					}
 				}
 				$appoint_arr['appoitment_for'] = $appointment_for;
+				$appoint_arr['camp_selection'] = $camp_selection;
 				$appoint_arr['appoitmented_doctor'] = $appoitmented_doctor;
 				$appoint_arr['appoitmented_date'] = $appoitmented_date;
 				$appoint_arr['appoitmented_slot'] = $appoitmented_slot;
@@ -254,7 +261,7 @@ class Api extends CI_Controller {
 							$appointwhatmsg = array();
 							$appointwhatmsg = array($appoint_arr['wife_name'], $centre_details['camp_name'], date("d-m-Y", strtotime($appoint_arr['appoitmented_date'])), $appoint_arr['appoitmented_slot'], isset($centre_details['location'])?$centre_details['location']:"");
 							$appointsendmsg = whatsappappointment(
-								$appoint_arr['wife_phone'], 
+							$appoint_arr['wife_phone'], 
 							$appoint_arr['wife_name'],
 							$centre_details['camp_name'],
 							date("d-m-Y", strtotime($appoint_arr['appoitmented_date'])),
@@ -352,7 +359,6 @@ class Api extends CI_Controller {
     }
 	
 	public function appointment_status_crm_id() {
-		// Read raw JSON input
 		$input = json_decode(file_get_contents("php://input"), true);
 
 		// Validate input
@@ -363,7 +369,6 @@ class Api extends CI_Controller {
 			]);
 			exit;
 		}
-
 		// Sanitize inputs
 		$crm_id = htmlspecialchars(trim($input['crm_id']));
 		$wife_phone = htmlspecialchars(trim($input['wife_phone']));
@@ -389,7 +394,6 @@ class Api extends CI_Controller {
 
 public function crm_lead() {
     header('Content-Type: application/json');
-
     try {
         $json_input = file_get_contents("php://input");
         if (empty($json_input)) throw new Exception('No input data received');
