@@ -428,7 +428,6 @@
                             if($_SESSION['logged_billing_manager']['center_type'] == "associated"){ ?>
                       <option value="<?php echo $center['center_number']; ?>"><?php echo $center['center_name']; ?></option>
                     <?php } } ?>
-                    <option value="IndiaIVF">IndiaIVF</option>       
                   </select>
                 </div>
               </div>
