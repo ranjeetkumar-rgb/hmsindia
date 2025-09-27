@@ -514,6 +514,19 @@ $(document).on('blur',"#patient_id",function(e) {
 <!--****** Billing SCRIPT *******-->
 <script>
 	$(document).on('click',"#create_billing",function(e) {
+		// Prevent double-click submission
+		if ($(this).prop('disabled')) {
+			e.preventDefault();
+			return false;
+		}
+		
+		// Disable button immediately to prevent double-click
+		$(this).prop('disabled', true);
+		
+		// Add loading state
+		var originalText = $(this).text();
+		$(this).text('Processing...');
+		
        $('#error').empty();
 	   var has_empty = false;
 	   var patient_id = $('#patient_id').val();
@@ -521,6 +534,9 @@ $(document).on('blur',"#patient_id",function(e) {
 	   if ( patient_id == '' || receipt_number == '') 
 	   {
 		   $('#error').append('One or more fields are empty!');
+		   // Re-enable button if validation fails
+		   $(this).prop('disabled', false);
+		   $(this).text(originalText);
 	   }else{
 	   		var com_count = 1;
 			var com_rows= $('#consumables_table_body tr').length;
@@ -544,8 +560,17 @@ $(document).on('blur',"#patient_id",function(e) {
 				$('#add_billing_form').submit();
 			}else{
 			   $('#error').append('One or more fields are empty!');
+			   // Re-enable button if validation fails
+			   $(this).prop('disabled', false);
+			   $(this).text(originalText);
 		   }	   		
 	   }
+	   
+	   // Re-enable button after 10 seconds as a safety measure
+	   setTimeout(function() {
+		   $('#create_billing').prop('disabled', false);
+		   $('#create_billing').text(originalText);
+	   }, 10000);
     });
 </script>
 <script>
@@ -569,10 +594,36 @@ $(document).on('blur',"#patient_id",function(e) {
         }       
     });
 	$(document).on('click',"#create_billing",function(e) {
+		// Prevent double-click submission
+		if ($(this).prop('disabled')) {
+			e.preventDefault();
+			return false;
+		}
+		
+		// Disable button immediately to prevent double-click
+		$(this).prop('disabled', true);
+		
+		// Add loading state
+		var originalText = $(this).text();
+		$(this).text('Processing...');
+		
 	 	  var value = $('.required_value').filter(function () {
 			return this.value === '';
 		  });
-		  if (value.length == 0) {$('#add_billing_form').submit();} else if (value.length > 0) { alert('Please fill out all fields.'); }
+		  if (value.length == 0) {
+		  	$('#add_billing_form').submit();
+		  } else if (value.length > 0) { 
+		  	alert('Please fill out all fields.');
+		  	// Re-enable button if validation fails
+		  	$(this).prop('disabled', false);
+		  	$(this).text(originalText);
+		  }
+		  
+		  // Re-enable button after 10 seconds as a safety measure
+		  setTimeout(function() {
+			  $('#create_billing').prop('disabled', false);
+			  $('#create_billing').text(originalText);
+		  }, 10000);
     });
 
 
@@ -666,11 +717,33 @@ function wallet_quantity_update(el) {
 
 <script>
    $('#create_billing').click(function(e){
- e.preventDefault();
- if(this.form.reportValidity()){
-  $(this).prop('disabled',true);
-  this.form.submit();
- }
+	// Prevent double-click submission
+	if ($(this).prop('disabled')) {
+		e.preventDefault();
+		return false;
+	}
+	
+	// Disable button immediately to prevent double-click
+	$(this).prop('disabled', true);
+	
+	// Add loading state
+	var originalText = $(this).text();
+	$(this).text('Processing...');
+	
+	e.preventDefault();
+	if(this.form.reportValidity()){
+		this.form.submit();
+	} else {
+		// Re-enable button if validation fails
+		$(this).prop('disabled', false);
+		$(this).text(originalText);
+	}
+	
+	// Re-enable button after 10 seconds as a safety measure
+	setTimeout(function() {
+		$('#create_billing').prop('disabled', false);
+		$('#create_billing').text(originalText);
+	}, 10000);
 });
 </script>
 

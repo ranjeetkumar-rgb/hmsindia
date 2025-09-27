@@ -1285,7 +1285,7 @@ public function medicine_update()
 							$pack_size = $_POST['injections_pack_size_'.$icounte];
 							$enddate['enddate'] = date("Y-m-d");
 							$quantity_out = $_POST['injections_quantity_'.$icounte];
-							$closingstock = $_POST['injections_stock_'.$icounte] - $_POST['injections_quantity_'.$icounte];
+								$closingstock = floatval($_POST['injections_stock_'.$icounte]) - floatval($_POST['injections_quantity_'.$icounte]);
 							
 							$gst_division = floatval($_POST['injections_gstdivision_'.$icounte]);
 
@@ -1296,8 +1296,8 @@ public function medicine_update()
 							}
 
 							//$total_vendor_price_gst_excluded = $_POST['injections_vendor_price_'.$icounte] / $_POST['injections_gstdivision_'.$icounte] * $closingstock;
-							$total_vendor_price_gst_included = $closingstock * $_POST['injections_vendor_price_'.$icounte];
-							$total_mrp_price = $closingstock * $_POST['injections_mrp_'.$icounte];
+								$total_vendor_price_gst_included = $closingstock * floatval($_POST['injections_vendor_price_'.$icounte]);
+								$total_mrp_price = $closingstock * floatval($_POST['injections_mrp_'.$icounte]);
 							//$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
 							
 						    $query = "INSERT INTO `hms_central_stock_report` (invoice_no, item_number, company, item_name, batch_number, openstock, expiry, add_date, employee_number, vendor_price, mrp,hsn, gstrate, gstdivision, enddate, quantity_out, closingstock,type, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, date_of_purchase, center_number) values ('$invoice_no','$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','".date("Y-m-d H:i:s")."','$employee_number','$vendor_price','$mrp','$hsn','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','Hormonal','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$date_of_purchase','$center_number')";
@@ -1353,17 +1353,17 @@ public function medicine_update()
 							$enddate['enddate'] = date("Y-m-d");
 							$quantity_out = $_POST['medicine_quantity_'.$mcounte];
 							$pack_size = $_POST['medicine_pack_size_'.$mcounte];
-							$closingstock = $_POST['medicine_stock_'.$mcounte] - $_POST['medicine_quantity_'.$mcounte];
+								$closingstock = floatval($_POST['medicine_stock_'.$mcounte]) - floatval($_POST['medicine_quantity_'.$mcounte]);
 							//$total_vendor_price_gst_excluded = $_POST['medicine_vendor_price_'.$mcounte] / $_POST['medicine_gstdivision_'.$mcounte] * $closingstock;
 							$total_vendor_price_gst_excluded = 0; // Default value
 							if (isset($_POST['medicine_gstdivision_'.$mcounter]) && $_POST['medicine_gstdivision_'.$mcounter] != 0) {
-								$total_vendor_price_gst_excluded = ($_POST['medicine_vendor_price_'.$mcounter] / $_POST['medicine_gstdivision_'.$mcounter]) * $closingstock;
+									$total_vendor_price_gst_excluded = (floatval($_POST['medicine_vendor_price_'.$mcounter]) / floatval($_POST['medicine_gstdivision_'.$mcounter])) * $closingstock;
 							} else {
 								error_log("Division by zero attempted: medicine_gstdivision_".$mcounter);
-								$total_vendor_price_gst_excluded = $_POST['medicine_vendor_price_'.$mcounter] * $closingstock;
+									$total_vendor_price_gst_excluded = floatval($_POST['medicine_vendor_price_'.$mcounter]) * $closingstock;
 							}
-							$total_vendor_price_gst_included = $closingstock * $_POST['medicine_vendor_price_'.$mcounte];
-							$total_mrp_price = $closingstock * $_POST['medicine_mrp_'.$mcounte];
+								$total_vendor_price_gst_included = $closingstock * floatval($_POST['medicine_vendor_price_'.$mcounte]);
+								$total_mrp_price = $closingstock * floatval($_POST['medicine_mrp_'.$mcounte]);
 							//$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
 							
 						    $query = "INSERT INTO `hms_central_stock_report` (invoice_no, item_number, company, item_name, batch_number, openstock, expiry, add_date,employee_number, vendor_price, mrp, hsn, gstrate, gstdivision, enddate, quantity_out, closingstock,type, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, date_of_purchase, center_number) values ('$invoice_no','$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','".date("Y-m-d H:i:s")."','$employee_number','$vendor_price','$mrp','$hsn','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','Embryologist','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$date_of_purchase','$center_number')";
@@ -1432,20 +1432,20 @@ public function medicine_update()
 							$gstdivision = $_POST['consumables_gstdivision_'.$ccounte];
 							$enddate['enddate'] = date("Y-m-d");
 							$quantity_out = $_POST['consumables_quantity_'.$ccounte];
-							$pack_size = $_POST['consumables_pack_size_'.$ccounte];
-							$closingstock = $_POST['consumables_stock_'.$ccounte] - $_POST['consumables_quantity_'.$ccounte];
+								$pack_size = $_POST['consumables_pack_size_'.$ccounte];
+								$closingstock = floatval($_POST['consumables_stock_'.$ccounte]) - floatval($_POST['consumables_quantity_'.$ccounte]);
 							//$total_vendor_price_gst_excluded = $_POST['consumables_vendor_price_'.$ccounte] / $_POST['consumables_gstdivision_'.$ccounte] * $closingstock;
 							$gst_division = $_POST['consumables_gstdivision_'.$ccounte] ?? 0;
 
 							if ($gst_division != 0) {
-								$total_vendor_price_gst_excluded = ($_POST['consumables_vendor_price_'.$ccounte] / $gst_division) * $closingstock;
+									$total_vendor_price_gst_excluded = (floatval($_POST['consumables_vendor_price_'.$ccounte]) / floatval($gst_division)) * $closingstock;
 							} else {
 								$total_vendor_price_gst_excluded = 0; // or handle differently
 							}
 
-							$total_vendor_price_gst_included = $closingstock * $_POST['consumables_vendor_price_'.$ccounte];
-							$total_mrp_price = $closingstock * $_POST['consumables_mrp_'.$ccounte];
-							$company = $_POST['consumables_company_'.$ccounte];
+								$total_vendor_price_gst_included = $closingstock * floatval($_POST['consumables_vendor_price_'.$ccounte]);
+								$total_mrp_price = $closingstock * floatval($_POST['consumables_mrp_'.$ccounte]);
+								$company = $_POST['consumables_company_'.$ccounte];
 							//$post_arr['patient_id'] = $_POST['patient_id'];unset($_POST['patient_id']);
 							
 						    $query = "INSERT INTO `hms_central_stock_report` (invoice_no, item_number, company, item_name, batch_number, openstock, expiry, expiry_day, add_date,employee_number, vendor_price, mrp, hsn, gstrate, gstdivision, enddate, quantity_out, closingstock, type, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, date_of_purchase, center_number) values ('$invoice_no','$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','$expiry_day','".date("Y-m-d H:i:s")."','$employee_number','$vendor_price','$mrp','$hsn','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','Ot','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$date_of_purchase','$center_number')";
@@ -1555,7 +1555,7 @@ public function medicine_update()
 				$post_arr['payment_done'] = $_POST['payment_done'];unset($_POST['payment_done']);
 				$post_arr['fees'] = $_POST['fees'];unset($_POST['fees']);
 				$post_arr['status'] = $_POST['status'];unset($_POST['status']);
-                $post_arr['discount_amount'] = $post_arr['fees'] - $post_arr['payment_done'];
+                $post_arr['discount_amount'] = floatval($post_arr['fees']) - floatval($post_arr['payment_done']);
 				$post_arr['employee_number'] = isset($_POST['employee_number']) ? $_POST['employee_number'] : '';unset($_POST['employee_number']);
 				$post_arr['department'] = isset($_POST['department']) ? $_POST['department'] : '';unset($_POST['department']);
 				$post_arr['billing_at'] = $_POST['billing_at'];unset($_POST['billing_at']);
@@ -1628,19 +1628,19 @@ public function medicine_update()
 							$gstrate = $_POST['consumables_gstrate_'.$ccounte];
 							$gstdivision = $_POST['consumables_gstdivision_'.$ccounte];
 							$enddate['enddate'] = date("Y-m-d");
-							$quantity_out = $_POST['consumables_quantity_'.$ccounte];
-							$closingstock = $_POST['consumables_stock_'.$ccounte] - $_POST['consumables_quantity_'.$ccounte];
+								$quantity_out = $_POST['consumables_quantity_'.$ccounte];
+								$closingstock = floatval($_POST['consumables_stock_'.$ccounte]) - floatval($_POST['consumables_quantity_'.$ccounte]);
 							//$total_vendor_price_gst_excluded = $_POST['consumables_vendor_price_'.$ccounte] / $_POST['consumables_gstdivision_'.$ccounte] * $closingstock;
 							$gst_division = $_POST['consumables_gstdivision_'.$ccounte] ?? 0;
 
 							if ($gst_division != 0) {
-								$total_vendor_price_gst_excluded = $_POST['consumables_vendor_price_'.$ccounte] / $gst_division * $closingstock;
+									$total_vendor_price_gst_excluded = floatval($_POST['consumables_vendor_price_'.$ccounte]) / floatval($gst_division) * $closingstock;
 							} else {
 								$total_vendor_price_gst_excluded = 0; // or handle it another way if needed
 							}
 
-							$total_vendor_price_gst_included = $closingstock * $_POST['consumables_vendor_price_'.$ccounte];
-							$total_mrp_price = $closingstock * $_POST['consumables_mrp_'.$ccounte];
+								$total_vendor_price_gst_included = $closingstock * floatval($_POST['consumables_vendor_price_'.$ccounte]);
+								$total_mrp_price = $closingstock * floatval($_POST['consumables_mrp_'.$ccounte]);
 							
 						    $query = "INSERT INTO `hms_central_stock_report` (invoice_no, item_number, company, item_name, batch_number, openstock, expiry, expiry_day, add_date, employee_number, vendor_price, mrp, hsn, gstrate, gstdivision,enddate, quantity_out, closingstock,type, total_vendor_price_gst_excluded, total_vendor_price_gst_included, total_mrp_price, patient_id, date_of_purchase, center_number) values ('$invoice_no','$item_number','$company','$item_name','$batch_number','$open_stock','$expiry','$expiry_day','".date("Y-m-d H:i:s")."','".$post_arr['employee_number']."','$vendor_price','$mrp','$hsn','$gstrate','$gstdivision','".date("Y-m-d")."','$quantity_out','$closingstock','Cash','$total_vendor_price_gst_excluded','$total_vendor_price_gst_included','$total_mrp_price','$patient_id','$date_of_purchase','".$post_arr['billing_at']."')";
                             $result = run_form_query($query); 

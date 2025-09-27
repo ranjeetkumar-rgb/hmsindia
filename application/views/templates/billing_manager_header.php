@@ -90,20 +90,18 @@
       <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Manage Billing<span class="fa arrow"></span></a>
         <ul class="nav nav-second-level">
           <li> <a href="<?php echo base_url(); ?>billings/consultation_billings">Consultation Patients</a> </li>
-		  <li> <a href="<?php echo base_url(); ?>billings/registation_billings">Registation Patients</a> </li>
-		  <li> <a href="<?php echo base_url(); ?>billings/procedure_billings">Procedure Patients</a> </li>
-		  <li> <a href="<?php echo base_url(); ?>billings/investigation_billings">Investigation Patients</a> </li>
-		  <li> <a href="<?php echo base_url(); ?>after-consultation">After consultation</a> </li>
+          <li> <a href="<?php echo base_url(); ?>billings/registation_billings">Registation Patients</a> </li>
+          <li> <a href="<?php echo base_url(); ?>billings/procedure_billings">Procedure Patients</a> </li>
+          <li> <a href="<?php echo base_url(); ?>billings/investigation_billings">Investigation Patients</a> </li>
+          <li> <a href="<?php echo base_url(); ?>after-consultation">After consultation</a> </li>
           <li> <a href="<?php echo base_url(); ?>billings/payments">Billing payment</a> </li>
           <li> <a href="<?php echo base_url(); ?>billings/discount_lists">Discount codes</a> </li>
           <li> <a href="<?php echo base_url(); ?>billing_noreceipt_procedure">Procedure Receipts</a> </li>
-		  <li> <a href="<?php echo base_url(); ?>billing_noreceipt_patient_payments">Partial Payments Receipts</a> </li>
-		  <li> <a href="<?php echo base_url(); ?>billing_noreceipt_investigation">Investigation Receipts</a> </li>
-		  <li> <a href="<?php echo base_url(); ?>billing-noreceipt">Consultation Receipts</a> </li>
-		  
+          <li> <a href="<?php echo base_url(); ?>billing_noreceipt_patient_payments">Partial Payments Receipts</a> </li>
+          <li> <a href="<?php echo base_url(); ?>billing_noreceipt_investigation">Investigation Receipts</a> </li>
+          <li> <a href="<?php echo base_url(); ?>billing-noreceipt">Consultation Receipts</a> </li>
         </ul>
       </li>
-      
       <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Ledger<span class="fa arrow"></span></a>
         <ul class="nav nav-second-level">
               <li> <a href="<?php echo base_url(); ?>accounts/accounts">Account Ledger</a> </li>
