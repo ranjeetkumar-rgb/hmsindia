@@ -505,7 +505,7 @@
                               <option value="Finance" mode="Finance">Finance</option>
                            </select>
                         </td>
-                        <td><input value="<?php echo getReceiptGUID(); ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number_<?php echo $sub_procedure_counter;?>" name="receipt_number_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required></td>
+                        <td><input value="<?php date_default_timezone_set("America/New_York");$receipt_number = date("YmdHis") . substr(microtime(), 2, 6);echo $receipt_number; ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number_<?php echo $sub_procedure_counter;?>" name="receipt_number_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required></td>
                         <td><input type="checkbox" class="statuss" name="record"></td>
                      </tr>
                      <?php  $grand_total += $sub_price; $sub_procedure_counter++;}}}}else{ ?>
@@ -852,7 +852,7 @@
                </div>
                <div class="clearfix"></div>
                <div class="form-group col-sm-12 col-xs-12">
-                  <a class="btn btn-large" id="create_billing" href="javascript:void(0);">Create Billing</a>
+                  <a class="btn btn-large" id="create_billing" href="javascript:void(0);">Create Billings</a>
                </div>
             </div>
          </div>
@@ -892,7 +892,7 @@
             <div class="row">
                <div class="form-group col-sm-6 col-xs-12">
                   <label for="item_name">Receipt number (Required)</label>
-                  <p id="receipt_number_text"><?php echo getReceiptGUID(); ?></p>
+                  <p id="receipt_number_text"><?php date_default_timezone_set("America/New_York");$receipt_number = date("YmdHis") . substr(microtime(), 2, 6);echo $receipt_number; ?></p>
                </div>
                <div class="form-group col-sm-6 col-xs-12">
                   <label for="item_name">Fees (Required)</label>
@@ -1075,8 +1075,8 @@
              $('#rs_after_discount').val(parseFloat(fees_amount));
              $('#rs_totalpackage').val(parseFloat(fees_amount) + parseFloat(discount_amount));
            }				
-   	$('#show_disc_app').show();
-   	$('#create_billing').hide();
+         $('#show_disc_app').show();
+         $('#create_billing').hide();
    }else{
      		//var remaining_amount =  fees_amount - discount_amount;
          var remaining_amount =  fees_amount;
@@ -1157,6 +1157,17 @@
     <?php if($_GET['t'] == "procedure_billing"){ ?>
      
      $(document).on('click',"#create_billing",function(e) {
+        // Prevent duplicate submissions
+        if ($(this).hasClass('disabled') || $(this).prop('disabled')) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Disable button and add loading state
+        $(this).addClass('disabled').prop('disabled', true);
+        var originalText = $(this).text();
+        $(this).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+        
         var value = $('.required_value').filter(function () {
            return this.value === '';
          });
@@ -1190,6 +1201,8 @@
          var transaction_img = $('#transaction_img').val();
          if(doctor == '' || payment_done == '' || payment_method == '' || paramedic_name==''){
            $('#msg_area').append('One or more fields are empty !')
+           // Re-enable button on error
+           $('#create_billing').removeClass('disabled').prop('disabled', false).text(originalText);
          }else{
            var after_discount = 0;
            var payment_in = $('.payment_in:checked').val();
@@ -1210,11 +1223,26 @@
            $('#consultation_preview').show();
          }
    
-       }else if (value.length > 0) { alert('Please fill out all fields.'); }
+       }else if (value.length > 0) { 
+           alert('Please fill out all fields.'); 
+           // Re-enable button on error
+           $('#create_billing').removeClass('disabled').prop('disabled', false).text(originalText);
+       }
      });
    <?php } else { ?>
    
    $(document).on('click',"#create_billing",function(e) {
+        // Prevent duplicate submissions
+        if ($(this).hasClass('disabled') || $(this).prop('disabled')) {
+            e.preventDefault();
+            return false;
+        }
+        
+        // Disable button and add loading state
+        $(this).addClass('disabled').prop('disabled', true);
+        var originalText = $(this).text();
+        $(this).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
+        
        var value = $('.required_value').filter(function () {
          return this.value === '';
        });
@@ -1271,6 +1299,8 @@
          var transaction_img = $('#transaction_img').val();
          if(doctor == '' || payment_done == '' || payment_method == '' || paramedic_name==''){
            $('#msg_area').append('One or more fields are empty !')
+           // Re-enable button on error
+           $('#create_billing').removeClass('disabled').prop('disabled', false).text(originalText);
          }else{
            var after_discount = 0;
            var payment_in = $('.payment_in:checked').val();
@@ -1293,7 +1323,11 @@
            $('#consultation_preview').show();
          }
    
-       }else if (value.length > 0) { alert('Please fill out all fields.'); }
+       }else if (value.length > 0) { 
+           alert('Please fill out all fields.'); 
+           // Re-enable button on error
+           $('#create_billing').removeClass('disabled').prop('disabled', false).text(originalText);
+       }
      });
    <?php } ?>
    

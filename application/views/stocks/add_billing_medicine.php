@@ -213,7 +213,7 @@ $centers_result = run_select_query($centers_sql);
 				   </div>
                    <div class="form-group col-sm-4 col-xs-12">
                         <label for="item_name">Receipt number (Required)</label>
-                        <input value="<?php date_default_timezone_set("America/New_York"); echo date("Ymdhis"); ?>" placeholder="Receipt number" id="receipt_number" name="receipt_number" readonly="readonly" type="text" class="form-control required_value" required>                        
+                        <input value="<?php date_default_timezone_set("America/New_York");$receipt_number = date("YmdHis") . substr(microtime(), 2, 6);echo $receipt_number; ?>" placeholder="Receipt number" id="receipt_number" name="receipt_number" readonly="readonly" type="text" class="form-control required_value" required>                        
 						<input type="hidden" value="<?php echo $select_result_consultation['doctor_id']; ?>" id="doctor_id" name="doctor_id">
 				   </div>
                 </div>
@@ -514,7 +514,7 @@ $(document).on('blur',"#patient_id",function(e) {
 <!--****** Billing SCRIPT *******-->
 <script>
 	$(document).on('click',"#create_billing",function(e) {
-		// Prevent double-click submission
+		// Prevent double-click submissionp
 		if ($(this).prop('disabled')) {
 			e.preventDefault();
 			return false;

@@ -1852,4 +1852,10 @@ function procedure_billings_patination($limit, $page, $center, $start_date, $end
         }
 	}
 
+	function receipt_number_exists($receipt_number) {
+		$query = $this->db->query("SELECT COUNT(*) AS count FROM hms_patient_procedure WHERE receipt_number = ?", [$receipt_number]);
+		$row = $query->row();
+		return ($row->count > 0); // true if exists
+	}
+
 }

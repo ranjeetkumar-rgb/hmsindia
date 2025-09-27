@@ -4325,6 +4325,7 @@ function get_converstion_rate()
 
 function check_billing_status($patient_id, $receipt_number, $type){
 
+    $appointment_id = 0;
     $ci = &get_instance();
 
     $ci->load->database();

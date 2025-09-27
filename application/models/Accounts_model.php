@@ -659,11 +659,11 @@ class Accounts_model extends CI_Model
         return 1;
 	}
 	
-	function send_procedure_tally($ID) {
+	function send_procedure_tally($ID) 
+	{
 		$sales = [];
 		$sql = "SELECT * FROM hms_patient_procedure WHERE ID = " . (int)$ID;
 		$result = run_select_query($sql);
-
 		if (!empty($result)) {
 			$row = $result;
 			$unserialized_data = unserialize($row['data']);
@@ -684,17 +684,34 @@ class Accounts_model extends CI_Model
 			$sql_embryo_transfer = "SELECT * FROM embryo_transfer_discharge_summary WHERE iic_id='" . $row['patient_id'] . "' order by ID ASC";
 			$select_embryo_transfer = run_select_query($sql_embryo_transfer);
 
-			$date_of_admission = $select_embryo_transfer['date_of_addmission'];
-			$formatted_admission_date = date('Y-m-d', strtotime($date_of_admission));
-			
+			// FIXED: Properly handle the embryo transfer data
+			$date_of_admission = null;
+			$formatted_admission_date = null;
 			$type = 'New';  // Default
-			if (!empty($date_of_admission)) {
-				if (strtotime($date_of_admission) < strtotime($row['on_date'])) {
-					$type = 'recycle';
+			
+			if (!empty($select_embryo_transfer)) {
+				// Check if it's a single row or multiple rows
+				if (isset($select_embryo_transfer['date_of_addmission'])) {
+					// Single row result
+					$date_of_admission = $select_embryo_transfer['date_of_addmission'];
+				} elseif (is_array($select_embryo_transfer) && count($select_embryo_transfer) > 0) {
+					// Multiple rows result - get the first one
+					$first_embryo = $select_embryo_transfer[0];
+					$date_of_admission = isset($first_embryo['date_of_addmission']) ? $first_embryo['date_of_addmission'] : null;
+				}
+				
+				if (!empty($date_of_admission)) {
+					$formatted_admission_date = date('Y-m-d', strtotime($date_of_admission));
+					
+					// Determine type based on admission date
+					if (strtotime($date_of_admission) < strtotime($row['on_date'])) {
+						$type = 'recycle';
+					}
 				}
 			}
 
-			return [ // Return the sales detail directly (no echo/die)
+			// Build the return array - FIXED: Safely access embryo transfer data
+			$return_data = [
 				"patient_id" => $row['patient_id'],
 				"patient_name" => $patients_result['wife_name'] . ' W/O ' . $patients_result['husband_name'],
 				"billing_center" => $centers_result['center_name'],
@@ -703,7 +720,7 @@ class Accounts_model extends CI_Model
 				"on_date" => date('d-m-Y', strtotime($row['on_date'])),
 				"receipt_number" => $row['receipt_number'],
 				"biller_name" => $employees_result['name'],
-				"procedure_type" => $type . ($select_embryo_transfer['date_of_addmission']),
+				"procedure_type" => $type . ($date_of_admission ? " (Admission: " . $date_of_admission . ")" : ""),
 				"patient_procedures" => [
 					[   
 						"procedure_name" => $procedure_result['procedure_name'],
@@ -718,10 +735,17 @@ class Accounts_model extends CI_Model
 				],
 				"payment_method" => $row['payment_method']
 			];
+			
+			// Add admission date if available
+			if ($formatted_admission_date) {
+				$return_data["admission_date"] = $formatted_admission_date;
+			}
+			
+			return $return_data;
 		}
 		return null; // Return null if no data found
 	}
-	
+		
 	function approve_billing_by_receipt($request, $type, $status, $reason){
 		$result = array();
 		if($type == 'consultation'){			

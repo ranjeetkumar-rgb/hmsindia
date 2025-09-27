@@ -25,7 +25,7 @@ $select_result4 = run_select_query($sql4);
 
   <div class="panel-body profile-edit">
 
-	<h3 class="test">Billing Details      </h3>
+	<h3 class="test">Billing Details</h3>
     <p id="whatsappmessg" style="display:none;"></p>
     <hr />
 

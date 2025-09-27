@@ -835,10 +835,10 @@ $(function(){
 });
 
    $('#create_billing').click(function(e){
- e.preventDefault();
- if(this.form.reportValidity()){
-  $(this).prop('disabled',true);
-  this.form.submit();
- }
-});
+	e.preventDefault();
+		if(this.form.reportValidity()){
+	      	$(this).prop('disabled',true);
+		this.form.submit();
+	}
+   });
 </script>

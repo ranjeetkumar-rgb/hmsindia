@@ -2111,30 +2111,38 @@ public function procedure_reports(){
 		}
 	}
 	
-	public function tally() {
+	public function tally() 
+	{
 		$logg = checklogin();
 		if ($logg['status'] != true) {
-			redirect(base_url());
+			echo json_encode(['error' => 'Not logged in']);
+			exit;
 		}
 
 		$ids = $this->input->post('ids');
 		if (empty($ids)) {
-			$this->session->set_flashdata('error', 'No rows selected.');
-			redirect($_SERVER['HTTP_REFERER']);
+			echo json_encode(['error' => 'No IDs provided']);
+			exit;
 		}
 
 		$all_sales = [];
 		foreach ($ids as $ID) {
 			$sale = $this->accounts_model->send_procedure_tally($ID);
+			
 			if ($sale) {
-				$all_sales[] = $sale; // Add each sale to the array
+				$all_sales[] = $sale;
+
 			}
 		}
 
-		// Output all collected sales at once
 		header('Content-Type: application/json');
-		echo json_encode(['Sales_Details' => $all_sales], JSON_PRETTY_PRINT);
-		exit;
+		echo json_encode([
+			'export_date' => date('Y-m-d H:i:s'),
+			'selected_ids' => $ids,
+			'record_count' => count($all_sales),
+			'Sales_Details' => $all_sales
+			], JSON_PRETTY_PRINT);
+			exit;
 	}
 	
 	public function front_approve($request = NULL){
