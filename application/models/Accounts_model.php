@@ -5566,18 +5566,130 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
         }
     }
 	function get_counselor_name($appointment_id) {
-    $sql = "SELECT * 
-            FROM ".$this->config->item('db_prefix')."doctor_consultation 
-            WHERE appointment_id='".$appointment_id."' 
-              AND status='1'";
-    $q = $this->db->query($sql);
-    $result = $q->result_array();
-    if (!empty($result)) {
-        return $result[0]['counsellor_signature']; // return string
-    } else {
-        return ''; // return empty string instead of array
-    }
-}
+		$sql = "SELECT * 
+				FROM ".$this->config->item('db_prefix')."doctor_consultation 
+				WHERE appointment_id='".$appointment_id."' 
+				AND status='1'";
+		$q = $this->db->query($sql);
+		$result = $q->result_array();
+		if (!empty($result)) {
+			return $result[0]['counsellor_signature']; // return string
+		} else {
+			return ''; // return empty string instead of array
+		}
+	}
+	 
+    function dashboard_medicine_daily_sales($center, $start_date, $end_date){
+		$medicine_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$medicine_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(payment_done) AS total_payment FROM hms_patient_medicine WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('Pending', 'approved') AND 1".$conditions;
+		$medicine_daily_q = $this->db->query($medicine_daily_sql);
+		$medicine_daily_result = $medicine_daily_q->result_array();
+		return $medicine_daily_result;		
+	}
+	
+	function dashboard_investigation_daily_sales($center, $start_date, $end_date){
+		$investigations_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$investigations_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(payment_done) AS total_payment FROM hms_patient_investigations WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('Pending', 'approved') AND 1".$conditions;
+		$investigations_daily_q = $this->db->query($investigations_daily_sql);
+		$investigations_daily_result = $investigations_daily_q->result_array();
+		return $investigations_daily_result;		
+	}
+	
+	function dashboard_consultation_daily_sales($center, $start_date, $end_date){
+		$consultation_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$consultation_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(payment_done) AS total_payment FROM hms_consultation WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('Pending', 'approved') AND 1".$conditions;
+		$consultation_daily_q = $this->db->query($consultation_daily_sql);
+		$consultation_daily_result = $consultation_daily_q->result_array();
+		return $consultation_daily_result;		
+	}
+	
+	function dashboard_registration_daily_sales($center, $start_date, $end_date){
+		$registration_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$registration_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(payment_done) AS total_payment FROM hms_registation WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('Pending', 'approved') AND 1".$conditions;
+		$registration_daily_q = $this->db->query($registration_daily_sql);
+		$registration_daily_result = $registration_daily_q->result_array();
+		return $registration_daily_result;		
+	}
+	
+	function dashboard_procedure_daily_sales($center, $start_date, $end_date){
+		$procedure_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$procedure_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(fees) AS total_fees, SUM(payment_done) AS total_payment FROM hms_patient_procedure WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('pending', 'approved') AND 1".$conditions;
+		$procedure_daily_q = $this->db->query($procedure_daily_sql);
+		$procedure_daily_result = $procedure_daily_q->result_array();
+		return $procedure_daily_result;		
+	}
+
+
 
 
 }

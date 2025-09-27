@@ -7288,5 +7288,37 @@ public function partial_procedure(){
         $name = $this->accounts_model->get_counselor_name($appointment_id);
         return $name;
     }
+	public function daily_sales_reporting(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			//$per_page = $this->input->get('per_page', true);
+			$center = $this->input->get('billing_at', true);
+			$payment_method = $this->input->get('payment_method', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			
+			$config = array();
+        	$data['medicine_daily_result'] = $this->accounts_model->dashboard_medicine_daily_sales($center, $start_date, $end_date);
+			$data['investigations_daily_result'] = $this->accounts_model->dashboard_investigation_daily_sales($center, $start_date, $end_date);
+			$data['consultation_daily_result'] = $this->accounts_model->dashboard_consultation_daily_sales($center, $start_date, $end_date);
+			$data['registration_daily_result'] = $this->accounts_model->dashboard_registration_daily_sales($center, $start_date, $end_date);
+			$data['procedure_daily_result'] = $this->accounts_model->dashboard_procedure_daily_sales($center, $start_date, $end_date);
+			
+			$data["billing_at"] = $center;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["payment_method"] = $payment_method;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('accounts/daily_sales_reporting', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
 
 } 
