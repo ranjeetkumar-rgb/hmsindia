@@ -751,7 +751,6 @@ WHERE inv.master_id = '$investigation'";
 		$this->db->query($sql);
 		return $this->db->affected_rows();
 	}	
-
 	function patient_journey_data($data){
 		// Ensure husband_name is present, get it from patient data if missing
 		if (!isset($data['husband_name']) || empty($data['husband_name'])) {
@@ -763,11 +762,9 @@ WHERE inv.master_id = '$investigation'";
 				$data['husband_name'] = '';
 			}
 		}
-		// Ensure husband_name is not null or empty - set to empty string if still empty
 		if (empty($data['husband_name'])) {
 			$data['husband_name'] = '';
 		}
-		
 		// Debug: Log the data being inserted
 		log_message('debug', 'patient_journey_data - husband_name: ' . $data['husband_name']);
 		log_message('debug', 'patient_journey_data - patient_id: ' . ($data['patient_id'] ?? 'NOT_SET'));
