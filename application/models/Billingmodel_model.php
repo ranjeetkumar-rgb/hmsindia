@@ -753,8 +753,6 @@ WHERE inv.master_id = '$investigation'";
 	}	
 
 	function patient_journey_data($data){
-		var_dump($data);
-		die;
 		// Ensure husband_name is present, get it from patient data if missing
 		if (!isset($data['husband_name']) || empty($data['husband_name'])) {
 			if (isset($data['patient_id']) && !empty($data['patient_id'])) {
