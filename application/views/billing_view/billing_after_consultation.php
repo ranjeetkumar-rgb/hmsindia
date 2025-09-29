@@ -239,105 +239,97 @@
                <h4>Investigations</h4>
                <?php  
                   //if (!empty($_SESSION['logged_billing_manager']['center']) && $_SESSION['logged_billing_manager']['center'] == "16133769691598") {
-                  
                   $allowedCenters = array('16133769691598', '1581157290', '17519672203755');
-                  
-                  // Check if the user's center is in the allowed list
                   if (!empty($_SESSION['logged_billing_manager']['center']) && in_array($_SESSION['logged_billing_manager']['center'], $allowedCenters)) {
                   	?>
-               <table id="investigation_main_table">
-                  <thead>
-                     <tr>
-                        <th></th>
-                        <th>Name</th>
-                        <th>IIC Code</th>
-                        <th>Medgenome Code</th>
-                        <th>Price</th>
-                        <th>Discount</th>
-                        <th></th>
-                     </tr>
-                  </thead>
-                  <tbody id="consumables_table_body">
-                     <?php 
-                        $invest_total = 0; if(!empty($billing_details['male_minvestigation_suggestion_list'])){ 
-                        $male_minvestigation_suggestion_list = unserialize($billing_details['male_minvestigation_suggestion_list']);
-                               
-                        
-                         
-                         $male_ivt_count = 1;
-                               foreach($male_minvestigation_suggestion_list as $key => $val){
-                        			$investigation_details = $all_method->get_master_investigation_details($val);
-                        			
-                        			 foreach ($investigation_details as $investigation_details) {
-                        			
-                                    if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
-                        	?>
-                     <tr class="male_ivt_tr" id="male_invstg_<?php echo $male_ivt_count; ?>">
-                        <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
-                        <td>
-                           <?php echo $investigation_details['investigation']; ?>
-                           <input value="<?php echo $investigation_details['inv_id']; ?>" invest="<?php echo $investigation_details['investigation']; ?>" readonly="readonly" id="male_investigation_name_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_name_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
-                        </td>
-                        <td>
-                           <?php echo $investigation_details['master_code']; ?>
-                        </td>
-                        <td>
-                           <?php echo $investigation_details['code']; ?>
-                           <input value="<?php echo $investigation_details['code']; ?>" readonly="readonly" id="male_investigation_code_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_code_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
-                        </td>
-                        <td>
-                           <?php $invest_price = 0; $invest_price = $investigation_details['price']; echo 'Rs.'.$invest_price; ?>
-                           <input value="<?php echo $invest_price; ?>" placeholder="Price" readonly="readonly" id="male_price_field_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_price_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
-                        </td>
-                        <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="male_investigation_discount_<?php echo $male_ivt_count; ?>" class="investigation_discount required_value" name="male_investigation_discount_<?php echo $male_ivt_count; ?>" type="text" class="form-control " required></td>
-                        <td><input type="checkbox" class="statuss" name="record"></td>
-                     </tr>
-                     <?php $grand_total += $invest_price; $invest_total += $invest_price; $male_ivt_count++;}} }} ?>
-                     <?php  if(!empty($billing_details['female_minvestigation_suggestion_list'])){ 
-                        $female_minvestigation_suggestion_list = unserialize($billing_details['female_minvestigation_suggestion_list']);
-                               $female_ivt_count = 1;
-                        		foreach($female_minvestigation_suggestion_list as $key => $val){ 
-                        		
-                        		
-                        		$investigation_details = $all_method->get_master_investigation_details($val);
-                        		
-                        	//var_dump($investigation_details);
-                        	
-                        	
-                         foreach ($investigation_details as $investigation_details) {
-                        
-                        
-                        //echo "ID: " . $detail['inv_id'] . ", Name: " . $detail['investigation'] . "<br>";  
-                        		
-                        		
-                        		if(!empty($investigation_details)){ 
-                        		 //if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
-                        			$allowedCenterIds = array('16133769691598', '1581157290', '17519672203755');
-                        
-                        		// Check if the center_id exists and is in the allowed list
-                        		if (!empty($investigation_details['center_id']) && in_array($investigation_details['center_id'], $allowedCenterIds)) {
-                        		?>
-                     <tr class="consumables_row_1 female_ivt_tr " id="fmale_invstg_<?php echo $female_ivt_count; ?>" trcount="<?php echo $female_ivt_count; ?>">
-                        <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
-                        <td><?php echo $investigation_details['investigation']; ?>
-                           <input value="<?php echo $investigation_details['inv_id']; ?>" invest="<?php echo $investigation_details['investigation']; ?>" readonly="readonly" id="female_investigation_name_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_name_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
-                        </td>
-                        <td>
-                           <?php echo $investigation_details['master_code']; ?>
-                        </td>
-                        <td><?php echo $investigation_details['code']; ?>
-                           <input value="<?php echo $investigation_details['code']; ?>" readonly="readonly" id="female_investigation_code_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_code_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
-                        </td>
-                        <td>
-                           <?php $invest_price = 0; $invest_price = $investigation_details['price']; echo 'Rs.'.$invest_price; ?>
-                           <input value="<?php echo $invest_price; ?>" placeholder="Price" readonly="readonly" id="female_price_field_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_price_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
-                        </td>
-                        <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="female_investigation_discount_<?php echo $female_ivt_count; ?>" class="investigation_discount required_value" name="female_investigation_discount_<?php echo $female_ivt_count; ?>" type="text" class="form-control " required></td>
-                        <td><input type="checkbox" class="statuss" name="record"></td>
-                     </tr>
-                     <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; } }} }} ?>
-                  </tbody>
-               </table>
+                  <table id="investigation_main_table">
+                     <thead>
+                        <tr>
+                           <th></th>
+                           <th>Name</th>
+                           <th>IIC Code</th>
+                           <th>Medgenome Code</th>
+                           <th>Price</th>
+                           <th>Discount</th>
+                           <th></th>
+                        </tr>
+                     </thead>
+                     <tbody id="consumables_table_body">
+                        <?php 
+                           $invest_total = 0; if(!empty($billing_details['male_minvestigation_suggestion_list'])){ 
+                           $male_minvestigation_suggestion_list = unserialize($billing_details['male_minvestigation_suggestion_list']);
+                           $male_ivt_count = 1;
+                                 foreach($male_minvestigation_suggestion_list as $key => $val){
+                                    $investigation_details = $all_method->get_master_investigation_details($val);
+                                    foreach ($investigation_details as $investigation_details) {
+                                       if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
+                              ?>
+                        <tr class="male_ivt_tr" id="male_invstg_<?php echo $male_ivt_count; ?>">
+                           <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
+                           <td>
+                              <?php echo $investigation_details['investigation']; ?>
+                              <input value="<?php echo $investigation_details['inv_id']; ?>" invest="<?php echo $investigation_details['investigation']; ?>" readonly="readonly" id="male_investigation_name_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_name_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
+                           </td>
+                           <td>
+                              <?php echo $investigation_details['master_code']; ?>
+                           </td>
+                           <td>
+                              <?php echo $investigation_details['code']; ?>
+                              <input value="<?php echo $investigation_details['code']; ?>" readonly="readonly" id="male_investigation_code_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_code_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
+                           </td>
+                           <td>
+                              <?php $invest_price = 0; $invest_price = $investigation_details['price']; echo 'Rs.'.$invest_price; ?>
+                              <input value="<?php echo $invest_price; ?>" placeholder="Price" readonly="readonly" id="male_price_field_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_price_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
+                           </td>
+                           <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="male_investigation_discount_<?php echo $male_ivt_count; ?>" class="investigation_discount required_value" name="male_investigation_discount_<?php echo $male_ivt_count; ?>" type="text" class="form-control " required></td>
+                           <td><input type="checkbox" class="statuss" name="record"></td>
+                        </tr>
+                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $male_ivt_count++;}} }} ?>
+                        <?php  if(!empty($billing_details['female_minvestigation_suggestion_list'])){ 
+                           $female_minvestigation_suggestion_list = unserialize($billing_details['female_minvestigation_suggestion_list']);
+                                 $female_ivt_count = 1;
+                                 foreach($female_minvestigation_suggestion_list as $key => $val){ 
+                                 
+                                 
+                                 $investigation_details = $all_method->get_master_investigation_details($val);
+                                 
+                              //var_dump($investigation_details);
+                              
+                              
+                           foreach ($investigation_details as $investigation_details) {
+                           
+                           
+                           //echo "ID: " . $detail['inv_id'] . ", Name: " . $detail['investigation'] . "<br>";  
+                                 
+                                 
+                                 if(!empty($investigation_details)){ 
+                                 //if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
+                                    $allowedCenterIds = array('16133769691598', '1581157290', '17519672203755');
+                           
+                                 // Check if the center_id exists and is in the allowed list
+                                 if (!empty($investigation_details['center_id']) && in_array($investigation_details['center_id'], $allowedCenterIds)) {
+                                 ?>
+                        <tr class="consumables_row_1 female_ivt_tr " id="fmale_invstg_<?php echo $female_ivt_count; ?>" trcount="<?php echo $female_ivt_count; ?>">
+                           <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
+                           <td><?php echo $investigation_details['investigation']; ?>
+                              <input value="<?php echo $investigation_details['inv_id']; ?>" invest="<?php echo $investigation_details['investigation']; ?>" readonly="readonly" id="female_investigation_name_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_name_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
+                           </td>
+                           <td>
+                              <?php echo $investigation_details['master_code']; ?>
+                           </td>
+                           <td><?php echo $investigation_details['code']; ?>
+                              <input value="<?php echo $investigation_details['code']; ?>" readonly="readonly" id="female_investigation_code_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_code_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
+                           </td>
+                           <td>
+                              <?php $invest_price = 0; $invest_price = $investigation_details['price']; echo 'Rs.'.$invest_price; ?>
+                              <input value="<?php echo $invest_price; ?>" placeholder="Price" readonly="readonly" id="female_price_field_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_price_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
+                           </td>
+                           <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="female_investigation_discount_<?php echo $female_ivt_count; ?>" class="investigation_discount required_value" name="female_investigation_discount_<?php echo $female_ivt_count; ?>" type="text" class="form-control " required></td>
+                           <td><input type="checkbox" class="statuss" name="record"></td>
+                        </tr>
+                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; } }} }} ?>
+                     </tbody>
+                  </table>
                <?php }else{ ?>
                <table id="investigation_main_table">
                   <thead>
@@ -454,6 +446,7 @@
                         <th>Paid Price</th>
                         <th>Mode</th>
                         <th>Receipt</th>
+                        <th>Upload Receipt</th>
                         <th>Delete</th>
                      </tr>
                   </thead>
@@ -506,6 +499,7 @@
                            </select>
                         </td>
                         <td><input value="<?php date_default_timezone_set("America/New_York");$receipt_number = date("YmdHis") . substr(microtime(), 2, 6);echo $receipt_number; ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number_<?php echo $sub_procedure_counter;?>" name="receipt_number_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required></td>
+                        <td><input type="file" name="receipt_image_<?php echo $sub_procedure_counter;?>" id="receipt_image_<?php echo $sub_procedure_counter;?>" class="form-control " required></td>
                         <td><input type="checkbox" class="statuss" name="record"></td>
                      </tr>
                      <?php  $grand_total += $sub_price; $sub_procedure_counter++;}}}}else{ ?>
@@ -563,7 +557,7 @@
             <?php } ?>
             <?php if($form_action == "add_package"){ ?>
             <div class="row">
-               <?php //var_dump($billing_details);die;
+               <?php 
                   if($billing_details['package_suggestion'] == 1 ){ $parent_procedure_details = $all_method->get_procedure_details($billing_details['package_suggestion_list']); 
                   ?>
                <input type="hidden" name="package_suggestion" value="<?php echo $billing_details['package_suggestion']; ?>" />

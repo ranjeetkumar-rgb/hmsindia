@@ -1858,6 +1858,14 @@ function partial_billing($appointment_id){
 						$payment_done = $_POST['sub_procedures_paid_price_'.$val];
 						$remaining_amount = $fees - $payment_done;
 						$post_arr['receipt_number'] = $receipt_number;
+						if(!empty($_FILES['receipt_image_'.$sub_procedure_counter]['tmp_name'])) {
+							$dest_path = $this->config->item('upload_path');
+							$destination = $dest_path.'patient_files/';
+							$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-".$_FILES['receipt_image_'.$sub_procedure_counter]['name'];
+							$receipt_image = base_url().'assets/patient_files/'.$NewImageName;
+							move_uploaded_file($_FILES['receipt_image_'.$sub_procedure_counter]['tmp_name'], $destination.$NewImageName);
+							$post_arr['receipt_image_'.$sub_procedure_counter] = $receipt_image;
+						}
 						$post_arr['payment_method'] = $_POST['payment_method_'.$val];
 						
 						// Create procedure array
