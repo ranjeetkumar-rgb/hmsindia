@@ -104,6 +104,8 @@ $route['export-billing'] = 'billingcontroller/export_billing';
 
 $route['partial-payment-receipt/(:any)'] = 'accounts/partial_payment_receipt/$1';
 
+$route['accounts/details/(:any)'] = 'accounts/details/$1';
+
 
 
 $route['partial-consultation'] = 'billingcontroller/partial_consultation/';

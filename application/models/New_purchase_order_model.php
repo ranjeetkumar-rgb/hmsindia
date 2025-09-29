@@ -41,16 +41,28 @@ class New_purchase_order_model extends CI_Model {
 
     // Get all purchase orders with pagination
     public function get_purchase_orders($limit = 10, $start = 0, $filters = []) {
+        $this->db->flush_cache(); // Reset query builder
+        $this->db->select('*');
+        $this->db->from('hms_new_purchase_orders');
         $this->apply_filters($filters);
         $this->db->order_by('id', 'DESC');
-        $query = $this->db->get('hms_new_purchase_orders', $limit, $start);
+        $this->db->limit($limit, $start);
+        $query = $this->db->get();
         return $query->result_array();
     }
 
     // Count purchase orders with filters
     public function count_purchase_orders($filters = []) {
+        $this->db->flush_cache(); // Reset query builder
+        $this->db->from('hms_new_purchase_orders');
         $this->apply_filters($filters);
-        return $this->db->count_all_results('hms_new_purchase_orders');
+        return $this->db->count_all_results();
+    }
+
+    // Get total count without any filters (for debugging)
+    public function get_total_count() {
+        $this->db->flush_cache(); // Reset query builder
+        return $this->db->count_all('hms_new_purchase_orders');
     }
 
     // Get purchase order by ID

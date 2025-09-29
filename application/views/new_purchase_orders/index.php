@@ -243,6 +243,20 @@
             </table>
          </div>
 
+         <!-- Pagination Info -->
+         <div class="row" style="margin-top: 20px;">
+            <div class="col-md-6">
+               <p class="text-muted">
+                  Showing <?php echo (($current_page - 1) * 20) + 1; ?> to <?php echo min($current_page * 20, $total_count); ?> of <?php echo $total_count; ?> records
+               </p>
+            </div>
+            <div class="col-md-6 text-right">
+               <p class="text-muted">
+                  Page <?php echo $current_page; ?> of <?php echo $total_pages; ?>
+               </p>
+            </div>
+         </div>
+
          <!-- Pagination -->
          <?php if ($total_pages > 1): ?>
             <div class="text-center">
@@ -255,13 +269,39 @@
                      </li>
                   <?php endif; ?>
                   
-                  <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                  <?php 
+                  // Show limited pagination for better UX
+                  $start_page = max(1, $current_page - 2);
+                  $end_page = min($total_pages, $current_page + 2);
+                  
+                  // Show first page if not in range
+                  if ($start_page > 1): ?>
+                     <li class="<?php echo (1 == $current_page) ? 'active' : ''; ?>">
+                        <a href="<?php echo base_url('new_purchase_orders?page=1&' . http_build_query($filters)); ?>">1</a>
+                     </li>
+                     <?php if ($start_page > 2): ?>
+                        <li class="disabled"><span>...</span></li>
+                     <?php endif; ?>
+                  <?php endif; ?>
+                  
+                  <?php for ($i = $start_page; $i <= $end_page; $i++): ?>
                      <li class="<?php echo ($i == $current_page) ? 'active' : ''; ?>">
                         <a href="<?php echo base_url('new_purchase_orders?page=' . $i . '&' . http_build_query($filters)); ?>">
                            <?php echo $i; ?>
                         </a>
                      </li>
                   <?php endfor; ?>
+                  
+                  <?php 
+                  // Show last page if not in range
+                  if ($end_page < $total_pages): ?>
+                     <?php if ($end_page < $total_pages - 1): ?>
+                        <li class="disabled"><span>...</span></li>
+                     <?php endif; ?>
+                     <li class="<?php echo ($total_pages == $current_page) ? 'active' : ''; ?>">
+                        <a href="<?php echo base_url('new_purchase_orders?page=' . $total_pages . '&' . http_build_query($filters)); ?>"><?php echo $total_pages; ?></a>
+                     </li>
+                  <?php endif; ?>
                   
                   <?php if ($current_page < $total_pages): ?>
                      <li>
@@ -286,9 +326,11 @@ $(document).ready(function() {
         changeYear: true
     });
     
-    // Initialize DataTable
+    // Initialize DataTable without pagination (we use custom pagination)
     $('#new_purchase_orders_list').DataTable({
-        "pageLength": 25,
+        "paging": false, // Disable DataTable pagination
+        "searching": false, // Disable DataTable search
+        "info": false, // Disable DataTable info
         "order": [[ 7, "desc" ]], // Sort by Created Date (column 7)
         "responsive": true,
         "columnDefs": [

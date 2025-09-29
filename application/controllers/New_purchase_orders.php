@@ -40,7 +40,7 @@ class New_purchase_orders extends CI_Controller {
             
             $data['purchase_orders'] = $this->New_purchase_order_model->get_purchase_orders($limit, $start, $filters);
             $data['total_count'] = $this->New_purchase_order_model->count_purchase_orders($filters);
-            $data['filters'] = $filters;
+                        $data['filters'] = $filters;
             $data['current_page'] = $page;
             $data['total_pages'] = ceil($data['total_count'] / $limit);
             

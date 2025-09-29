@@ -334,17 +334,16 @@ WHERE inv.master_id = '$investigation'";
 	} */
 	
 	function get_master_investigation_details($investigation){
-	$sql = "SELECT inv.investigation, inv.code AS code, inv.ID AS inv_id,
-	       master.code AS master_code, inv.price, inv.center_id,
-	       inv.master_id, master.investigation_name
-	FROM hms_investigation AS inv
-	JOIN hms_master_investigations AS master ON inv.master_id = master.id
-	WHERE inv.master_id = '$investigation'";
-	
-	$q = $this->db->query($sql);
-	$result = $q->result_array();
-	return $result; // return all rows instead of just the first one
-}
+			$sql = "SELECT inv.investigation, inv.code AS code, inv.ID AS inv_id,
+				master.code AS master_code, inv.price, inv.center_id,
+				inv.master_id, master.investigation_name
+			FROM hms_investigation AS inv
+			JOIN hms_master_investigations AS master ON inv.master_id = master.id
+			WHERE inv.master_id = '$investigation'";
+			$q = $this->db->query($sql);
+			$result = $q->result_array();
+			return $result; 
+		}
 
 	
 	function get_procedure_details($procedure){
@@ -752,10 +751,11 @@ WHERE inv.master_id = '$investigation'";
 		return $this->db->affected_rows();
 	}	
 	function patient_journey_data($data){
-		// Ensure husband_name is present, get it from patient data if missing
 		if (!isset($data['husband_name']) || empty($data['husband_name'])) {
 			if (isset($data['patient_id']) && !empty($data['patient_id'])) {
-				$patient_sql = "Select husband_name from ".$this->config->item('db_prefix')."patients where patient_id='".$data['patient_id']."'";
+				$patient_sql = "SELECT husband_name 
+								FROM ".$this->config->item('db_prefix')."patients 
+								WHERE patient_id='".$data['patient_id']."'";
 				$patient_result = run_select_query($patient_sql);
 				$data['husband_name'] = isset($patient_result['husband_name']) ? $patient_result['husband_name'] : '';
 			} else {
@@ -765,34 +765,42 @@ WHERE inv.master_id = '$investigation'";
 		if (empty($data['husband_name'])) {
 			$data['husband_name'] = '';
 		}
-		// Debug: Log the data being inserted
-		log_message('debug', 'patient_journey_data - husband_name: ' . $data['husband_name']);
-		log_message('debug', 'patient_journey_data - patient_id: ' . ($data['patient_id'] ?? 'NOT_SET'));
-		
+		$receipt_numbers = array();
+		foreach ($data as $key => $value) {
+			if (preg_match('/^receipt_number_\d+$/', $key) && !empty($value)) {
+				$receipt_numbers[] = $value;
+			}
+		}
+		$receipt_numbers = array_unique($receipt_numbers);
+		if (!empty($receipt_numbers)) {
+			$data['receipt_number'] = json_encode(array_values($receipt_numbers)); 
+		} else {
+			$data['receipt_number'] = json_encode([]); // empty JSON array
+		}
+		// Optional: remove the extra receipt_number_1, _2... fields 
+		foreach ($data as $key => $value) {
+			if (preg_match('/^receipt_number_\d+$/', $key)) {
+				unset($data[$key]);
+			}
+		}
+		// Build SQL
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "patient_journey` SET ";
 		$sqlArr = array();
-		foreach( $data as $key=> $value )
-		{
-			$sqlArr[] = " $key = '".addslashes($value)."'"	;
-		}		
-		$sql .= implode(',' , $sqlArr);
-		
-		// Debug: Log the SQL query
-		log_message('debug', 'patient_journey_data SQL: ' . $sql);
-		
-       	$res =  $this->db->query($sql);
-		if ($res)
-		{
-			return $this->db->insert_id();
+		foreach ($data as $key => $value) {
+			$sqlArr[] = " $key = '".addslashes($value)."'";
 		}
-		else
-		{
-			// Log the error for debugging
+		$sql .= implode(',', $sqlArr);
+
+		$res = $this->db->query($sql);
+		if ($res) {
+			return $this->db->insert_id();
+		} else {
 			log_message('error', 'patient_journey_data SQL Error: ' . $this->db->last_query());
 			log_message('error', 'patient_journey_data DB Error: ' . $this->db->error()['message']);
 			return 0;
 		}
 	}
+
 	
 	
 }

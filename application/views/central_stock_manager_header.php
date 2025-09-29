@@ -109,6 +109,9 @@
         </ul>
       </li>
 
+      
+
+
        <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Return<span class="fa arrow"></span></a>
         <ul class="nav nav-second-level">
 		  <li> <a href="<?php echo base_url(); ?>stocks/return_list">Return Item</a> </li>
