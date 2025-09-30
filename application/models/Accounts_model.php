@@ -5791,33 +5791,5 @@ function dashboard_medicine_daily_sales($center, $start_date, $end_date){
     
     return [];
 }
-/*
-function get_lead_source($paitent_id){		
 
-		$result = array();
-
-		$sql = "Select * from ".$this->config->item('db_prefix')."stocks where paitent_id='".$paitent_id."' and paitent_type='new_patient'";
-
-        $q = $this->db->query($sql);
-
-        $result = $q->result_array();
-
-        if (!empty($result))
-
-        {
-
-            return $result[0];
-
-        }
-
-        else
-
-        {
-
-            return $result;
-
-        }
-
-	}
-}*/
 }
