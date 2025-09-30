@@ -239,8 +239,8 @@
                <h4>Investigations</h4>
                <?php  
                   //if (!empty($_SESSION['logged_billing_manager']['center']) && $_SESSION['logged_billing_manager']['center'] == "16133769691598") {
-                  $allowedCenters = array('16133769691598', '1581157290', '17519672203755');
-                  if (!empty($_SESSION['logged_billing_manager']['center']) && in_array($_SESSION['logged_billing_manager']['center'], $allowedCenters)) {
+                //  $allowedCenters = array('16133769691598', '1581157290', '17519672203755');
+                //  if (!empty($_SESSION['logged_billing_manager']['center']) && in_array($_SESSION['logged_billing_manager']['center'], $allowedCenters)) {
                   	?>
                   <table id="investigation_main_table">
                      <thead>
@@ -262,7 +262,7 @@
                                  foreach($male_minvestigation_suggestion_list as $key => $val){
                                     $investigation_details = $all_method->get_master_investigation_details($val);
                                     foreach ($investigation_details as $investigation_details) {
-                                       if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
+                                      // if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
                               ?>
                         <tr class="male_ivt_tr" id="male_invstg_<?php echo $male_ivt_count; ?>">
                            <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
@@ -284,7 +284,7 @@
                            <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="male_investigation_discount_<?php echo $male_ivt_count; ?>" class="investigation_discount required_value" name="male_investigation_discount_<?php echo $male_ivt_count; ?>" type="text" class="form-control " required></td>
                            <td><input type="checkbox" class="statuss" name="record"></td>
                         </tr>
-                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $male_ivt_count++;}} }} ?>
+                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $male_ivt_count++;}} }/* }*/  ?>
                         <?php  if(!empty($billing_details['female_minvestigation_suggestion_list'])){ 
                            $female_minvestigation_suggestion_list = unserialize($billing_details['female_minvestigation_suggestion_list']);
                                  $female_ivt_count = 1;
@@ -304,10 +304,10 @@
                                  
                                  if(!empty($investigation_details)){ 
                                  //if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
-                                    $allowedCenterIds = array('16133769691598', '1581157290', '17519672203755');
+                                  //  $allowedCenterIds = array('16133769691598', '1581157290', '17519672203755');
                            
                                  // Check if the center_id exists and is in the allowed list
-                                 if (!empty($investigation_details['center_id']) && in_array($investigation_details['center_id'], $allowedCenterIds)) {
+                                // if (!empty($investigation_details['center_id']) && in_array($investigation_details['center_id'], $allowedCenterIds)) {
                                  ?>
                         <tr class="consumables_row_1 female_ivt_tr " id="fmale_invstg_<?php echo $female_ivt_count; ?>" trcount="<?php echo $female_ivt_count; ?>">
                            <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
@@ -327,11 +327,11 @@
                            <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="female_investigation_discount_<?php echo $female_ivt_count; ?>" class="investigation_discount required_value" name="female_investigation_discount_<?php echo $female_ivt_count; ?>" type="text" class="form-control " required></td>
                            <td><input type="checkbox" class="statuss" name="record"></td>
                         </tr>
-                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; } }} }} ?>
+                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; } }} } /*}*/ ?>
                      </tbody>
                   </table>
-               <?php }else{ ?>
-               <table id="investigation_main_table">
+               <?php /*} else{*/ ?>
+             <!--  <table id="investigation_main_table">
                   <thead>
                      <tr>
                         <th></th>
@@ -408,8 +408,8 @@
                      </tr>
                      <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; }}} } } ?>
                   </tbody>
-               </table>
-               <?php } ?>
+               </table>-->
+               <?php //} ?>
                <table>
                   <tr>
                      <td colspan='3'>
