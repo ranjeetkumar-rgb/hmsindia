@@ -41,7 +41,7 @@ desktop.ini
 .env.local
 .env.production
 .env.staging
-application/config/database.php
+# application/config/database.php
 application/config/config.php
 application/config/constants.php
 application/config/development/email.php
