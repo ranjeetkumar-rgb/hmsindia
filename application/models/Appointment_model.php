@@ -54,7 +54,7 @@ class Appointment_model extends CI_Model
 		if(!empty($crm_id)){
                 $conditions .= " and crm_id='$crm_id'";
         }
-	    $appointments_sql = "Select DISTINCT crm_id, paitent_id, wife_name, husband_name, wife_email, nationality,reason_of_visit, appoitmented_date,paitent_type, status from ".$this->config->item('db_prefix')."appointments where 1 $conditions order by appoitmented_date desc";
+	    $appointments_sql = "Select DISTINCT crm_id, paitent_id, wife_name, husband_name, wife_email, nationality,reason_of_visit, appoitmented_date,paitent_type,lead_source, status from ".$this->config->item('db_prefix')."appointments where 1 $conditions order by appoitmented_date desc";
         $appointments_q = $this->db->query($appointments_sql);
         $appointments_result = $appointments_q->result_array();
         if(!empty($appointments_result)){
@@ -63,6 +63,7 @@ class Appointment_model extends CI_Model
 				//$all_method->doctor_name($vl['appoitmented_doctor']);
 				$response[] = array(
                         'crm_id' => $val['crm_id'],
+                        'lead_source' => $val['lead_source'],
 						'paitent_id' => $val['paitent_id'],
                         'wife_name' => $val['wife_name'],
 				        'husband_name' => $val['husband_name'],

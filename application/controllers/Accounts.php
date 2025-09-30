@@ -1034,7 +1034,7 @@ class Accounts extends CI_Controller {
 				header('Content-Type: text/csv; charset=utf-8');
 				header('Content-Disposition: attachment; filename=Partialpaymentsreport-'.$start_date.'-'.$end_date.'.csv');
 				$fp = fopen('php://output','w');
-				$headers = 'IIC ID, Patient Name, Package ID, Receipt Number, Paid Amount, Payment Method, Billing At, Billing Type, Date, Payment Type, Center Name,Booking Date, Status,Origin';
+				$headers = 'Lead ID, Lead Source, IIC ID, Patient Name, Package ID, Receipt Number, Paid Amount, Payment Method, Billing At, Billing Type, Date, Payment Type, Center Name,Booking Date, Status,Origin';
 				//Add the headers
 				fwrite($fp, $headers. "\r\n");
 				foreach ($data as $key => $val) {//var_dump($val);die;
@@ -1051,14 +1051,17 @@ class Accounts extends CI_Controller {
 					
 					$sql = "SELECT * FROM hms_appointments WHERE paitent_id='" . $val['patient_id'] . "'";
 					$appoint_result = run_select_query($sql);
-					
+
 					$sql3 = "SELECT * FROM hms_appointments WHERE wife_phone='" . $appoint_result['wife_phone'] . "' and paitent_type='new_patient'";
 					$select_result3 = run_select_query($sql3);
+
+					$lead_id = $select_result3['crm_id'];
+					$lead_source = $select_result3['lead_source'];
 					
 					$sql4 = "SELECT * FROM hms_centers WHERE center_number='" . $select_result3['appoitment_for'] . "'";
 					$select_result4 = run_select_query($sql4);
 					
-					$lead_arr = array($val['patient_id'], $val['wife_name'], $val['billing_id'],$val['refrence_number'], $val['payment_done'], $val['payment_method'], $billing_at, $val['type'], date('Y-m-d H:i:s', strtotime($val['date'])),$val['billing_type'],$val['biller'],$booking_date,$val['status'],$select_result4['center_name']);
+					$lead_arr = array($lead_id,$lead_source, $val['patient_id'], $val['wife_name'], $val['billing_id'],$val['refrence_number'], $val['payment_done'], $val['payment_method'], $billing_at, $val['type'], date('Y-m-d H:i:s', strtotime($val['date'])),$val['billing_type'],$val['biller'],$booking_date,$val['status'],$select_result4['center_name']);
 					
 					fputcsv($fp, $lead_arr);
 				}

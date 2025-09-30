@@ -56,7 +56,7 @@ class Appointmentcontroller extends CI_Controller {
 				header('Content-Type: text/csv; charset=utf-8');
 				header('Content-Disposition: attachment; filename=Appointments-Patients-'.$start_date.'-'.$end_date.'.csv');
 				$fp = fopen('php://output','w');
-				$headers = 'CRM ID, IIC ID, Patient Name, Husband Name, Nationality,Reason of Visit,  Appoitmented Date,Paitent Type, Status';
+				$headers = 'CRM ID,Lead Source, IIC ID, Patient Name, Husband Name, Nationality,Reason of Visit,  Appoitmented Date,Paitent Type, Status';
 				//Add the headers
 				fwrite($fp, $headers. "\r\n");
 				foreach ($data as $key => $val) {//var_dump($val);die;
@@ -65,7 +65,7 @@ class Appointmentcontroller extends CI_Controller {
 						$billing_from = get_center_name($billing_from);
 					}
 					$billing_at = get_center_name($val['billing_at']);
-					$lead_arr = array($val['crm_id'], $val['paitent_id'], $val['wife_name'], $val['husband_name'], $val['nationality'], $val['reason_of_visit'], $val['appoitmented_date'],$val['paitent_type'], $val['status']);
+					$lead_arr = array($val['crm_id'],$val['lead_source'], $val['paitent_id'], $val['wife_name'], $val['husband_name'], $val['nationality'], $val['reason_of_visit'], $val['appoitmented_date'],$val['paitent_type'], $val['status']);
 					fputcsv($fp, $lead_arr);
 				}
 				fclose($fp);
