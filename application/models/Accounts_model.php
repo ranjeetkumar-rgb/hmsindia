@@ -658,69 +658,105 @@ class Accounts_model extends CI_Model
 		$this->db->query($sql);
         return 1;
 	}
+
+	public function get_all_sales_for_tally()
+{
+    $this->db->select('*'); // adjust your fields
+    $this->db->from('hms_patient_procedure'); // replace with your actual table
+    $this->db->order_by('id', 'DESC');
+    $this->db->limit(10); // prevent loading thousands at once
+
+    $query = $this->db->get();
+    return $query->result_array();
+}
+
 	
 	function send_procedure_tally($ID) {
-		$sales = [];
-		$sql = "SELECT * FROM hms_patient_procedure WHERE ID = " . (int)$ID;
-		$result = run_select_query($sql);
+    $sales = [];
+    $sql = "SELECT * FROM hms_patient_procedure WHERE ID = " . (int)$ID;
+    $result = run_select_query($sql);
 
-		if (!empty($result)) {
-			$row = $result;
-			$unserialized_data = unserialize($row['data']);
-			$procedure = $unserialized_data['patient_procedures'][0];
-			
-			$sql = "SELECT * FROM hms_procedures WHERE ID ='".$procedure['sub_procedure']."'";
-			$procedure_result = run_select_query($sql);
-			
-			$sql_patients = "SELECT * FROM hms_patients WHERE patient_id ='".$row['patient_id']."'";
-			$patients_result = run_select_query($sql_patients);
-			
-			$sql_centers = "SELECT * FROM hms_centers WHERE center_number ='".$row['billing_at']."'";
-			$centers_result = run_select_query($sql_centers);
-			
-			$sql_employees = "SELECT * FROM hms_employees WHERE employee_number ='".$row['biller_id']."'";
-			$employees_result = run_select_query($sql_employees);
-			
-			$sql_embryo_transfer = "SELECT * FROM embryo_transfer_discharge_summary WHERE iic_id='" . $row['patient_id'] . "' order by ID ASC";
-			$select_embryo_transfer = run_select_query($sql_embryo_transfer);
+    if (!empty($result)) {
+        $row = $result;
+        $unserialized_data = unserialize($row['data']);
+        $procedure = $unserialized_data['patient_procedures'][0];
+        
+        $sql = "SELECT * FROM hms_procedures WHERE ID ='".$procedure['sub_procedure']."'";
+        $procedure_result = run_select_query($sql);
+        
+        $sql_patients = "SELECT * FROM hms_patients WHERE patient_id ='".$row['patient_id']."'";
+        $patients_result = run_select_query($sql_patients);
+        
+        $sql_centers = "SELECT * FROM hms_centers WHERE center_number ='".$row['billing_at']."'";
+        $centers_result = run_select_query($sql_centers);
+        
+        $sql_employees = "SELECT * FROM hms_employees WHERE employee_number ='".$row['biller_id']."'";
+        $employees_result = run_select_query($sql_employees);
+        
+        $sql_embryo_transfer = "SELECT * FROM embryo_transfer_discharge_summary WHERE iic_id='" . $row['patient_id'] . "' order by ID ASC";
+        $select_embryo_transfer = run_select_query($sql_embryo_transfer);
 
-			$date_of_admission = $select_embryo_transfer['date_of_addmission'];
-			$formatted_admission_date = date('Y-m-d', strtotime($date_of_admission));
-			
-			$type = 'New';  // Default
-			if (!empty($date_of_admission)) {
-				if (strtotime($date_of_admission) < strtotime($row['on_date'])) {
-					$type = 'recycle';
-				}
-			}
+        // FIXED: Properly handle the embryo transfer data
+        $date_of_admission = null;
+        $formatted_admission_date = null;
+        $type = 'New';  // Default
+        
+        if (!empty($select_embryo_transfer)) {
+            // Check if it's a single row or multiple rows
+            if (isset($select_embryo_transfer['date_of_addmission'])) {
+                // Single row result
+                $date_of_admission = $select_embryo_transfer['date_of_addmission'];
+            } elseif (is_array($select_embryo_transfer) && count($select_embryo_transfer) > 0) {
+                // Multiple rows result - get the first one
+                $first_embryo = $select_embryo_transfer[0];
+                $date_of_admission = isset($first_embryo['date_of_addmission']) ? $first_embryo['date_of_addmission'] : null;
+            }
+            
+            if (!empty($date_of_admission)) {
+                $formatted_admission_date = date('Y-m-d', strtotime($date_of_admission));
+                
+                // Determine type based on admission date
+                if (strtotime($date_of_admission) < strtotime($row['on_date'])) {
+                    $type = 'recycle';
+                }
+            }
+        }
 
-			return [ // Return the sales detail directly (no echo/die)
-				"patient_id" => $row['patient_id'],
-				"patient_name" => $patients_result['wife_name'] . ' W/O ' . $patients_result['husband_name'],
-				"billing_center" => $centers_result['center_name'],
-				"booking_center" => $centers_result['center_name'],
-				"origin_center" => $centers_result['center_name'],
-				"on_date" => date('d-m-Y', strtotime($row['on_date'])),
-				"receipt_number" => $row['receipt_number'],
-				"biller_name" => $employees_result['name'],
-				"procedure_type" => $type . ($select_embryo_transfer['date_of_addmission']),
-				"patient_procedures" => [
-					[   
-						"procedure_name" => $procedure_result['procedure_name'],
-						"category" => $procedure_result['category'],
-						"sub_procedure" => $procedure['sub_procedure'],
-						"sub_procedures_code" => $procedure['sub_procedures_code'],
-						"sub_procedures_price" => $procedure['sub_procedures_price'],
-						"sub_procedures_discount" => $procedure['sub_procedures_discount'],
-						"sub_procedures_after_discount" => $procedure['sub_procedures_price'] - $procedure['sub_procedures_discount'],
-						"sub_procedures_paid_price" => $procedure['sub_procedures_paid_price']
-					]
-				],
-				"payment_method" => $row['payment_method']
-			];
-		}
-		return null; // Return null if no data found
-	}
+        // Build the return array - FIXED: Safely access embryo transfer data
+        $return_data = [
+            "patient_id" => $row['patient_id'],
+            "patient_name" => $patients_result['wife_name'] . ' W/O ' . $patients_result['husband_name'],
+            "billing_center" => $centers_result['center_name'],
+            "booking_center" => $centers_result['center_name'],
+            "origin_center" => $centers_result['center_name'],
+            "on_date" => date('d-m-Y', strtotime($row['on_date'])),
+            "receipt_number" => $row['receipt_number'],
+            "biller_name" => $employees_result['name'],
+            "procedure_type" => $type . ($date_of_admission ? " (Admission: " . $date_of_admission . ")" : ""),
+            "patient_procedures" => [
+                [   
+                    "procedure_name" => $procedure_result['procedure_name'],
+                    "category" => $procedure_result['category'],
+                    "sub_procedure" => $procedure['sub_procedure'],
+                    "sub_procedures_code" => $procedure['sub_procedures_code'],
+                    "sub_procedures_price" => $procedure['sub_procedures_price'],
+                    "sub_procedures_discount" => $procedure['sub_procedures_discount'],
+                    "sub_procedures_after_discount" => $procedure['sub_procedures_price'] - $procedure['sub_procedures_discount'],
+                    "sub_procedures_paid_price" => $procedure['sub_procedures_paid_price']
+                ]
+            ],
+            "payment_method" => $row['payment_method']
+        ];
+        
+        // Add admission date if available
+        if ($formatted_admission_date) {
+            $return_data["admission_date"] = $formatted_admission_date;
+        }
+        
+        return $return_data;
+    }
+    return null; // Return null if no data found
+}
 	
 	function approve_billing_by_receipt($request, $type, $status, $reason){
 		$result = array();
@@ -2648,7 +2684,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		return $response;
     } 
 	
-	function patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit){
+	function patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit,$doctor_id){
 		$consultation_result = array();
 		$conditions = '';
 		//if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
@@ -2662,6 +2698,9 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		}
 		if (!empty($patient_id)){
 			$conditions .= " and patient_id='$patient_id'";
+		}
+		if (!empty($doctor_id)){
+			$conditions .= " and doctor_id='$doctor_id'";
 		}
 		if (!empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
@@ -2677,7 +2716,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		return $q->num_rows();
     }
 	
-	function patient_consultation_report_patination($limit, $page, $center, $start_date, $end_date, $patient_id, $reason_of_visit){
+	function patient_consultation_report_patination($limit, $page, $center, $start_date, $end_date, $patient_id, $reason_of_visit,$doctor_id){
 		$consultation_result = array();
 		$conditions = '';
 		if(empty($page)){
@@ -2693,6 +2732,9 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		}
 		if (!empty($patient_id)){
 			$conditions .= " and patient_id='$patient_id'";
+		}
+		if (!empty($doctor_id)){
+			$conditions .= " and doctor_id='$doctor_id'";
 		}
 		if (!empty($reason_of_visit)){
 			$conditions .= " and reason_of_visit='$reason_of_visit'";
@@ -2712,6 +2754,36 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		return $consultation_result;
 	}
 	
+function patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id){
+    $conditions = '';
+
+    if (!empty($center)){
+        $conditions .= " AND billing_at='$center'";
+    }
+    if (!empty($patient_id)){
+        $conditions .= " AND patient_id='$patient_id'";
+    }
+    if (!empty($start_date) && !empty($end_date)){
+        $conditions .= " AND on_date BETWEEN '".$start_date."' AND '".$end_date."'";
+    }
+    else if (!empty($start_date) && empty($end_date)){
+        $conditions .= " AND on_date='$start_date'";
+    }
+    else if (empty($start_date) && !empty($end_date)){
+        $conditions .= " AND on_date='$end_date'";
+    }
+
+    $consultation_sql = "
+        SELECT reason_of_visit, COUNT(*) as total 
+        FROM ".$this->config->item('db_prefix')."consultation 
+        WHERE 1 ".$conditions."
+        GROUP BY reason_of_visit
+        ORDER BY total DESC";
+
+    $q = $this->db->query($consultation_sql);
+    return $q->result_array(); // returns array of [reason_of_visit => total]
+}
+
 
 	function patient_consultation_list_patination($limit, $page, $center, $start_date, $end_date, $patient_id, $status){
 		$consultation_result = array();
@@ -2752,9 +2824,9 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 	function export_consultation_data($start, $end, $center, $status){
 		$consultation_result = $response = array();
         $conditions = '';
-		if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
-			$center = $_SESSION['logged_accountant']['center'];
-		}
+		//if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
+		//	$center = $_SESSION['logged_accountant']['center'];
+		//}
         if(!empty($center)){
 			$conditions .= ' and billing_at="'.$center.'"';
         }
@@ -2765,7 +2837,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
             $conditions .= " and on_date between '".$start."' AND '".$end."' ";
         }
 		
-	    $consultation_sql = "Select DISTINCT patient_id, receipt_number, totalpackage, fees as discounted_package,payment_done,remaining_amount,payment_method,billing_from,billing_at,on_date as date,status from ".$this->config->item('db_prefix')."consultation where 1 $conditions order by on_date desc";
+	    $consultation_sql = "Select DISTINCT patient_id, receipt_number, totalpackage,doctor_id, fees as discounted_package,payment_done,remaining_amount,payment_method,billing_from,billing_at,reason_of_visit,on_date as date,status from ".$this->config->item('db_prefix')."consultation where 1 $conditions order by on_date desc";
         $consultation_q = $this->db->query($consultation_sql);
         $consultation_result = $consultation_q->result_array();
         if(!empty($consultation_result)){
@@ -2783,6 +2855,8 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
                         'payment_method' => $val['payment_method'],
                         'billing_from' => $val['billing_from'],
                         'billing_at' => $val['billing_at'],
+						'reason_of_visit' => $val['reason_of_visit'],
+						'doctor_id' => $val['doctor_id'],
                         'date' => $val['date'],
                         'status' => $val['status'],
                         'billing_type' => 'Consultation',
@@ -3891,7 +3965,10 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 		else if (empty($start_date) && !empty($end_date)){
 			$conditions .= " and on_date='$end_date'";
 		}
-		$investigation_sql = "Select DISTINCT patient_id, appointment_id, totalpackage, fees, status, payment_done, on_date, modified_on, data, receipt_number, billing_at, origins, cn_invoice from ".$this->config->item('db_prefix')."patient_procedure where 1 $conditions";
+		else if(!empty($json_data)){
+			$conditions .= " and data like '%$json_data%'";
+		}
+		$investigation_sql = "Select DISTINCT patient_id, appointment_id, totalpackage, fees, status, payment_done, on_date, modified_on, data, receipt_number, billing_from,billing_at, origins, cn_invoice from ".$this->config->item('db_prefix')."patient_procedure where 1 $conditions";
         $investigation_q = $this->db->query($investigation_sql);
         $consuption_result = $investigation_q->result_array();
         if(!empty($consuption_result)){
@@ -3963,6 +4040,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
 						'sub_procedures_discount' => $sub_procedures_discount_arr[$_key],
 						'sub_procedures_paid_price' => $sub_procedures_paid_price_arr[$_key],
 						'billing_at' => $val['billing_at'],
+						'billing_from' => $val['billing_from'],
 						'origins' => $val['origins'],
 						'cn_invoice' => $val['cn_invoice'],
 						'status' => $val['status'],
@@ -5579,5 +5657,167 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
     }
 }
 
+function dashboard_medicine_daily_sales($center, $start_date, $end_date){
+		$medicine_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$medicine_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(payment_done) AS total_payment FROM hms_patient_medicine WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('Pending', 'approved') AND 1".$conditions;
+		$medicine_daily_q = $this->db->query($medicine_daily_sql);
+		$medicine_daily_result = $medicine_daily_q->result_array();
+		return $medicine_daily_result;		
+	}
+	
+	function dashboard_investigation_daily_sales($center, $start_date, $end_date){
+		$investigations_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$investigations_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(payment_done) AS total_payment FROM hms_patient_investigations WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('Pending', 'approved') AND 1".$conditions;
+		$investigations_daily_q = $this->db->query($investigations_daily_sql);
+		$investigations_daily_result = $investigations_daily_q->result_array();
+		return $investigations_daily_result;		
+	}
+	
+	function dashboard_consultation_daily_sales($center, $start_date, $end_date){
+		$consultation_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$consultation_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(payment_done) AS total_payment FROM hms_consultation WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('Pending', 'approved') AND 1".$conditions;
+		$consultation_daily_q = $this->db->query($consultation_daily_sql);
+		$consultation_daily_result = $consultation_daily_q->result_array();
+		return $consultation_daily_result;		
+	}
+	
+	function dashboard_registration_daily_sales($center, $start_date, $end_date){
+		$registration_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$registration_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(payment_done) AS total_payment FROM hms_registation WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('Pending', 'approved') AND 1".$conditions;
+		$registration_daily_q = $this->db->query($registration_daily_sql);
+		$registration_daily_result = $registration_daily_q->result_array();
+		return $registration_daily_result;		
+	}
+	
+	function dashboard_procedure_daily_sales($center, $start_date, $end_date){
+		$procedure_daily_result = array();
+		$conditions = '';
+		if (!empty($center)){
+			$conditions .= " and billing_at='$center'";
+		}
+		if (!empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
+		}
+		else if (!empty($start_date) && empty($end_date)){
+			$conditions .= " and on_date='$start_date'";
+		}
+		else if (empty($start_date) && !empty($end_date)){
+			$conditions .= " and on_date='$end_date'";
+		}
+		$center = $_SESSION['logged_billing_manager']['center'];
+		$procedure_daily_sql = "SELECT COUNT(patient_id) AS total_patients, SUM(fees) AS total_fees, SUM(payment_done) AS total_payment FROM hms_patient_procedure WHERE on_date >= CURDATE() AND on_date < CURDATE() + INTERVAL 1 DAY AND billing_at = '$center'  AND status IN ('pending', 'approved') AND 1".$conditions;
+		$procedure_daily_q = $this->db->query($procedure_daily_sql);
+		$procedure_daily_result = $procedure_daily_q->result_array();
+		return $procedure_daily_result;		
+	}
 
+  public function get_doctors_by_center($center_number) {
+    // First, let's debug what we're receiving
+    error_log("Looking for doctors for center: " . $center_number);
+    
+    // Try direct match first
+    $this->db->select('ID, name, email, is_primary');
+    $this->db->from('hms_doctors');
+    $this->db->where('center_id', $center_number);
+    $this->db->where('status', 'active');
+    $this->db->order_by('is_primary', 'DESC');
+    $this->db->order_by('name', 'ASC');
+    
+    $query = $this->db->get();
+    
+    if ($query->num_rows() > 0) {
+        error_log("Found " . $query->num_rows() . " doctors for center_id: " . $center_number);
+        return $query->result_array();
+    }
+    
+    // If no direct match, try to find mapping
+    error_log("No direct match found for center_id: " . $center_number);
+    
+    return [];
+}
+/*
+function get_lead_source($paitent_id){		
+
+		$result = array();
+
+		$sql = "Select * from ".$this->config->item('db_prefix')."stocks where paitent_id='".$paitent_id."' and paitent_type='new_patient'";
+
+        $q = $this->db->query($sql);
+
+        $result = $q->result_array();
+
+        if (!empty($result))
+
+        {
+
+            return $result[0];
+
+        }
+
+        else
+
+        {
+
+            return $result;
+
+        }
+
+	}
+}*/
 }

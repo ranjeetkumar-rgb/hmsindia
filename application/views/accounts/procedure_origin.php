@@ -34,7 +34,7 @@
 					    ?>
                 </select>
             </div>
-			<div class="col-sm-2 col-xs-12" style="margin-top:10px;">
+			<div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>Procedures Code</label>
                 <input type="text" class="form-control" id="json_data" name="json_data" value="<?php echo $data;?>" />
             </div>
@@ -42,25 +42,21 @@
             	<label>Start Date</label>
               <input type="text" class="particular_date_filter form-control" id="start_date" name="start_date" value="<?php echo $start_date;?>" />
             </div>
-            <div class="col-sm-2 col-xs-12" style="margin-top:10px;">
+            <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>End Date</label>
                 <input type="text" class="particular_date_filter form-control" id="end_date" name="end_date" value="<?php echo $end_date;?>" />
             </div>
-            <div class="col-sm-2 col-xs-12" style="margin-top:10px;">
+            <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>IIC ID </label>
                 <input type="text" class="form-control" id="iic_id" name="iic_id" value="<?php echo $patient_id;?>" />
             </div>
-			<div class="col-sm-1" style="margin-top: 10px;">
+			<div class="col-sm-3" style="margin-top: 30px;">
             	<button name="btnsearch" id="btnsearch" type="submit"  class="btn btn-primary">Search</button>
-            </div>
-            <div class="col-sm-1" style="margin-top: 10px;">
             	<a href="<?php echo base_url().'accounts/procedure_origin'; ?>" style="text-decoration: none;">
                 <button name="btnreset" id="btnreset" type="button"  class="btn btn-secondary">RESET</button>
                </a>
-            </div>
-            <div class="col-sm-2" style="margin-top: 10px;">
             	<a href="<?php echo base_url('accounts/Consumption-Report'); ?>" style="text-decoration: none;">
-                <button name="export-consumption" type="submit"  class="btn btn-secondary" id="export-consumption">Export Procedue</button>
+                <button name="export-consumption" type="submit"  class="btn btn-secondary" id="export-consumption">Export</button>
                </a>
             </div>			
             </form>  
@@ -107,6 +103,12 @@
 							  
 							  if ($json_data == $v2_data['sub_procedures_code']){
 									  echo '<tr class="odd gradeX"><td>';
+
+									   $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
+	                $select_appoint = run_select_query($sql1);
+                  
+                  echo $select_appoint['crm_id'];
+				    echo '</td><td>';
 									  echo $vl['patient_id'];
 									  echo '</td><td>';
 										  $patient_name = $all_method->get_patient_name($vl['patient_id']);
@@ -144,13 +146,13 @@
 						  }
 						  else{
 							  echo '<tr class="odd gradeX"><td>';
-					  echo $vl['patient_id'];
-					 
-					   echo '</td><td>';
-                  $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
+					   $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
 	                $select_appoint = run_select_query($sql1);
                   
                   echo $select_appoint['crm_id'];
+					 
+					   echo '</td><td>';
+                  echo $vl['patient_id'];
 				   echo '</td><td>';
 					      $patient_name = $all_method->get_patient_name($vl['patient_id']);
                       echo strtoupper($patient_name);

@@ -62,10 +62,17 @@
         <div class="clearfix"></div>
         <div class="card-content">
           <div class="table-responsive">
+			        <div class="action-buttons">
+            <button id="selectAllBtn" class="btn btn-default">Select All</button>
+            <button id="deselectAllBtn" class="btn btn-default">Deselect All</button>
+            <button id="sendToTallyBtn" class="btn btn-primary">Send Selected to Tally</button>
+        </div>
+
             <table class="table table-striped table-bordered table-hover" id="procedure_billing_list">
 			  <thead>
                 <tr>
 				  <th>S.No.</th>
+				  <th></th>
                   <th>IIC ID</th>
                   <th>Patient name</th>
                   <th>Receipt number</th>
@@ -87,6 +94,7 @@
                 $current_balance = $all_method->get_current_balance($vl['patient_id']); ?>
                 <tr class="odd gradeX">
                   <td><?php echo $count; ?></td>
+				   <td><input type="checkbox" class="rowCheckbox" value="<?php echo $vl['ID']; ?>"></td>
                   <td><a href="<?php echo base_url()?>accounts/patient_details/<?php echo $vl['patient_id'];?>"><?php echo $vl['patient_id']; ?></a></td>
                   <td><?php 
                     $patient_name = $all_method->get_patient_name($vl['patient_id']);
@@ -311,6 +319,11 @@
 		a.now_cancle.btn.btn-large {
 			margin: 10px 0px;
 		}
+		[type="checkbox"]:not(:checked), [type="checkbox"]:checked {
+    position: static;
+    left: -9999px;
+    opacity: 1;
+}
 	</style>
     <script>
     $(document).on('click','a.xyx',function(){
@@ -406,7 +419,39 @@
                 }
             });
         }
+		
     }
+$(document).ready(function() {
+	 // Send to Tally button click
+            $('#sendToTallyBtn').click(function() {
+                var selectedIds = [];
+                $('.rowCheckbox:checked').each(function() {
+                    selectedIds.push($(this).val());
+                });
+                
+                if (selectedIds.length === 0) {
+                    alert('Please select at least one record to send to Tally.');
+                    return;
+                }
+                
+                if (confirm('Are you sure you want to send ' + selectedIds.length + ' record(s) to Tally?')) {
+                    // AJAX call to send data to Tally
+                    $.ajax({
+                        url: '<?php echo base_url(); ?>accounts/tally',
+                        type: 'POST',
+                        data: { ids: selectedIds },
+                        dataType: 'json',
+                        success: function(response) {
+                            alert('Successfully sent ' + selectedIds.length + ' record(s) to Tally.');
+                            console.log('Tally Response:', response);
+                        },
+                        error: function(xhr, status, error) {
+                            alert('Error sending data to Tally: ' + error);
+                        }
+                    });
+                }
+            });
+		 });
 </script>
 	
 <script>

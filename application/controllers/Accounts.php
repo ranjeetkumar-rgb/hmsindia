@@ -1323,14 +1323,19 @@ public function procedure_reports(){
 				header('Content-Type: text/csv; charset=utf-8');
 				header('Content-Disposition: attachment; filename=Consumption-Report-'.$start_date.'-'.$end_date.'.csv');
 				$fp = fopen('php://output','w');
-				$headers = 'Pkg Booking Date,Pkg Cancel Date, Pkg Month,Pkg Booking Yr,FInancial Year, Receipt Number,IIC ID,Paient Name,Nationality,UHID, Procedures Code, Procedures Name, Category,Sub_Category1,Sub_Category2,Origin Booking Centre,Billing Centre,Lead Id,Lead Source,Agent, Procedures Price, Procedures Discount,Procedure Final Amount, Booking Amount,CN Invoice,Status,Apr 2024,May 2024,Jun 2024,Jul 2024,Aug 2024,Sep 2024,Oct 2024,Nov 2024,Dec 2024,Jan 2025,Feb 2025,Mar 2025,Apr 2025,May 2025,Jun 2025,Jul 2025,Aug 2025,Sep 2025,Oct 2025,Nov 2025,Dec 2025,Jan 2026,Feb 2026,Mar 2026,Apr 2026,May 2026,Jun 2026,Jul 2026,Aug 2026,Sep 2026,Oct 2026,Nov 2026,Dec 2026,Jan 2027,Feb 2027,Mar 2027';
+				$headers = 'Pkg Booking Date,Pkg Cancel Date, Pkg Month,Pkg Booking Yr,FInancial Year, Receipt Number,IIC ID,Paient Name,Nationality,UHID, Procedures Code, Procedures Name, Category,Sub_Category1,Sub_Category2,Origin Booking Centre,Billing From Centre,billing_at,Lead Id,Lead Source,Agent, Procedures Price, Procedures Discount,Procedure Final Amount, Booking Amount,CN Invoice,Status,Apr 2024,May 2024,Jun 2024,Jul 2024,Aug 2024,Sep 2024,Oct 2024,Nov 2024,Dec 2024,Jan 2025,Feb 2025,Mar 2025,Apr 2025,May 2025,Jun 2025,Jul 2025,Aug 2025,Sep 2025,Oct 2025,Nov 2025,Dec 2025,Jan 2026,Feb 2026,Mar 2026,Apr 2026,May 2026,Jun 2026,Jul 2026,Aug 2026,Sep 2026,Oct 2026,Nov 2026,Dec 2026,Jan 2027,Feb 2027,Mar 2027';
 				//Add the headers
 				
 				fwrite($fp, $headers. "\r\n");
 				foreach ($data as $key => $val) {//var_dump($val);die;
-					$billing_from = $val['billing_at'];
+					$billing_from = $val['billing_from'];
 					if($billing_from != "IndiaIVF"){
 						$billing_from = get_center_name($billing_from);
+					}
+
+					$billing_at = $val['billing_at'];
+					if($billing_at != "IndiaIVF"){
+						$billing_at = get_center_name($billing_at);
 					}
 					
 					$Origin_Booking_Centre = $val['origins'];
@@ -1408,12 +1413,9 @@ public function procedure_reports(){
 					
 					$nationality = $select_patients_result['nationality'];
 					
-					$lead_id = $select_result['crm_id'];
-					
 					$sql_leads = "SELECT * FROM hms_leads WHERE lead_id='" . $lead_id . "'";
 					$select_lead_result = run_select_query($sql_leads);
 					
-					$lead_source = $select_lead_result['lead_source'];
 					$agent = $select_lead_result['agent'];
 					
 					$sql4 = "SELECT * FROM hms_centers WHERE center_number='" . $select_result3['appoitment_for'] . "'";
@@ -1425,6 +1427,8 @@ public function procedure_reports(){
 					$select_result2 = run_select_query($sql2);
 					$name = $select_result2['procedure_name'];
 					$category = $select_result2['category'];
+					$lead_id = $select_result3['crm_id'];
+					$lead_source = $select_result3['lead_source'];
 					
 					// Assuming you have an array of records with the same patient_id, appointment_id, and billing date
 			$records = [
@@ -1502,7 +1506,7 @@ public function procedure_reports(){
 			
 			$total = number_format($val['sub_procedures_price'] - $val['sub_procedures_discount'], 2);
 			
-    				$lead_arr = array($formatted_date, $val['modified_on'], $pkg_month, $pkg_booking_year, $financial_year, $val['receipt_number'], $val['patient_id'], $patient_name,$nationality, $uhid, $val['sub_procedures_code'], $name, $category, $type,$package, $Origin_Booking_Centre,$billing_from, $lead_id,$lead_source,$agent, $val['sub_procedures_price'], $val['sub_procedures_discount'],$total, $val['sub_procedures_paid_price'], $val['cn_invoice'], $val['status'], $select_result5['payment_2024_apr'],$select_result5['payment_2024_may'],$select_result5['payment_2024_jun'],$select_result5['payment_2024_jul'],$select_result5['payment_2024_aug'],$select_result5['payment_2024_sep'],$select_result5['payment_2024_oct'],$select_result5['payment_2024_nov'],$select_result5['payment_2024_dec'],$select_result5['payment_2025_jan'],$select_result5['payment_2025_feb'],$select_result5['payment_2025_mar'],
+    				$lead_arr = array($formatted_date, $val['modified_on'], $pkg_month, $pkg_booking_year, $financial_year, $val['receipt_number'], $val['patient_id'], $patient_name,$nationality, $uhid, $val['sub_procedures_code'], $name, $category, $type,$package, $Origin_Booking_Centre,$billing_from,$billing_at, $lead_id,$lead_source,$agent, $val['sub_procedures_price'], $val['sub_procedures_discount'],$total, $val['sub_procedures_paid_price'], $val['cn_invoice'], $val['status'], $select_result5['payment_2024_apr'],$select_result5['payment_2024_may'],$select_result5['payment_2024_jun'],$select_result5['payment_2024_jul'],$select_result5['payment_2024_aug'],$select_result5['payment_2024_sep'],$select_result5['payment_2024_oct'],$select_result5['payment_2024_nov'],$select_result5['payment_2024_dec'],$select_result5['payment_2025_jan'],$select_result5['payment_2025_feb'],$select_result5['payment_2025_mar'],
 					$select_result5['payment_2025_apr'],$select_result5['payment_2025_may'],$select_result5['payment_2025_jun'],$select_result5['payment_2025_jul'],$select_result5['payment_2025_aug'],$select_result5['payment_2025_sep'],$select_result5['payment_2025_oct'],$select_result5['payment_2025_nov'],$select_result5['payment_2025_dec'],$select_result5['payment_2026_jan'],$select_result5['payment_2026_feb'],$select_result5['payment_2026_mar'],$select_result5['payment_2026_apr'],$select_result5['payment_2026_may'],$select_result5['payment_2026_jun'],$select_result5['payment_2026_jul'],$select_result5['payment_2026_aug'],$select_result5['payment_2026_sep'],$select_result5['payment_2026_oct'],$select_result5['payment_2026_nov'],$select_result5['payment_2026_dec'],$select_result5['payment_2027_jan'],$select_result5['payment_2027_feb'],$select_result5['payment_2027_mar']);
 					fputcsv($fp, $lead_arr);
 				}
@@ -1883,6 +1887,7 @@ public function procedure_reports(){
 				$per_page = 0;
 			}
 			$center = $this->input->get('billing_at', true);
+			$doctor_id = $this->input->get('doctor_id', true);
 			$start_date = $this->input->get('start_date', true);
 			$end_date = $this->input->get('end_date', true);
 			$patient_id = $this->input->get('iic_id', true);
@@ -1896,7 +1901,7 @@ public function procedure_reports(){
 				header('Content-Type: text/csv; charset=utf-8');
 				header('Content-Disposition: attachment; filename=Consultation-Reports-'.$start_date.'-'.$end_date.'.csv');
 				$fp = fopen('php://output','w');
-				$headers = 'UHID, IIC ID, Patient Name,Receipt number, Total package, Discounted Package, Paid Amount, Remaining Amount, Payment Method, Billing From, Billing At, Billing Type, Date, Status';
+				$headers = 'UHID,Lead ID, Lead Source,Doctor Name, IIC ID, Patient Name,Receipt number, Total package, Discounted Package, Paid Amount, Remaining Amount, Payment Method, Billing From, Billing At, Billing Type,Reason OF Visit, Date, Status';
 				//Add the headers
 				fwrite($fp, $headers. "\r\n");
 				foreach ($data as $key => $val) {//var_dump($val);die;
@@ -1919,8 +1924,16 @@ public function procedure_reports(){
                     $select_result4 = run_select_query($sql4);
                     					
                     $uhid = $select_result4['center_code']."/".$select_result3['uhid'];
+
+					$lead_id = $select_result['crm_id']; 
+					$lead_source = $select_result['lead_source']; 
 					
-					$lead_arr = array($uhid, $val['patient_id'], $val['wife_name'], $val['receipt_number'], $val['totalpackage'], $val['discounted_package'], $val['payment_done'], $val['remaining_amount'], $val['payment_method'], $billing_from, $billing_at, $val['billing_type'], date('Y-m-d H:i:s', strtotime($val['date'])), $val['status']);
+					$sql1 = "Select * from ".$this->config->item('db_prefix')."doctors where ID='".$val['doctor_id']."'";
+	                $select_appoint = run_select_query($sql1);
+
+					$doctor = $select_appoint['name'];
+					
+					$lead_arr = array($uhid, $lead_id,$lead_source,$doctor, $val['patient_id'], $val['wife_name'], $val['receipt_number'], $val['totalpackage'], $val['discounted_package'], $val['payment_done'], $val['remaining_amount'], $val['payment_method'], $billing_from, $billing_at, $val['billing_type'],$val['reason_of_visit'], date('Y-m-d H:i:s', strtotime($val['date'])), $val['status']);
 					fputcsv($fp, $lead_arr);
 				}
 				$final_arr = array("", "", "", "", $total_package, $discounted_package, $paid_amount, "", "", "", "", "", "", "");
@@ -1931,7 +1944,7 @@ public function procedure_reports(){
 
 			$config = array();
         	$config["base_url"] = base_url() . "accounts/consultation_origin";
-        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit);
+        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit,$doctor_id);
         	$config["per_page"] = 10;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
@@ -1942,11 +1955,13 @@ public function procedure_reports(){
         	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
 			
         	$data["links"] = $this->pagination->create_links();
-			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $reason_of_visit);
+			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id);
+			$data['reason_counts'] = $this->accounts_model->patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id);
 			$data["billing_at"] = $center;
 			$data["start_date"] = $start_date;
 			$data["end_date"] = $end_date;
 			$data["patient_id"] = $patient_id;
+			$data["doctor_id"] = $doctor_id;
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view('accounts/consultation_origin', $data);
@@ -2111,31 +2126,48 @@ public function procedure_reports(){
 		}
 	}
 	
-	public function tally() {
-		$logg = checklogin();
-		if ($logg['status'] != true) {
-			redirect(base_url());
-		}
+public function tally()
+{
+    $logg = checklogin();
+    if ($logg['status'] != true) {
+        return $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode(['error' => 'Not logged in'], JSON_PRETTY_PRINT));
+    }
 
-		$ids = $this->input->post('ids');
-		if (empty($ids)) {
-			$this->session->set_flashdata('error', 'No rows selected.');
-			redirect($_SERVER['HTTP_REFERER']);
-		}
+    // Accept ids from POST or GET
+    $ids = $this->input->post('ids');
+    if (empty($ids)) {
+        $ids = $this->input->get('ids');
+    }
 
-		$all_sales = [];
-		foreach ($ids as $ID) {
-			$sale = $this->accounts_model->send_procedure_tally($ID);
-			if ($sale) {
-				$all_sales[] = $sale; // Add each sale to the array
-			}
-		}
+    $all_sales = [];
 
-		// Output all collected sales at once
-		header('Content-Type: application/json');
-		echo json_encode(['Sales_Details' => $all_sales], JSON_PRETTY_PRINT);
-		exit;
-	}
+    if (!empty($ids)) {
+        // fetch only selected
+        foreach ($ids as $ID) {
+            $sale = $this->accounts_model->send_procedure_tally($ID);
+            if ($sale) {
+                $all_sales[] = $sale;
+            }
+        }
+    } else {
+        // no ids passed → fetch all (or latest 100 for performance)
+        $all_sales = $this->accounts_model->get_all_sales_for_tally();  
+    }
+
+    $response = [
+        'export_date'   => date('Y-m-d H:i:s'),
+        'selected_ids'  => !empty($ids) ? $ids : [],
+        'record_count'  => count($all_sales),
+        'Sales_Details' => $all_sales
+    ];
+
+    return $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($response, JSON_PRETTY_PRINT));
+}
+
 	
 	public function front_approve($request = NULL){
 			$data = array();
@@ -7288,5 +7320,101 @@ public function partial_procedure(){
         $name = $this->accounts_model->get_counselor_name($appointment_id);
         return $name;
     }
+
+	public function daily_sales_reporting(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			//$per_page = $this->input->get('per_page', true);
+			$center = $this->input->get('billing_at', true);
+			$payment_method = $this->input->get('payment_method', true);
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			
+			$config = array();
+        	$data['medicine_daily_result'] = $this->accounts_model->dashboard_medicine_daily_sales($center, $start_date, $end_date);
+			$data['investigations_daily_result'] = $this->accounts_model->dashboard_investigation_daily_sales($center, $start_date, $end_date);
+			$data['consultation_daily_result'] = $this->accounts_model->dashboard_consultation_daily_sales($center, $start_date, $end_date);
+			$data['registration_daily_result'] = $this->accounts_model->dashboard_registration_daily_sales($center, $start_date, $end_date);
+			$data['procedure_daily_result'] = $this->accounts_model->dashboard_procedure_daily_sales($center, $start_date, $end_date);
+			
+			$data["billing_at"] = $center;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["payment_method"] = $payment_method;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('accounts/daily_sales_reporting', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+public function get_doctors_by_center() {
+    // Enable CORS if needed
+    header('Content-Type: application/json');
+    
+    $logg = checklogin();
+    if ($logg['status'] != true) {
+        echo json_encode(['status' => 'error', 'message' => 'Not logged in']);
+        exit;
+    }
+    
+    // Get center_id from POST
+    $center_id = $this->input->post('center_id');
+    
+    // Debug: Log the received data
+    error_log("Received center_id: " . $center_id);
+    
+    if (empty($center_id)) {
+        echo json_encode([
+            'status' => 'error', 
+            'message' => 'Center ID required',
+            'received_data' => $_POST // Debug info
+        ]);
+        exit;
+    }
+    
+    // Load your model
+    $this->load->model('accounts_model');
+    
+    try {
+        $doctors = $this->accounts_model->get_doctors_by_center($center_id);
+        
+        if ($doctors && count($doctors) > 0) {
+            echo json_encode([
+                'status' => 'success',
+                'doctors' => $doctors,
+                'count' => count($doctors)
+            ]);
+        } else {
+            echo json_encode([
+                'status' => 'success',
+                'doctors' => [],
+                'message' => 'No doctors found for this center',
+                'center_id' => $center_id // Debug info
+            ]);
+        }
+    } catch (Exception $e) {
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'Server error: ' . $e->getMessage()
+        ]);
+    }
+    exit;
+}
+
+/*function get_lead_source($paitent_id){
+		$lead_source = $this->accounts_model->get_lead_source($paitent_id);
+		return $lead_source;
+}
+
+function get_lead_id($medicine){
+		$name = $this->billings_model->get_medicine_name($medicine);
+		return $name;
+}*/
 
 } 
