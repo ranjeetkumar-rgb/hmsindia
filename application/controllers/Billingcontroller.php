@@ -1881,7 +1881,7 @@ function partial_billing($appointment_id){
 						// Build and execute query
 					      $query = "INSERT INTO `hms_patient_procedure` 
 							(appointment_id, consultation_done, patient_id, procedure_parent, on_date, 
-							receipt_number,receipt_image, billing_id, biller_id, transaction_id, transaction_img,
+							receipt_number,transaction_img, billing_id, biller_id, transaction_id,
 							hospital_id, payment_in, data, center_share, fees, totalpackage, discount_amount, 
 							payment_done, wallet_payment, remaining_amount, payment_method, billing_from, 
 							billing_at, package_form, status, origins) 
@@ -1892,7 +1892,6 @@ function partial_billing($appointment_id){
 							 '".$post_arr['procedure_parent']."',
 							 '".$formattedDate."',
 							 '".$post_arr['receipt_number']."',
-							 '".$post_arr['receipt_image']."',
 							 '".$post_arr['billing_id']."',
 							 '".$post_arr['biller_id']."',
 							 '".$post_arr['transaction_id']."',
