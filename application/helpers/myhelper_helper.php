@@ -3123,22 +3123,31 @@ function get_center_notification(){
 	$db_prefix = $ci->config->config['db_prefix'];
 
 	
-    if(isset($_SESSION['logged_stock_manager']['employee_number']) && !empty($_SESSION['logged_stock_manager']['employee_number'])){
-    $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND employee_number='".$_SESSION['logged_stock_manager']['employee_number']."'";
-    }else{
-    $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND employee_number='".$_SESSION['logged_billing_manager']['employee_number']."'";
+    // Determine active session (stock manager, billing manager, or counselor)
+    $active_session = null;
+    foreach (array('logged_stock_manager','logged_billing_manager','logged_counselor') as $session_key) {
+        if (isset($_SESSION[$session_key]) && is_array($_SESSION[$session_key])) {
+            $active_session = $_SESSION[$session_key];
+            break;
+        }
+    }
+
+    $center_id = isset($active_session['center']) ? $active_session['center'] : 0;
+    $employee_number = isset($active_session['employee_number']) ? $active_session['employee_number'] : '';
+
+    // Build query safely based on available identifiers
+    if (!empty($employee_number)) {
+        $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND employee_number='".$employee_number."'";
+    } else {
+        $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND center_number='".intval($center_id)."'";
     }
     $q = $ci->db->query($sql);
 
     $result = $q->result_array();
 
-	if(isset($_SESSION['logged_stock_manager']['employee_number']) && !empty($_SESSION['logged_stock_manager']['employee_number'])){
-	$center_id = $_SESSION['logged_stock_manager']['center'];
-	$employee_number = $_SESSION['logged_stock_manager']['employee_number'];
-	}else{
-	$center_id = $_SESSION['logged_billing_manager']['center'];
-	$employee_number = $_SESSION['logged_billing_manager']['employee_number'];
-    }
+    // Reuse derived identifiers; ensure defined
+    $center_id = isset($center_id) ? $center_id : 0;
+    $employee_number = isset($employee_number) && $employee_number !== '' ? $employee_number : '0';
 	$date = date("Y-m-d H:i:s");
 
 		
