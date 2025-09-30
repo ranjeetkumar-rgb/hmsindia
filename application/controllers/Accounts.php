@@ -1864,7 +1864,7 @@ public function procedure_reports(){
         	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
 			
         	$data["links"] = $this->pagination->create_links();
-			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id,$type);
+			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id,$type,$doctor_id=null);
 			$data["billing_at"] = $center;
 			$data["start_date"] = $start_date;
 			$data["end_date"] = $end_date;
@@ -3516,7 +3516,7 @@ public function moulist(){
 				$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
 				
 				$data["links"] = $this->pagination->create_links();
-				$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center,$status, $start_date, $end_date, $patient_id,$type);
+				$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center,$status, $start_date, $end_date, $patient_id,$type,$doctor_id=null);
 				$data["billing_at"] = $center;
 				$data["start_date"] = $start_date;
 				$data["end_date"] = $end_date;
