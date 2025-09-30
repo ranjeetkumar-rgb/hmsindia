@@ -2071,7 +2071,8 @@ public function procedure_reports(){
 					$account_email = $_SESSION['logged_accountant']['email']; //echo $mail_msg;die;
 					$admin_email = $this->accounts_model->get_admin_email();
 					$to_email =  $admin_email."|".$account_email;//echo $to_email;die;
-					$result = send_mail($to_email, $subject, $mail_msg);
+					// $result = send_mail($to_email, $subject, $mail_msg);
+					$result = true;
 				}
 			}
 			header("location:" .$_SERVER['HTTP_REFERER']. "?m=".base64_encode('Billing '.$status.' successfully').'&t='.base64_encode('success'));
