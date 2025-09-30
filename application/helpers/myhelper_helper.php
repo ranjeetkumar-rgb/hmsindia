@@ -3905,37 +3905,21 @@ function get_master_investigation_name($id)
 
 
 function get_center_name($center_id)
-
 {
-
 	$ci = &get_instance();
-
 	$ci->load->database();
-
 	$sql = "SELECT * FROM hms_centers WHERE center_number = '".$center_id."'";
-
 	$q = $ci->db->query($sql);
-
 	$result = $q->result_array();
-
 	$center_name = ''; // Initialize the variable
-
 	if(count($result) > 0)
-
 	{
-
 		foreach($result as $key => $value)
-
 		{
-
 			$center_name = $value['center_name'];
-
 		}
-
 	}	
-
 	return $center_name;
-
 }
 
 
@@ -13312,5 +13296,7 @@ function get_billing_at_center_display($billing_at_center_id) {
         'center_id' => $billing_at_center_id
     );
 }
+
+   
 
 ?>

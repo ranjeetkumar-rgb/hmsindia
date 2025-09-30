@@ -1,7 +1,5 @@
-<?php  
+<?php   
    $all_method =&get_instance();
-   $done_wallet_result = array();
-   $consultation_sql=0;
    $consultation_sql = "SELECT * FROM hms_patient_procedure WHERE billing_at='".$_SESSION['logged_billing_manager']['center']."' ORDER BY po_id DESC LIMIT 1 ";
    $select_result = run_select_query($consultation_sql); 
    
@@ -19,14 +17,20 @@
     $form_action = $billing_type = "";
     //var_dump($billing_details);die;
    
-    if($billing_details['investation_suggestion'] == 1 && $billing_details['investigation_billed'] == 0 && $_GET['t'] == "investigation_billing"){
+    // Add safety checks for billing_details array keys
+    $investation_suggestion = isset($billing_details['investation_suggestion']) ? $billing_details['investation_suggestion'] : 0;
+    $investigation_billed = isset($billing_details['investigation_billed']) ? $billing_details['investigation_billed'] : 0;
+    $procedure_suggestion = isset($billing_details['procedure_suggestion']) ? $billing_details['procedure_suggestion'] : 0;
+    $package_suggestion = isset($billing_details['package_suggestion']) ? $billing_details['package_suggestion'] : 0;
+    
+    if($investation_suggestion == 1 && $investigation_billed == 0 && $_GET['t'] == "investigation_billing"){
      $form_action = "add_investigations";
      $billing_type = "investigation";
    // }else if($billing_details['procedure_suggestion'] == 1 && $billing_details['procedure_billed'] == 0 && $_GET['t'] == "procedure_billing"){
-    }else if($billing_details['procedure_suggestion'] == 1 && $_GET['t'] == "procedure_billing"){
+    }else if($procedure_suggestion == 1 && $_GET['t'] == "procedure_billing"){
      $form_action = "add_procedure";
      $billing_type = "procedure";
-    }else if($billing_details['package_suggestion'] == 1 && $_GET['t'] == "package_billing"){
+    }else if($package_suggestion == 1 && $_GET['t'] == "package_billing"){
      $form_action = "add_package";
      $billing_type = "package"; 
     }else{
@@ -34,7 +38,21 @@
        die();
     }
     $grand_total = 0;
-    $patient_data = get_patient_detail($billing_details['patient_id']);
+    // Check if billing_details exists and has patient_id before getting patient data
+    if(isset($billing_details['patient_id']) && !empty($billing_details['patient_id'])) {
+        $patient_data = get_patient_detail($billing_details['patient_id']);
+        // Ensure patient_data is an array and has the required keys
+        if(!is_array($patient_data) || empty($patient_data)) {
+            $patient_data = array('nationality' => 'indian'); // Default to indian if no data
+        }
+    } else {
+        $patient_data = array('nationality' => 'indian'); // Default to indian if no patient_id
+    }
+    
+    // Helper function to safely get nationality
+    function get_patient_nationality($patient_data) {
+        return isset($patient_data['nationality']) ? $patient_data['nationality'] : 'indian';
+    }
    ?>
 <?php 
    $inved_options = '<option value="" selected> - - - Select - - - -</option>';
@@ -49,114 +67,133 @@
    $ci = &get_instance();
    $ci->load->database();
    $db_prefix = $ci->config->config['db_prefix'];
-   $patient_sql = "Select * from ".$db_prefix."patients where  patient_id='".$billing_details['patient_id']."'";
-      $patient_q = $ci->db->query($patient_sql);
-      $patient_result = $patient_q->result_array();
-   $patient_id = $patient_result[0]['patient_id'];
+   // Check if billing_details exists and has patient_id
+   if(isset($billing_details['patient_id']) && !empty($billing_details['patient_id'])) {
+       $patient_sql = "Select * from ".$db_prefix."patients where  patient_id='".$billing_details['patient_id']."'";
+       $patient_q = $ci->db->query($patient_sql);
+       $patient_result = $patient_q->result_array();
+       $patient_id = isset($patient_result[0]['patient_id']) ? $patient_result[0]['patient_id'] : '';
+   } else {
+       $patient_id = '';
+       $patient_result = array();
+   }
    
    $consultation_result = $registation_result = $procedure_result = $investigation_result = $medicine_result = $remaining_billing = $bill_arr = $bill_total = array();
-   $procedure_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."patient_procedure where status='cancel' and patient_id='".$billing_details['patient_id']."'";
-      $procedure_q = $ci->db->query($procedure_sql);
-      $procedure_result = $procedure_q->result_array();
    
-   $consultation_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."consultation where status='adjust' and patient_id='".$billing_details['patient_id']."'";
-      $consultation_q = $ci->db->query($consultation_sql);
-      $consultation_result = $consultation_q->result_array();
+   // Only run queries if patient_id exists
+   if(!empty($patient_id)) {
+       $procedure_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."patient_procedure where status='cancel' and patient_id='".$patient_id."'";
+       $procedure_q = $ci->db->query($procedure_sql);
+       $procedure_result = $procedure_q->result_array();
    
-   $registation_sql = "Select receipt_number, payment_done, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."registation where status='adjust' and patient_id='".$billing_details['patient_id']."'";
-      $registation_q = $ci->db->query($registation_sql);
-      $registation_result = $registation_q->result_array();
+       $consultation_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."consultation where status='adjust' and patient_id='".$patient_id."'";
+       $consultation_q = $ci->db->query($consultation_sql);
+       $consultation_result = $consultation_q->result_array();
    
-   $investigation_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."patient_investigations where status='cancel' and patient_id='".$billing_details['patient_id']."'";
-      $investigation_q = $ci->db->query($investigation_sql);
-      $investigation_result = $investigation_q->result_array();
+       $registation_sql = "Select receipt_number, payment_done, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."registation where status='adjust' and patient_id='".$patient_id."'";
+       $registation_q = $ci->db->query($registation_sql);
+       $registation_result = $registation_q->result_array();
    
-   $medicine_sql = "Select receipt_number, payment_done, fees, remaining_amount, billing_at from ".$db_prefix."patient_medicine where status='cancel' and patient_id='".$billing_details['patient_id']."'";
-      $medicine_q = $ci->db->query($medicine_sql);
-      $medicine_result = $medicine_q->result_array();
+       $investigation_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."patient_investigations where status='cancel' and patient_id='".$patient_id."'";
+       $investigation_q = $ci->db->query($investigation_sql);
+       $investigation_result = $investigation_q->result_array();
    
-   $total = 0;
+       $medicine_sql = "Select receipt_number, payment_done, fees, remaining_amount, billing_at from ".$db_prefix."patient_medicine where status='cancel' and patient_id='".$patient_id."'";
+       $medicine_q = $ci->db->query($medicine_sql);
+       $medicine_result = $medicine_q->result_array();
    
-      $done_sql = "Select sum(payment_done) as payment_done from ".$db_prefix."patient_payments where patient_id='".$billing_details['patient_id']."' AND status='3'";
-   $done_q = $ci->db->query($done_sql);
-   $done_result = $done_q->result_array();
+       $total = 0;
    
-   foreach($consultation_result as $key => $val){
-    $bill_arr[] = $val['payment_done'];
-   }
-   
-   $total = 0;
-   foreach($investigation_result as $key => $val){
-    $bill_arr[] = $val['payment_done'];
-   }
-   
-   $total = 0;
-   foreach($registation_result as $key => $val){
-    $bill_arr[] = $val['payment_done'];
-   }
-   
-   $total = 0;
-   foreach($procedure_result as $key => $val){
-   $bill_arr[] = $val['payment_done'];
-   }
-   
-   $total = 0;
-   foreach($medicine_result as $key => $val){
-   $bill_arr[] = $val['payment_done'];
-   }
-   
-   foreach($done_result as $key => $val){
-   $bill_arr[] = $val['payment_done'];
+       $done_sql = "Select sum(payment_done) as payment_done from ".$db_prefix."patient_payments where patient_id='".$patient_id."' AND status='3'";
+       $done_q = $ci->db->query($done_sql);
+       $done_result = $done_q->result_array();
+       
+       foreach($consultation_result as $key => $val){
+        $bill_arr[] = $val['payment_done'];
+       }
+       
+       $total = 0;
+       foreach($investigation_result as $key => $val){
+        $bill_arr[] = $val['payment_done'];
+       }
+       
+       $total = 0;
+       foreach($registation_result as $key => $val){
+        $bill_arr[] = $val['payment_done'];
+       }
+       
+       $total = 0;
+       foreach($procedure_result as $key => $val){
+       $bill_arr[] = $val['payment_done'];
+       }
+       
+       $total = 0;
+       foreach($medicine_result as $key => $val){
+       $bill_arr[] = $val['payment_done'];
+       }
+       
+       foreach($done_result as $key => $val){
+       $bill_arr[] = $val['payment_done'];
+       }
    }
    
       //wallete
    $consultation_wallet_result = $procedure_wallet_result = $investigation_wallet_result = $partialpayments_wallet_result = $medicine_wallet_result = $done_wallet_result = $wallet_remaining_billing = $wallet_arr = $wallet_bill_total = array();
-   $procedure_wallet_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."patient_procedure where wallet_payment > 0 and patient_id='".$billing_details['patient_id']."'";
-      $procedure_wallet_q = $ci->db->query($procedure_wallet_sql);
-      $procedure_wallet_result = $procedure_wallet_q->result_array();
    
-   $consultation_wallet_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."consultation where wallet_payment > 0 and patient_id='".$billing_details['patient_id']."'";
-      $consultation_wallet_q = $ci->db->query($consultation_wallet_sql);
-      $consultation_wallet_result = $consultation_wallet_q->result_array();
+   // Only run wallet queries if patient_id exists
+   if(!empty($patient_id)) {
+       $procedure_wallet_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."patient_procedure where wallet_payment > 0 and patient_id='".$patient_id."'";
+       $procedure_wallet_q = $ci->db->query($procedure_wallet_sql);
+       $procedure_wallet_result = $procedure_wallet_q->result_array();
    
-   $investigation_wallet_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."patient_investigations where wallet_payment > 0 and patient_id='".$billing_details['patient_id']."'";
-      $investigation_wallet_q = $ci->db->query($investigation_wallet_sql);
-      $investigation_wallet_result = $investigation_wallet_q->result_array();
+       $consultation_wallet_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."consultation where wallet_payment > 0 and patient_id='".$patient_id."'";
+       $consultation_wallet_q = $ci->db->query($consultation_wallet_sql);
+       $consultation_wallet_result = $consultation_wallet_q->result_array();
    
-      $partialpayments_wallet_sql = "Select refrence_number, payment_done, wallet_payment, billing_from, billing_at from ".$db_prefix."patient_payments where wallet_payment > 0 and patient_id='".$billing_details['patient_id']."'";
-      $partialpayments_wallet_q = $ci->db->query($partialpayments_wallet_sql);
-      $partialpayments_wallet_result = $partialpayments_wallet_q->result_array();
+       $investigation_wallet_sql = "Select receipt_number, payment_done, wallet_payment, fees, remaining_amount, billing_from, billing_at from ".$db_prefix."patient_investigations where wallet_payment > 0 and patient_id='".$patient_id."'";
+       $investigation_wallet_q = $ci->db->query($investigation_wallet_sql);
+       $investigation_wallet_result = $investigation_wallet_q->result_array();
    
-   $medicine_wallet_sql = "Select receipt_number, payment_done,wallet_payment, fees, remaining_amount, billing_at from ".$db_prefix."patient_medicine where wallet_payment > 0 and patient_id='".$billing_details['patient_id']."'";
-      $medicine_wallet_q = $ci->db->query($medicine_wallet_sql);
-      $medicine_wallet_result = $medicine_wallet_q->result_array();
+       $partialpayments_wallet_sql = "Select refrence_number, payment_done, wallet_payment, billing_from, billing_at from ".$db_prefix."patient_payments where wallet_payment > 0 and patient_id='".$patient_id."'";
+       $partialpayments_wallet_q = $ci->db->query($partialpayments_wallet_sql);
+       $partialpayments_wallet_result = $partialpayments_wallet_q->result_array();
    
-   foreach($consultation_wallet_result as $key => $value){
-   $wallet_arr[] = $value['wallet_payment'];
-   }
-   
-   $total = 0;
-   foreach($investigation_wallet_result as $key => $value){
-   $wallet_arr[] = $value['wallet_payment'];
-   }
-   
-   $total = 0;
-   foreach($procedure_wallet_result as $key => $value){
-   $wallet_arr[] = $value['wallet_payment'];
-   }
-   
-   $total = 0;
-   foreach($medicine_wallet_result as $key => $value){
-   $wallet_arr[] = $value['wallet_payment'];
-   }
-   
-   $total = 0;
-   foreach($partialpayments_wallet_result as $key => $value){
-   $wallet_arr[] = $value['wallet_payment'];
-   }
-   
-   foreach($done_wallet_result as $key => $value){
-   $wallet_arr[] = $value['wallet_payment'];
+       $medicine_wallet_sql = "Select receipt_number, payment_done,wallet_payment, fees, remaining_amount, billing_at from ".$db_prefix."patient_medicine where wallet_payment > 0 and patient_id='".$patient_id."'";
+       $medicine_wallet_q = $ci->db->query($medicine_wallet_sql);
+       $medicine_wallet_result = $medicine_wallet_q->result_array();
+       
+       // Add done_wallet_result query
+       $done_wallet_sql = "Select refrence_number, payment_done, wallet_payment, billing_from, billing_at from ".$db_prefix."patient_payments where wallet_payment > 0 and patient_id='".$patient_id."' AND status='3'";
+       $done_wallet_q = $ci->db->query($done_wallet_sql);
+       $done_wallet_result = $done_wallet_q->result_array();
+       
+       foreach($consultation_wallet_result as $key => $value){
+       $wallet_arr[] = $value['wallet_payment'];
+       }
+       
+       $total = 0;
+       foreach($investigation_wallet_result as $key => $value){
+       $wallet_arr[] = $value['wallet_payment'];
+       }
+       
+       $total = 0;
+       foreach($procedure_wallet_result as $key => $value){
+       $wallet_arr[] = $value['wallet_payment'];
+       }
+       
+       $total = 0;
+       foreach($medicine_wallet_result as $key => $value){
+       $wallet_arr[] = $value['wallet_payment'];
+       }
+       
+       $total = 0;
+       foreach($partialpayments_wallet_result as $key => $value){
+       $wallet_arr[] = $value['wallet_payment'];
+       }
+       
+       foreach($done_wallet_result as $key => $value){
+       $wallet_arr[] = $value['wallet_payment'];
+       }
    }
    
    $paid_total = 0;
@@ -187,13 +224,12 @@
    text-align: left;
    }
 </style>
-
 <form class="col-sm-12 col-xs-12" method="post" action="" enctype="multipart/form-data">
    <input type="hidden" name="action" value="<?php echo $form_action; ?>" />
    <input type="hidden" name="appointment_id" value="<?php echo $billing_details['appointment_id']; ?>" />
    <input type="hidden" name="consultation_done" value="<?php echo $billing_details['ID']; ?>" />
    <input type="hidden" name="patient_id" id="patient_id" value="<?php echo $billing_details['patient_id']; ?>" />
-   <input type="hidden" name="billing_at" value="<?php echo $_SESSION['logged_billing_manager']['center']?>" />
+   <!-- <input type="hidden" name="billing_at" value="<?php echo $_SESSION['logged_billing_manager']['center']?>" /> -->
    <input type="hidden" id="billing_type" value="<?php echo $billing_type; ?>" />
    <input type="hidden" name="biller_id" value="<?php echo $_SESSION['logged_billing_manager']['employee_number']?>" />
    <div class="row">
@@ -237,99 +273,93 @@
                <input type="button" class="add-investigations-row btn btn-large" value="Add Investigations">
                <input type="button" class="delete-investigations-row btn btn-large pull-right" value="Delete Selected Investigations">
                <h4>Investigations</h4>
-               <?php  
-                  //if (!empty($_SESSION['logged_billing_manager']['center']) && $_SESSION['logged_billing_manager']['center'] == "16133769691598") {
-                  $allowedCenters = array('16133769691598', '1581157290', '17519672203755');
-                  if (!empty($_SESSION['logged_billing_manager']['center']) && in_array($_SESSION['logged_billing_manager']['center'], $allowedCenters)) {
-                  	?>
-                  <table id="investigation_main_table">
-                     <thead>
-                        <tr>
-                           <th></th>
-                           <th>Name</th>
-                           <th>IIC Code</th>
-                           <th>Medgenome Code</th>
-                           <th>Price</th>
-                           <th>Discount</th>
-                           <th></th>
-                        </tr>
-                     </thead>
-                     <tbody id="consumables_table_body">
-                        <?php 
-                           $invest_total = 0; if(!empty($billing_details['male_minvestigation_suggestion_list'])){ 
-                           $male_minvestigation_suggestion_list = unserialize($billing_details['male_minvestigation_suggestion_list']);
-                           $male_ivt_count = 1;
-                                 foreach($male_minvestigation_suggestion_list as $key => $val){
-                                    $investigation_details = $all_method->get_master_investigation_details($val);
-                                    foreach ($investigation_details as $investigation_details) {
-                                       if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
-                              ?>
-                        <tr class="male_ivt_tr" id="male_invstg_<?php echo $male_ivt_count; ?>">
-                           <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
-                           <td>
-                              <?php echo $investigation_details['investigation']; ?>
-                              <input value="<?php echo $investigation_details['inv_id']; ?>" invest="<?php echo $investigation_details['investigation']; ?>" readonly="readonly" id="male_investigation_name_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_name_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
-                           </td>
-                           <td>
-                              <?php echo $investigation_details['master_code']; ?>
-                           </td>
-                           <td>
-                              <?php echo $investigation_details['code']; ?>
-                              <input value="<?php echo $investigation_details['code']; ?>" readonly="readonly" id="male_investigation_code_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_code_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
-                           </td>
-                           <td>
-                              <?php $invest_price = 0; $invest_price = $investigation_details['price']; echo 'Rs.'.$invest_price; ?>
-                              <input value="<?php echo $invest_price; ?>" placeholder="Price" readonly="readonly" id="male_price_field_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_price_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
-                           </td>
-                           <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="male_investigation_discount_<?php echo $male_ivt_count; ?>" class="investigation_discount required_value" name="male_investigation_discount_<?php echo $male_ivt_count; ?>" type="text" class="form-control " required></td>
-                           <td><input type="checkbox" class="statuss" name="record"></td>
-                        </tr>
-                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $male_ivt_count++;}} }} ?>
-                        <?php  if(!empty($billing_details['female_minvestigation_suggestion_list'])){ 
-                           $female_minvestigation_suggestion_list = unserialize($billing_details['female_minvestigation_suggestion_list']);
-                                 $female_ivt_count = 1;
-                                 foreach($female_minvestigation_suggestion_list as $key => $val){ 
-                                 
-                                 
-                                 $investigation_details = $all_method->get_master_investigation_details($val);
-                                 
-                              //var_dump($investigation_details);
-                              
-                              
-                           foreach ($investigation_details as $investigation_details) {
-                           
-                           
-                           //echo "ID: " . $detail['inv_id'] . ", Name: " . $detail['investigation'] . "<br>";  
-                                 
-                                 
-                                 if(!empty($investigation_details)){ 
-                                 //if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
-                                    $allowedCenterIds = array('16133769691598', '1581157290', '17519672203755');
-                           
-                                 // Check if the center_id exists and is in the allowed list
-                                 if (!empty($investigation_details['center_id']) && in_array($investigation_details['center_id'], $allowedCenterIds)) {
-                                 ?>
-                        <tr class="consumables_row_1 female_ivt_tr " id="fmale_invstg_<?php echo $female_ivt_count; ?>" trcount="<?php echo $female_ivt_count; ?>">
-                           <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
-                           <td><?php echo $investigation_details['investigation']; ?>
-                              <input value="<?php echo $investigation_details['inv_id']; ?>" invest="<?php echo $investigation_details['investigation']; ?>" readonly="readonly" id="female_investigation_name_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_name_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
-                           </td>
-                           <td>
-                              <?php echo $investigation_details['master_code']; ?>
-                           </td>
-                           <td><?php echo $investigation_details['code']; ?>
-                              <input value="<?php echo $investigation_details['code']; ?>" readonly="readonly" id="female_investigation_code_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_code_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
-                           </td>
-                           <td>
-                              <?php $invest_price = 0; $invest_price = $investigation_details['price']; echo 'Rs.'.$invest_price; ?>
-                              <input value="<?php echo $invest_price; ?>" placeholder="Price" readonly="readonly" id="female_price_field_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_price_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
-                           </td>
-                           <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="female_investigation_discount_<?php echo $female_ivt_count; ?>" class="investigation_discount required_value" name="female_investigation_discount_<?php echo $female_ivt_count; ?>" type="text" class="form-control " required></td>
-                           <td><input type="checkbox" class="statuss" name="record"></td>
-                        </tr>
-                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; } }} }} ?>
-                     </tbody>
-                  </table>
+               <?php  if (!empty($_SESSION['logged_billing_manager']['center']) && $_SESSION['logged_billing_manager']['center'] == "16133769691598") { ?>
+               <table id="investigation_main_table">
+                  <thead>
+                     <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>IIC Code</th>
+                        <th>Medgenome Code</th>
+                        <th>Price</th>
+                        <th>Discount</th>
+                        <th></th>
+                     </tr>
+                  </thead>
+                  <tbody id="consumables_table_body">
+                     <?php 
+                        $invest_total = 0; if(!empty($billing_details['male_minvestigation_suggestion_list'])){ 
+                        $male_minvestigation_suggestion_list = unserialize($billing_details['male_minvestigation_suggestion_list']);
+                         $male_ivt_count = 1;
+                               foreach($male_minvestigation_suggestion_list as $key => $val){
+                        			$investigation_details = $all_method->get_master_investigation_details($val);
+                        			
+                        			 foreach ($investigation_details as $investigation_details) {
+                        			
+                                      if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
+                        	?>
+                     <tr class="male_ivt_tr" id="male_invstg_<?php echo $male_ivt_count; ?>">
+                        <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
+                        <td>
+                           <?php echo $investigation_details['investigation']; ?>
+                           <input value="<?php echo $investigation_details['inv_id']; ?>" invest="<?php echo $investigation_details['investigation']; ?>" readonly="readonly" id="male_investigation_name_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_name_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
+                        </td>
+                        <td>
+                           <?php echo $investigation_details['master_code']; ?>
+                        </td>
+                        <td>
+                           <?php echo $investigation_details['code']; ?>
+                           <input value="<?php echo $investigation_details['code']; ?>" readonly="readonly" id="male_investigation_code_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_code_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
+                        </td>
+                        <td>
+                           <?php $invest_price = 0; $invest_price = $investigation_details['price']; echo 'Rs.'.$invest_price; ?>
+                           <input value="<?php echo $invest_price; ?>" placeholder="Price" readonly="readonly" id="male_price_field_<?php echo $male_ivt_count; ?>" class="price_field required_value" name="male_investigation_price_<?php echo $male_ivt_count; ?>" type="hidden" class="form-control " required>
+                        </td>
+                        <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="male_investigation_discount_<?php echo $male_ivt_count; ?>" class="investigation_discount required_value" name="male_investigation_discount_<?php echo $male_ivt_count; ?>" type="text" class="form-control " required></td>
+                        <td><input type="checkbox" class="statuss" name="record"></td>
+                     </tr>
+                     <?php $grand_total += $invest_price; $invest_total += $invest_price; $male_ivt_count++;}} }} ?>
+                     <?php  if(!empty($billing_details['female_minvestigation_suggestion_list'])){ 
+                        $female_minvestigation_suggestion_list = unserialize($billing_details['female_minvestigation_suggestion_list']);
+                               $female_ivt_count = 1;
+                        		foreach($female_minvestigation_suggestion_list as $key => $val){ 
+                        		
+                        		
+                        		$investigation_details = $all_method->get_master_investigation_details($val);
+                        		
+                        	//var_dump($investigation_details);
+                        	
+                        	
+                         foreach ($investigation_details as $investigation_details) {
+                        
+                        
+                        //echo "ID: " . $detail['inv_id'] . ", Name: " . $detail['investigation'] . "<br>";  
+                        		
+                        		
+                        		if(!empty($investigation_details)){ 
+                        		 if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
+                        		?>
+                     <tr class="consumables_row_1 female_ivt_tr " id="fmale_invstg_<?php echo $female_ivt_count; ?>" trcount="<?php echo $female_ivt_count; ?>">
+                        <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
+                        <td><?php echo $investigation_details['investigation']; ?>
+                           <input value="<?php echo $investigation_details['inv_id']; ?>" invest="<?php echo $investigation_details['investigation']; ?>" readonly="readonly" id="female_investigation_name_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_name_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
+                        </td>
+                        <td>
+                           <?php echo $investigation_details['master_code']; ?>
+                        </td>
+                        <td><?php echo $investigation_details['code']; ?>
+                           <input value="<?php echo $investigation_details['code']; ?>" readonly="readonly" id="female_investigation_code_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_code_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
+                        </td>
+                        <td>
+                           <?php $invest_price = 0; $invest_price = $investigation_details['price']; echo 'Rs.'.$invest_price; ?>
+                           <input value="<?php echo $invest_price; ?>" placeholder="Price" readonly="readonly" id="female_price_field_<?php echo $female_ivt_count; ?>" class="price_field required_value" name="female_investigation_price_<?php echo $female_ivt_count; ?>" type="hidden" class="form-control " required>
+                        </td>
+                        <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="female_investigation_discount_<?php echo $female_ivt_count; ?>" class="investigation_discount required_value" name="female_investigation_discount_<?php echo $female_ivt_count; ?>" type="text" class="form-control " required></td>
+                        <td><input type="checkbox" class="statuss" name="record"></td>
+                     </tr>
+                     <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; } }} }} ?>
+                  </tbody>
+               </table>
                <?php }else{ ?>
                <table id="investigation_main_table">
                   <thead>
@@ -349,11 +379,7 @@
                         foreach($male_minvestigation_suggestion_list as $key => $val){
                         $investigation_details = $all_method->get_master_investigation_details($val);
                         foreach ($investigation_details as $investigation_details) {
-                        // if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] != "16133769691598") {
-                        $excludedCenters = array('16133769691598', '1581157290', '17519672203755');
-                        
-                        // Check if center_id exists and is NOT in the excluded list
-                        if (!empty($investigation_details['center_id']) && !in_array($investigation_details['center_id'], $excludedCenters)) {
+                        if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] != "16133769691598") {
                               ?>
                      <tr class="male_ivt_tr" id="male_invstg_<?php echo $male_ivt_count; ?>">
                         <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
@@ -382,11 +408,7 @@
                         $investigation_details = $all_method->get_master_investigation_details($val);
                         foreach ($investigation_details as $investigation_details) {
                         if(!empty($investigation_details)){ 
-                        //if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] != "16133769691598") {
-                        $excludedCenters = array('16133769691598', '1581157290', '17519672203755');
-                        
-                        // Check if center_id exists and is NOT in the excluded list
-                        if (!empty($investigation_details['center_id']) && !in_array($investigation_details['center_id'], $excludedCenters)) {
+                        if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] != "16133769691598") {
                         ?>
                      <tr class="consumables_row_1 female_ivt_tr " id="fmale_invstg_<?php echo $female_ivt_count; ?>" trcount="<?php echo $female_ivt_count; ?>">
                         <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
@@ -446,61 +468,49 @@
                         <th>Discount</th>
                         <th>Gst Amount</th>
                         <th>Paid Price</th>
-                        <th>Mode</th>
+                        <th width="10%">Mode</th>
                         <th>Receipt</th>
-                        <th>Upload Receipt</th>
                         <th>Delete</th>
                      </tr>
                   </thead>
                   <tbody>
                      <?php 	
-                        //var_dump($parent_procedure_details); die;	
-                        // if($_SESSION['logged_billing_manager']['center'] == "16249589462327" ) { 
-                        if ($_SESSION['logged_billing_manager']['center'] == "16249589462327" || $_SESSION['logged_billing_manager']['center'] == "16133769691598"  || $_SESSION['logged_billing_manager']['center'] == "16267558222750") {
+                       $ci = &get_instance();
+                       $ci->load->model('center_model');
+                       $get_Center =$ci->center_model->get_center_number();
+                       $center_numbers = array_column($get_Center, 'center_number');
+                       $get_center_code =$ci->center_model->get_center_code();
+                       $center_codes = array_column($get_center_code, 'center_code');
+                       if(in_array($_SESSION['logged_billing_manager']['center'], $center_numbers)) {
                         $sub_procedure_counter = 1;
-                        
                         if(!empty($billing_details['sub_procedure_suggestion_list'])){
                         $sub_procedure_suggestion_list = unserialize($billing_details['sub_procedure_suggestion_list']);
                         foreach($sub_procedure_suggestion_list as $key => $val){
-                          $sub_procedure_details = $all_method->get_procedure_details($val); //var_dump($val);die;
-                            if (!empty($sub_procedure_details['code']) && in_array($sub_procedure_details['code'], ["IP599","IP602","IP42", "IP43", "IP44", "IP45", "IP46","IP274", "IP201", "IP202", "IP203", "IP204", "IP205", "IP206", "IP21", "IP207", "IP208", "IP209", "IP60", "IP43", "IP55", "IP56", "IP57", "IP58", "IP89", "IP91", "IPD4", "IP210", "IP211", "IP212", "IP213", "IP214", "IP215", "IP38", "IP06", "IP15", "IP07", "IP216", "IP217", "IP01", "IP02", "IP03", "IP12", "IP18", "IP17", "IP14", "IP96", "IP65", "IP63", "IP05", "IP04", "IP08", "IP09", "IP37", "IP11", "IP59", "IP16", "IP34", "IP39", "IP20", "IP94", "IP95", "IP97", "IP90", "IP98", "IP99", "IP72", "IP73", "IP93", "IP40", "IP41", "IP48", "IP66", "IP68", "IP69", "IP47", "IP74", "IPD1", "IPD2", "IP67", "IP102", "IP103", "IP104", "IP105", "IP106", "IP107", "IP108", "IP109", "IP110", "IP111", "IP112", "IP113", "IP114", "IP115", "IP116", "IP117", "IP118", "IP119", "IP120", "IP121", "IP122", "IP123", "IP124", "IP125", "IP126", "IP127", "IP128", "IP129", "IP130", "IP131", "IP132", "IP133", "IP134", "IP135", "IP136", "IP137", "IP138", "IP139", "IP140", "IP141", "IP142", "IP143", "IP144", "IP145", "IP146", "IP147", "IP148", "IP149", "IP150", "IP151", "IP152", "IP153", "IP154", "IP155", "IP156", "IP157", "IP158", "IP159", "IP160", "IP161", "IP162", "IP163", "IP164", "IP165", "IP166", "IP167", "IP168", "IP169", "IP170", "IP171", "IP172", "IP173", "IP174", "IP175", "IP176", "IP177", "IP178", "IP179", "IP180", "IP181", "IP182", "IP183", "IP184", "IP185", "IP186", "IP187", "IP188", "IP189", "IP190", "IP191", "IP192", "IP193", "IP194", "IP195", "IP196", "IP197", "IP198", "IP199", "IP200", "IP218", "IP219", "IP220",
-                        "IP221", "IP226", "IP228", "IP230", "IP232", "IP234", "IP236", "IP238", "IP240", "IP242", "IP19", "IP62", "IP54", "IP64", "IP13", "IP22", "IP23", "IP70", "IP36", "IP71", "IP75", "IP76", "IP100", "IP78", "IP79", "IP80", "IP81", "IP82", "IP83", "IP84", "IP85", "IP86", "IP87", "IP88", "IP92", "IP222", "IP223", "IP224", "IP225", "IP227", "IP229", "IP231", "IP233", "IP235", "IP237", "IP239", "IP241", "IP245","INT78","INT65","INT13","INT02","INT11","INT54","INT42","INT64","INT20","INT229","INT230","IP101","IP250","IP251","IPD2INT","IPD1INT","INT228","INT227","IP243","INT03","INT220","IPD5","INT17","IP244","IP29","INT222","INT48","INT63","IP01D","IP252","IP253","IP286","INT225","INT226","IP24","INT40","INT246","INT07","INT19","IP286","IP292","INT53","IP299","IP300","IP302","IP301","IP303","IP27","IP26","IP298","INT292","IP447","IP246","INT47","IP458","IP357","INT31","IP32","IP453","IP451","IP459","IP288","IP289","INT67","IP31","IP254","INT298","INT458"])) {
+                           $sub_procedure_details = $all_method->get_procedure_details($val);
+                           if (!empty($sub_procedure_details['code']) && 
+                              array_intersect(explode(',', $sub_procedure_details['center_id']), $center_numbers)) {
+                           // if (!empty($sub_procedure_details['code']) && in_array($sub_procedure_details['center_id'], $center_numbers)) {
                         ?>
                      <tr>
                         <td><?php echo $sub_procedure_details['procedure_name']; ?>
                            <input value="<?php echo $val; ?>" procedure="<?php echo $sub_procedure_details['procedure_name']; ?>" readonly="readonly" id="sub_procedure_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedure_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
                         </td>
                         <?php
-                           $login_user_center_id = $_SESSION['logged_billing_manager']['center'];
-                           $center_exit = $all_method->check_procedure_exit_in_center($sub_procedure_details['code'],$login_user_center_id);
-                           if($center_exit) {
-                              $hub_name = $all_method->get_center_name($login_user_center_id);
-                              $spoke_name =$hub_name;
-                              $hub_center_id=$login_user_center_id;
-                              $spoke_center_id=$login_user_center_id;
-                           }else{
-                              $hub_id_of_this_procedure = $all_method->get_hub_center_id_from_spoke($login_user_center_id);
-                              $hub_name = $all_method->get_center_name($hub_id_of_this_procedure);
-                              $spoke_name =$all_method->get_center_name($login_user_center_id);
-                              $hub_center_id=$hub_id_of_this_procedure;
-                              $spoke_center_id=$login_user_center_id;
-                           }
-                           // $center_names = explode(',', $sub_procedure_details['center_id']);
-                           // $hub_name = isset($center_names[0]) ? trim($center_names[0]) : '';
-                           // $spoke_name = isset($center_names[1]) ? trim($center_names[1]) : '';
-                           // $center_hub_name= $all_method->get_center_name($hub_name);
-                           // $center_spoke_name= $all_method->get_center_name($spoke_name);
+                        $center_names = explode(',', $sub_procedure_details['center_id']);
+                        $hub_name = isset($center_names[0]) ? trim($center_names[0]) : '';
+                        $spoke_name = isset($center_names[1]) ? trim($center_names[1]) : '';
+                        var_dump($spoke_name, $hub_name, $center_names);die;
                         ?>
                         <td>
                            <?php echo $hub_name; ?>
-                           <input type="hidden" value="<?php echo $hub_center_id; ?>" name="billing_from" />
+                           <input type="hidden" value="<?php echo $sub_procedure_details['hub_center_id']; ?>" name="billing_from" />
                         </td>
                         <td>
                            <?php 
                            echo !empty($spoke_name) ? $spoke_name : $hub_name; 
                            ?>
                            <input type="hidden" 
-                                 value="<?php echo !empty($spoke_name) ? $spoke_center_id : $hub_center_id; ?>" 
+                                 value="<?php echo !empty($spoke_name) ? $sub_procedure_details['spoke_center_id'] : $sub_procedure_details['hub_center_id']; ?>" 
                                  name="billing_at" 
                            />
                         </td>
@@ -516,8 +526,8 @@
                         <td><input value="" placeholder="Paid Price" id="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" class="sub_procedures_paid_price required_value" name="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required ></td>
                         <td>
                            <select name="payment_method_<?php echo $sub_procedure_counter;?>" id="payment_method_<?php echo $sub_procedure_counter;?>" style="display: block;" required>
-                              <option value="" selected>Select</option>
-                              <?php if($patient_data['nationality'] == 'indian'){?>
+                              <option value="">Select</option>
+                              <?php if(get_patient_nationality($patient_data) == 'indian'){?>
                               <option value="neft" mode="NEFT">NEFT</option>
                               <option value="rtgs" mode="RTGS">RTGS</option>
                               <option value="card" mode="Card">Card</option>
@@ -533,54 +543,43 @@
                               <option value="Finance" mode="Finance">Finance</option>
                            </select>
                         </td>
-                        <td><input value="<?php date_default_timezone_set("America/New_York");$receipt_number = date("YmdHis") . substr(microtime(), 2, 6);echo $receipt_number; ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number_<?php echo $sub_procedure_counter;?>" name="receipt_number_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required></td>
-                        <td><input type="file" name="receipt_image_<?php echo $sub_procedure_counter;?>" id="receipt_image_<?php echo $sub_procedure_counter;?>" class="form-control " required></td>
+                        <td><input value="<?php echo getReceiptGUID(); ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number_<?php echo $sub_procedure_counter;?>" name="receipt_number_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required></td>
                         <td><input type="checkbox" class="statuss" name="record"></td>
                      </tr>
                      <?php  $grand_total += $sub_price; $sub_procedure_counter++;}}}}else{ ?>
                      <?php 	
-                        //var_dump($parent_procedure_details); die;	
                         $sub_procedure_counter = 1;
                         if(!empty($billing_details['sub_procedure_suggestion_list'])){
                         $sub_procedure_suggestion_list = unserialize($billing_details['sub_procedure_suggestion_list']);
                         foreach($sub_procedure_suggestion_list as $key => $val){
-                          $sub_procedure_details = $all_method->get_procedure_details($val); //var_dump($val);die;
-                        
-                            if (!empty($sub_procedure_details['code']) && in_array($sub_procedure_details['code'], ["IP599","IP602","IP55", "IP56", "IP57","IP16" ,"IP58", "IP89", "IP91", "IP68", "IP69", "IPD1", "IPD2", "IP67", "IP175", "IP176", "IP177", "IP178", "IP221", "IP222", "IP223", "IP224", "IP225", "IP227", "IP229", "IP231", "IP233", "IP235", "IP237", "IP239", "IP241", "IP62", "IP64", "IP13", "IP22", "IP23", "IP70", "IP36", "IP245", "IP218", "IP219", "INT222","IP101","IP250","IP251","IPD2INT","IPD1INT","INT228","INT227","INT220","IPD5","IP01D","IP286","IP450","IP452","IP289","INT67","IP451","IP02","IP218","IP45","IP11","IP459","IP14","IP298","IP04","IP64","IP601"])) {
-                        ?>
+                          $sub_procedure_details = $all_method->get_procedure_details($val);
+                          if (!empty($sub_procedure_details['code']) && in_array($sub_procedure_details['code'], $center_codes)) {  
+                          ?>
                      <tr>
-                     <td><?php echo $sub_procedure_details['procedure_name']; ?>
-                        <input value="<?php echo $val; ?>" procedure="<?php echo $sub_procedure_details['procedure_name']; ?>" readonly="readonly" id="sub_procedure_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedure_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
-                     </td>
+                        <td><?php  echo $sub_procedure_details['procedure_name']; ?>
+                           <input value="<?php echo $val; ?>" procedure="<?php echo $sub_procedure_details['procedure_name']; ?>" readonly="readonly" id="sub_procedure_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedure_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
+                        </td>
                         <?php
-                           $login_user_center_id = $_SESSION['logged_billing_manager']['center'];
-                           $center_exit = $all_method->check_procedure_exit_in_center($sub_procedure_details['code'],$login_user_center_id);
-                           if($center_exit) {
-                              $hub_name = $all_method->get_center_name($login_user_center_id);
-                              $spoke_name =$hub_name;
-                              $hub_center_id=$login_user_center_id;
-                              $spoke_center_id=$login_user_center_id;
-                           }else{
-                              $hub_id_of_this_procedure = $all_method->get_hub_center_id_from_spoke($login_user_center_id);
-                              $hub_name = $all_method->get_center_name($hub_id_of_this_procedure);
-                              $spoke_name =$all_method->get_center_name($login_user_center_id);
-                              $hub_center_id=$hub_id_of_this_procedure;
-                              $spoke_center_id=$login_user_center_id;
-                           }
+                        $center_names = explode(' - ', $sub_procedure_details['center_name']);
+                        $hub_name = isset($center_names[0]) ? trim($center_names[0]) : '';
+                        $spoke_name = isset($center_names[1]) ? trim($center_names[1]) : '';
                         ?>
-                         <td>
+                        <td>
                            <?php echo $hub_name; ?>
-                           <input type="hidden" value="<?php echo $hub_center_id; ?>" name="billing_from" />
+                           <input type="hidden" value="<?php echo $sub_procedure_details['hub_center_id']; ?>" name="billing_from" />
                         </td>
                         <td>
                            <?php 
-                           echo !empty($spoke_name) ? $spoke_name : $hub_name; 
+                           echo !empty($spoke_name) ? $spoke_name : $hub_name;  
                            ?>
                            <input type="hidden" 
-                                 value="<?php echo !empty($spoke_name) ? $spoke_center_id : $hub_center_id; ?>" 
+                                 value="<?php echo !empty($spoke_name) ? $sub_procedure_details['spoke_center_id'] : $sub_procedure_details['hub_center_id']; ?>" 
                                  name="billing_at" 
                            />
                         </td>
+                        <!-- <td><?php echo $sub_procedure_details['center_name']; ?>
+                           <input value="<?php echo $sub_procedure_details['center_id']; ?>" readonly="readonly" id="sub_procedure_center_name_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedure_center_name_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
+                        </td> -->
                         <td><?php echo $sub_procedure_details['code']; ?>
                            <input value="<?php echo $sub_procedure_details['code']; ?>" readonly="readonly" id="sub_procedures_code_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedures_code_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
                         </td>
@@ -593,8 +592,8 @@
                         <td><input value="" placeholder="Paid Price" id="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" class="sub_procedures_paid_price required_value" name="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required ></td>
                         <td>
                            <select name="payment_method_<?php echo $sub_procedure_counter;?>" id="payment_method_<?php echo $sub_procedure_counter;?>" style="display: block;" required>
-                              <option value="" selected>Select</option>
-                              <?php if($patient_data['nationality'] == 'indian'){?>
+                              <option value="">Select</option>
+                              <?php if(get_patient_nationality($patient_data) == 'indian'){?>
                               <option value="neft" mode="NEFT">NEFT</option>
                               <option value="rtgs" mode="RTGS">RTGS</option>
                               <option value="card" mode="Card">Card</option>
@@ -646,54 +645,38 @@
                   <tbody>
                      <?php 	
                         $sub_procedure_counter = 1;
-                        
-                        // Unserialize package suggestion list once
                         if (!empty($billing_details['package_suggestion_list'])) {
-                            $package_suggestion_list = unserialize($billing_details['package_suggestion_list']);
-                        
-                            foreach ($package_suggestion_list as $key => $val) {
-                                // Convert comma-separated values into an array
-                                $procedure_ids = explode(',', $val);
-                        
-                                foreach ($procedure_ids as $procedure_id) {
-                                    // Fetch procedure details
-                                    $sub_procedure_details = $all_method->get_procedure_details($procedure_id);
-                        
-                                    if (!$sub_procedure_details) {
-                                        continue; // Skip if no details found
-                                    }
-                                    ?>
+                           $package_suggestion_list = unserialize($billing_details['package_suggestion_list']);
+                           
+                           foreach ($package_suggestion_list as $key => $val) {
+                              $procedure_ids = explode(',', $val);
+                              foreach ($procedure_ids as $procedure_id) {
+                                 $sub_procedure_details = $all_method->get_procedure_details($procedure_id);
+                                 if (!$sub_procedure_details) {
+                                       continue; 
+                                 }
+                                 ?>
                      <tr>
                         <td><?php echo $sub_procedure_details['procedure_name']; ?>
                            <input value="<?php echo $procedure_id; ?>" procedure="<?php echo $sub_procedure_details['procedure_name']; ?>" readonly="readonly" id="sub_procedure_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedure_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
                         </td>
                          <?php
-                           $login_user_center_id = $_SESSION['logged_billing_manager']['center'];
-                           $center_exit = $all_method->check_procedure_exit_in_center($sub_procedure_details['code'],$login_user_center_id);
-                           if($center_exit) {
-                              $hub_name = $all_method->get_center_name($login_user_center_id);
-                              $spoke_name =$hub_name;
-                              $hub_center_id=$login_user_center_id;
-                              $spoke_center_id=$login_user_center_id;
-                           }else{
-                              $hub_id_of_this_procedure = $all_method->get_hub_center_id_from_spoke($login_user_center_id);
-                              $hub_name = $all_method->get_center_name($hub_id_of_this_procedure);
-                              $spoke_name =$all_method->get_center_name($login_user_center_id);
-                              $hub_center_id=$hub_id_of_this_procedure;
-                              $spoke_center_id=$login_user_center_id;
-                           }
+                            $center_names = explode(' - ', $sub_procedure_details['center_name']);
+                            $hub_name = isset($center_names[0]) ? trim($center_names[0]) : '';
+                            $spoke_name = isset($center_names[1]) ? trim($center_names[1]) : '';
                         ?>
                         <td>
                            <?php echo $hub_name; ?>
-                           <input type="hidden" value="<?php echo $hub_center_id; ?>" name="billing_from" />
+                           <input type="hidden" value="<?php echo $sub_procedure_details['hub_center_id']; ?>" name="billing_from" />
                         </td>
                         <td>
                            <?php 
                            echo !empty($spoke_name) ? $spoke_name : $hub_name; 
                            ?>
                            <input type="hidden" 
-                                 value="<?php echo !empty($spoke_name) ? $spoke_center_id : $hub_center_id; ?>" 
-                                 name="billing_at"/>
+                                 value="<?php echo !empty($spoke_name) ? $sub_procedure_details['spoke_center_id'] : $sub_procedure_details['hub_center_id']; ?>" 
+                                 name="billing_at" 
+                           />
                         </td>
                         <td><?php echo $sub_procedure_details['code']; ?>
                            <input value="<?php echo $sub_procedure_details['code']; ?>" readonly="readonly" id="sub_procedures_code_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedures_code_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
@@ -710,8 +693,8 @@
                         <td><input value="0" placeholder="Paid Price" id="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" class="sub_procedures_paid_price required_value" name="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required ></td>
                         <td>
                            <select name="payment_method_<?php echo $sub_procedure_counter;?>" id="payment_method_<?php echo $sub_procedure_counter;?>" style="display: block;" required>
-                              <option value="" selected>Select</option>
-                              <?php if($patient_data['nationality'] == 'indian'){?>
+                              <option value="">Select</option>
+                              <?php if(get_patient_nationality($patient_data) == 'indian'){?>
                               <option value="neft" mode="NEFT">NEFT</option>
                               <option value="rtgs" mode="RTGS">RTGS</option>
                               <option value="card" mode="Card">Card</option>
@@ -746,7 +729,7 @@
                <div class="form-group col-sm-6 col-xs-12">
                   <label for="item_name">Payment in(Required)</label><br/>
                   <input value="rs_payment" name="payment_in" style="position: relative;left: 0;opacity: 1;" class="payment_in" type="radio"> Rupees
-                  <?php if($patient_data['nationality'] == 'non-indian'){ ?>      
+                  <?php if(get_patient_nationality($patient_data) == 'non-indian'){ ?>      
                   <input value="us_payment" style="position: relative;left: 0;opacity: 1;" class="payment_in" name="payment_in" type="radio"> USD
                   <?php } ?>
                </div>
@@ -758,7 +741,7 @@
                      <label for="statuss">Payment mode (Required)</label>
                      <select name="payment_method" id="payment_method" required>
                         <option value="">Select</option>
-                        <?php if($patient_data['nationality'] == 'indian'){?>
+                        <?php if(get_patient_nationality($patient_data) == 'indian'){?>
                         <option value="neft" mode="NEFT">NEFT</option>
                         <option value="rtgs" mode="RTGS">RTGS</option>
                         <option value="card" mode="Card">Card</option>
@@ -780,7 +763,7 @@
                   </div>
                </div>
                <?php } ?>
-               <?php if($patient_data['nationality'] == 'non-indian'){ ?>      
+               <?php if(get_patient_nationality($patient_data) == 'non-indian'){ ?>      
                <div class="row">
                   <div class="form-group col-sm-6 col-xs-12">
                      <label for="item_name">Grand Total (USD) (Required)</label>
@@ -898,19 +881,32 @@
                <div class="row">
                   <div class="form-group col-sm-6 col-xs-12 role" style="display:none;">
                      <label for="statuss">Billing source (Required)</label>
-                     <input type="hidden" value="16249589462327" class="required_value" name="billing_from" id="billing_from"  />
+                     <!-- <input type="hidden" value="16249589462327" class="required_value" name="billing_from" id="billing_from"  /> -->
                   </div>
-                  <div class="form-group col-sm-6 col-xs-12 hospital_id_section role">
+                  <!-- <div class="form-group col-sm-6 col-xs-12 hospital_id_section role">
                      <label for="item_name">Center Source</label>
-                     <select name="hospital_id" class="required_value" id="hospital_id" required>
+                     <select name="hospital_id" class="required_value" id="hospital_id" required disabled>
                         <option value="">Select</option>
-                        <option value="Noida">Noida</option>
-                        <option value="Gurgaon">Gurgaon</option>
-                        <option value="Green Park">Green Park</option>
-                        <option value="Srinagar">SRINAGAR</option>
-                        <option value="Ghaziabad">Ghaziabad</option>
+                        <?php if(isset($centers) && !empty($centers)): ?>
+                        <?php foreach($centers as $center): ?>
+                        <?php 
+                        // Get center classification (hub/spoke)
+                        $CI =& get_instance();
+                        $CI->load->model('hub_spoke_model');
+                        $center_classification = $CI->hub_spoke_model->get_center_classification_for_billing($center['center_number']);
+                        $display_text = $center['center_name'];
+                        
+                        if($center_classification['classification'] == 'spoke') {
+                            $display_text .= ' (Spoke - Hub: ' . $center_classification['hub_center_name'] . ')';
+                        } else {
+                            $display_text .= ' (Hub)';
+                        }
+                        ?>
+                        <option value="<?php echo $center['center_name']; ?>" <?php echo (isset($current_user_center) && $current_user_center == $center['center_number']) ? 'selected' : ''; ?>><?php echo $display_text; ?></option>
+                        <?php endforeach; ?>
+                        <?php endif; ?>
                      </select>
-                  </div>
+                     </div> -->
                </div>
                <div class="row">
                   <div class="form-group col-sm-6 col-xs-12">
@@ -934,18 +930,21 @@
                      <?php } ?>
                      <?php if($billing_type == "procedure") { ?>
                      <input value="<?php echo $centers_result['center_code']; ?>/P/<?php echo $financial_year; ?>/" id="series_number" name="series_number" type="hidden" class="form-control validate">
-                     <input type="hidden" value="<?php echo $select_result['po_id'] + 1; ?> " class="required_value" name="po_id" id="po_id"  />   								
-                     <?php } ?>
+                        <input type="hidden" 
+                                 id="po_id" 
+                                 name="po_id" 
+                                 value="<?php echo isset($select_result['po_id']) && is_numeric($select_result['po_id']) ? $select_result['po_id'] + 1 : 1; ?>" 
+                           >
+                     <?php } ?>  
                   </div>
                </div>
                <div class="clearfix"></div>
                <div class="form-group col-sm-12 col-xs-12">
-                  <a class="btn btn-large" id="create_billing" href="javascript:void(0);">Create Billings</a>
+                  <a class="btn btn-large" id="create_billing" href="javascript:void(0);">Create Billing</a>
                </div>
             </div>
          </div>
          </p>
-      </div>
       </div>
       <div class="col-sm-12 col-xs-12 panel panel-piluku" style="display:none;" id="consultation_preview">
          <div class="panel-heading">
@@ -980,7 +979,7 @@
             <div class="row">
                <div class="form-group col-sm-6 col-xs-12">
                   <label for="item_name">Receipt number (Required)</label>
-                  <p id="receipt_number_text"><?php date_default_timezone_set("America/New_York");$receipt_number = date("YmdHis") . substr(microtime(), 2, 6);echo $receipt_number; ?></p>
+                  <p id="receipt_number_text"><?php echo getReceiptGUID(); ?></p>
                </div>
                <div class="form-group col-sm-6 col-xs-12">
                   <label for="item_name">Fees (Required)</label>
@@ -1163,8 +1162,8 @@
              $('#rs_after_discount').val(parseFloat(fees_amount));
              $('#rs_totalpackage').val(parseFloat(fees_amount) + parseFloat(discount_amount));
            }				
-         $('#show_disc_app').show();
-         $('#create_billing').hide();
+   	$('#show_disc_app').show();
+   	$('#create_billing').hide();
    }else{
      		//var remaining_amount =  fees_amount - discount_amount;
          var remaining_amount =  fees_amount;
@@ -1203,7 +1202,7 @@
    });
    
    $(document).on('change',"#payment_method",function(e) {
-     <?php if($patient_data['nationality'] == 'indian'){ ?> 
+     <?php if(get_patient_nationality($patient_data) == 'indian'){ ?> 
        $('#subvention_charges').val("");
        $('#subvention_charges').removeClass('required_value');
        $('#subvention_box').hide();
@@ -1245,20 +1244,9 @@
     <?php if($_GET['t'] == "procedure_billing"){ ?>
      
      $(document).on('click',"#create_billing",function(e) {
-        // Prevent duplicate submissions
-        if ($(this).hasClass('disabled') || $(this).prop('disabled')) {
-            e.preventDefault();
-            return false;
-        }
-        
-        // Disable button and add loading state
-        $(this).addClass('disabled').prop('disabled', true);
-        var originalText = $(this).text();
-        $(this).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
-        
-        var value = $('.required_value').filter(function () {
-           return this.value === '';
-         });
+       var value = $('.required_value').filter(function () {
+         return this.value === '';
+       });
        if (value.length == 0) {
          $('#msg_area').empty(); $('#doctor_id_text').empty(); $('#fees_text').empty(); $('#payment_done_text').empty(); 
          $('#remaining_amount_text').empty(); $('#payment_method_text').empty(); $('#investigation_preview_table_body').empty();
@@ -1267,6 +1255,7 @@
          var male_countr = 1;
          var procedure_table_tr= $('#procedure_table tbody tr').length;
          console.log("procedure_table_tr="+procedure_table_tr);
+         
          $('#procedure_table tbody tr').each(function(){
            if(male_countr <= procedure_table_tr){
                var investigationname, investigation_code, investigationprice, investigation_discount = '';
@@ -1289,8 +1278,6 @@
          var transaction_img = $('#transaction_img').val();
          if(doctor == '' || payment_done == '' || payment_method == '' || paramedic_name==''){
            $('#msg_area').append('One or more fields are empty !')
-           // Re-enable button on error
-           $('#create_billing').removeClass('disabled').prop('disabled', false).text(originalText);
          }else{
            var after_discount = 0;
            var payment_in = $('.payment_in:checked').val();
@@ -1311,26 +1298,11 @@
            $('#consultation_preview').show();
          }
    
-       }else if (value.length > 0) { 
-           alert('Please fill out all fields.'); 
-           // Re-enable button on error
-           $('#create_billing').removeClass('disabled').prop('disabled', false).text(originalText);
-       }
+       }else if (value.length > 0) { alert('Please fill out all fields.'); }
      });
    <?php } else { ?>
    
    $(document).on('click',"#create_billing",function(e) {
-        // Prevent duplicate submissions
-        if ($(this).hasClass('disabled') || $(this).prop('disabled')) {
-            e.preventDefault();
-            return false;
-        }
-        
-        // Disable button and add loading state
-        $(this).addClass('disabled').prop('disabled', true);
-        var originalText = $(this).text();
-        $(this).html('<i class="fa fa-spinner fa-spin"></i> Processing...');
-        
        var value = $('.required_value').filter(function () {
          return this.value === '';
        });
@@ -1387,8 +1359,6 @@
          var transaction_img = $('#transaction_img').val();
          if(doctor == '' || payment_done == '' || payment_method == '' || paramedic_name==''){
            $('#msg_area').append('One or more fields are empty !')
-           // Re-enable button on error
-           $('#create_billing').removeClass('disabled').prop('disabled', false).text(originalText);
          }else{
            var after_discount = 0;
            var payment_in = $('.payment_in:checked').val();
@@ -1411,11 +1381,7 @@
            $('#consultation_preview').show();
          }
    
-       }else if (value.length > 0) { 
-           alert('Please fill out all fields.'); 
-           // Re-enable button on error
-           $('#create_billing').removeClass('disabled').prop('disabled', false).text(originalText);
-       }
+       }else if (value.length > 0) { alert('Please fill out all fields.'); }
      });
    <?php } ?>
    
@@ -1553,38 +1519,4 @@
        }
    }
    }
-   
-   // Fix for payment_method validation error
-   $(document).ready(function() {
-       // Handle form submission to prevent validation errors on hidden required fields
-       $('form').on('submit', function(e) {
-           // Remove required attribute from hidden payment method selects
-           $('select[name^="payment_method_"]').each(function() {
-               if ($(this).is(':hidden') || $(this).closest('tr').is(':hidden') || $(this).closest('div').is(':hidden')) {
-                   $(this).removeAttr('required');
-               }
-           });
-           
-           // Also handle selects that are in hidden table rows
-           $('select[name^="payment_method_"]').each(function() {
-               var $select = $(this);
-               var $row = $select.closest('tr');
-               if ($row.length && $row.is(':hidden')) {
-                   $select.removeAttr('required');
-               }
-           });
-       });
-       
-       // When showing/hiding table rows, manage required attributes
-       $(document).on('change', '.statuss', function() {
-           var $row = $(this).closest('tr');
-           var $paymentSelect = $row.find('select[name^="payment_method_"]');
-           
-           if ($row.is(':visible')) {
-               $paymentSelect.attr('required', 'required');
-           } else {
-               $paymentSelect.removeAttr('required');
-           }
-       });
-   });
 </script>

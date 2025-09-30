@@ -1837,14 +1837,6 @@ function partial_billing($appointment_id){
 						$male_number[] = $explode[1];
 					}
 					$male_number = array_unique($male_number);
-                    //$post_arr['receipt_number'] = $_POST['receipt_number'];unset($_POST['receipt_number']);
-					//print_r($post_arr['receipt_number']);exit();
-
-					/*foreach($male_number as $key => $val){
-						
-						$procedure_array['patient_procedures'][] = array('sub_procedure' => $_POST['sub_procedure_'.$val], 'sub_procedures_code' => $_POST['sub_procedures_code_'.$val], 'sub_procedures_price' => $_POST['sub_procedures_price_'.$val], 'sub_procedures_discount' => $_POST['sub_procedures_discount_'.$val], 'sub_procedures_paid_price' => $_POST['sub_procedures_paid_price_'.$val]);
-                        
-					}*/
 					foreach($male_number as $key => $val) {
 						// Calculate values
 						$receipt_number = $_POST['receipt_number_'.$val];
@@ -1858,13 +1850,15 @@ function partial_billing($appointment_id){
 						$payment_done = $_POST['sub_procedures_paid_price_'.$val];
 						$remaining_amount = $fees - $payment_done;
 						$post_arr['receipt_number'] = $receipt_number;
-						if(!empty($_FILES['receipt_image_'.$sub_procedure_counter]['tmp_name'])) {
+						// Save receipt image for this sub procedure if provided
+						if (!empty($_FILES['receipt_image_'.$val]['tmp_name'])) {
 							$dest_path = $this->config->item('upload_path');
 							$destination = $dest_path.'patient_files/';
-							$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-".$_FILES['receipt_image_'.$sub_procedure_counter]['name'];
+							if (!is_dir($destination)) { mkdir($destination, 0755, true); }
+							$NewImageName = rand(4,10000)."-".$post_arr['patient_id']."-".$_FILES['receipt_image_'.$val]['name'];
 							$receipt_image = base_url().'assets/patient_files/'.$NewImageName;
-							move_uploaded_file($_FILES['receipt_image_'.$sub_procedure_counter]['tmp_name'], $destination.$NewImageName);
-							$post_arr['receipt_image_'.$sub_procedure_counter] = $receipt_image;
+							move_uploaded_file($_FILES['receipt_image_'.$val]['tmp_name'], $destination.$NewImageName);
+							$post_arr['receipt_image'] = $receipt_image;
 						}
 						$post_arr['payment_method'] = $_POST['payment_method_'.$val];
 						
@@ -1887,7 +1881,7 @@ function partial_billing($appointment_id){
 						// Build and execute query
 					      $query = "INSERT INTO `hms_patient_procedure` 
 							(appointment_id, consultation_done, patient_id, procedure_parent, on_date, 
-							receipt_number, billing_id, biller_id, transaction_id, transaction_img,
+							receipt_number,receipt_image, billing_id, biller_id, transaction_id, transaction_img,
 							hospital_id, payment_in, data, center_share, fees, totalpackage, discount_amount, 
 							payment_done, wallet_payment, remaining_amount, payment_method, billing_from, 
 							billing_at, package_form, status, origins) 
@@ -1898,6 +1892,7 @@ function partial_billing($appointment_id){
 							 '".$post_arr['procedure_parent']."',
 							 '".$formattedDate."',
 							 '".$post_arr['receipt_number']."',
+							 '".$post_arr['receipt_image']."',
 							 '".$post_arr['billing_id']."',
 							 '".$post_arr['biller_id']."',
 							 '".$post_arr['transaction_id']."',
@@ -3647,11 +3642,8 @@ public function billing_noreceipt_patient_payments(){
 	}
 
 	function get_center_name($center){
-
 		$name = $this->accounts_model->get_center_name($center);
-
 		return $name;
-
 	}
 
 
@@ -3708,4 +3700,34 @@ public function billing_noreceipt_patient_payments(){
 		$mpdf->Output();
 	}
 	
+	function check_procedure_exit_in_center($procedure_code, $center_id)
+	{
+		$ci = &get_instance();
+		$ci->load->database();
+		$sql = "SELECT 1 
+				FROM hms_procedures 
+				WHERE code = '".$procedure_code."'
+				AND FIND_IN_SET('".$center_id."', center_id)
+				LIMIT 1";
+		$q = $ci->db->query($sql);
+		return ($q->num_rows() > 0);
+	}
+
+	function get_hub_center_id_from_spoke($center_id)
+	{
+		$ci = &get_instance();
+		$ci->load->database();
+		$sql = "SELECT hub_center_id 
+				FROM hms_hub_spoke_relationships 
+				WHERE spoke_center_id = '".$center_id."' 
+				LIMIT 1";
+		$q = $ci->db->query($sql);
+		if ($q->num_rows() > 0) {
+			return $q->row()->hub_center_id;
+		}
+		return null;
+	}
+
+
+
 }
