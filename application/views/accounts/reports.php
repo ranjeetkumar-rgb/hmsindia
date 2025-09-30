@@ -1,4 +1,5 @@
-<?php $all_method =&get_instance(); ?>
+
+ <?php $all_method =&get_instance(); ?>
     <div class="col-md-12">
       <div class="card">
 	   <div class="card-action"><h3>Dashboard  </h3></div>
@@ -223,3 +224,6 @@
   border: 1px solid #9e9e9e!important;
 }
 </style>
+apps-fileview.texmex_20250919.05_p2
+reports.php
+Displaying reports.php.
