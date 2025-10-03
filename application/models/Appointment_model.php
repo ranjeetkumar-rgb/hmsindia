@@ -19,12 +19,12 @@ class Appointment_model extends CI_Model
 	}
 	
 	
-	function export_my_appointments($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type, $crm_id){
+	function export_my_appointments($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type, $crm_id, $lead_source){
 	    $appointments_result = $response = array();
         $conditions = '';
 		if(empty($patient_name)){
             if(!empty($center)){
-                $conditions .= " and appoitment_for='$center'";
+                $conditions .= " and appoitment_for='$center' and camp_selection=0";
             }
         }
 		if(!empty($paitent_type)){
@@ -53,6 +53,9 @@ class Appointment_model extends CI_Model
         }
 		if(!empty($crm_id)){
                 $conditions .= " and crm_id='$crm_id'";
+        }
+		if(!empty($lead_source)){
+                $conditions .= " and lead_source='$lead_source'";
         }
 	    $appointments_sql = "Select DISTINCT crm_id, paitent_id, wife_name, husband_name, wife_email, nationality,reason_of_visit, appoitmented_date,paitent_type,lead_source, status from ".$this->config->item('db_prefix')."appointments where 1 $conditions order by appoitmented_date desc";
         $appointments_q = $this->db->query($appointments_sql);
@@ -79,11 +82,11 @@ class Appointment_model extends CI_Model
 		return $response;
     }
 
-    function my_appointments_count($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id){
+    function my_appointments_count($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source){
 		$conditions = "";
        if(empty($patient_name)){
             if(!empty($center)){
-                $conditions .= " and appoitment_for='$center'";
+                $conditions .= " and appoitment_for='$center' and camp_selection=0";
             }
         }
 		if(!empty($paitent_type)){
@@ -113,13 +116,16 @@ class Appointment_model extends CI_Model
 		if(!empty($crm_id)){
                 $conditions .= " and crm_id='$crm_id'";
         }
+		if(!empty($lead_source)){
+                $conditions .= " and lead_source='$lead_source'";
+        }
         $sql = "Select * from ".$this->config->item('db_prefix')."appointments where 1 ".$conditions."";
 		$q = $this->db->query($sql);
 		return $q->num_rows();
 	}
 
-    function my_appointments_pagination($limit, $page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type,$crm_id){
-		if(empty($page)){
+    function my_appointments_pagination($limit, $page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type,$crm_id, $lead_source){
+        if(empty($page)){
 			$offset = 0;
 		}else{
 			$offset = ($page - 1) * $limit;
@@ -127,7 +133,7 @@ class Appointment_model extends CI_Model
         $conditions = "";
         if(empty($patient_name)){
             if(!empty($center)){
-                $conditions .= " and appoitment_for='$center'";
+                $conditions .= " and appoitment_for='$center' and camp_selection=0";
             }
         }
 		if(!empty($paitent_type)){
@@ -156,6 +162,169 @@ class Appointment_model extends CI_Model
         }
 		if(!empty($crm_id)){
                 $conditions .= " and crm_id='$crm_id'";
+        }
+		if(!empty($lead_source)){
+                $conditions .= " and lead_source='$lead_source'";
+        }
+        $result = array();
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where 1 ".$conditions." ORDER by appoitmented_date DESC limit ". $limit." OFFSET ".$offset."";
+        $q = $this->db->query($sql);
+		$result = $q->result_array();
+        if (!empty($result))
+        {
+            return $result;
+        }
+        else
+        {
+            return $result;
+        }
+	}
+    function export_my_appointments_in_camp($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type, $crm_id, $lead_source){
+	    $appointments_result = $response = array();
+        $conditions = '';
+		if(empty($patient_name)){
+            if(!empty($center)){
+                $conditions .= " and appoitment_for='$center' and camp_selection !=0";
+            }
+        }
+		if(!empty($paitent_type)){
+                $conditions .= " and paitent_type='$paitent_type'";
+        }
+        if(!empty($patient_id)){
+            $conditions .= " and paitent_id='$patient_id'";
+        }
+        if(!empty($patient_name)){
+            $conditions .= " and (wife_name like '%$patient_name%' or wife_phone like '%$patient_name%')";
+        }
+        if(!empty($status)){
+            $conditions .= " and status='$status'";
+        }
+        if(!empty($doctor)){
+            $conditions .= " and appoitmented_doctor='$doctor'";
+        }
+        if(!empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date between '".$start_date."' AND '".$end_date."' ";
+        }
+        if(!empty($start_date) && empty($end_date)){
+            $conditions .= " and appoitmented_date='$start_date'";
+        }
+        if(empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date='$end_date'";
+        }
+		if(!empty($crm_id)){
+                $conditions .= " and crm_id='$crm_id'";
+        }
+		if(!empty($lead_source)){
+                $conditions .= " and lead_source='$lead_source'";
+        }
+	    $appointments_sql = "Select DISTINCT crm_id, paitent_id, wife_name, husband_name, wife_email, nationality,reason_of_visit, appoitmented_date,paitent_type,lead_source, status from ".$this->config->item('db_prefix')."appointments where 1 $conditions order by appoitmented_date desc";
+        $appointments_q = $this->db->query($appointments_sql);
+        $appointments_result = $appointments_q->result_array();
+        if(!empty($appointments_result)){
+            foreach($appointments_result as $key => $val){
+				//$patient_name = $this->get_patient_name($val['paitent_id']);
+				//$all_method->doctor_name($vl['appoitmented_doctor']);
+				$response[] = array(
+                        'crm_id' => $val['crm_id'],
+                        'lead_source' => $val['lead_source'],
+						'paitent_id' => $val['paitent_id'],
+                        'wife_name' => $val['wife_name'],
+				        'husband_name' => $val['husband_name'],
+                        'nationality' => $val['nationality'],
+                        'reason_of_visit' => $val['reason_of_visit'],
+                        'appoitmented_date' => $val['appoitmented_date'],
+						'paitent_type' => $val['paitent_type'],
+                        'status' => $val['status'],
+                        'billing_type' => 'Consultation',
+                );
+            }
+        }    
+		return $response;
+    }
+
+    function my_appointments_count_in_camp($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source){
+		$conditions = "";
+       if(empty($patient_name)){
+            if(!empty($center)){
+                $conditions .= " and appoitment_for='$center' and camp_selection != 0";
+            }
+        }
+		if(!empty($paitent_type)){
+                $conditions .= " and paitent_type='$paitent_type'";
+        }
+        if(!empty($patient_id)){
+            $conditions .= " and paitent_id='$patient_id'";
+        }
+        if(!empty($patient_name)){
+            $conditions .= " and (wife_name like '%$patient_name%' or wife_phone like '%$patient_name%')";
+        }
+        if(!empty($status)){
+            $conditions .= " and status='$status'";
+        }
+        if(!empty($doctor)){
+            $conditions .= " and appoitmented_doctor='$doctor'";
+        }
+        if(!empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date between '".$start_date."' AND '".$end_date."' ";
+        }
+        if(!empty($start_date) && empty($end_date)){
+            $conditions .= " and appoitmented_date='$start_date'";
+        }
+        if(empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date='$end_date'";
+        }
+		if(!empty($crm_id)){
+                $conditions .= " and crm_id='$crm_id'";
+        }
+		if(!empty($lead_source)){
+                $conditions .= " and lead_source='$lead_source'";
+        }
+        $sql = "Select * from ".$this->config->item('db_prefix')."appointments where 1 ".$conditions."";
+		$q = $this->db->query($sql);
+		return $q->num_rows();
+	}
+
+    function my_appointments_pagination_in_camp($limit, $page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type,$crm_id, $lead_source){
+        if(empty($page)){
+			$offset = 0;
+		}else{
+			$offset = ($page - 1) * $limit;
+		}
+        $conditions = "";
+        if(empty($patient_name)){
+            if(!empty($center)){
+                $conditions .= " and appoitment_for='$center' and camp_selection != 0";
+            }
+        }
+		if(!empty($paitent_type)){
+                $conditions .= " and paitent_type='$paitent_type'";
+        }
+        if(!empty($patient_id)){
+            $conditions .= " and paitent_id='$patient_id'";
+        }
+        if(!empty($patient_name)){
+            $conditions .= " and (wife_name like '%$patient_name%' or wife_phone like '%$patient_name%')";
+        }
+        if(!empty($status)){
+            $conditions .= " and status='$status'";
+        }
+        if(!empty($doctor)){
+            $conditions .= " and appoitmented_doctor='$doctor'";
+        }
+        if(!empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date between '".$start_date."' AND '".$end_date."' ";
+        }
+        if(!empty($start_date) && empty($end_date)){
+            $conditions .= " and appoitmented_date='$start_date'";
+        }
+        if(empty($start_date) && !empty($end_date)){
+            $conditions .= " and appoitmented_date='$end_date'";
+        }
+		if(!empty($crm_id)){
+                $conditions .= " and crm_id='$crm_id'";
+        }
+		if(!empty($lead_source)){
+                $conditions .= " and lead_source='$lead_source'";
         }
         $result = array();
 		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where 1 ".$conditions." ORDER by appoitmented_date DESC limit ". $limit." OFFSET ".$offset."";
@@ -173,7 +342,7 @@ class Appointment_model extends CI_Model
 	
 	function get_daily_appointments(){
 		$result = array();
-	echo	$sql = "Select * from ".$this->config->item('db_prefix')."appointments WHERE date(appoitmented_date)='".date('Y-m-d')."' ORDER by ID DESC";
+		$sql = "Select * from ".$this->config->item('db_prefix')."appointments WHERE date(appoitmented_date)='".date('Y-m-d')."' ORDER by ID DESC";
 		$q = $this->db->query($sql);
 		$result = $q->result_array();
         if (!empty($result))
@@ -361,6 +530,21 @@ class Appointment_model extends CI_Model
         {
             return $result;
         }
+	}
+	
+	function get_all_lead_sources(){
+		$result = array();
+		$sql = "SELECT DISTINCT lead_source FROM ".$this->config->item('db_prefix')."appointments WHERE lead_source IS NOT NULL AND lead_source != '' ORDER BY lead_source ASC";
+		$q = $this->db->query($sql);
+		$result = $q->result_array();
+		if (!empty($result))
+		{
+			return $result;
+		}
+		else
+		{
+			return array();
+		}
 	}
 	
 	function updateStatusAndDate($wife_phone, $center, $new_status, $appoitmented_date) {

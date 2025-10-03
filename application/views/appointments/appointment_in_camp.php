@@ -75,7 +75,7 @@
             </div>
             <div class="col-sm-3 float-end" style="margin-top: 22px;display: flex;gap: 10px;">
                <button name="search" type="submit"  class="btn btn-primary">Search</button>
-               <a href="<?php echo base_url().'my_appointments'; ?>" style="text-decoration: none;">
+               <a href="<?php echo base_url().'my_appointments_camp'; ?>" style="text-decoration: none;">
                <button name="search" type="button"  class="btn btn-secondary">RESET</button>
                </a>
                <a href="<?php echo base_url('Appointments-Patients'); ?>" style="text-decoration: none;">

@@ -1,6 +1,4 @@
 <?php $all_method =&get_instance();
-	//var_dump($appointments);die;
-	//var_dump($_SESSION['logged_billing_manager']);die;
   $patient_id = $appointments['paitent_id'];
  if($patient_id == 0){
     $patient_id = getiic();
@@ -761,6 +759,13 @@
     });
 	
 	$(document).on('click',"#create_billing",function(e) {
+		// Prevent duplicate clicks
+		if ($(this).hasClass('disabled') || $(this).prop('disabled')) {
+			e.preventDefault();
+			return false;
+		}
+		var originalText = $(this).html();
+		$(this).addClass('disabled').prop('disabled', true).html('<i class="fa fa-spinner fa-spin" style="margin-right: 8px;"></i>Processing...');
 		$('#msg_area').empty();
 		$('#doctor_id_text').empty();
 		$('#fees_text').empty();
@@ -791,14 +796,39 @@
 							
 						if(discount_amount == '' || reason_of_discount == ''){
 							$('#msg_area').append('One or more fields are empty !');
+							// Re-enable button on error
+							$('#create_billing').removeClass('disabled').prop('disabled', false).html(originalText);
 						}else{
 							value_into_text();	
+							// Re-enable for preview step
+							$('#create_billing').removeClass('disabled').prop('disabled', false).html(originalText);
 						}
 					}else{
 						value_into_text();
+						// Re-enable for preview step
+						$('#create_billing').removeClass('disabled').prop('disabled', false).html(originalText);
 					}
 			}
     });
+
+	// Prevent multiple form submissions
+	$('form').on('submit', function(e){
+		var $submit = $('#submitbutton');
+		if ($submit.hasClass('disabled') || $submit.prop('disabled')) {
+			e.preventDefault();
+			return false;
+		}
+		var originalSubmitText = $submit.html();
+		$submit.data('original-text', originalSubmitText);
+		$submit.addClass('disabled').prop('disabled', true).html('<i class="fa fa-spinner fa-spin" style="margin-right: 8px;"></i>Submitting...');
+	});
+
+	// Safety: re-enable submit if validation fails client-side and submission is blocked elsewhere
+	$(document).on('billing:enableSubmit', function(){
+		var $submit = $('#submitbutton');
+		var originalSubmitText = $submit.data('original-text') || $submit.html();
+		$submit.removeClass('disabled').prop('disabled', false).html(originalSubmitText);
+	});
 	
 	function value_into_text(){
 		$('#doctor_id_text').empty().append($('#doctor_name').val());

@@ -168,6 +168,7 @@
                                                     $gstDiv     = htmlspecialchars($consumable['gstdivision'], ENT_QUOTES, 'UTF-8');
                                                     $company    = htmlspecialchars($consumable['company'], ENT_QUOTES, 'UTF-8');
                                                     $brand      = htmlspecialchars($consumable['brand_name'], ENT_QUOTES, 'UTF-8');
+                                                    $vendorNum  = htmlspecialchars($consumable['vendor_number'], ENT_QUOTES, 'UTF-8');
                                                  ?>
                                                  <option value="<?= $itemNumber ?>"
                                                     data-item-name="<?= $itemName ?>"
@@ -181,6 +182,7 @@
                                                     data-gst-division="<?= $gstDiv ?>"
                                                     data-company="<?= $company ?>"
                                                     data-brand="<?= $brand ?>"
+                                                    data-vendor-number="<?= $vendorNum ?>"
                                                     <?php echo ($consumable['item_number'] == $item['item_number']) ? 'selected' : ''; ?>>
                                                     <?= $itemName ?> (<?= $itemNumber ?>)
                                                  </option>
@@ -524,5 +526,47 @@ $(document).ready(function() {
     setTimeout(function() {
         calculateTotal();
     }, 500);
+
+    // Filter items by vendor on edit page and clear selections not matching vendor
+    $('#vendor_number').on('change', function() {
+        var vendorNumber = $(this).val();
+        if (!vendorNumber) { return; }
+        $.getJSON('<?php echo base_url('new_purchase_orders/items_by_vendor'); ?>', { vendor_number: vendorNumber })
+            .done(function(resp) {
+                if (resp.status === 'success') {
+                    var optionsHtml = '<option value="">-- Select Item --</option>';
+                    resp.data.forEach(function(item) {
+                        var safe = function(v){ return $('<div>').text(v || '').html(); };
+                        optionsHtml += '<option value="'+ safe(item.item_number) +'"'
+                            + ' data-item-name="'+ safe(item.item_name) +'"'
+                            + ' data-batch="'+ safe(item.batch_number) +'"'
+                            + ' data-price="'+ safe(item.price) +'"'
+                            + ' data-vendor-price="'+ safe(item.vendor_price) +'"'
+                            + ' data-pack-size="'+ safe(item.pack_size) +'"'
+                            + ' data-mrp="'+ safe(item.mrp) +'"'
+                            + ' data-tax="'+ safe(item.gstrate) +'"'
+                            + ' data-hsn="'+ safe(item.hsn) +'"'
+                            + ' data-gst-division="'+ safe(item.gstdivision) +'"'
+                            + ' data-company="'+ safe(item.company) +'"'
+                            + ' data-brand="'+ safe(item.brand_name) +'"'
+                            + ' data-vendor-number="'+ safe(item.vendor_number) +'"'
+                            + '>' + safe(item.item_name) + ' ('+ safe(item.item_number) +')</option>';
+                    });
+
+                    $('.consumable-select').each(function(){
+                        var $sel = $(this);
+                        $sel.html(optionsHtml);
+                        $sel.val('');
+                        $sel.trigger('change');
+                    });
+                }
+            });
+    });
+
+    // If a vendor is already selected on load, auto-filter items
+    var initialVendor = $('#vendor_number').val();
+    if (initialVendor) {
+        $('#vendor_number').trigger('change');
+    }
 });
 </script>

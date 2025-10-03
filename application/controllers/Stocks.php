@@ -2585,6 +2585,44 @@ public function medicine_update()
 			die();
 		}
 	}
+
+	public function bulk_status()
+	{
+		$logg = checklogin();
+		if ($logg['status'] != true) {
+			http_response_code(401);
+			echo json_encode(array('status' => 0, 'message' => 'Unauthorized'));
+			return;
+		}
+		$this->output->set_content_type('application/json');
+		$item_numbers = $this->input->post('item_numbers');
+		$status = $this->input->post('status');
+		if (!is_array($item_numbers) || ($status !== '0' && $status !== '1')) {
+			echo json_encode(array('status' => 0, 'message' => 'Invalid payload'));
+			return;
+		}
+		$affected = $this->stock_model->bulk_update_items_status($item_numbers, $status);
+		echo json_encode(array('status' => 1, 'updated' => (int)$affected));
+	}
+	
+	public function bulk_status_center()
+	{
+		$logg = checklogin();
+		if ($logg['status'] != true) {
+			http_response_code(401);
+			echo json_encode(array('status' => 0, 'message' => 'Unauthorized'));
+			return;
+		}
+		$this->output->set_content_type('application/json');
+		$item_ids = $this->input->post('item_ids');
+		$status = $this->input->post('status');
+		if (!is_array($item_ids) || ($status !== '0' && $status !== '1')) {
+			echo json_encode(array('status' => 0, 'message' => 'Invalid payload'));
+			return;
+		}
+		$affected = $this->stock_model->bulk_update_center_items_status($item_ids, $status);
+		echo json_encode(array('status' => 1, 'updated' => (int)$affected));
+	}
 	
 	public function active_stocks(){
 		$logg = checklogin();

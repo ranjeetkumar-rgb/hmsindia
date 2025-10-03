@@ -849,6 +849,36 @@ class Stock_model extends CI_Model
 		$this->db->query($sql3);
         return $this->db->affected_rows();
     }
+
+	public function bulk_update_items_status($item_numbers, $status)
+	{
+		if (empty($item_numbers)) {
+			return 0;
+		}
+		$clean_items = array();
+		foreach ($item_numbers as $num) {
+			$clean_items[] = $this->db->escape_str($num);
+		}
+		$status_val = $this->db->escape_str($status);
+		$sql = "UPDATE hms_stocks SET `status` = '".$status_val."' WHERE `item_number` IN ('".implode("','", $clean_items)."')";
+		$this->db->query($sql);
+		return $this->db->affected_rows();
+	}
+	
+	public function bulk_update_center_items_status($item_ids, $status)
+	{
+		if (empty($item_ids)) {
+			return 0;
+		}
+		$clean_items = array();
+		foreach ($item_ids as $id) {
+			$clean_items[] = $this->db->escape_str($id);
+		}
+		$status_val = $this->db->escape_str($status);
+		$sql = "UPDATE " . $this->config->item('db_prefix') . "center_stocks SET `status` = '".$status_val."' WHERE `ID` IN ('".implode("','", $clean_items)."')";
+		$this->db->query($sql);
+		return $this->db->affected_rows();
+	}
 	
 	public function update_item($data, $product_id, $invoice_no, $no_of_item, $brand_name, $vendor_number, $batch_number, $vendor_price, $hsn, $pack_size, $pack, $gstrate, $gstdivision, $expiry, $date_of_purchase)
     {

@@ -812,37 +812,20 @@ function procedure_billings_patination($limit, $page, $center, $start_date, $end
 	}
 	
 	function registation_insert($data){
-
-		
-
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "registation` SET ";
-
 		$sqlArr = array();
-
 		foreach( $data as $key=> $value )
-
 		{
-
 			$sqlArr[] = " $key = '".addslashes($value)."'";
-
 		}
-
 		$sql .= implode(',' , $sqlArr);
-
        	$res =  $this->db->query($sql);
-
 		if ($res)
-
 		{
-
 			return $this->db->insert_id();
-
 		}
-
 		else
-
 			return 0;
-
 	}
 
 	

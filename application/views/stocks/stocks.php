@@ -1,4 +1,4 @@
-<?php $all_method =&get_instance(); ?>
+<?php  $all_method =&get_instance(); ?>
 <div class="col-md-12">
   <!-- Modern Page Header -->
   <div class="page-header-modern">
@@ -151,6 +151,7 @@
       <table class="table modern-table" id="centre_stock_list1">
         <thead>
           <tr>
+             <th><input type="checkbox" id="select_all_items" style="left: 0px !important;opacity: 1 !important;position: unset !important;" /></th>
             <th class="col-generic">Generic Name</th>
             <th class="col-company">Company</th>
             <th class="col-item-id">Item ID</th>
@@ -182,6 +183,7 @@
             }
           ?>			 
             <tr class="data-row">
+              <td><input type="checkbox" class="row-select" value="<?php echo $vl['item_number']?>" style="left: 0px !important;opacity: 1 !important;position: unset !important;"/></td>
               <td class="col-generic">
                 <div class="generic-name"><?php echo $vl['generic_name']?></div>
               </td>
@@ -272,6 +274,14 @@
         </tbody>
       </table>
     </div>
+    <div class="bulk-actions" style="margin-top:10px; display:flex; gap:10px; justify-content:flex-start;">
+      <button type="button" id="bulk_activate" class="btn btn-search-modern" style="min-width:unset; padding:8px 16px;">
+        <i class="fa fa-check"></i> Activate Selected
+      </button>
+      <button type="button" id="bulk_deactivate" class="btn btn-reset-modern" style="min-width:unset; padding:8px 16px;">
+        <i class="fa fa-ban"></i> Deactivate Selected
+      </button>
+    </div>
     
     <!-- Modern Pagination -->
     <div class="pagination-container-modern">
@@ -296,6 +306,47 @@ $(function() {
       var data = {appointment_date:startDate, type:'particular_date_filter'};
     }
   });
+  
+  // Select all toggle
+  $('#select_all_items').on('change', function(){
+    var checked = $(this).is(':checked');
+    $('#table_content .row-select').prop('checked', checked);
+  });
+
+  function collectSelectedItems(){
+    var items = [];
+    $('#table_content .row-select:checked').each(function(){
+      items.push($(this).val());
+    });
+    return items;
+  }
+
+  function bulkUpdateStatus(statusValue){
+    var selected = collectSelectedItems();
+    if(selected.length === 0){
+      alert('Please select at least one item.');
+      return;
+    }
+    $.ajax({
+      url: '<?php echo base_url(); ?>stocks/bulk_status',
+      type: 'POST',
+      dataType: 'json',
+      data: { item_numbers: selected, status: String(statusValue) },
+      success: function(resp){
+        if(resp && resp.status == 1){
+          location.reload();
+        }else{
+          alert('Failed to update.');
+        }
+      },
+      error: function(){
+        alert('Request failed.');
+      }
+    });
+  }
+
+  $('#bulk_activate').on('click', function(){ bulkUpdateStatus(1); });
+  $('#bulk_deactivate').on('click', function(){ bulkUpdateStatus(0); });
 });
 </script>
 

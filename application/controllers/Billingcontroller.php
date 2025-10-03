@@ -60,31 +60,18 @@ class Billingcontroller extends CI_Controller {
 
 
 	public function appointment()
-
 	{
-
 		$logg = checklogin();
-
 		if($logg['status'] == true){
-
 			$data = array();
-
 			$template = get_header_template($logg['role']);
-
 			$this->load->view($template['header']);
-
 			$this->load->view('billing_view/appointment', $data);
-
 			$this->load->view($template['footer']);
-
 		}else{
-
 			header("location:" .base_url(). "");
-
 			die();
-
 		}
-
 	}
 
 
@@ -323,72 +310,49 @@ function partial_billing($appointment_id){
      
 		$logg = checklogin();
 		if($logg['status'] == true){
-
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_consultation'){
-
 				unset($_POST['action']);				
-
+				// Server-side duplicate check for consultation receipt number
+				$raw_receipt = isset($_POST['receipt_number']) ? $_POST['receipt_number'] : '';
+				if(!empty($raw_receipt)){
+					$exists_q = $this->db->query("SELECT COUNT(*) AS cnt FROM ".config_item('db_prefix')."consultation WHERE receipt_number = ?", array($raw_receipt));
+					$row = $exists_q->row();
+					if(isset($row->cnt) && (int)$row->cnt > 0){
+						header("location:" . base_url() . "billing/consultation/".$appointment_id."?m=".base64_encode('Receipt number already exists!').'&t='.base64_encode('error'));
+						die();
+					}
+				}
 				$_POST['receipt_number'] = check_billing_receipt($_POST['receipt_number']);
-
 				$appointment = $_POST['appointment_id'];
-
 				$biller_id = $_POST['biller_id'];
-				
 				$uhid = isset($_POST['uhid']) ? $_POST['uhid'] : '';
 				$donor_patient_id = isset($_POST['donor_patient_id']) ? $_POST['donor_patient_id'] : '';
-				
 				$cash_payment = isset($_POST['cash_payment']) ? $_POST['cash_payment'] : 0;
 				$card_payment = isset($_POST['card_payment']) ? $_POST['card_payment'] : 0;
 				$upi_payment = isset($_POST['upi_payment']) ? $_POST['upi_payment'] : 0;
 				$neft_payment = isset($_POST['neft_payment']) ? $_POST['neft_payment'] : 0;
 				$wallet_payment = isset($_POST['wallet_payment']) ? $_POST['wallet_payment'] : 0;
-				
-				// Appointment details
-
 				$appointments = $this->billingmodel_model->check_appointments($appointment);
-
 				if(empty($appointments)){
-
 				    header("location:" .base_url(). "my_appointments?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
-
 					die();
-
 				}
-
 				if(empty($appointments['paitent_type']) && !isset($appointments['paitent_type']) && empty($appointments['wife_phone']) && !isset($appointments['wife_phone'])){
-
 				    header("location:" .base_url(). "my_appointments?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
-
 					die();
-
 				}
-
-				
-
 				$transaction_img = '';
-
 				if(!empty($_FILES['transaction_img']['tmp_name'])){
-
 					$dest_path = $this->config->item('upload_path');
-
 					$destination = $dest_path.'patient_files/';
-
 					$NewImageName = rand(4,10000)."-".$_FILES['transaction_img']['name'];
-
 					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
-
 					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
-
 					$_POST['transaction_img'] = $transaction_img;
-
 				}
-
 				$paitent_id = "";
-
 				if(isset($appointments['paitent_type']) && $appointments['paitent_type'] == 'exist_patient'){
-
 					$paitent_id = $appointments['paitent_id'];
-
 				}else{
 					$paitent_id = $_POST['patient_id'];
 					$patient_arr = array();
@@ -407,171 +371,67 @@ function partial_billing($appointment_id){
 				if($_POST['discount_amount'] == ''){ $_POST['discount_amount'] = 0; }
 				$series_number = $_POST['series_number'];
 				$consult = $this->billings_model->consultation_insert($_POST);
-				/*$sql5 = "Select * from ".$this->config->item('db_prefix')."appointments where wife_phone='".$appointments['wife_phone']."' and paitent_type='new_patient'";
-				$select_result5 = run_select_query($sql5);
-				
-				$sql_con = "SELECT * FROM " . $this->config->item('db_prefix') . "consultation WHERE patient_id = '" . $paitent_id . "' ORDER BY id ASC";
-				$select_con = run_select_query($sql_con);
-
-				if (!empty($select_con) && !empty($select_con['on_date'])) {
-					$visit_month = date('F y', strtotime($select_con['on_date']));
-					$only_date = date('Y-m-d', strtotime($select_con['on_date']));
-				} else {
-					$visit_month = date('F y', strtotime($_POST['on_date']));
-					$only_date = date('Y-m-d', strtotime($_POST['on_date']));
-				}
-
-				
-				$sql4 = "Select * from ".$this->config->item('db_prefix')."doctors where ID='".$_POST['doctor_id']."'";
-				$select_result4 = run_select_query($sql4);
-				
-				$data = array(
-					"lead_id" => trim($select_result5['crm_id']),
-					"visit_month" => $visit_month,
-					"first_visit_date" => $only_date,
-					"doctor_consulted" => $select_result4['name'],
-					"patient_id" => $_POST['patient_id'],
-					"patients_name" => $appointments['wife_name'],
-					"patients_source" => $select_result5['lead_source']
-				);
-
-				// Convert PHP array to JSON
-				$jsonData = json_encode($data);
-
 				$curl = curl_init();
-
 				curl_setopt_array($curl, array(
-				  CURLOPT_URL => 'https://flertility.in/lead/lead-journey/',
-				  CURLOPT_RETURNTRANSFER => true,
-				  CURLOPT_ENCODING => '',
-				  CURLOPT_MAXREDIRS => 10,
-				  CURLOPT_TIMEOUT => 0,
-				  CURLOPT_FOLLOWLOCATION => true,
-				  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				  CURLOPT_CUSTOMREQUEST => 'POST',
-				  CURLOPT_POSTFIELDS => $jsonData,  // Send JSON Data
-				  CURLOPT_HTTPHEADER => array(
-					'Content-Type: application/json',  // Specify JSON Content Type
-					'Accept: application/json'         // Expect JSON Response
-				  ),
+					CURLOPT_URL => "https://flertility.in/lead/lead-mobile-no/?mobile_no=" . urlencode(isset($_POST['wife_phone']) ? $_POST['wife_phone'] : ''),
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_ENCODING => '',
+					CURLOPT_MAXREDIRS => 10,
+					CURLOPT_TIMEOUT => 30,
+					CURLOPT_FOLLOWLOCATION => true,
+					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					CURLOPT_CUSTOMREQUEST => 'GET',
 				));
-
 				$response = curl_exec($curl);
-				curl_close($curl); */
-				
-				//print_r($response);
-				
-			$curl = curl_init();
-
-			curl_setopt_array($curl, array(
-				CURLOPT_URL => "https://flertility.in/lead/lead-mobile-no/?mobile_no=" . urlencode(isset($_POST['wife_phone']) ? $_POST['wife_phone'] : ''),
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => '',
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 30,
-				CURLOPT_FOLLOWLOCATION => true,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => 'GET',
-			));
-
-			$response = curl_exec($curl);
-			$err = curl_error($curl);
-
-			curl_close($curl);
-
-			if ($err) {
-				echo "cURL Error: $err";
-			} else {
-				$leadData = json_decode($response, true); // Decode JSON to associative array
-
-				if (!empty($leadData) && isset($leadData[0])) {
-					$lead = $leadData[0];
-
-					// Display lead info
-					// echo "Lead ID: " . $lead['id'] . "<br>";
-					// echo "Name: " . $lead['primary_name'] . "<br>";
-					// echo "Mobile: " . $lead['mobile_country_code'] . " " . $lead['mobile'] . "<br>";
-					// echo "Priority: " . $lead['priority'] . "<br>";
-					// echo "Status: " . $lead['status'] . "<br>";
-
-					// Update local DB (CodeIgniter style)
-					$this->db->where('wife_phone', $lead['mobile']);
-					$this->db->update('hms_appointments', ['crm_id' => $lead['id']]);
-
-					// echo "CRM ID updated successfully.";
+				$err = curl_error($curl);
+				curl_close($curl);
+				if ($err) {
+					echo "cURL Error: $err";
 				} else {
-					// echo "No lead data found.";
+					$leadData = json_decode($response, true); // Decode JSON to associative array
+					if (!empty($leadData) && isset($leadData[0])) {
+						$lead = $leadData[0];
+						$this->db->where('wife_phone', $lead['mobile']);
+						$this->db->update('hms_appointments', ['crm_id' => $lead['id']]);
+					} else {
+						// echo "No lead data found.";
+					}
 				}
-			}
-				//echo $response; die();
-
 				if($consult > 0){
-				    
 				    $checkpatient_register = get_patient_detail($paitent_id);
     			    if(isset($checkpatient_register) && !empty($checkpatient_register) && $checkpatient_register['whats_registers'] == 0){
     			        $centre_namme = get_center_name($_POST['billing_at']);
     			        whatsappregister($appointments['wife_phone'], json_encode(array("name" => $appointments['wife_name'], "iic_id" => $paitent_id, "center" => $centre_namme)));
-    			        
         		        $this->db->where('patient_id', $paitent_id);
         		        $this->db->update('hms_patients', array('whats_registers' => 1));
     			    }
-
 					$insert_receipt = insert_receipt_log($_POST['receipt_number']);
-
 					$update_appointment = $this->billingmodel_model->update_appointment($appointment, $uhid);
-
 					$this->send_billing_receipt($biller_id, $paitent_id, $_POST['on_date'], $_POST['billing_from'], $_POST['receipt_number'], 'consultation');
-
 					$receipt_number = $_POST['receipt_number'];
-
 					header("location:" .base_url(). "accounts/details/$receipt_number?m=".base64_encode('Billing added successfully').'&t=consultation');
-
 					die();
-
 				}else{
-
 					header("location:" .base_url(). "my_appointments?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
-
 					die();
-
 				}				
-
 			}
-
-			
-
 			$data = array();
-
 			$appointments = $this->billingmodel_model->check_appointments($appointment_id);
-
 			if(!empty($appointments)){
-
 				$data['appointments'] = $appointments;							
-
 				$template = get_header_template($logg['role']);
-
 				$this->load->view($template['header']);
-
 				$this->load->view('billing_view/consultation', $data);
-
 				$this->load->view($template['footer']);
-
 			}else{
-
 				header("location:" .base_url(). "my_appointments?m=".base64_encode('Appointment not found/already billed!').'&t='.base64_encode('error'));
-
 				die();
-
 			}
-
 		}else{
-
 			header("location:" .base_url(). "");
-
 			die();
-
 		}
-
 	}
 	
 	
@@ -582,121 +442,69 @@ function partial_billing($appointment_id){
 		if($logg['status'] == true){
 
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_registation'){
-
 				unset($_POST['action']);				
-				
 				$_POST['receipt_number'] = check_billing_receipt($_POST['receipt_number']);
-
 				$appointment = $_POST['appointment_id'];
-				
 				$appointment = $_POST['appointment_id'];
-				
 				$biller_id = $_POST['biller_id'];
-				
 				$uhid = $_POST['uhid'];
 				$crm_id = $_POST['crm_id'];
-				
 				$cash_payment = $_POST['cash_payment'];
 				$card_payment = $_POST['card_payment'];
 				$upi_payment = $_POST['upi_payment'];
 				$neft_payment = $_POST['neft_payment'];
 				$wallet_payment = $_POST['wallet_payment'];
-				
-				// Appointment details
-
 				$transaction_img = '';
-
 				if(!empty($_FILES['transaction_img']['tmp_name'])){
-
 					$dest_path = $this->config->item('upload_path');
-
 					$destination = $dest_path.'patient_files/';
-
 					$NewImageName = rand(4,10000)."-".$_FILES['transaction_img']['name'];
-
 					$transaction_img = base_url().'assets/patient_files/'.$NewImageName;
-
 					move_uploaded_file($_FILES['transaction_img']['tmp_name'], $destination.$NewImageName);
-
 					$_POST['transaction_img'] = $transaction_img;
-
 				}
-				
 				$_POST['reason_of_visit'] = $appointments['reason_of_visit'];
-
 				$doctor_id = $_POST['doctor_id'];				
-
 				$_POST['status'] = 'pending';
-
 				if($_POST['discount_amount'] == ''){ $_POST['discount_amount'] = 0; }
-
 				$series_number = $_POST['series_number'];
-				
 				$patient_id = $_POST['patient_id'];
 				
 				//var_dump($_POST);die();
 
 				$consult = $this->billings_model->registation_insert($_POST);
-				
 				if($consult > 0){
-				    
 				    $checkpatient_register = get_patient_detail($patient_id);
     			    if(isset($checkpatient_register) && !empty($checkpatient_register) && $checkpatient_register['whats_registers'] == 0){
     			        $centre_namme = get_center_name($_POST['billing_at']);
     			        whatsappregister($appointments['wife_phone'], json_encode(array("name" => $appointments['wife_name'], "iic_id" => $patient_id, "center" => $centre_namme)));
-    			        
         		        $this->db->where('patient_id', $patient_id);
         		        $this->db->update('hms_patients', array('whats_registers' => 1));
     			    }
-
 					$this->send_billing_receipt($biller_id, $patient_id, $_POST['on_date'], $_POST['billing_from'], $_POST['receipt_number'], 'registation');
-
 					$receipt_number = $_POST['receipt_number'];
-
 					header("location:" .base_url(). "accounts/details/$receipt_number?m=".base64_encode('Billing added successfully').'&t=registation');
-
 					die();
-
 				}else{
-
 					header("location:" .base_url(). "my_appointments?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
-
 					die();
-
 				}				
-
 			}
-
 			$data = array();
-
 			$appointments = $this->billingmodel_model->check_appointments($appointment_id);
-
 			if(!empty($appointments)){
-
 				$data['appointments'] = $appointments;							
-
 				$template = get_header_template($logg['role']);
-
 				$this->load->view($template['header']);
-
 				$this->load->view('billing_view/registation', $data);
-
 				$this->load->view($template['footer']);
-
 			}else{
-
 				header("location:" .base_url(). "my_appointments?m=".base64_encode('Appointment not found/already billed!').'&t='.base64_encode('error'));
-
 				die();
-
 			}
-
 		}else{
-
 			header("location:" .base_url(). "");
-
 			die();
-
 		}
 
 	}
@@ -2844,45 +2652,24 @@ function partial_billing($appointment_id){
 	
 
 	public function booking(){
-
 		$logg = checklogin();
-
 		if($logg['status'] == true){
-
 			unset($_POST['action']);unset($_POST['phone_number']);
-
 			$patient_phone = $_POST['wife_phone'];
-
-						    
-
 			if($_POST['paitent_type'] == "exist_patient" && !empty($_POST['paitent_id'])){
-
 				$check_patient_medical_info = check_patient_medical_info($_POST['paitent_id']);
-
 				if($check_patient_medical_info == 1){
-
 					$_POST['follow_up_appointment'] = 1;
-
 				}
-
  			}
-
- 			
-
  			$appointments = $this->billingmodel_model->search_appointment($patient_phone, "phone");
-
 			if(count($appointments) > 0){
-
 				header("location:" .base_url(). "appointment?m=".base64_encode('Appointment already booked. Go to my appointments').'&t='.base64_encode('error'));
-
 				die();
-
 			}
-
 			$_POST['appointment_added'] = date('Y-m-d H:i:s');
-			
+			$patient_id =getiic();
 			$curl = curl_init();
-				
 				if (strpos($_POST['lead_source'], "D/S") === false) {
 					$data = [
 						"api_key" => "83661358790533838050723166537248941TTR",
@@ -2894,18 +2681,13 @@ function partial_billing($appointment_id){
 						"from_hms" => "true",
 						"city" => "",
 						"email" => $_POST['wife_email'],
-						"center_id" => $_POST['appoitment_for']
+						"center_id" => $_POST['appoitment_for'],
+						"patient_id" => $_POST['paitent_id'],
 					];
-
-					// send $data to API here
-
 				} else {
 					echo "Lead source contains 'D/S'. Data not sent.";
 				}
-
-				// Encode array to JSON
 				$jsonData = json_encode($data);
-
 				curl_setopt_array($curl, array(
 					CURLOPT_URL => 'https://flertility.in/lead/create-lead-api/',
 					CURLOPT_RETURNTRANSFER => true,
@@ -2920,158 +2702,83 @@ function partial_billing($appointment_id){
 						'Content-Type: application/json'
 					),
 				));
-
 				$response = curl_exec($curl);
-
 				curl_close($curl);
-				
-				// Initialize cURL
-			
-			$appointment = $this->billingmodel_model->insert_appointments($_POST);
-			
-			$curl = curl_init();
-
-			curl_setopt_array($curl, array(
-				CURLOPT_URL => "https://flertility.in/lead/lead-mobile-no/?mobile_no=" . urlencode($_POST['wife_phone']),
-				CURLOPT_RETURNTRANSFER => true,
-				CURLOPT_ENCODING => '',
-				CURLOPT_MAXREDIRS => 10,
-				CURLOPT_TIMEOUT => 30,
-				CURLOPT_FOLLOWLOCATION => true,
-				CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-				CURLOPT_CUSTOMREQUEST => 'GET',
-			));
-
-			$response = curl_exec($curl);
-			$err = curl_error($curl);
-
-			curl_close($curl);
-
-			if ($err) {
-				echo "cURL Error: $err";
-			} else {
-				$leadData = json_decode($response, true); // Decode JSON to associative array
-
-				if (!empty($leadData) && isset($leadData[0])) {
-					$lead = $leadData[0];
-
-					// Display lead info
-					// echo "Lead ID: " . $lead['id'] . "<br>";
-					// echo "Name: " . $lead['primary_name'] . "<br>";
-					// echo "Mobile: " . $lead['mobile_country_code'] . " " . $lead['mobile'] . "<br>";
-					// echo "Priority: " . $lead['priority'] . "<br>";
-					// echo "Status: " . $lead['status'] . "<br>";
-
-					// Update local DB (CodeIgniter style)
-					$this->db->where('wife_phone', $lead['mobile']);
-					$this->db->update('hms_appointments', ['crm_id' => $lead['id']]);
-
-					// echo "CRM ID updated successfully.";
+				$appointment = $this->billingmodel_model->insert_appointments($_POST);
+				$curl = curl_init();
+				curl_setopt_array($curl, array(
+					CURLOPT_URL => "https://flertility.in/lead/lead-mobile-no/?mobile_no=" . urlencode($_POST['wife_phone']),
+					CURLOPT_RETURNTRANSFER => true,
+					CURLOPT_ENCODING => '',
+					CURLOPT_MAXREDIRS => 10,
+					CURLOPT_TIMEOUT => 30,
+					CURLOPT_FOLLOWLOCATION => true,
+					CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+					CURLOPT_CUSTOMREQUEST => 'GET',
+				));
+				$response = curl_exec($curl);
+				$err = curl_error($curl);
+				curl_close($curl);
+				if ($err) {
+					echo "cURL Error: $err";
 				} else {
-					echo "No lead data found.";
+					$leadData = json_decode($response, true); // Decode JSON to associative array
+					if (!empty($leadData) && isset($leadData[0])) {
+						$lead = $leadData[0];
+						$this->db->where('wife_phone', $lead['mobile']);
+						$this->db->update('hms_appointments', ['crm_id' => $lead['id']]);
+					} else {
+						echo "No lead data found.";
+					}
 				}
-			}
-
-			if($appointment > 0){
-				
-				
-				$centre_details = get_centre_details($_POST['appoitment_for']);
-				
-				$checkpatient_register = get_patient_detail_by_phone($_POST['wife_phone']);
-				if(empty($checkpatient_register)){
-			       whatsappregister($patient_phone, json_encode(array("name" => $_POST['wife_name'], "iic_id" => $paitent_id, "center" => $centre_details['center_name'], "billed"=> '1')));
-			   }
-			    
-             //   $checkpatient_register = get_patient_detail_by_phone($_POST['wife_phone']);
-			 //   if(empty($checkpatient_register)){
-			 //       whatsappregister($patient_phone, json_encode(array("name" => $_POST['wife_name'])));
-			 //   }
-			    
-				$doctor_details = doctor_details($_POST['appoitmented_doctor']);
-
-                $centre_details = get_centre_details($_POST['appoitment_for']);
-				$appointwhatmsg = array();
-				$appointwhatmsg = array($_POST['wife_name'], $centre_details['center_name'], date("d-m-Y", strtotime($_POST['appoitmented_date'])), $_POST['appoitmented_slot'], isset($centre_details['center_location'])?$centre_details['center_location']:"");
-                $appointsendmsg = whatsappappointment($patient_phone, implode(',', $appointwhatmsg));
-                
-				$patient_to = $patient_subject = $patient_message = $doctor_to = $doctor_subject = $doctor_message = "";
-
-				//Patient emails
-
-				$patient_to = $_POST['wife_email'];
-
-				$patient_subject = "Appointment booked";
-
-				$patient_message = "Hi ".$_POST['wife_name'].",<br/> Your appointment has been scheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
-
-				$sms_message = "Hi ".$_POST['wife_name'].", Your appointment has been scheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
-
-				send_mail($patient_to, $patient_subject, $patient_message);
-
-				send_sms($patient_phone, $sms_message);
-
-				
-
-				//Doctor emails
-
-				$doctor_to = $doctor_details['email'];
-
-				$doctor_subject = "New appointment";
-
-				$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Appointment has been scheduled on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
-
-				send_mail($doctor_to, $doctor_subject, $doctor_message);
-
-				
-
-				header("location:" .base_url(). "appointment?m=".base64_encode('Appointment booked!').'&t='.base64_encode('success'));
-
-				die();
-
-			}else{
-
-				header("location:" .base_url(). "appointment?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
-
-				die();
-
-			}
-
+				if($appointment > 0){
+						$centre_details = get_centre_details($_POST['appoitment_for']);
+						$checkpatient_register = get_patient_detail_by_phone($_POST['wife_phone']);
+						if(empty($checkpatient_register)){
+						whatsappregister($patient_phone, json_encode(array("name" => $_POST['wife_name'], "iic_id" => $paitent_id, "center" => $centre_details['center_name'], "billed"=> '1')));
+					}
+					$doctor_details = doctor_details($_POST['appoitmented_doctor']);
+					$centre_details = get_centre_details($_POST['appoitment_for']);
+					$appointwhatmsg = array();
+					$appointwhatmsg = array($_POST['wife_name'], $centre_details['center_name'], date("d-m-Y", strtotime($_POST['appoitmented_date'])), $_POST['appoitmented_slot'], isset($centre_details['center_location'])?$centre_details['center_location']:"");
+					$appointsendmsg = whatsappappointment($patient_phone, implode(',', $appointwhatmsg));
+					$patient_to = $patient_subject = $patient_message = $doctor_to = $doctor_subject = $doctor_message = "";
+					$patient_to = $_POST['wife_email'];
+					$patient_subject = "Appointment booked";
+					$patient_message = "Hi ".$_POST['wife_name'].",<br/> Your appointment has been scheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
+					$sms_message = "Hi ".$_POST['wife_name'].", Your appointment has been scheduled with Dr.".$doctor_details['name']." on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
+					// send_mail($patient_to, $patient_subject, $patient_message);
+					send_sms($patient_phone, $sms_message);
+					$doctor_to = $doctor_details['email'];
+					$doctor_subject = "New appointment";
+					$doctor_message = "Hi Dr.".$doctor_details['name'].",<br/> Appointment has been scheduled on ".date("d-m-Y", strtotime($_POST['appoitmented_date']))." at ".$_POST['appoitmented_slot'].".";
+					// send_mail($doctor_to, $doctor_subject, $doctor_message);
+					header("location:" .base_url(). "appointment?m=".base64_encode('Appointment booked!').'&t='.base64_encode('success'));
+					die();
+				}else{
+					header("location:" .base_url(). "appointment?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
+					die();
+				}
 		}else{
-
 			header("location:" .base_url(). "");
-
 			die();
-
 		}
-
 	}
 
 	
 
 	public function search_doctor(){
-
 		$centre_id = $_POST['centre_id'];
-
 		$doctors = $this->doctors_model->center_doctors($centre_id);
-
 		$option = "";
-
 		$option = "<option value=''>Select</option>";
-
 		if(!empty($doctors)){
-
 			foreach($doctors as $key => $val){
-
 				$option .= "<option value='".$val['ID']."'>".$val['name']."</option>";
-
 			}
-
 		}
-
 		echo json_encode($option);
-
 		die;		
-
 	}
 
 	

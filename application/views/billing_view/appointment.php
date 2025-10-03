@@ -1,301 +1,301 @@
-<?php $all_method =&get_instance(); ?>
+<?php   $all_method =&get_instance(); $patient_id = getiic() ?>
 <script type="text/javascript">
     var _formConfirm_submitted = false;
 </script>
 
 <style>
-/* Enhanced Design Styles */
-body {
-    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
-}
+    /* Enhanced Design Styles */
+    body {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+    }
 
-.panel-piluku {
-    border: none !important;
-    border-radius: 15px !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
-    margin-bottom: 30px;
-    background: white;
-}
+    .panel-piluku {
+        border: none !important;
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+        margin-bottom: 30px;
+        background: white;
+    }
 
-.panel-heading {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-    color: white !important;
-    border-radius: 15px 15px 0 0 !important;
-    padding: 25px !important;
-    border: none !important;
-}
+    .panel-heading {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+        color: white !important;
+        border-radius: 15px 15px 0 0 !important;
+        padding: 25px !important;
+        border: none !important;
+    }
 
-.panel-heading h3 {
-    margin: 0 !important;
-    font-size: 2.2rem !important;
-    font-weight: 600 !important;
-    text-align: center;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-.panel-body {
-    padding: 30px !important;
-    background: white;
-    border-radius: 0 0 15px 15px;
-}
-
-/* Form Controls */
-.form-control {
-    font-size: 16px !important;
-    padding: 15px 18px !important;
-    border: 2px solid #e2e8f0 !important;
-    border-radius: 10px !important;
-    transition: all 0.3s ease !important;
-    background: #f8fafc !important;
-    font-weight: 500 !important;
-}
-
-.form-control:focus {
-    border-color: #4f46e5 !important;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
-    background: white !important;
-    outline: none !important;
-}
-
-.form-control::placeholder {
-    color: #94a3b8 !important;
-    font-size: 15px !important;
-}
-
-/* Labels */
-label {
-    font-size: 16px !important;
-    font-weight: 600 !important;
-    color: #374151 !important;
-    margin-bottom: 10px !important;
-    display: block;
-}
-
-/* Error Message Styling */
-#msg_area {
-    padding: 15px 20px !important;
-    border-radius: 10px !important;
-    margin: 20px 0 !important;
-    font-size: 16px !important;
-    font-weight: 500 !important;
-    border-left: 4px solid !important;
-    display: none;
-}
-
-#msg_area.success {
-    background: #f0fdf4 !important;
-    color: #166534 !important;
-    border-left-color: #22c55e !important;
-}
-
-#msg_area.error {
-    background: #fef2f2 !important;
-    color: #991b1b !important;
-    border-left-color: #ef4444 !important;
-}
-
-#msg_area.info {
-    background: #eff6ff !important;
-    color: #1e40af !important;
-    border-left-color: #3b82f6 !important;
-}
-
-/* Search Button */
-#search_patient {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-    color: white !important;
-    border: none !important;
-    font-size: 16px !important;
-    font-weight: 600 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 0.5px !important;
-    transition: all 0.3s ease !important;
-	padding-bottom: 30px !important;
-    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
-}
-
-#search_patient:hover {
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4) !important;
-}
-
-/* OR Divider */
-.form-group p {
-    text-align: center !important;
-    font-size: 18px !important;
-    font-weight: 600 !important;
-    color: #64748b !important;
-    margin: 15px 0 !important;
-    background: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    border: 2px solid #e2e8f0;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-/* Patient ID Section */
-.paitent_id_div {
-    background: #f8fafc !important;
-    border: 2px dashed #cbd5e1 !important;
-    border-radius: 12px !important;
-    padding: 25px !important;
-    margin: 20px 0 !important;
-    text-align: center;
-}
-
-.paitent_id_div label {
-    font-size: 18px !important;
-    color: #475569 !important;
-    font-weight: 700 !important;
-}
-
-.paitent_id_div input {
-    background: white !important;
-    font-weight: 700 !important;
-    color: #4f46e5 !important;
-    text-align: center !important;
-    font-size: 18px !important;
-}
-
-/* Submit Button */
-#submitbutton {
-    background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
-    color: white !important;
-    border: none !important;
-    padding: 38px 40px !important;
-    border-radius: 12px !important;
-    font-size: 18px !important;
-    font-weight: 700 !important;
-    text-transform: uppercase !important;
-    letter-spacing: 1px !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3) !important;
-    margin-top: 20px !important;
-}
-
-#submitbutton:hover {
-    transform: translateY(-3px) !important;
-    box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4) !important;
-}
-
-/* Form Groups */
-.form-group {
-    margin-bottom: 20px !important;
-}
-
-/* Select Dropdowns */
-select.form-control {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
-    background-position: right 12px center !important;
-    background-repeat: no-repeat !important;
-    background-size: 16px !important;
-    padding-right: 40px !important;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
     .panel-heading h3 {
-        font-size: 1.8rem !important;
+        margin: 0 !important;
+        font-size: 2.2rem !important;
+        font-weight: 600 !important;
+        text-align: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
-    
+
     .panel-body {
-        padding: 20px !important;
+        padding: 30px !important;
+        background: white;
+        border-radius: 0 0 15px 15px;
     }
-    
+
+    /* Form Controls */
     .form-control {
         font-size: 16px !important;
-        padding: 14px 16px !important;
+        padding: 15px 18px !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease !important;
+        background: #f8fafc !important;
+        font-weight: 500 !important;
     }
-    
-    label {
+
+    .form-control:focus {
+        border-color: #4f46e5 !important;
+        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1) !important;
+        background: white !important;
+        outline: none !important;
+    }
+
+    .form-control::placeholder {
+        color: #94a3b8 !important;
         font-size: 15px !important;
     }
-}
 
-/* Loading Animation */
-.loader {
-    text-align: center;
-    padding: 20px;
-    color: #4f46e5;
-    font-size: 18px;
-    font-weight: 600;
-}
+    /* Labels */
+    label {
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        color: #374151 !important;
+        margin-bottom: 10px !important;
+        display: block;
+    }
 
-.loader i {
-    font-size: 2rem;
-    animation: spin 1s linear infinite;
-    margin-bottom: 10px;
-    display: block;
-}
+    /* Error Message Styling */
+    #msg_area {
+        padding: 15px 20px !important;
+        border-radius: 10px !important;
+        margin: 20px 0 !important;
+        font-size: 16px !important;
+        font-weight: 500 !important;
+        border-left: 4px solid !important;
+        display: none;
+    }
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+    #msg_area.success {
+        background: #f0fdf4 !important;
+        color: #166534 !important;
+        border-left-color: #22c55e !important;
+    }
 
-/* Row Spacing */
-.row {
-    margin-bottom: 15px !important;
-}
+    #msg_area.error {
+        background: #fef2f2 !important;
+        color: #991b1b !important;
+        border-left-color: #ef4444 !important;
+    }
 
-/* HR Styling */
-hr {
-    border: none !important;
-    height: 2px !important;
-    background: linear-gradient(90deg, transparent, #e2e8f0, transparent) !important;
-    margin: 30px 0 !important;
-}
+    #msg_area.info {
+        background: #eff6ff !important;
+        color: #1e40af !important;
+        border-left-color: #3b82f6 !important;
+    }
 
-/* Modal Styling */
-.modal-content {
-    border-radius: 15px !important;
-    border: none !important;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
-}
+    /* Search Button */
+    #search_patient {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+        color: white !important;
+        border: none !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        transition: all 0.3s ease !important;
+        padding-bottom: 30px !important;
+        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3) !important;
+    }
 
-.modal-header {
-    border-radius: 15px 15px 0 0 !important;
-    border: none !important;
-}
+    #search_patient:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4) !important;
+    }
 
-.modal-header .close {
-    color: white !important;
-    opacity: 0.8 !important;
-    text-shadow: none !important;
-}
+    /* OR Divider */
+    .form-group p {
+        text-align: center !important;
+        font-size: 18px !important;
+        font-weight: 600 !important;
+        color: #64748b !important;
+        margin: 15px 0 !important;
+        background: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+        border: 2px solid #e2e8f0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
 
-.modal-header .close:hover {
-    opacity: 1 !important;
-}
+    /* Patient ID Section */
+    .paitent_id_div {
+        background: #f8fafc !important;
+        border: 2px dashed #cbd5e1 !important;
+        border-radius: 12px !important;
+        padding: 25px !important;
+        margin: 20px 0 !important;
+        text-align: center;
+    }
 
-.modal-body {
-    padding: 30px !important;
-}
+    .paitent_id_div label {
+        font-size: 18px !important;
+        color: #475569 !important;
+        font-weight: 700 !important;
+    }
 
-.modal-footer {
-    border: none !important;
-    padding: 20px 30px 30px !important;
-}
+    .paitent_id_div input {
+        background: white !important;
+        font-weight: 700 !important;
+        color: #4f46e5 !important;
+        text-align: center !important;
+        font-size: 18px !important;
+    }
 
-.modal-footer .btn {
-    padding: 12px 30px !important;
-    border-radius: 10px !important;
-    font-weight: 600 !important;
-    font-size: 16px !important;
-}
+    /* Submit Button */
+    #submitbutton {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+        color: white !important;
+        border: none !important;
+        padding: 38px 40px !important;
+        border-radius: 12px !important;
+        font-size: 18px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 6px 20px rgba(5, 150, 105, 0.3) !important;
+        margin-top: 20px !important;
+    }
 
-.modal-footer .btn-primary {
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
-    border: none !important;
-}
+    #submitbutton:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.4) !important;
+    }
 
-.modal-footer .btn-secondary {
-    background: #6b7280 !important;
-    border: none !important;
-}
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 20px !important;
+    }
+
+    /* Select Dropdowns */
+    select.form-control {
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e") !important;
+        background-position: right 12px center !important;
+        background-repeat: no-repeat !important;
+        background-size: 16px !important;
+        padding-right: 40px !important;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .panel-heading h3 {
+            font-size: 1.8rem !important;
+        }
+        
+        .panel-body {
+            padding: 20px !important;
+        }
+        
+        .form-control {
+            font-size: 16px !important;
+            padding: 14px 16px !important;
+        }
+        
+        label {
+            font-size: 15px !important;
+        }
+    }
+
+    /* Loading Animation */
+    .loader {
+        text-align: center;
+        padding: 20px;
+        color: #4f46e5;
+        font-size: 18px;
+        font-weight: 600;
+    }
+
+    .loader i {
+        font-size: 2rem;
+        animation: spin 1s linear infinite;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Row Spacing */
+    .row {
+        margin-bottom: 15px !important;
+    }
+
+    /* HR Styling */
+    hr {
+        border: none !important;
+        height: 2px !important;
+        background: linear-gradient(90deg, transparent, #e2e8f0, transparent) !important;
+        margin: 30px 0 !important;
+    }
+
+    /* Modal Styling */
+    .modal-content {
+        border-radius: 15px !important;
+        border: none !important;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .modal-header {
+        border-radius: 15px 15px 0 0 !important;
+        border: none !important;
+    }
+
+    .modal-header .close {
+        color: white !important;
+        opacity: 0.8 !important;
+        text-shadow: none !important;
+    }
+
+    .modal-header .close:hover {
+        opacity: 1 !important;
+    }
+
+    .modal-body {
+        padding: 30px !important;
+    }
+
+    .modal-footer {
+        border: none !important;
+        padding: 20px 30px 30px !important;
+    }
+
+    .modal-footer .btn {
+        padding: 12px 30px !important;
+        border-radius: 10px !important;
+        font-weight: 600 !important;
+        font-size: 16px !important;
+    }
+
+    .modal-footer .btn-primary {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%) !important;
+        border: none !important;
+    }
+
+    .modal-footer .btn-secondary {
+        background: #6b7280 !important;
+        border: none !important;
+    }
 </style>
 
 <form class="col-sm-12 col-xs-12" method="post" action="<?php echo base_url('booking'); ?>" enctype="multipart/form-data" >
@@ -357,6 +357,7 @@ hr {
            <div class="form-group col-sm-6 col-xs-12">
                 <label for="item_name">Patient Phone Number (Required)</label>
                 <input value="" id="wife_phone" readonly="readonly" name="wife_phone" type="text" class="form-control validate in_field empty-field" required>
+                <input type="hidden" id="paitent_id" name="paitent_id" value="<?php echo isset($patient_id) ? $patient_id : ''; ?>" required>
            </div>
          </div>
          

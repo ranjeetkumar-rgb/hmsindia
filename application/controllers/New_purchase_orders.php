@@ -362,12 +362,39 @@ class New_purchase_orders extends CI_Controller {
 
     // Get consumables/items (you may need to adjust this based on your existing structure)
     private function get_consumables() {
-        // This is a placeholder - adjust based on your items table structure
-        $this->db->select('item_number, item_name, batch_number, quantity, price, vendor_price, mrp, pack_size, gstrate, hsn, gstdivision, company, brand_name');
+        // Include vendor_number for client-side/vendor-based filtering
+        $this->db->select('item_number, item_name, batch_number, quantity, price, vendor_price, mrp, pack_size, gstrate, hsn, gstdivision, company, brand_name, vendor_number');
         $this->db->from('hms_stocks');
         $this->db->where('status', '1');
         $query = $this->db->get();
         return $query->result_array();
+    }
+
+    // AJAX: Get consumables/items filtered by vendor
+    public function items_by_vendor() {
+        $logg = checklogin();
+        if($logg['status'] != true) {
+            return $this->output->set_content_type('application/json')
+                ->set_status_header(401)
+                ->set_output(json_encode(['status' => 'error', 'message' => 'Unauthorized']));
+        }
+
+        $vendor_number = $this->input->get('vendor_number');
+        if (empty($vendor_number)) {
+            return $this->output->set_content_type('application/json')
+                ->set_status_header(400)
+                ->set_output(json_encode(['status' => 'error', 'message' => 'vendor_number is required']));
+        }
+
+        $this->db->select('item_number, item_name, batch_number, quantity, price, vendor_price, mrp, pack_size, gstrate, hsn, gstdivision, company, brand_name, vendor_number');
+        $this->db->from('hms_stocks');
+        $this->db->where('status', '1');
+        $this->db->where('vendor_number', $vendor_number);
+        $items = $this->db->get()->result_array();
+
+        return $this->output->set_content_type('application/json')
+            ->set_status_header(200)
+            ->set_output(json_encode(['status' => 'success', 'data' => $items]));
     }
 
     // Get centers (you may need to adjust this based on your existing center structure)

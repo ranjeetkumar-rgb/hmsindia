@@ -3373,7 +3373,6 @@ function getGUID(){
 function getReceiptGUID(){
     $Ymd = date('Ymd');
     $max = select_receipt_last();
-    //var_dump($max);die;
     if (strpos($max, $Ymd) === 0) {
         ++$max;
     } else {
@@ -3381,8 +3380,6 @@ function getReceiptGUID(){
     }
     return $max;
 }
-//Receipt Unique ID
-
 
 function insert_receipt_log($receipt_number){
     $ci= &get_instance();
@@ -3444,29 +3441,17 @@ function getiic(){
 }
 
 function maxpatient_id(){
-
 	$ci= &get_instance();
-
     $ci->load->database();
-
 	$db_prefix = $ci->config->config['db_prefix'];
-
 	$max = 1;
-
     $sql = "SELECT count(ID) as patient_id FROM ".$db_prefix."patients";
-
     $q   = $ci->db->query($sql);
-
     $result = $q->result_array();
-
     if(!empty($result)){
-
         $max = $result[0]['patient_id'];
-
         $max = $max + 1;
-
     }
-
     return $max;
 
 }
