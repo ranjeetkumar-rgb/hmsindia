@@ -159,6 +159,8 @@ class Api extends CI_Controller {
 		$extra_fields = $data['Fields'];
 		$lead_source = $data['lead_source'];
 		$camp_selection = $data['mx_Camp_Location'];
+		$agent = $data['agent'];
+		$councellor = $data['councellor'];
 		
 		if(!empty($first_name) && !empty($mobile)){
 			
@@ -191,6 +193,8 @@ class Api extends CI_Controller {
 				$appoint_arr['crm_id'] = $crm_id;
 				$appoint_arr['reason_of_visit'] = $note;
 				$appoint_arr['lead_source'] = $lead_source;
+				$appoint_arr['agent'] = $agent;
+				$appoint_arr['councellor'] = $councellor;
 				$appointment_for = "";
 				$appoitmented_doctor = "";
 				$appoitmented_date = "";
