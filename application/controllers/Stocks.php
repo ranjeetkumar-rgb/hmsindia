@@ -2588,38 +2588,62 @@ public function medicine_update()
 
 	public function bulk_status()
 	{
+		// Clear any output buffering
+		if (ob_get_level()) {
+			ob_clean();
+		}
+		
 		$logg = checklogin();
 		if ($logg['status'] != true) {
 			http_response_code(401);
+			header('Content-Type: application/json; charset=utf-8');
 			echo json_encode(array('status' => 0, 'message' => 'Unauthorized'));
 			return;
 		}
-		$this->output->set_content_type('application/json');
+		
+		header('Content-Type: application/json; charset=utf-8');
+		header('Cache-Control: no-cache, must-revalidate');
+		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		
 		$item_numbers = $this->input->post('item_numbers');
 		$status = $this->input->post('status');
+		
 		if (!is_array($item_numbers) || ($status !== '0' && $status !== '1')) {
 			echo json_encode(array('status' => 0, 'message' => 'Invalid payload'));
 			return;
 		}
+		
 		$affected = $this->stock_model->bulk_update_items_status($item_numbers, $status);
 		echo json_encode(array('status' => 1, 'updated' => (int)$affected));
 	}
 	
 	public function bulk_status_center()
 	{
+		// Clear any output buffering
+		if (ob_get_level()) {
+			ob_clean();
+		}
+		
 		$logg = checklogin();
 		if ($logg['status'] != true) {
 			http_response_code(401);
+			header('Content-Type: application/json; charset=utf-8');
 			echo json_encode(array('status' => 0, 'message' => 'Unauthorized'));
 			return;
 		}
-		$this->output->set_content_type('application/json');
+		
+		header('Content-Type: application/json; charset=utf-8');
+		header('Cache-Control: no-cache, must-revalidate');
+		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		
 		$item_ids = $this->input->post('item_ids');
 		$status = $this->input->post('status');
+		
 		if (!is_array($item_ids) || ($status !== '0' && $status !== '1')) {
 			echo json_encode(array('status' => 0, 'message' => 'Invalid payload'));
 			return;
 		}
+		
 		$affected = $this->stock_model->bulk_update_center_items_status($item_ids, $status);
 		echo json_encode(array('status' => 1, 'updated' => (int)$affected));
 	}

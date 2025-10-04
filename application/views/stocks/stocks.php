@@ -339,24 +339,57 @@ $(function() {
     
     console.log('Updating status to:', statusValue, 'for items:', selected);
     
+    // First try with dataType: 'text' to avoid decoding issues
     $.ajax({
       url: '<?php echo base_url(); ?>stocks/bulk_status',
       type: 'POST',
-      dataType: 'json',
+      dataType: 'text',
       data: { item_numbers: selected, status: String(statusValue) },
-      success: function(resp){
-        console.log('Response received:', resp);
-        if(resp && resp.status == 1){
-          alert('Successfully updated ' + resp.updated + ' items.');
-          location.reload();
-        }else{
-          alert('Failed to update: ' + (resp.message || 'Unknown error'));
+      cache: false,
+      processData: true,
+      headers: {
+        'Accept': 'application/json, text/plain, */*',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+      },
+      success: function(responseText){
+        console.log('Raw response received:', responseText);
+        
+        try {
+          var resp = JSON.parse(responseText);
+          console.log('Parsed JSON response:', resp);
+          
+          if(resp && resp.status == 1){
+            alert('Successfully updated ' + resp.updated + ' items.');
+            location.reload();
+          }else{
+            alert('Failed to update: ' + (resp.message || 'Unknown error'));
+          }
+        } catch(e) {
+          console.error('Failed to parse JSON:', e);
+          console.log('Response is not valid JSON:', responseText);
+          alert('Server returned invalid response: ' + responseText);
         }
       },
       error: function(xhr, status, error){
         console.error('AJAX Error:', xhr.responseText);
         console.error('Status:', status, 'Error:', error);
-        alert('Request failed: ' + error + '\nStatus: ' + status + '\nResponse: ' + xhr.responseText);
+        console.error('Response headers:', xhr.getAllResponseHeaders());
+        
+        // Try to parse response as text if JSON fails
+        var responseText = xhr.responseText;
+        try {
+          var jsonResponse = JSON.parse(responseText);
+          console.log('Parsed JSON response from error:', jsonResponse);
+          if(jsonResponse && jsonResponse.status == 1){
+            alert('Successfully updated ' + jsonResponse.updated + ' items.');
+            location.reload();
+            return;
+          }
+        } catch(e) {
+          console.log('Response is not valid JSON:', responseText);
+        }
+        
+        alert('Request failed: ' + error + '\nStatus: ' + status + '\nResponse: ' + responseText);
       }
     });
   }

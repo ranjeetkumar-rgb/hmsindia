@@ -184,13 +184,13 @@
         </ul>
       </li>
       <!-- purchase order module  -->
-       <!-- <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Manage Purchase Orders<span class="fa arrow"></span></a>
+       <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Manage Purchase Orders<span class="fa arrow"></span></a>
         <ul class="nav nav-second-level">
           <li> <a href="<?php echo base_url(); ?>new_purchase_orders">New Purchase Orders</a> </li>
           <li> <a href="<?php echo base_url(); ?>new_purchase_orders/add">Add New PO</a> </li>
           <li> <a href="<?php echo base_url(); ?>new_purchase_orders/status">Pending Purchase Orders</a> </li>
         </ul>
-      </li> -->
+      </li>
       <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Manage Patients<span class="fa arrow"></span></a>
         <ul class="nav nav-second-level">
             <li> <a href="<?php echo base_url(); ?>patients/patients">Patients</a></li>
