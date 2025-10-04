@@ -138,12 +138,13 @@ class Appointmentcontroller extends CI_Controller {
 			$paitent_type = $this->input->get('paitent_type', true);
 			$crm_id = $this->input->get('crm_id', true);
 			$lead_source = $this->input->get('lead_source', true);
+			$camp_id = $this->input->get('camp_id', true);
 			if(!empty($lead_source)) {
 				$lead_source = urldecode($lead_source);
 			}
 			$export_billing = $this->input->get('export-billing', true);
 			if (isset($export_billing)){
-				$data = $this->appointment_model->export_my_appointments_in_camp($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type,$crm_id, $lead_source);
+				$data = $this->appointment_model->export_my_appointments_in_camp($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type,$crm_id, $lead_source, $camp_id);
 				header('Content-Type: text/csv; charset=utf-8');
 				header('Content-Disposition: attachment; filename=Appointments-Patients-'.$start_date.'-'.$end_date.'.csv');
 				$fp = fopen('php://output','w');
@@ -165,7 +166,7 @@ class Appointmentcontroller extends CI_Controller {
 
 			$config = array();
         	$config["base_url"] = base_url() . "my_appointments_camp";
-        	$config["total_rows"] = $this->appointment_model->my_appointments_count_in_camp($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source);
+			$config["total_rows"] = $this->appointment_model->my_appointments_count_in_camp($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source, $camp_id);
         	$config["per_page"] = 10;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
@@ -176,7 +177,7 @@ class Appointmentcontroller extends CI_Controller {
         	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
 			
         	$data["links"] = $this->pagination->create_links();
-			$data['appointments'] = $this->appointment_model->my_appointments_pagination_in_camp($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source);
+			$data['appointments'] = $this->appointment_model->my_appointments_pagination_in_camp($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source, $camp_id);
 			$data["status"] = $status;
 			$data["doctor"] = $doctor;
 			$data["start_date"] = $start_date;
@@ -186,7 +187,18 @@ class Appointmentcontroller extends CI_Controller {
 			$data["paitent_type"] = $paitent_type;
 			$data["crm_id"] = $crm_id;
 			$data["lead_source"] = $lead_source;
+			$data["camp_id"] = $camp_id;
 			$data["lead_sources"] = $this->appointment_model->get_all_lead_sources();
+			
+			// Load camps for the current center
+			$this->load->model('camp_model');
+			$data["camps"] = $this->camp_model->get_camps_by_center($center);
+			
+			// Only show appointments if the center has camps
+			if(empty($data["camps"])) {
+				$data['appointments'] = array();
+				$data["links"] = '';
+			}
 			
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);

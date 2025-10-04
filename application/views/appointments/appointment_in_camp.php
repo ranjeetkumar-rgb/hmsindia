@@ -73,6 +73,20 @@
                   ?>
                </select>
             </div>
+            <div class="col-sm-3 col-xs-12 ">
+               <label>Camp Name</label>
+               <select class="form-control" id="camp_id" name="camp_id">
+                  <option value="">--Select Camp--</option>
+                  <?php 
+                  if(!empty($camps)) {
+                     foreach($camps as $camp) {
+                        $selected = ($camp_id == $camp['camp_number']) ? 'selected' : '';
+                        echo '<option value="' . htmlspecialchars($camp['camp_number']) . '" ' . $selected . '>' . htmlspecialchars($camp['camp_name']) . '</option>';
+                     }
+                  }
+                  ?>
+               </select>
+            </div>
             <div class="col-sm-3 float-end" style="margin-top: 22px;display: flex;gap: 10px;">
                <button name="search" type="submit"  class="btn btn-primary">Search</button>
                <a href="<?php echo base_url().'my_appointments_camp'; ?>" style="text-decoration: none;">
@@ -87,6 +101,11 @@
       <div class="clearfix"></div>
       <div class="card-content">
          <div id="msg_area" class="error"></div>
+         <?php if(empty($camps)): ?>
+         <div class="alert alert-info">
+            <strong>No Camps Available:</strong> This center does not have any camps configured. Please contact the administrator to set up camps for this center.
+         </div>
+         <?php endif; ?>
          <div class="table-responsive">
             <table class="table table-striped table-bordered table-hover" data-sort-name="date" data-sort-order="desc" id="appointment_body_xx">
                <thead>
@@ -97,6 +116,7 @@
                      <th>Doctor</th>
                      <th>Date</th>
                      <th>Slot</th>
+                     <th>Camp Name</th>
                      <th>Reason of visit</th>
                      <th>Lead Source</th>
                      <th>Status</th>
@@ -118,6 +138,7 @@
                      <td>Dr. <?php echo $all_method->doctor_name($vl['appoitmented_doctor']); ?></td>
                      <td><?php echo $vl['appoitmented_date']?></td>
                      <td><?php echo $vl['appoitmented_slot']?></td>
+                     <td><?php echo $vl['camp_name']; ?></td>
                      <td><?php echo $vl['reason_of_visit']?></td>
                      <td><?php echo $vl['lead_source']?></td>
                      <td class="role appint_td_<?php echo $vl['ID']?>">

@@ -179,12 +179,21 @@ class Appointment_model extends CI_Model
             return $result;
         }
 	}
-    function export_my_appointments_in_camp($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type, $crm_id, $lead_source){
+    function export_my_appointments_in_camp($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type, $crm_id, $lead_source, $camp_id = ''){
 	    $appointments_result = $response = array();
         $conditions = '';
 		if(empty($patient_name)){
             if(!empty($center)){
-                $conditions .= " and appoitment_for='$center' and camp_selection !=0";
+                $conditions .= " and appoitment_for='$center' and camp_selection != 0 and camp_selection IS NOT NULL";
+                // Additional check: ensure the camp exists for this center
+                $conditions .= " and EXISTS (SELECT 1 FROM ".$this->config->item('db_prefix')."camps c WHERE c.camp_number = a.camp_selection AND c.center_id = (SELECT ID FROM ".$this->config->item('db_prefix')."centers WHERE center_number = '$center'))";
+            }
+        } else {
+            // Even when searching by patient name, only show camp appointments
+            $conditions .= " and camp_selection != 0 and camp_selection IS NOT NULL";
+            if(!empty($center)){
+                // Additional check: ensure the camp exists for this center
+                $conditions .= " and EXISTS (SELECT 1 FROM ".$this->config->item('db_prefix')."camps c WHERE c.camp_number = a.camp_selection AND c.center_id = (SELECT ID FROM ".$this->config->item('db_prefix')."centers WHERE center_number = '$center'))";
             }
         }
 		if(!empty($paitent_type)){
@@ -217,7 +226,10 @@ class Appointment_model extends CI_Model
 		if(!empty($lead_source)){
                 $conditions .= " and lead_source='$lead_source'";
         }
-	    $appointments_sql = "Select DISTINCT crm_id, paitent_id, wife_name, husband_name, wife_email, nationality,reason_of_visit, appoitmented_date,paitent_type,lead_source, status from ".$this->config->item('db_prefix')."appointments where 1 $conditions order by appoitmented_date desc";
+		if(!empty($camp_id)){
+                $conditions .= " and camp_selection='$camp_id'";
+        }
+	    $appointments_sql = "Select DISTINCT a.crm_id, a.paitent_id, a.wife_name, a.husband_name, a.wife_email, a.nationality, a.reason_of_visit, a.appoitmented_date, a.paitent_type, a.lead_source, a.status, c.camp_name from ".$this->config->item('db_prefix')."appointments a LEFT JOIN ".$this->config->item('db_prefix')."camps c ON a.camp_selection = c.camp_number where 1 $conditions order by a.appoitmented_date desc";
         $appointments_q = $this->db->query($appointments_sql);
         $appointments_result = $appointments_q->result_array();
         if(!empty($appointments_result)){
@@ -242,11 +254,20 @@ class Appointment_model extends CI_Model
 		return $response;
     }
 
-    function my_appointments_count_in_camp($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source){
+    function my_appointments_count_in_camp($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source, $camp_id = ''){
 		$conditions = "";
        if(empty($patient_name)){
             if(!empty($center)){
-                $conditions .= " and appoitment_for='$center' and camp_selection != 0";
+                $conditions .= " and appoitment_for='$center' and camp_selection != 0 and camp_selection IS NOT NULL";
+                // Additional check: ensure the camp exists for this center
+                $conditions .= " and EXISTS (SELECT 1 FROM ".$this->config->item('db_prefix')."camps c WHERE c.camp_number = a.camp_selection AND c.center_id = (SELECT ID FROM ".$this->config->item('db_prefix')."centers WHERE center_number = '$center'))";
+            }
+        } else {
+            // Even when searching by patient name, only show camp appointments
+            $conditions .= " and camp_selection != 0 and camp_selection IS NOT NULL";
+            if(!empty($center)){
+                // Additional check: ensure the camp exists for this center
+                $conditions .= " and EXISTS (SELECT 1 FROM ".$this->config->item('db_prefix')."camps c WHERE c.camp_number = a.camp_selection AND c.center_id = (SELECT ID FROM ".$this->config->item('db_prefix')."centers WHERE center_number = '$center'))";
             }
         }
 		if(!empty($paitent_type)){
@@ -279,12 +300,15 @@ class Appointment_model extends CI_Model
 		if(!empty($lead_source)){
                 $conditions .= " and lead_source='$lead_source'";
         }
-        $sql = "Select * from ".$this->config->item('db_prefix')."appointments where 1 ".$conditions."";
+		if(!empty($camp_id)){
+                $conditions .= " and camp_selection='$camp_id'";
+        }
+        $sql = "Select a.* from ".$this->config->item('db_prefix')."appointments a LEFT JOIN ".$this->config->item('db_prefix')."camps c ON a.camp_selection = c.camp_number where 1 ".$conditions."";
 		$q = $this->db->query($sql);
 		return $q->num_rows();
 	}
 
-    function my_appointments_pagination_in_camp($limit, $page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type,$crm_id, $lead_source){
+    function my_appointments_pagination_in_camp($limit, $page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type,$crm_id, $lead_source, $camp_id = ''){
         if(empty($page)){
 			$offset = 0;
 		}else{
@@ -293,7 +317,16 @@ class Appointment_model extends CI_Model
         $conditions = "";
         if(empty($patient_name)){
             if(!empty($center)){
-                $conditions .= " and appoitment_for='$center' and camp_selection != 0";
+                $conditions .= " and appoitment_for='$center' and camp_selection != 0 and camp_selection IS NOT NULL";
+                // Additional check: ensure the camp exists for this center
+                $conditions .= " and EXISTS (SELECT 1 FROM ".$this->config->item('db_prefix')."camps c WHERE c.camp_number = a.camp_selection AND c.center_id = (SELECT ID FROM ".$this->config->item('db_prefix')."centers WHERE center_number = '$center'))";
+            }
+        } else {
+            // Even when searching by patient name, only show camp appointments
+            $conditions .= " and camp_selection != 0 and camp_selection IS NOT NULL";
+            if(!empty($center)){
+                // Additional check: ensure the camp exists for this center
+                $conditions .= " and EXISTS (SELECT 1 FROM ".$this->config->item('db_prefix')."camps c WHERE c.camp_number = a.camp_selection AND c.center_id = (SELECT ID FROM ".$this->config->item('db_prefix')."centers WHERE center_number = '$center'))";
             }
         }
 		if(!empty($paitent_type)){
@@ -326,8 +359,11 @@ class Appointment_model extends CI_Model
 		if(!empty($lead_source)){
                 $conditions .= " and lead_source='$lead_source'";
         }
+		if(!empty($camp_id)){
+                $conditions .= " and camp_selection='$camp_id'";
+        }
         $result = array();
-		$sql = "Select * from ".$this->config->item('db_prefix')."appointments where 1 ".$conditions." ORDER by appoitmented_date DESC limit ". $limit." OFFSET ".$offset."";
+		$sql = "Select a.*, c.camp_name from ".$this->config->item('db_prefix')."appointments a LEFT JOIN ".$this->config->item('db_prefix')."camps c ON a.camp_selection = c.camp_number where 1 ".$conditions." ORDER by a.appoitmented_date DESC limit ". $limit." OFFSET ".$offset."";
 		$q = $this->db->query($sql);
 		$result = $q->result_array();
         if (!empty($result))

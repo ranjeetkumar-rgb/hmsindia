@@ -553,4 +553,174 @@ class New_purchase_orders extends CI_Controller {
             die;
         }
     }
+
+    // Purchase Order Receipt page
+    public function purchase_order_receipt() {
+        $logg = checklogin();
+        if($logg['status'] == true) {
+            $data['title'] = 'Purchase Order Receipt - Inventory';
+            
+            // Get vendors
+            $data['vendors'] = $this->get_vendors();
+            
+            // Get consumables/items
+            $data['consumables'] = $this->get_consumables();
+            
+            // Generate POR number
+            $data['por_number'] = $this->New_purchase_order_model->generate_por_number();
+            
+            $template = get_header_template($logg['role']);
+            $this->load->view($template['header']);
+            $this->load->view('new_purchase_orders/purchase_order_receipt', $data);
+            $this->load->view($template['footer']);
+        } else {
+            header("location:" .base_url(). "");
+            die;
+        }
+    }
+
+    // Save Purchase Order Receipt
+    public function save_receipt() {
+        $logg = checklogin();
+        if($logg['status'] == true) {
+            if ($this->input->post()) {
+                $receipt_data = [
+                    'por_number' => $this->input->post('por_number'),
+                    'supplier_name' => $this->input->post('supplier_name'),
+                    'po_number' => $this->input->post('po_number'),
+                    'reference' => $this->input->post('reference'),
+                    'credit_term' => $this->input->post('credit_term'),
+                    'ship_to' => $this->input->post('ship_to'),
+                    'reference_amount' => $this->input->post('reference_amount'),
+                    'por_date' => $this->input->post('por_date'),
+                    'po_date' => $this->input->post('po_date'),
+                    'reference_date' => $this->input->post('reference_date'),
+                    'created_by' => $this->session->userdata('user_id'),
+                    'status' => 'pending'
+                ];
+                
+                $receipt_id = $this->New_purchase_order_model->insert_purchase_order_receipt($receipt_data);
+                if ($receipt_id) {
+                    $this->save_receipt_items($receipt_id);
+                    $this->session->set_flashdata('success', 'Purchase order receipt created successfully!');
+                    redirect('new_purchase_orders/purchase_order_receipt');
+                } else {
+                    $this->session->set_flashdata('error', 'Failed to create purchase order receipt!');
+                    redirect('new_purchase_orders/purchase_order_receipt');
+                }
+            }
+        } else {
+            header("location:" .base_url(). "");
+            die;
+        }
+    }
+
+    // Save receipt items
+    private function save_receipt_items($receipt_id) {
+        $items = [];
+        $i = 1;
+        
+        while ($this->input->post('product_' . $i)) {
+            if ($this->input->post('receive_item_' . $i)) {
+                $items[] = [
+                    'receipt_id' => $receipt_id,
+                    'product_id' => $this->input->post('product_' . $i),
+                    'description' => $this->input->post('description_' . $i),
+                    'uom' => $this->input->post('uom_' . $i),
+                    'qty_remain' => $this->input->post('qty_remain_' . $i),
+                    'receive_all' => $this->input->post('receive_all_' . $i) ? 1 : 0,
+                    'qty_receiving' => $this->input->post('qty_receiving_' . $i),
+                    'qty_rejected' => $this->input->post('qty_rejected_' . $i),
+                    'discount' => $this->input->post('discount_' . $i),
+                    'include_tax' => $this->input->post('include_tax_' . $i) ? 1 : 0,
+                    'tax_amount' => $this->input->post('tax_amount_' . $i),
+                    'amount' => $this->input->post('amount_' . $i)
+                ];
+            }
+            $i++;
+        }
+        
+        if (!empty($items)) {
+            $this->New_purchase_order_model->insert_receipt_items($items);
+        }
+    }
+
+    // Stock Transfer page
+    public function stock_transfer() {
+        $logg = checklogin();
+        if($logg['status'] == true) {
+            $data['title'] = 'Stock Transfer';
+            
+            // Get centers for location selection
+            $data['centers'] = $this->get_centers();
+            
+            // Generate transfer number
+            $data['transfer_number'] = $this->New_purchase_order_model->generate_transfer_number();
+            
+            $template = get_header_template($logg['role']);
+            $this->load->view($template['header']);
+            $this->load->view('new_purchase_orders/stock_transfer', $data);
+            $this->load->view($template['footer']);
+        } else {
+            header("location:" .base_url(). "");
+            die;
+        }
+    }
+
+    // Save Stock Transfer
+    public function save_stock_transfer() {
+        $logg = checklogin();
+        if($logg['status'] == true) {
+            if ($this->input->post()) {
+                $transfer_data = [
+                    'from_location' => $this->input->post('from_location'),
+                    'from_project' => $this->input->post('from_project'),
+                    'to_location' => $this->input->post('to_location'),
+                    'to_project' => $this->input->post('to_project'),
+                    'description' => $this->input->post('description'),
+                    'transfer_number' => $this->input->post('transfer_number'),
+                    'ref_number' => $this->input->post('ref_number'),
+                    'doc_date' => $this->input->post('doc_date'),
+                    'created_by' => $this->session->userdata('user_id'),
+                    'status' => 'pending'
+                ];
+                
+                $transfer_id = $this->New_purchase_order_model->insert_stock_transfer($transfer_data);
+                if ($transfer_id) {
+                    $this->save_stock_transfer_items($transfer_id);
+                    $this->session->set_flashdata('success', 'Stock transfer created successfully!');
+                    redirect('new_purchase_orders/stock_transfer');
+                } else {
+                    $this->session->set_flashdata('error', 'Failed to create stock transfer!');
+                    redirect('new_purchase_orders/stock_transfer');
+                }
+            }
+        } else {
+            header("location:" .base_url(). "");
+            die;
+        }
+    }
+
+    // Save stock transfer items
+    private function save_stock_transfer_items($transfer_id) {
+        $items = [];
+        $i = 1;
+        
+        while ($this->input->post('stock_number_' . $i)) {
+            $items[] = [
+                'transfer_id' => $transfer_id,
+                'stock_number' => $this->input->post('stock_number_' . $i),
+                'description' => $this->input->post('description_' . $i),
+                'quantity' => $this->input->post('quantity_' . $i),
+                'uom' => $this->input->post('uom_' . $i),
+                'price' => $this->input->post('price_' . $i),
+                'amount' => $this->input->post('amount_' . $i)
+            ];
+            $i++;
+        }
+        
+        if (!empty($items)) {
+            $this->New_purchase_order_model->insert_stock_transfer_items($items);
+        }
+    }
 }
