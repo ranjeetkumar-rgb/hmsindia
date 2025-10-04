@@ -296,6 +296,12 @@
 </div>
 <script>
 $(function() {
+  console.log('DOM ready, jQuery version:', $.fn.jquery);
+  console.log('Select all checkbox exists:', $('#select_all_items').length);
+  console.log('Bulk activate button exists:', $('#bulk_activate').length);
+  console.log('Bulk deactivate button exists:', $('#bulk_deactivate').length);
+  console.log('Row select checkboxes exist:', $('.row-select').length);
+  
   $(".particular_date_filter").datepicker({
     dateFormat: 'yy-mm-dd',
     changeMonth: true,
@@ -310,7 +316,9 @@ $(function() {
   // Select all toggle
   $('#select_all_items').on('change', function(){
     var checked = $(this).is(':checked');
+    console.log('Select all changed:', checked);
     $('#table_content .row-select').prop('checked', checked);
+    console.log('Updated checkboxes count:', $('#table_content .row-select:checked').length);
   });
 
   function collectSelectedItems(){
@@ -318,6 +326,7 @@ $(function() {
     $('#table_content .row-select:checked').each(function(){
       items.push($(this).val());
     });
+    console.log('Collected selected items:', items);
     return items;
   }
 
@@ -327,26 +336,39 @@ $(function() {
       alert('Please select at least one item.');
       return;
     }
+    
+    console.log('Updating status to:', statusValue, 'for items:', selected);
+    
     $.ajax({
       url: '<?php echo base_url(); ?>stocks/bulk_status',
       type: 'POST',
       dataType: 'json',
       data: { item_numbers: selected, status: String(statusValue) },
       success: function(resp){
+        console.log('Response received:', resp);
         if(resp && resp.status == 1){
+          alert('Successfully updated ' + resp.updated + ' items.');
           location.reload();
         }else{
-          alert('Failed to update.');
+          alert('Failed to update: ' + (resp.message || 'Unknown error'));
         }
       },
-      error: function(){
-        alert('Request failed.');
+      error: function(xhr, status, error){
+        console.error('AJAX Error:', xhr.responseText);
+        console.error('Status:', status, 'Error:', error);
+        alert('Request failed: ' + error + '\nStatus: ' + status + '\nResponse: ' + xhr.responseText);
       }
     });
   }
 
-  $('#bulk_activate').on('click', function(){ bulkUpdateStatus(1); });
-  $('#bulk_deactivate').on('click', function(){ bulkUpdateStatus(0); });
+  $('#bulk_activate').on('click', function(){ 
+    console.log('Activate button clicked');
+    bulkUpdateStatus(1); 
+  });
+  $('#bulk_deactivate').on('click', function(){ 
+    console.log('Deactivate button clicked');
+    bulkUpdateStatus(0); 
+  });
 });
 </script>
 
