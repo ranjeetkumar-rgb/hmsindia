@@ -537,7 +537,13 @@
                            </select>
                         </td>
                         <td><input value="<?php date_default_timezone_set("America/New_York");$receipt_number = date("YmdHis") . substr(microtime(), 2, 6);echo $receipt_number; ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number_<?php echo $sub_procedure_counter;?>" name="receipt_number_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required></td>
-                        <td><input type="file" name="receipt_image_<?php echo $sub_procedure_counter;?>" id="receipt_image_<?php echo $sub_procedure_counter;?>" class="form-control " required></td>
+                        <td>
+                           <input type="file" 
+                                 name="receipt_image_<?php echo $sub_procedure_counter;?>" 
+                                 id="receipt_image_<?php echo $sub_procedure_counter;?>" 
+                                 class="form-control"
+                                 <?php if ($sub_price > 0) echo 'required'; ?>>
+                        </td>
                         <td><input type="checkbox" class="statuss" name="record"></td>
                      </tr>
                      <?php  $grand_total += $sub_price; $sub_procedure_counter++;}}}}else{ ?>

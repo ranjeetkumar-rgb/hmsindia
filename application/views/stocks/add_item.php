@@ -93,20 +93,26 @@
                   <label for="expiry">Safety stock (units) (Required)</label>
                   <input value="10" placeholder="Safety stock" readonly="" id="safety_stock" name="safety_stock" type="text" class="form-control validate">
             </div>
-            <div class="form-group col-sm-6 col-xs-12">
-              <label for="expiry">Total Vendor Price (excl GST)</label>
-              <input value="<?php echo $data['price']; ?>" readonly="" id="price" name="price" type="text" class="form-control validate" required>
-			</div>
+          <div class="form-group col-sm-6 col-xs-12">
+              <label for="price">Total Vendor Price (excl GST)</label>
+              <input 
+                  type="text" 
+                  id="price" 
+                  name="price" 
+                  value="<?php echo isset($data['price']) ? htmlspecialchars($data['price']) : ''; ?>" 
+                  class="form-control validate" 
+                  readonly 
+                  required
+              >
           </div>
-          
+            
           <div class="row">
-           
 
             <div class="form-group col-sm-6 col-xs-12">
               <label for="expiry">Expiry Date (Required)</label>
               <input value=""  autocomplete="off" placeholder="Expiry date" id="expiry" name="expiry" type="text" class="form-control validate" required>
             </div>
-			<div class="form-group col-sm-6 col-xs-12">
+		     	<div class="form-group col-sm-6 col-xs-12">
                 <label for="expiry">Notify expiry on (Required)</label>
                 <input value=""  autocomplete="off" placeholder="Notify expiry on" id="expiry_day" name="expiry_day" type="text" class="form-control validate" required>
               </div>

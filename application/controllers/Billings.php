@@ -146,7 +146,7 @@ public function registation_billings(){
 			$patient_id = $this->input->get('patient_id', true);
 			$export_billing = $this->input->get('export-billing', true);
 			if (isset($export_billing)){
-				$data = $this->billings_model->export_registation__billings($employee_number, $start_date, $end_date,  $patient_id);
+				$data = $this->billings_model->export_registation_billings($employee_number, $start_date, $end_date,  $patient_id);
 				header('Content-Type: text/csv; charset=utf-8');
 				header('Content-Disposition: attachment; filename=Registion-Patients-'.$start_date.'-'.$end_date.'.csv');
 				$fp = fopen('php://output','w');
