@@ -58,8 +58,8 @@ class Billings_model extends CI_Model
 		}
 		
 	    $consultation_sql = "Select DISTINCT receipt_number,patient_id, totalpackage,discount_amount, payment_done,remaining_amount, payment_method, billing_at, on_date as date, status from ".$this->config->item('db_prefix')."consultation where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 $conditions order by on_date desc";
-        $consultation_q = $this->db->query($investigation_sql);
-        $consultation_result = $investigation_q->result_array();
+        $consultation_q = $this->db->query($consultation_sql);
+        $consultation_result = $consultation_q->result_array();
         if(!empty($consultation_result)){
             foreach($consultation_result as $key => $val){
 				$patient_name = $this->get_patient_name($val['patient_id']);
