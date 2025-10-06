@@ -67,7 +67,7 @@ class Billings_model extends CI_Model
                 $response[] = array(
 				        'receipt_number' => $val['receipt_number'],
                         'patient_id' => $val['patient_id'],
-						'totalpackage' => $val['$totalpackage'],
+						'totalpackage' => $val['totalpackage'],
 						'discount_amount' => $val['discount_amount'],
                         'payment_done' => $val['payment_done'],
 						'remaining_amount' => $val['remaining_amount'],
@@ -160,8 +160,8 @@ function consultation_billings_patination($limit, $page, $center, $start_date, $
 		}
 		
 	    $consultation_sql = "Select DISTINCT receipt_number,patient_id, totalpackage,discount_amount, payment_done,remaining_amount, payment_method, billing_at, on_date as date, status from ".$this->config->item('db_prefix')."registation where billing_at='".$_SESSION['logged_billing_manager']['center']."' and 1 $conditions order by on_date desc";
-        $consultation_q = $this->db->query($investigation_sql);
-        $consultation_result = $investigation_q->result_array();
+        $consultation_q = $this->db->query($consultation_sql);
+        $consultation_result = $consultation_q->result_array();
         if(!empty($consultation_result)){
             foreach($consultation_result as $key => $val){
 				$patient_name = $this->get_patient_name($val['patient_id']);
@@ -169,7 +169,7 @@ function consultation_billings_patination($limit, $page, $center, $start_date, $
                 $response[] = array(
 				        'receipt_number' => $val['receipt_number'],
                         'patient_id' => $val['patient_id'],
-						'totalpackage' => $val['$totalpackage'],
+						'totalpackage' => $val['totalpackage'],
 						'discount_amount' => $val['discount_amount'],
                         'payment_done' => $val['payment_done'],
 						'remaining_amount' => $val['remaining_amount'],
@@ -271,7 +271,7 @@ function registation_billings_patination($limit, $page, $center, $start_date, $e
                 $response[] = array(
 				        'receipt_number' => $val['receipt_number'],
                         'patient_id' => $val['patient_id'],
-						'totalpackage' => $val['$totalpackage'],
+						'totalpackage' => $val['totalpackage'],
 						'discount_amount' => $val['discount_amount'],
                         'payment_done' => $val['payment_done'],
 						'remaining_amount' => $val['remaining_amount'],
@@ -374,7 +374,7 @@ function investigation_billings_patination($limit, $page, $center, $start_date, 
                 $response[] = array(
 				        'receipt_number' => $val['receipt_number'],
                         'patient_id' => $val['patient_id'],
-						'totalpackage' => $val['$totalpackage'],
+						'totalpackage' => $val['totalpackage'],
 						'discount_amount' => $val['discount_amount'],
                         'payment_done' => $val['payment_done'],
 						'remaining_amount' => $val['remaining_amount'],
