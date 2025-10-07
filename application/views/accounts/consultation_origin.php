@@ -1,4 +1,5 @@
  <?php $all_method =&get_instance(); ?>
+ 
         <div class="card">
       <div class="row card-content" style="margin-bottom:20px;">
       <div class="col-md-12"><h3>Consultation Revenue Reports </h3></div>
@@ -43,13 +44,38 @@
             	<label>Start Date</label>
               <input type="text" class="particular_date_filter form-control" id="start_date" name="start_date" value="<?php echo $start_date;?>" />
             </div>
-            <div class="col-sm-2 col-xs-12" style="margin-top:10px;">
+            <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>End Date</label>
                 <input type="text" class="particular_date_filter form-control" id="end_date" name="end_date" value="<?php echo $end_date;?>" />
             </div>
-            <div class="col-sm-2 col-xs-12" style="margin-top:10px;">
+            <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
             	<label>IIC ID </label>
                 <input type="text" class="form-control" id="iic_id" name="iic_id" value="<?php echo $patient_id;?>" />
+            </div>
+            <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
+            	<label>Lead Source </label>
+            <select name="lead_source" id="lead_source" class="form-control">
+    <option value="">All Lead Sources</option>
+    <?php if (!empty($lead_sources) && is_array($lead_sources)): ?>
+        <?php foreach($lead_sources as $bucket => $sources_value): ?>
+            <?php if (!empty($bucket) && !empty($sources_value)): ?>
+                <?php
+                $current_value = isset($filters['lead_source']) ? $filters['lead_source'] : '';
+                // Decode both values to handle URL encoding
+                $decoded_current = urldecode($current_value);
+                $decoded_sources = urldecode($sources_value);
+                $is_selected = ($decoded_current === $decoded_sources);
+                ?>
+                <option value="<?php echo htmlspecialchars($sources_value); ?>" 
+                    <?php echo $is_selected ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($bucket); ?>
+                </option>
+            <?php endif; ?>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <option value="">No lead sources available</option>
+    <?php endif; ?>
+</select>
             </div>
             <div class="col-sm-3" style="margin-top: 30px;">
             	<button name="btnsearch" id="btnsearch" type="submit"  class="btn btn-primary">Search</button>
@@ -86,9 +112,14 @@ $allowed_reasons = ['FIRST VISIT']; // add the ones you want
     <?php endforeach; ?>
   
 <?php else: ?>
-    <p>No results found.</p>
+   
 <?php endif; ?>
 
+<?php if (!empty($patient_counts['unique_patient_count'])): ?>
+    <td>Booking: <?php echo $patient_counts['unique_patient_count']; ?></td>
+<?php else: ?>
+    
+<?php endif; ?>
 
 </tr>  </thead>
               <thead>
@@ -106,6 +137,7 @@ $allowed_reasons = ['FIRST VISIT']; // add the ones you want
 				          <th>Doctor Name</th>
 				          <th>Lead Source</th>
 				          <th>Counselor Name</th>
+                  <td>Status</td>
 				</tr>
               </thead>
               <tbody id="consultation_result">
@@ -139,8 +171,54 @@ $allowed_reasons = ['FIRST VISIT']; // add the ones you want
                   <td><?php echo $all_method->get_center_name($vl['billing_at']); ?></td>
                   <td><?php echo $vl['reason_of_visit']?></td>
 				  <td><?php echo $all_method->get_doctor_name($vl['doctor_id']); ?></td>
-				  <td><?php echo $all_method->get_lead_source($vl['patient_id']); ?></td>
+				  <td><?php echo $vl['lead_source']; ?></td>
 				  <td><?php echo $all_method->get_counselor_name($vl['appointment_id']); ?></td>
+
+<td><?php
+ $sql4 = "SELECT * FROM hms_patient_procedure WHERE patient_id='" . $vl['patient_id'] . "'";
+$select_result4 = run_select_query($sql4);  
+if (!empty($select_result4) && count($select_result4) > 0) {
+     echo '<span class="badge badge-success">booked</span>'; 
+    } else { 
+        echo '<span class="badge badge-danger">not booked</span>'; 
+    }
+/*
+if (!empty($select_result4)) {
+    foreach ($select_result4 as $procedure_row) {
+
+        if (!empty($procedure_row['data'])) {
+            $unserialized_data = unserialize($procedure_row['data']);
+
+            if (!empty($unserialized_data['patient_procedures']) && is_array($unserialized_data['patient_procedures'])) {
+                foreach ($unserialized_data['patient_procedures'] as $procedure) {
+                    $sub_procedure = $procedure['sub_procedure']; // e.g. 138
+
+                    echo  $sub_procedure;
+
+                    // Get category from hms_procedure
+                   echo $sql5 = "SELECT category FROM hms_procedure WHERE ID IN ($sub_procedure)";
+                    $select_result5 = run_select_query($sql5);
+
+                    if (!empty($select_result5) && isset($select_result5['category'])) {
+                        $category = $select_result5['category'];
+
+                         echo $category = $select_result5['category'];
+
+                        // Check the condition
+                        if ($category == 'IVF with Bed') {
+                            echo '<span class="badge badge-success">Booked</span>';
+                        } else {
+                            echo '<span class="badge badge-danger">Not Booked</span>';
+                        }
+                    }
+                }
+            }
+        }
+    }
+}*/
+?>
+</td>
+
 				</tr>
                  <?php $count++;} ?>
 			   <tr>
