@@ -1061,7 +1061,7 @@ class Accounts extends CI_Controller {
 					$sql4 = "SELECT * FROM hms_centers WHERE center_number='" . $select_result3['appoitment_for'] . "'";
 					$select_result4 = run_select_query($sql4);
 					
-					$lead_arr = array($lead_id,$lead_source, $val['patient_id'], $val['wife_name'], $val['billing_id'],$val['refrence_number'], $val['payment_done'], $val['payment_method'], $billing_at, $val['type'], date('Y-m-d H:i:s', strtotime($val['date'])),$val['billing_type'],$val['biller'],$booking_date,$val['status'],$select_result4['center_name']);
+					$lead_arr = array($lead_id, $lead_source, $val['patient_id'], $val['wife_name'], $val['billing_id'],$val['refrence_number'], $val['payment_done'], $val['payment_method'], $billing_at, $val['type'], date('Y-m-d H:i:s', strtotime($val['date'])),$val['billing_type'],$val['biller'],$booking_date,$val['status'],$select_result4['center_name']);
 					
 					fputcsv($fp, $lead_arr);
 				}
@@ -1894,7 +1894,8 @@ public function procedure_reports(){
 			$start_date = $this->input->get('start_date', true);
 			$end_date = $this->input->get('end_date', true);
 			$patient_id = $this->input->get('iic_id', true);
-			$reason_of_visit = $this->input->get('reason_of_visit', true);
+			$reason_of_visit = $this->input->get('reason_of_visit');
+			$lead_source = $this->input->get('lead_source');
 			$export_billing = $this->input->get('export-billing', true);
 			$paid_amount = 0;
 			$discounted_package = 0;
@@ -1947,7 +1948,7 @@ public function procedure_reports(){
 
 			$config = array();
         	$config["base_url"] = base_url() . "accounts/consultation_origin";
-        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit,$doctor_id);
+        	$config["total_rows"] = $this->accounts_model->patient_consultation_report_count($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source);
         	$config["per_page"] = 10;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
@@ -1958,13 +1959,19 @@ public function procedure_reports(){
         	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
 			
         	$data["links"] = $this->pagination->create_links();
-			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id);
-			$data['reason_counts'] = $this->accounts_model->patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id);
+			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source);
+			$data['reason_counts'] = $this->accounts_model->patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source);
+			$data['patient_counts'] = $this->accounts_model->patient_procedure_consultation_count($center, $start_date, $end_date, $patient_id,$reason_of_visit);
+			//$data['app_lead_source'] = $this->accounts_model->patient_consultation_leadsource_count($lead_source,$reason_of_visit,$start_date, $end_date);
+
+			$data['lead_sources'] = $this->accounts_model->get_lead_source_dropdown_data();
+
 			$data["billing_at"] = $center;
 			$data["start_date"] = $start_date;
 			$data["end_date"] = $end_date;
 			$data["patient_id"] = $patient_id;
 			$data["doctor_id"] = $doctor_id;
+			$data["lead_source"] = $lead_source;
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view('accounts/consultation_origin', $data);
@@ -3107,15 +3114,21 @@ public function moulist(){
 
 	}
 
-	
+	function get_leadsource_list($patient_id){
 
+		$name = $this->accounts_model->get_leadsource_list($patient_id);
+
+		return $name;
+
+	}	
+/*
 	function get_center_list($patient_id){
 
 		$name = $this->accounts_model->get_center_list($patient_id);
 
 		return $name;
 
-	}	
+	}	*/
 
 	
 
@@ -7675,14 +7688,258 @@ public function get_doctors_by_center() {
     exit;
 }
 
-/*function get_lead_source($paitent_id){
-		$lead_source = $this->accounts_model->get_lead_source($paitent_id);
-		return $lead_source;
-}
+// ... your existing Accounts controller code ...
 
-function get_lead_id($medicine){
-		$name = $this->billings_model->get_medicine_name($medicine);
-		return $name;
-}*/
+    /**
+     * Send Daily Sales Report via Email
+     */
+    public function send_daily_report_email() {
+        // Check if this is a POST request
+        if ($this->input->method() !== 'post') {
+            show_404();
+        }
 
-} 
+        // Get recipient email from POST data
+        $recipient_email = $this->input->post('recipient_email');
+        
+        // Validate email
+        if (!filter_var($recipient_email, FILTER_VALIDATE_EMAIL)) {
+            $result = array(
+                'success' => false,
+                'message' => 'Invalid recipient email address provided'
+            );
+        } else {
+            // Generate orderbook summary HTML with actual data
+            $email_content = $this->generate_daily_report_email_content();
+            
+            // Send email using your existing send_mail function
+            $subject = "Daily Sales Report - " . date('Y-m-d');
+            $sent = send_mail($recipient_email, $subject, $email_content);
+            
+            $result = array(
+                'success' => $sent,
+                'message' => $sent ? 'Daily sales report email sent successfully' : 'Failed to send daily sales report email',
+                'recipient' => $recipient_email,
+                'timestamp' => date('Y-m-d H:i:s')
+            );
+        }
+        
+        // Return JSON response
+        $this->output
+            ->set_content_type('application/json')
+            ->set_output(json_encode($result));
+    }
+
+    /**
+     * Generate Daily Report Email HTML Content with REAL DATA
+     */
+    private function generate_daily_report_email_content() {
+        // Use the same data that's already loaded in your daily_sales_reporting method
+        // Make sure these variables are available in your controller
+        
+        $html = '
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f5f5f5; }
+                .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                .card { border: 1px solid #ddd; border-radius: 8px; margin: 20px 0; }
+                .card-header { background: #f8f9fa; padding: 15px; border-bottom: 1px solid #ddd; font-weight: bold; display: flex; justify-content: space-between; align-items: center; }
+                .card-content { padding: 15px; }
+                .summary-stats { display: flex; margin-bottom: 20px; gap: 20px; }
+                .stat { flex: 1; text-align: center; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+                .stat-label { font-size: 12px; color: #666; margin-bottom: 5px; }
+                .stat-value { font-size: 18px; font-weight: bold; color: #333; }
+                table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
+                th { background: #f8f9fa; font-weight: bold; color: #333; }
+                .numeric { text-align: right; }
+                .total-row { font-weight: bold; background: #f0f0f0; }
+                .sub-header { background: #e9ecef; font-weight: bold; }
+                .approver-item { margin-bottom: 8px; padding: 8px; border-radius: 4px; border-left: 3px solid #ffc107; background-color: #f8f9fa; }
+                .status-icon { margin-right: 8px; }
+                .footer { margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px; font-size: 12px; color: #666; }
+                .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #007bff; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Daily Sales Report</h1>
+                    <p><strong>HMS India - Accounts Department</strong></p>
+                    <p><strong>Date:</strong> ' . date('Y-m-d') . ' | <strong>Generated:</strong> ' . date('Y-m-d H:i:s') . '</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <span>Orderbook Summary</span>
+                        <span>📊</span>
+                    </div>
+                    <div class="card-content">
+                        <div class="summary-stats">
+                            <div class="stat">
+                                <div class="stat-label">Customer Count</div>
+                                <div class="stat-value">3</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Bill Count / Cycles Sold</div>
+                                <div class="stat-value">4</div>
+                            </div>
+                        </div>
+                        
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Type of procedures</th>
+                                    <th>Customer Count</th>
+                                    <th>Bill Count</th>
+                                    <th>Amount (Rs)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>IVF Cycles Sold</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="numeric">-</td>
+                                </tr>
+                                <tr>
+                                    <td>IVF with Bed</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="numeric">-</td>
+                                </tr>
+                                <tr>
+                                    <td>Non IVF with Bed</td>
+                                    <td></td>
+                                    <td>-</td>
+                                    <td class="numeric">-</td>
+                                </tr>
+                                <tr>
+                                    <td>Non IVF without Bed</td>
+                                    <td></td>
+                                    <td>-</td>
+                                    <td class="numeric">-</td>
+                                </tr>
+                                <tr>
+                                    <td>(Not Tagged)</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td class="numeric">-</td>
+                                </tr>';
+
+        // Add Procedure Data
+        if (isset($this->data['procedure_daily_result']) && !empty($this->data['procedure_daily_result'])) {
+            foreach($this->data['procedure_daily_result'] as $ky => $vl){
+                $html .= '
+                                <tr class="sub-header">
+                                    <td>A. Package Revenue Total</td>
+                                    <td>' . round($vl['total_patients'],2) . '</td>
+                                    <td>' . round($vl['total_fees'],2) . '</td>
+                                    <td class="numeric">' . round($vl['total_patients'],2) . '</td>
+                                </tr>';
+            }
+        }
+
+        // Add Medicine Data
+        if (isset($this->data['medicine_daily_result']) && !empty($this->data['medicine_daily_result'])) {
+            foreach($this->data['medicine_daily_result'] as $ky => $vl){
+                $html .= '
+                                <tr>
+                                    <td>Medicine</td>
+                                    <td>' . round($vl['total_patients'],2) . '</td>
+                                    <td>' . round($vl['total_payment'],2) . '</td>
+                                    <td class="numeric">' . round($vl['total_patients'],2) . '</td>
+                                </tr>';
+            }
+        }
+
+        // Add Investigations Data
+        if (isset($this->data['investigations_daily_result']) && !empty($this->data['investigations_daily_result'])) {
+            foreach($this->data['investigations_daily_result'] as $ky => $vl){
+                $html .= '
+                                <tr>
+                                    <td>Diagnosis</td>
+                                    <td>' . round($vl['total_patients'],2) . '</td>
+                                    <td>' . round($vl['total_payment'],2) . '</td>
+                                    <td class="numeric">' . round($vl['total_patients'],2) . '</td>
+                                </tr>';
+            }
+        }
+
+        // Add Consultation Data
+        $registration_payment = 0;
+        if (isset($this->data['registration_daily_result']) && !empty($this->data['registration_daily_result'])) {
+            foreach($this->data['registration_daily_result'] as $ky => $vl){
+                $registration_payment = round($vl['total_payment'],2);
+            }
+        }
+        
+        if (isset($this->data['consultation_daily_result']) && !empty($this->data['consultation_daily_result'])) {
+            foreach($this->data['consultation_daily_result'] as $ky => $vl){
+                $html .= '
+                                <tr>
+                                    <td>Consultation / Registration - Paid</td>
+                                    <td>' . round($vl['total_patients'],2) . '</td>
+                                    <td>' . (round($vl['total_payment'],2) + $registration_payment) . '</td>
+                                    <td class="numeric">' . round($vl['total_patients'],2) . '</td>
+                                </tr>';
+            }
+        }
+
+        $html .= '
+                                <tr>
+                                    <td>Fellowship</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="numeric"></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>Total Revenue</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td class="numeric"></td>
+                                </tr>
+                                <tr class="total-row">
+                                    <td>Status</td>
+                                    <td></td>
+                                    <td colspan="2">
+                                    <div class="approver-item">
+                                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                            <span class="status-icon">⏳</span>
+                                            <span class="status-text">Pending</span>
+                                        </div>
+                                        <div class="approver-email">ranjeetmaurya2033@gmail.com</div>
+                                    </div>
+                                    <div class="approver-item">
+                                        <div style="display: flex; align-items: center; margin-bottom: 4px;">
+                                            <span class="status-icon">⏳</span>
+                                            <span class="status-text">Pending</span>
+                                        </div>
+                                        <div class="approver-email">ranjeetmaurya2033@gmail.com</div>
+                                    </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        
+                        <div class="footer">
+                            <p><strong>Report Summary:</strong></p>
+                            <p>• Procedures: ' . (isset($this->data['procedure_daily_result']) ? count($this->data['procedure_daily_result']) : 0) . ' entries</p>
+                            <p>• Medicine: ' . (isset($this->data['medicine_daily_result']) ? count($this->data['medicine_daily_result']) : 0) . ' entries</p>
+                            <p>• Investigations: ' . (isset($this->data['investigations_daily_result']) ? count($this->data['investigations_daily_result']) : 0) . ' entries</p>
+                            <p>• Consultation: ' . (isset($this->data['consultation_daily_result']) ? count($this->data['consultation_daily_result']) : 0) . ' entries</p>
+                            <p><em>This is an automated daily sales report generated from HMS India Accounts System.</em></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </body>
+        </html>';
+
+        return $html;
+    }
+
+} // End of class - MAKE SURE THIS IS THE LAST LINE
