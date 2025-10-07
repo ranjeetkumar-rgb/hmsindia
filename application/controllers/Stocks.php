@@ -4623,4 +4623,76 @@ public function center_audit_report() {
 			die();
 		}
 	}
+	
+	// Get transfer history for a specific item
+	public function get_transfer_history() {
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			$item_number = $this->input->post('item_number');
+			
+			if(empty($item_number)) {
+				echo json_encode(['status' => 'error', 'message' => 'Item number is required']);
+				return;
+			}
+			
+			$transfers = $this->stock_model->get_transfer_history_by_item($item_number);
+			
+			if(!empty($transfers)) {
+				echo json_encode(['status' => 'success', 'data' => $transfers]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'No transfer history found']);
+			}
+		} else {
+			echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
+		}
+	}
+	
+	// Export transfer history
+	public function export_transfer_history() {
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			$item_number = $this->input->get('item_number');
+			
+			if(empty($item_number)) {
+				echo "Error: Item number is required";
+				return;
+			}
+			
+			$transfers = $this->stock_model->get_transfer_history_by_item($item_number);
+			
+			// Set headers for CSV download
+			header('Content-Type: text/csv; charset=utf-8');
+			header('Content-Disposition: attachment; filename=Transfer-History-' . $item_number . '-' . date("Y-m-d-H-i-s") . '.csv');
+			
+			$fp = fopen('php://output', 'w');
+			
+			// Add CSV headers
+			$headers = ['Transfer Date', 'Item Number', 'Item Name', 'From Center', 'To Center', 'Quantity', 'Status', 'Employee', 'Remarks', 'Invoice No', 'Purchase Date'];
+			fputcsv($fp, $headers);
+			
+			// Add data rows
+			foreach($transfers as $transfer) {
+				$status = $transfer['status'] == '1' ? 'Approved' : ($transfer['status'] == '2' ? 'Rejected' : 'Pending');
+				$row = [
+					$transfer['add_date'],
+					$transfer['item_number'],
+					$transfer['item_name'],
+					$transfer['center_number'],
+					$transfer['r_center_number'],
+					$transfer['quantity'],
+					$status,
+					$transfer['employee_number'],
+					$transfer['remarks'],
+					$transfer['invoice_no'],
+					$transfer['date_of_purchase']
+				];
+				fputcsv($fp, $row);
+			}
+			
+			fclose($fp);
+			exit();
+		} else {
+			echo "Unauthorized access";
+		}
+	}
 } 

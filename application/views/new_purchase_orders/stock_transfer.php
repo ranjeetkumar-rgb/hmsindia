@@ -4,345 +4,344 @@
 <script src="<?php echo base_url();?>assets/js/select2.min.js"></script>
 
 <style>
-.stock-transfer-header {
-    background: #f8f9fa;
-    padding: 20px;
-    margin: -20px -20px 20px -20px;
-    border-bottom: 3px solid #007bff;
-}
+    .stock-transfer-header {
+        background: #f8f9fa;
+        padding: 20px;
+        margin: -20px -20px 20px -20px;
+        border-bottom: 3px solid #007bff;
+    }
 
-.stock-transfer-header h2 {
-    color: #333;
-    font-weight: bold;
-    margin: 0 0 10px 0;
-    font-size: 28px;
-}
+    .stock-transfer-header h2 {
+        color: #333;
+        font-weight: bold;
+        margin: 0 0 10px 0;
+        font-size: 28px;
+    }
 
-.stock-transfer-header p {
-    color: #666;
-    margin: 0;
-    font-size: 14px;
-}
+    .stock-transfer-header p {
+        color: #666;
+        margin: 0;
+        font-size: 14px;
+    }
 
-.stock-transfer-window {
-    background: white;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
-}
+    .stock-transfer-window {
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
 
-.window-header {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    padding: 12px 20px;
-    border-radius: 8px 8px 0 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
+    .window-header {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-.window-title {
-    font-weight: bold;
-    font-size: 16px;
-}
+    .window-title {
+        font-weight: bold;
+        font-size: 16px;
+    }
 
-.close-btn {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 0;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 0;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-.close-btn:hover {
-    background: rgba(255,255,255,0.2);
-    border-radius: 50%;
-}
+    .close-btn:hover {
+        background: rgba(255,255,255,0.2);
+        border-radius: 50%;
+    }
 
-.tab-navigation {
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    padding: 0;
-    margin: 0;
-}
+    .tab-navigation {
+        background: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        padding: 0;
+        margin: 0;
+    }
 
-.tab-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-}
+    .tab-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+    }
 
-.tab-item {
-    margin: 0;
-}
+    .tab-item {
+        margin: 0;
+    }
 
-.tab-link {
-    display: block;
-    padding: 12px 20px;
-    text-decoration: none;
-    color: #495057;
-    border-bottom: 3px solid transparent;
-    transition: all 0.3s ease;
-}
+    .tab-link {
+        display: block;
+        padding: 12px 20px;
+        text-decoration: none;
+        color: #495057;
+        border-bottom: 3px solid transparent;
+        transition: all 0.3s ease;
+    }
 
-.tab-link:hover {
-    background: #e9ecef;
-    color: #007bff;
-    text-decoration: none;
-}
+    .tab-link:hover {
+        background: #e9ecef;
+        color: #007bff;
+        text-decoration: none;
+    }
 
-.tab-link.active {
-    background: white;
-    color: #007bff;
-    border-bottom-color: #007bff;
-    font-weight: 600;
-}
+    .tab-link.active {
+        background: white;
+        color: #007bff;
+        border-bottom-color: #007bff;
+        font-weight: 600;
+    }
 
-.stock-transfer-section {
-    padding: 20px;
-}
+    .stock-transfer-section {
+        padding: 20px;
+    }
 
-.section-title {
-    color: #495057;
-    font-weight: 600;
-    margin-bottom: 20px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-}
+    .section-title {
+        color: #495057;
+        font-weight: 600;
+        margin-bottom: 20px;
+        font-size: 16px;
+        display: flex;
+        align-items: center;
+    }
 
-.section-title i {
-    margin-right: 10px;
-    color: #007bff;
-}
+    .section-title i {
+        margin-right: 10px;
+        color: #007bff;
+    }
 
-.form-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
-}
+    .form-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
 
-.form-group {
-    flex: 1;
-    margin-bottom: 0;
-}
+    .form-group {
+        flex: 1;
+        margin-bottom: 0;
+    }
 
-.form-group label {
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 5px;
-    display: block;
-}
+    .form-group label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 5px;
+        display: block;
+    }
 
-.form-control {
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    padding: 8px 12px;
-    font-size: 14px;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        padding: 8px 12px;
+        font-size: 14px;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
 
-.form-control:focus {
-    border-color: #007bff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
+    .form-control:focus {
+        border-color: #007bff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
 
-.input-group {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
+    .input-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
 
-.input-group .form-control {
-    padding-right: 35px;
-}
+    .input-group .form-control {
+        padding-right: 35px;
+    }
 
-.input-group .clear-btn,
-.input-group .dropdown-btn {
-    position: absolute;
-    right: 8px;
-    background: none;
-    border: none;
-    color: #6c757d;
-    cursor: pointer;
-    padding: 2px;
-    font-size: 12px;
-}
+    .input-group .clear-btn,
+    .input-group .dropdown-btn {
+        position: absolute;
+        right: 8px;
+        background: none;
+        border: none;
+        color: #6c757d;
+        cursor: pointer;
+        padding: 2px;
+        font-size: 12px;
+    }
 
-.input-group .dropdown-btn {
-    right: 25px;
-}
+    .input-group .dropdown-btn {
+        right: 25px;
+    }
 
-.items-toolbar {
-    background: #f8f9fa;
-    padding: 10px 15px;
-    border: 1px solid #dee2e6;
-    border-bottom: none;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+    .items-toolbar {
+        background: #f8f9fa;
+        padding: 10px 15px;
+        border: 1px solid #dee2e6;
+        border-bottom: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-.toolbar-btn {
-    background: #6c757d;
-    color: white;
-    border: none;
-    padding: 6px 10px;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-}
+    .toolbar-btn {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 6px 10px;
+        border-radius: 3px;
+        cursor: pointer;
+        font-size: 12px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
 
-.toolbar-btn:hover {
-    background: #5a6268;
-}
+    .toolbar-btn:hover {
+        background: #5a6268;
+    }
 
-.toolbar-btn.primary {
-    background: #007bff;
-}
+    .toolbar-btn.primary {
+        background: #007bff;
+    }
 
-.toolbar-btn.primary:hover {
-    background: #0056b3;
-}
+    .toolbar-btn.primary:hover {
+        background: #0056b3;
+    }
 
-.toolbar-btn.success {
-    background: #28a745;
-}
+    .toolbar-btn.success {
+        background: #28a745;
+    }
 
-.toolbar-btn.success:hover {
-    background: #1e7e34;
-}
+    .toolbar-btn.success:hover {
+        background: #1e7e34;
+    }
 
-.toolbar-btn.danger {
-    background: #dc3545;
-}
+    .toolbar-btn.danger {
+        background: #dc3545;
+    }
 
-.toolbar-btn.danger:hover {
-    background: #c82333;
-}
+    .toolbar-btn.danger:hover {
+        background: #c82333;
+    }
 
-.items-grid {
-    border: 1px solid #dee2e6;
-    border-radius: 0 0 4px 4px;
-    overflow: hidden;
-}
+    .items-grid {
+        border: 1px solid #dee2e6;
+        border-radius: 0 0 4px 4px;
+        overflow: hidden;
+    }
 
-.grid-table {
-    width: 100%;
-    margin: 0;
-    border-collapse: collapse;
-}
+    .grid-table {
+        width: 100%;
+        margin: 0;
+        border-collapse: collapse;
+    }
 
-.grid-table th {
-    background: #e9ecef;
-    color: #495057;
-    font-weight: 600;
-    padding: 12px 8px;
-    text-align: left;
-    border: 1px solid #dee2e6;
-    font-size: 13px;
-}
+    .grid-table th {
+        background: #e9ecef;
+        color: #495057;
+        font-weight: 600;
+        padding: 12px 8px;
+        text-align: left;
+        border: 1px solid #dee2e6;
+        font-size: 13px;
+    }
 
-.grid-table td {
-    padding: 10px 8px;
-    border: 1px solid #dee2e6;
-    vertical-align: middle;
-}
+    .grid-table td {
+        padding: 10px 8px;
+        border: 1px solid #dee2e6;
+        vertical-align: middle;
+    }
 
-.grid-table tbody tr:hover {
-    background-color: #f8f9fa;
-}
+    .grid-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
 
-.grid-table input[type="text"],
-.grid-table input[type="number"] {
-    border: 1px solid #ced4da;
-    border-radius: 3px;
-    padding: 6px 8px;
-    width: 100%;
-    font-size: 13px;
-}
+    .grid-table input[type="text"],
+    .grid-table input[type="number"] {
+        border: 1px solid #ced4da;
+        border-radius: 3px;
+        padding: 6px 8px;
+        width: 100%;
+        font-size: 13px;
+    }
 
-.grid-table input[type="text"]:focus,
-.grid-table input[type="number"]:focus {
-    border-color: #007bff;
-    outline: 0;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
+    .grid-table input[type="text"]:focus,
+    .grid-table input[type="number"]:focus {
+        border-color: #007bff;
+        outline: 0;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
 
-.summary-section {
-    background: #f8f9fa;
-    padding: 15px;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    margin-top: 20px;
-}
+    .summary-section {
+        background: #f8f9fa;
+        padding: 15px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        margin-top: 20px;
+    }
 
-.summary-row {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: 15px;
-    margin-bottom: 10px;
-}
+    .summary-row {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 10px;
+    }
 
-.summary-label {
-    font-weight: 600;
-    color: #495057;
-}
+    .summary-label {
+        font-weight: 600;
+        color: #495057;
+    }
 
-.summary-input {
-    width: 120px;
-    text-align: right;
-    font-weight: 600;
-}
+    .summary-input {
+        width: 120px;
+        text-align: right;
+        font-weight: 600;
+    }
 
-.btn-primary {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    border: none;
-    padding: 10px 25px;
-    font-weight: 600;
-    border-radius: 4px;
-}
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        border: none;
+        padding: 10px 25px;
+        font-weight: 600;
+        border-radius: 4px;
+    }
 
-.btn-primary:hover {
-    background: linear-gradient(135deg, #0056b3, #004085);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #0056b3, #004085);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
 
-.btn-secondary {
-    background: #6c757d;
-    border: none;
-    padding: 10px 25px;
-    font-weight: 600;
-    border-radius: 4px;
-}
+    .btn-secondary {
+        background: #6c757d;
+        border: none;
+        padding: 10px 25px;
+        font-weight: 600;
+        border-radius: 4px;
+    }
 
-.btn-secondary:hover {
-    background: #5a6268;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-}
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
 </style>
 
-<div class="col-md-12">
+<div class="col-md-12" style="margin-top: 20px;">
    <div class="stock-transfer-header">
       <h2>TRANSFER STOCK FORMAT ONE LOCATION TO OTHER LOCATION</h2>
       <p>This screen is to allow user transfer stock between two location.</p>
    </div>
-   
    <div class="stock-transfer-window">
       <!-- Window Header -->
       <div class="window-header">
@@ -616,19 +615,19 @@ function addStockItem() {
         <tr class="stock-item-row" id="stock_row_${stockItemCounter}">
             <td>
                 <input type="text" class="form-control" name="stock_number_${stockItemCounter}" 
-                    id="stock_number_${stockItemCounter}" placeholder="Stock #">
+                    id="stock_number_${stockItemCounter}" placeholder="Stock #" style="width:100% !important;padding: 0 !important;">
             </td>
             <td>
                 <input type="text" class="form-control" name="description_${stockItemCounter}" 
-                    id="description_${stockItemCounter}" placeholder="Item Description">
+                    id="description_${stockItemCounter}" placeholder="Item Description" style="width:100% !important;padding: 0 !important;">
             </td>
             <td>
                 <input type="number" class="form-control" name="quantity_${stockItemCounter}" 
                     id="quantity_${stockItemCounter}" value="1" step="0.001" 
-                    onchange="updateAmount(${stockItemCounter})">
+                    onchange="updateAmount(${stockItemCounter})" style="width:100% !important;padding: 0 !important;">
             </td>
             <td>
-                <select class="form-control" name="uom_${stockItemCounter}" id="uom_${stockItemCounter}">
+                <select class="form-control" name="uom_${stockItemCounter}" id="uom_${stockItemCounter}" style="width:100% !important;padding: 0 !important;">
                     <option value="PCS">PCS</option>
                     <option value="KG">KG</option>
                     <option value="LTR">LTR</option>
@@ -639,15 +638,15 @@ function addStockItem() {
             <td>
                 <input type="number" class="form-control" name="price_${stockItemCounter}" 
                     id="price_${stockItemCounter}" value="0.00" step="0.01" 
-                    onchange="updateAmount(${stockItemCounter})">
+                    onchange="updateAmount(${stockItemCounter})" style="width:100% !important;padding: 0 !important;">
             </td>
             <td>
                 <input type="number" class="form-control" name="amount_${stockItemCounter}" 
-                    id="amount_${stockItemCounter}" value="0.00" step="0.01" readonly>
+                    id="amount_${stockItemCounter}" value="0.00" step="0.01" readonly style="width:100% !important;padding: 0 !important;">
             </td>
             <td class="text-center">
                 <input type="checkbox" name="select_item_${stockItemCounter}" 
-                    id="select_item_${stockItemCounter}">
+                    id="select_item_${stockItemCounter}" style="width:100% !important;padding: 0 !important;">
             </td>
         </tr>
     `;

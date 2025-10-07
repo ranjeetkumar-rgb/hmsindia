@@ -5129,6 +5129,238 @@ public function partial_procedure(){
 		}
 	}
 	
+	public function export_consultation_data($patient_id){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			error_reporting(0);
+			ini_set('display_errors', 0);
+			$patient_data = get_patient_detail($patient_id);
+			$patient_name = 'N/A';
+			if (is_array($patient_data)) {
+				$patient_name = isset($patient_data['wife_name']) ? $patient_data['wife_name'] : 
+							   (isset($patient_data['wife_name']) ? $patient_data['wife_name'] : 'N/A');
+			}
+			$sql = "SELECT * FROM `hms_doctor_consultation` WHERE `patient_id`='".$patient_id."' ORDER BY `ID` DESC";
+			$query = $this->db->query($sql);
+			$results = $query->result();
+			
+			// Set headers for CSV download
+			$filename = 'consultation_data_' . $patient_id . '_' . date('Y-m-d_H-i-s') . '.csv';
+			header('Content-Type: text/csv');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+			// Create file pointer
+			$output = fopen('php://output', 'w');
+			// Add patient information header
+			fputcsv($output, array('Patient ID: ' . $patient_id));
+			fputcsv($output, array('Patient Name: ' . $patient_name));
+			fputcsv($output, array('')); // Empty row for spacing
+			// CSV headers
+			$headers = array(
+				'Date',
+				'Doctor Name',
+				'Investigation Advice',
+				'Investigation Billing Price',
+				'Procedure Advice',
+				'Procedure Billing',
+				'Medicine Advice'
+			);
+			fputcsv($output, $headers);
+			
+			if (!empty($results)) {
+				foreach ($results as $row) {
+					// Get doctor name safely
+					$doctor_name = 'N/A';
+					if (!empty($row->doctor_id)) {
+						$doc_sql = "SELECT * FROM `hms_doctors` WHERE ID='".$row->doctor_id."'";
+						$doctor_result = run_select_query($doc_sql);
+						$doctor_name = !empty($doctor_result) ? $doctor_result['name'] : 'N/A';
+					}
+					
+					// Process investigation advice
+					$investigation_advice = '';
+					$investigation_billing_price = 0;
+					
+					// Female investigations
+					if (!empty($row->female_investigation_suggestion_list)) {
+						$female_investigations = @unserialize($row->female_investigation_suggestion_list);
+						if ($female_investigations !== false && is_array($female_investigations)) {
+							foreach ($female_investigations as $key => $value) {
+								if (!empty($value)) {
+									$inv_sql = "SELECT * FROM `hms_investigation` WHERE ID IN ($value)";
+									$inv_result = run_select_query($inv_sql);
+									if (!empty($inv_result)) {
+										$investigation_advice .= "Investigation (Female): " . $inv_result['investigation'] . "; ";
+										$investigation_billing_price += (float)$inv_result['price'];
+									}
+								}
+							}
+						}
+					}
+					
+					// Male investigations
+					if (!empty($row->male_investigation_suggestion_list)) {
+						$male_investigations = @unserialize($row->male_investigation_suggestion_list);
+						if ($male_investigations !== false && is_array($male_investigations)) {
+							foreach ($male_investigations as $key => $value) {
+								if (!empty($value)) {
+									$inv_sql = "SELECT * FROM `hms_investigation` WHERE ID IN ($value)";
+									$inv_result = run_select_query($inv_sql);
+									if (!empty($inv_result)) {
+										$investigation_advice .= "Investigation (Male): " . $inv_result['investigation'] . "; ";
+										$investigation_billing_price += (float)$inv_result['price'];
+									}
+								}
+							}
+						}
+					}
+					
+					// Get actual investigation billing from approved investigations
+					if (!empty($row->appointment_id)) {
+						$inv_billing_sql = "SELECT investigations, totalpackage, discount_amount FROM hms_patient_investigations WHERE appointment_id='" . $row->appointment_id . "' AND patient_id='" . $row->patient_id . "' AND status='approved'";
+						$inv_billing_result = run_select_query($inv_billing_sql);
+						if ($inv_billing_result && isset($inv_billing_result['totalpackage'])) {
+							$investigation_billing_price = $inv_billing_result['totalpackage'] - $inv_billing_result['discount_amount'];
+						}
+					}
+					
+					// Process procedure advice
+					$procedure_advice = '';
+					$procedure_billing = 0;
+					
+					if (!empty($row->sub_procedure_suggestion_list)) {
+						$procedures = @unserialize($row->sub_procedure_suggestion_list);
+						if ($procedures !== false && is_array($procedures)) {
+							foreach ($procedures as $key => $value) {
+								if (!empty($value)) {
+									$proc_sql = "SELECT * FROM `hms_procedures` WHERE ID IN ($value)";
+									$proc_result = run_select_query($proc_sql);
+									if (!empty($proc_result)) {
+										$procedure_advice .= "Procedure: " . $proc_result['procedure_name'] . "; ";
+										$procedure_billing += (float)$proc_result['price'];
+									}
+								}
+							}
+						}
+					}
+					
+					// Get actual procedure billing from approved procedures
+					if (!empty($row->appointment_id)) {
+						$proc_billing_sql = "SELECT data, totalpackage, discount_amount FROM `hms_patient_procedure` WHERE appointment_id = ? AND patient_id = ? AND status = 'approved'";
+						$proc_billing_result = $this->db->query($proc_billing_sql, array($row->appointment_id, $row->patient_id))->row_array();
+						if ($proc_billing_result && isset($proc_billing_result['totalpackage'])) {
+							$procedure_billing = $proc_billing_result['totalpackage'] - $proc_billing_result['discount_amount'];
+						}
+					}
+					
+					// Process medicine advice
+					$medicine_advice = '';
+					$medicine_total = 0;
+					
+					// Male medicines
+					if (!empty($row->male_medicine_suggestion_list)) {
+						$male_medicines = @unserialize($row->male_medicine_suggestion_list);
+						if ($male_medicines !== false && isset($male_medicines['male_medicine_suggestion_list']) && is_array($male_medicines['male_medicine_suggestion_list'])) {
+							foreach ($male_medicines['male_medicine_suggestion_list'] as $med) {
+								if (is_array($med) && isset($med['male_medicine_name'])) {
+									// Get medicine details from database
+									$medicine_details = $this->get_medicine_details($med['male_medicine_name']);
+									$medicine_name = !empty($medicine_details) && isset($medicine_details['item_name']) ? $medicine_details['item_name'] : $med['male_medicine_name'];
+									
+									// Calculate pricing
+									$unit_price = 0;
+									$subtotal = 0;
+									if (!empty($medicine_details)) {
+										$unit_price = product_vendor_cost($medicine_details['product_id'], $medicine_details['brand_name'], $medicine_details['vendor_number']);
+										
+										// Check if it's syrup type
+										$sql = "Select * from ".$this->config->item('db_prefix')."stock_products where ID='".$medicine_details['product_id']."'";
+										$select_result = run_select_query($sql);
+										
+										if ($select_result['type'] == "Cyrup") {
+											$subtotal = (1 * 1) * ($unit_price * 1);
+										} else {
+											$frequency = medical_frequency($med['male_medicine_frequency']);
+											$subtotal = ($med['male_medicine_days'] * $frequency) * ($unit_price * $med['male_medicine_dosage']);
+										}
+										$medicine_total += $subtotal;
+									}
+									
+									$medicine_advice .= "Medicine (Male): " . $medicine_name . " - " . 
+													   (isset($med['male_medicine_dosage']) ? $med['male_medicine_dosage'] : 'N/A') . " for " . 
+													   (isset($med['male_medicine_days']) ? $med['male_medicine_days'] : 'N/A') . " days - " .
+													   "Unit Price: Rs." . round($unit_price, 2) . " - " .
+													   "Subtotal: Rs." . round($subtotal, 2) . "\n";
+								}
+							}
+						}
+					}
+					
+					// Female medicines
+					if (!empty($row->female_medicine_suggestion_list)) {
+						$female_medicines = @unserialize($row->female_medicine_suggestion_list);
+						if ($female_medicines !== false && isset($female_medicines['female_medicine_suggestion_list']) && is_array($female_medicines['female_medicine_suggestion_list'])) {
+							foreach ($female_medicines['female_medicine_suggestion_list'] as $med) {
+								if (is_array($med) && isset($med['female_medicine_name'])) {
+									// Get medicine details from database
+									$medicine_details = $this->get_medicine_details($med['female_medicine_name']);
+									$medicine_name = !empty($medicine_details) && isset($medicine_details['item_name']) ? $medicine_details['item_name'] : $med['female_medicine_name'];
+									
+									// Calculate pricing
+									$unit_price = 0;
+									$subtotal = 0;
+									if (!empty($medicine_details)) {
+										$unit_price = product_vendor_cost($medicine_details['product_id'], $medicine_details['brand_name'], $medicine_details['vendor_number']);
+										
+										// Check if it's syrup type
+										$sql = "Select * from ".$this->config->item('db_prefix')."stock_products where ID='".$medicine_details['product_id']."'";
+										$select_result = run_select_query($sql);
+										
+										if ($select_result['type'] == "Cyrup") {
+											$subtotal = (1 * 1) * ($unit_price * 1);
+										} else {
+											$frequency = medical_frequency($med['female_medicine_frequency']);
+											$subtotal = ($med['female_medicine_days'] * $frequency) * ($unit_price * $med['female_medicine_dosage']);
+										}
+										$medicine_total += $subtotal;
+									}
+									
+									$medicine_advice .= "Medicine (Female): " . $medicine_name . " - " . 
+													   (isset($med['female_medicine_dosage']) ? $med['female_medicine_dosage'] : 'N/A') . " for " . 
+													   (isset($med['female_medicine_days']) ? $med['female_medicine_days'] : 'N/A') . " days - " .
+													   "Unit Price: Rs." . round($unit_price, 2) . " - " .
+													   "Subtotal: Rs." . round($subtotal, 2) . "\n";
+								}
+							}
+						}
+					}
+					
+					// Add total medicine cost
+					if ($medicine_total > 0) {
+						$medicine_advice .= "TOTAL MEDICINE COST: Rs." . round($medicine_total, 2) . "\n";
+					}
+					
+					// Write row to CSV (without patient ID and name)
+					$csv_row = array(
+						$row->consultation_date,
+						$doctor_name,
+						$investigation_advice,
+						$investigation_billing_price,
+						$procedure_advice,
+						$procedure_billing,
+						$medicine_advice
+					);
+					fputcsv($output, $csv_row);
+				}
+			}
+			
+			fclose($output);
+			exit();
+		} else {
+			header("location:" . base_url() . "");
+			die();
+		}
+	}
+	
 	public function patient_center_wise_report(){
 		$logg = checklogin();
 		error_reporting(0);

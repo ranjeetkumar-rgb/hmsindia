@@ -384,68 +384,6 @@
                                  value="100.00" step="0.01" readonly>
                            </td>
                         </tr>
-                        
-                        <tr class="receipt-item-row" id="receipt_row_2">
-                           <td class="checkbox-cell">
-                              <input type="checkbox" name="receive_item_2" id="receive_item_2" checked>
-                           </td>
-                           <td>2</td>
-                           <td>
-                              <select class="form-control" name="product_2" id="product_2" onchange="populateProductDetails(2)">
-                                 <option value="">-- Select Product --</option>
-                                 <option value="1002 Gas" selected>1002 Gas</option>
-                                 <?php if (!empty($consumables)): ?>
-                                    <?php foreach ($consumables as $consumable): ?>
-                                       <option value="<?php echo $consumable['item_number']; ?>">
-                                          <?php echo $consumable['item_number']; ?>
-                                       </option>
-                                    <?php endforeach; ?>
-                                 <?php endif; ?>
-                              </select>
-                           </td>
-                           <td>
-                              <input type="text" class="form-control" name="description_2" id="description_2" 
-                                 value="HP Gas 25ltr" readonly>
-                           </td>
-                           <td>
-                              <input type="text" class="form-control" name="uom_2" id="uom_2" value="LT" readonly>
-                           </td>
-                           <td>
-                              <input type="number" class="form-control" name="qty_remain_2" id="qty_remain_2" value="50" readonly>
-                           </td>
-                           <td class="checkbox-cell">
-                              <input type="checkbox" name="receive_all_2" id="receive_all_2">
-                           </td>
-                           <td>
-                              <input type="number" class="form-control" name="qty_receiving_2" id="qty_receiving_2" 
-                                 value="1.000" step="0.001" onchange="updateAmount(2)">
-                              <button type="button" class="product-details-btn" onclick="showProductDetails(2)">
-                                 Product Details
-                              </button>
-                           </td>
-                           <td>
-                              <input type="number" class="form-control" name="qty_rejected_2" id="qty_rejected_2" 
-                                 value="0" step="0.001" onchange="updateAmount(2)">
-                           </td>
-                           <td>
-                              <input type="number" class="form-control" name="discount_2" id="discount_2" 
-                                 value="0" step="0.01" onchange="updateAmount(2)">
-                           </td>
-                           <td class="checkbox-cell">
-                              <input type="checkbox" name="include_tax_2" id="include_tax_2" onchange="updateAmount(2)">
-                           </td>
-                           <td>
-                              <input type="number" class="form-control" name="tax_amount_2" id="tax_amount_2" 
-                                 value="0" step="0.01" readonly>
-                              <button type="button" class="tax-details-btn" onclick="showTaxDetails(2)">
-                                 Tax Details
-                              </button>
-                           </td>
-                           <td>
-                              <input type="number" class="form-control" name="amount_2" id="amount_2" 
-                                 value="100.00" step="0.01" readonly>
-                           </td>
-                        </tr>
                      </tbody>
                   </table>
                </div>

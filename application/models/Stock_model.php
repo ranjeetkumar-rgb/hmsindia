@@ -4728,4 +4728,13 @@ class Stock_model extends CI_Model
         $this->db->query($sql);
         return 1;
 	}
+	
+	// Get transfer history for a specific item
+	function get_transfer_history_by_item($item_number) {
+		$sql = "SELECT * FROM `".$this->config->item('db_prefix')."transfer_stocks` 
+				WHERE `item_number` = '".$item_number."' 
+				ORDER BY `add_date` DESC";
+		$query = $this->db->query($sql);
+		return $query->result_array();
+	}
 }
