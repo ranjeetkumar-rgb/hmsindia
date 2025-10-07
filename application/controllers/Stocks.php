@@ -1687,7 +1687,7 @@ public function medicine_update()
 	
 	/*************Return medicin by customer***************/
 	function is_receipt_number_unique($receipt_number) {
-		$query = $this->db->query("SELECT COUNT(*) AS count FROM billing_medicine WHERE receipt_number = ?", [$receipt_number]);
+		$query = $this->db->query("SELECT COUNT(*) AS count FROM  hms_patient_medicine WHERE receipt_number = ?", [$receipt_number]);
 		$row = $query->row();
 		return ($row->count == 0); // true if not exists
 	}
@@ -1698,7 +1698,7 @@ public function medicine_update()
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'return_billing_medicine'){
 				unset($_POST['action']);
 				$receipt_number = $_POST['receipt_number'];
-				if(!is_receipt_number_unique($receipt_number)) {
+				if(!$this->is_receipt_number_unique($receipt_number)) {
 					header("location:" . base_url() . "stocks/add_billing_medicine?m=" . base64_encode('Receipt number already exists!') . "&t=" . base64_encode('error'));
 					die();
 				}
