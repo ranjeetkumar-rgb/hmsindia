@@ -1385,7 +1385,6 @@ class Accounts_model extends CI_Model
         }
 	}
 	
-	
 	function get_doctor_name($doctor){
 		
 		$result = array();
@@ -2785,6 +2784,85 @@ function patient_consultation_count_by_reason($center, $start_date, $end_date, $
 }
 
 
+    if (!empty($center)){
+        $conditions .= " AND billing_at='$center'";
+    }
+    if (!empty($patient_id)){
+        $conditions .= " AND patient_id='$patient_id'";
+    }
+	if (!empty($reason_of_visit)){
+			$conditions .= " and reason_of_visit='$reason_of_visit'";
+	}
+    if (!empty($start_date) && !empty($end_date)){
+        $conditions .= " AND on_date BETWEEN '".$start_date."' AND '".$end_date."'";
+    }
+    else if (!empty($start_date) && empty($end_date)){
+        $conditions .= " AND on_date='$start_date'";
+    }
+    else if (empty($start_date) && !empty($end_date)){
+        $conditions .= " AND on_date='$end_date'";
+    }
+
+   echo $consultation_sql = "SELECT COUNT(DISTINCT T1.patient_id) AS unique_patient_count
+    FROM hms_patient_procedure AS T1
+    INNER JOIN (
+        SELECT patient_id
+        FROM hms_consultation
+        WHERE 1 ".$conditions." ORDER BY on_date DESC
+    ) AS T2 ON T1.patient_id = T2.patient_id";
+
+    $q = $this->db->query($consultation_sql);
+    return $q->row_array(); // returns array with both counts
+}
+
+public function get_lead_source_dropdown_data() {
+    $this->db->select("mapped_bucket, GROUP_CONCAT(original_lead_source) as sources");
+    $this->db->from('hms_lead_source_mapping');
+    $this->db->where('original_lead_source IS NOT NULL');
+    $this->db->where("original_lead_source != ''");
+    $this->db->group_by('mapped_bucket');
+    $this->db->order_by('mapped_bucket');
+    
+    $query = $this->db->get(); // Get the query object
+    
+    // Check if query was successful
+    if (!$query) {
+        return array();
+    }
+    
+    $result = $query->result_array(); // Convert to array
+    
+    $dropdown_data = array();
+    foreach($result as $row) {
+        $sources_array = explode(',', $row['sources']);
+        $cleaned_sources = array();
+        foreach($sources_array as $source) {
+            $trimmed_source = trim($source);
+            $escaped_source = str_replace("'", "\\'", $trimmed_source);
+            if (!empty($trimmed_source)) {
+                $cleaned_sources[] = $escaped_source;
+            }
+        }
+        $dropdown_data[$row['mapped_bucket']] = implode("','", $cleaned_sources);
+    }
+    
+    return $dropdown_data;
+}
+
+
+function get_available_lead_sources_for_consultations(){
+    $sql = "SELECT DISTINCT a.lead_source
+            FROM ".$this->config->item('db_prefix')."appointments a
+            INNER JOIN ".$this->config->item('db_prefix')."consultation c 
+            ON a.paitent_id = c.patient_id
+            WHERE a.lead_source IS NOT NULL 
+            AND a.lead_source != ''
+            ORDER BY a.lead_source";
+    
+    $query = $this->db->query($sql);
+    return $query->result_array();
+}
+/******End Consultation******/
 	function patient_consultation_list_patination($limit, $page, $center, $start_date, $end_date, $patient_id, $status){
 		$consultation_result = array();
 		$conditions = '';
