@@ -7941,9 +7941,6 @@ public function get_doctors_by_center() {
     }
 
 } // End of class - MAKE SURE THIS IS THE LAST LINE
-<<<<<<< HEAD
-=======
 
 	
 
->>>>>>> 2a0edf535128b491e2e995db9b0829444ed0f901
