@@ -878,22 +878,6 @@ class Patients extends CI_Controller {
 
  public function insert_timeline()
 {
-    header('Content-Type: application/json');
-
-    // Allow either login OR API key authentication
-    $api_key = $this->input->get_request_header('X-API-KEY', TRUE);
-
-    if ($api_key !== 'YOUR_SECRET_KEY_HERE') {
-        $logg = checklogin();
-        if ($logg['status'] != true) {
-            echo json_encode(['status' => false, 'message' => 'Unauthorized access']);
-            return;
-        }
-        $created_by = $logg['user_id'] ?? 'system';
-    } else {
-        $created_by = 'external_api';
-    }
-
     // Get POST data
     $patient_id     = $this->input->post('patient_id', true);
     $event_type     = $this->input->post('event_type', true);
