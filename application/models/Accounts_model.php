@@ -2926,35 +2926,6 @@ LIMIT $offset, $limit";
 	
 function patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source){
     $conditions = '';
-
-    if (!empty($center)){
-        $conditions .= " AND billing_at='$center'";
-    }
-    if (!empty($patient_id)){
-        $conditions .= " AND patient_id='$patient_id'";
-    }
-    if (!empty($start_date) && !empty($end_date)){
-        $conditions .= " AND on_date BETWEEN '".$start_date."' AND '".$end_date."'";
-    }
-    else if (!empty($start_date) && empty($end_date)){
-        $conditions .= " AND on_date='$start_date'";
-    }
-    else if (empty($start_date) && !empty($end_date)){
-        $conditions .= " AND on_date='$end_date'";
-    }
-
-    $consultation_sql = "
-        SELECT reason_of_visit, COUNT(*) as total 
-        FROM ".$this->config->item('db_prefix')."consultation 
-        WHERE 1 ".$conditions."
-        GROUP BY reason_of_visit
-        ORDER BY total DESC";
-
-    $q = $this->db->query($consultation_sql);
-    return $q->result_array(); // returns array of [reason_of_visit => total]
-}
-
-
     if (!empty($center)){
         $conditions .= " AND billing_at='$center'";
     }
