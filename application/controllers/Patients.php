@@ -898,7 +898,7 @@ class Patients extends CI_Controller {
     $event_date    = date('Y-m-d H:i:s');
 
     // Validate required fields
-    if (empty($patient_id) || empty($event_type)) {
+    if (empty($crm_id) || empty($event_type)) {
         echo json_encode(['status' => false, 'message' => 'Missing required fields']);
         return;
     }
