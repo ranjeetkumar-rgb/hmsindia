@@ -1687,7 +1687,7 @@ public function medicine_update()
 	
 	/*************Return medicin by customer***************/
 	function is_receipt_number_unique($receipt_number) {
-		$query = $this->db->query("SELECT COUNT(*) AS count FROM billing_medicine WHERE receipt_number = ?", [$receipt_number]);
+		$query = $this->db->query("SELECT COUNT(*) AS count FROM  hms_patient_medicine WHERE receipt_number = ?", [$receipt_number]);
 		$row = $query->row();
 		return ($row->count == 0); // true if not exists
 	}
@@ -1698,7 +1698,7 @@ public function medicine_update()
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'return_billing_medicine'){
 				unset($_POST['action']);
 				$receipt_number = $_POST['receipt_number'];
-				if(!is_receipt_number_unique($receipt_number)) {
+				if(!$this->is_receipt_number_unique($receipt_number)) {
 					header("location:" . base_url() . "stocks/add_billing_medicine?m=" . base64_encode('Receipt number already exists!') . "&t=" . base64_encode('error'));
 					die();
 				}
@@ -2584,6 +2584,68 @@ public function medicine_update()
 			header("location:" .base_url(). "");
 			die();
 		}
+	}
+
+	public function bulk_status()
+	{
+		// Clear any output buffering
+		if (ob_get_level()) {
+			ob_clean();
+		}
+		
+		$logg = checklogin();
+		if ($logg['status'] != true) {
+			http_response_code(401);
+			header('Content-Type: application/json; charset=utf-8');
+			echo json_encode(array('status' => 0, 'message' => 'Unauthorized'));
+			return;
+		}
+		
+		header('Content-Type: application/json; charset=utf-8');
+		header('Cache-Control: no-cache, must-revalidate');
+		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		
+		$item_numbers = $this->input->post('item_numbers');
+		$status = $this->input->post('status');
+		
+		if (!is_array($item_numbers) || ($status !== '0' && $status !== '1')) {
+			echo json_encode(array('status' => 0, 'message' => 'Invalid payload'));
+			return;
+		}
+		
+		$affected = $this->stock_model->bulk_update_items_status($item_numbers, $status);
+		echo json_encode(array('status' => 1, 'updated' => (int)$affected));
+	}
+	
+	public function bulk_status_center()
+	{
+		// Clear any output buffering
+		if (ob_get_level()) {
+			ob_clean();
+		}
+		
+		$logg = checklogin();
+		if ($logg['status'] != true) {
+			http_response_code(401);
+			header('Content-Type: application/json; charset=utf-8');
+			echo json_encode(array('status' => 0, 'message' => 'Unauthorized'));
+			return;
+		}
+		
+		header('Content-Type: application/json; charset=utf-8');
+		header('Cache-Control: no-cache, must-revalidate');
+		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+		
+		$item_ids = $this->input->post('item_ids');
+		$status = $this->input->post('status');
+		
+		if (!is_array($item_ids) || ($status !== '0' && $status !== '1')) {
+			echo json_encode(array('status' => 0, 'message' => 'Invalid payload'));
+			return;
+		}
+		
+		$affected = $this->stock_model->bulk_update_center_items_status($item_ids, $status);
+		echo json_encode(array('status' => 1, 'updated' => (int)$affected));
 	}
 	
 	public function active_stocks(){
@@ -4559,6 +4621,78 @@ public function center_audit_report() {
 		}else{
 			header("location:" .base_url(). "stocks/transfer_stock_list?m=".base64_encode('Something went wrong !').'&t='.base64_encode('error'));
 			die();
+		}
+	}
+	
+	// Get transfer history for a specific item
+	public function get_transfer_history() {
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			$item_number = $this->input->post('item_number');
+			
+			if(empty($item_number)) {
+				echo json_encode(['status' => 'error', 'message' => 'Item number is required']);
+				return;
+			}
+			
+			$transfers = $this->stock_model->get_transfer_history_by_item($item_number);
+			
+			if(!empty($transfers)) {
+				echo json_encode(['status' => 'success', 'data' => $transfers]);
+			} else {
+				echo json_encode(['status' => 'error', 'message' => 'No transfer history found']);
+			}
+		} else {
+			echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
+		}
+	}
+	
+	// Export transfer history
+	public function export_transfer_history() {
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			$item_number = $this->input->get('item_number');
+			
+			if(empty($item_number)) {
+				echo "Error: Item number is required";
+				return;
+			}
+			
+			$transfers = $this->stock_model->get_transfer_history_by_item($item_number);
+			
+			// Set headers for CSV download
+			header('Content-Type: text/csv; charset=utf-8');
+			header('Content-Disposition: attachment; filename=Transfer-History-' . $item_number . '-' . date("Y-m-d-H-i-s") . '.csv');
+			
+			$fp = fopen('php://output', 'w');
+			
+			// Add CSV headers
+			$headers = ['Transfer Date', 'Item Number', 'Item Name', 'From Center', 'To Center', 'Quantity', 'Status', 'Employee', 'Remarks', 'Invoice No', 'Purchase Date'];
+			fputcsv($fp, $headers);
+			
+			// Add data rows
+			foreach($transfers as $transfer) {
+				$status = $transfer['status'] == '1' ? 'Approved' : ($transfer['status'] == '2' ? 'Rejected' : 'Pending');
+				$row = [
+					$transfer['add_date'],
+					$transfer['item_number'],
+					$transfer['item_name'],
+					$transfer['center_number'],
+					$transfer['r_center_number'],
+					$transfer['quantity'],
+					$status,
+					$transfer['employee_number'],
+					$transfer['remarks'],
+					$transfer['invoice_no'],
+					$transfer['date_of_purchase']
+				];
+				fputcsv($fp, $row);
+			}
+			
+			fclose($fp);
+			exit();
+		} else {
+			echo "Unauthorized access";
 		}
 	}
 } 

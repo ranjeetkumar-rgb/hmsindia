@@ -152,6 +152,7 @@
                                              $gstDiv     = htmlspecialchars($consumable['gstdivision'], ENT_QUOTES, 'UTF-8');
                                              $company    = htmlspecialchars($consumable['company'], ENT_QUOTES, 'UTF-8');
                                              $brand      = htmlspecialchars($consumable['brand_name'], ENT_QUOTES, 'UTF-8');
+                                             $vendorNum  = htmlspecialchars($consumable['vendor_number'], ENT_QUOTES, 'UTF-8');
                                           ?>
                                           <option value="<?= $itemNumber ?>"
                                              data-item-name="<?= $itemName ?>"
@@ -164,7 +165,8 @@
                                              data-hsn="<?= $hsn ?>"
                                              data-gst-division="<?= $gstDiv ?>"
                                              data-company="<?= $company ?>"
-                                             data-brand="<?= $brand ?>">
+                                             data-brand="<?= $brand ?>"
+                                             data-vendor-number="<?= $vendorNum ?>">
                                              <?= $itemName ?> (<?= $itemNumber ?>)
                                           </option>
                                     <?php endforeach; ?>
@@ -250,6 +252,7 @@
 
 <script>
 var rowCounter = 1;
+var filteredOptionsHtml = null; // cache for filtered dropdown options
 
 function addNewRow() {
     rowCounter++;
@@ -343,6 +346,13 @@ function addNewRow() {
         allowClear: true,
         width: '100%'
     });
+    // If we already filtered by vendor, apply filtered options to the new row
+    if (filteredOptionsHtml) {
+        var $sel = $('#consumables_name_' + rowCounter);
+        $sel.html(filteredOptionsHtml);
+        $sel.val('');
+        $sel.trigger('change');
+    }
     
     updateRowNumbers();
 }
@@ -415,6 +425,63 @@ $(document).ready(function() {
         allowClear: true,
         width: '100%'
     });
+
+    // Filter items by selected vendor on add page
+    $('#vendor_number').on('change', function() {
+        var vendorNumber = $(this).val();
+        if (!vendorNumber) { return; }
+        // For each row dropdown, reload options via AJAX
+        $.getJSON('<?php echo base_url('new_purchase_orders/items_by_vendor'); ?>', { vendor_number: vendorNumber })
+            .done(function(resp) {
+                if (resp.status === 'success') {
+                    var optionsHtml = '<option value="">-- Select Item --</option>';
+                    resp.data.forEach(function(item) {
+                        var safe = function(v){ return $('<div>').text(v || '').html(); };
+                        optionsHtml += '<option value="'+ safe(item.item_number) +'"'
+                            + ' data-item-name="'+ safe(item.item_name) +'"'
+                            + ' data-batch="'+ safe(item.batch_number) +'"'
+                            + ' data-price="'+ safe(item.price) +'"'
+                            + ' data-vendor-price="'+ safe(item.vendor_price) +'"'
+                            + ' data-pack-size="'+ safe(item.pack_size) +'"'
+                            + ' data-mrp="'+ safe(item.mrp) +'"'
+                            + ' data-tax="'+ safe(item.gstrate) +'"'
+                            + ' data-hsn="'+ safe(item.hsn) +'"'
+                            + ' data-gst-division="'+ safe(item.gstdivision) +'"'
+                            + ' data-company="'+ safe(item.company) +'"'
+                            + ' data-brand="'+ safe(item.brand_name) +'"'
+                            + ' data-vendor-number="'+ safe(item.vendor_number) +'"'
+                            + '>' + safe(item.item_name) + ' ('+ safe(item.item_number) +')</option>';
+                    });
+                    // cache for newly added rows
+                    filteredOptionsHtml = optionsHtml;
+                    $('.consumable-select').each(function(){
+                        var $sel = $(this);
+                        var currentVal = $sel.val();
+                        $sel.html(optionsHtml);
+                        $sel.val('');
+                        $sel.trigger('change');
+                    });
+                }
+            });
+    });
+
+    // Auto-select vendor from URL param and auto-filter if present
+    function getQueryParam(name) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+        var results = regex.exec(window.location.href);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+    var urlVendor = getQueryParam('vendor_number');
+    if (urlVendor) {
+        $('#vendor_number').val(urlVendor);
+    }
+    var initialVendor = $('#vendor_number').val();
+    if (initialVendor) {
+        $('#vendor_number').trigger('change');
+    }
     
     // Initialize form validation
     $('#add_po_form').on('submit', function(e) {

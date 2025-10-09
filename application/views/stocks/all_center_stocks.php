@@ -175,11 +175,11 @@
         </div>
       </div>
     </div>
-    
     <div class="table-wrapper">
       <table class="table modern-table" id="centre_stock_list1">
         <thead>
           <tr>
+            <th><input type="checkbox" id="select_all_items" style="left: 0px !important;opacity: 1 !important;position: unset !important;" /></th>
             <th class="col-bill">Bill No</th>
             <th class="col-generic">Generic Name</th>
             <th class="col-company">Company</th>
@@ -210,6 +210,7 @@
         <tbody id="table_content">
           <?php $count=1; foreach($investigate_result as $vl){ ?>
             <tr class="data-row">
+              <td><input type="checkbox" class="row-select" value="<?php echo $vl['ID']?>" style="left: 0px !important;opacity: 1 !important;position: unset !important;"/></td>
               <td class="col-bill">
                 <span class="bill-number"><?php echo $vl['invoice_no']?></span>
               </td>
@@ -332,6 +333,10 @@
                     <i class="fa fa-exchange"></i>
                   </a>
                   <?php } ?>
+                  <a href="#" class="action-btn history-btn" title="Transfer History" 
+                     onclick="showTransferHistory('<?php echo $vl['item_number']; ?>', '<?php echo $vl['item_name']; ?>')">
+                    <i class="fa fa-history"></i>
+                  </a>
                 </div>
               </td>
               <?php } ?>
@@ -344,6 +349,16 @@
       </table>
     </div>
     
+    <!-- Bulk Actions -->
+    <div class="bulk-actions" style="margin-top:10px; display:flex; gap:10px; justify-content:flex-start;">
+      <button type="button" id="bulk_activate" class="btn btn-search-modern" style="min-width:unset; padding:8px 16px;">
+        <i class="fa fa-check"></i> Activate Selected
+      </button>
+      <button type="button" id="bulk_deactivate" class="btn btn-reset-modern" style="min-width:unset; padding:8px 16px;">
+        <i class="fa fa-ban"></i> Deactivate Selected
+      </button>
+    </div>
+    
     <!-- Modern Pagination -->
     <div class="pagination-container-modern">
       <div class="pagination-info">
@@ -353,6 +368,27 @@
         <?php echo $links; ?>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- Transfer History Modal -->
+<div id="transferHistoryModal" class="modal modal-fixed-footer">
+  <div class="modal-content">
+    <h4 id="transferHistoryModalLabel" class="modal-title">
+      <i class="fa fa-history"></i> Transfer History
+    </h4>
+    <div id="transferHistoryContent">
+      <div class="text-center">
+        <i class="fa fa-spinner fa-spin fa-2x"></i>
+        <p>Loading transfer history...</p>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-action modal-close waves-effect waves-green btn-flat">Close</a>
+    <a href="#!" class="modal-action waves-effect waves-green btn" onclick="exportTransferHistory()">
+      <i class="fa fa-download"></i> Export History
+    </a>
   </div>
 </div>
 <script>
@@ -981,6 +1017,18 @@ $(function() {
   text-decoration: none;
 }
 
+.history-btn {
+  background: #6f42c1;
+  color: white;
+}
+
+.history-btn:hover {
+  background: #5a32a3;
+  transform: scale(1.1);
+  color: white;
+  text-decoration: none;
+}
+
 /* Modern Pagination */
 .pagination-container-modern {
   display: flex;
@@ -1175,6 +1223,159 @@ $(function() {
 .table-wrapper::-webkit-scrollbar-thumb:hover {
   background: #a8a8a8;
 }
+
+/* Transfer History Modal Styles */
+.transfer-history-container {
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+.history-summary {
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #6f42c1;
+}
+
+.summary-card {
+  text-align: center;
+  padding: 15px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.summary-card h5 {
+  margin: 0 0 10px 0;
+  color: #6c757d;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.summary-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: #6f42c1;
+}
+
+.transfer-table-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.transfer-table-container table {
+  margin-bottom: 0;
+}
+
+.transfer-table-container thead th {
+  background: #6f42c1;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 12px 8px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.transfer-table-container td {
+  padding: 10px 8px;
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: white;
+}
+
+.badge.blue {
+  background: #2196F3;
+}
+
+.badge.green {
+  background: #4CAF50;
+}
+
+.badge.red {
+  background: #f44336;
+}
+
+.badge.orange {
+  background: #ff9800;
+}
+
+/* Materialize Modal Enhancements */
+#transferHistoryModal {
+  width: 90%;
+  max-width: 1000px;
+}
+
+#transferHistoryModal .modal-content {
+  padding: 20px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+#transferHistoryModal .modal-title {
+  background: linear-gradient(135deg, #6f42c1 0%, #5a32a3 100%);
+  color: white;
+  margin: -20px -20px 20px -20px;
+  padding: 15px 20px;
+  font-weight: 600;
+  font-size: 18px;
+  border-radius: 0;
+}
+
+#transferHistoryModal .modal-footer {
+  border-top: 1px solid #e0e0e0;
+  background: #f8f9fa;
+  padding: 15px 20px;
+}
+
+#transferHistoryModal .modal-footer .btn {
+  margin-left: 10px;
+}
+
+/* Additional Bootstrap 3 compatibility */
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+}
+
+.alert-warning {
+  color: #8a6d3b;
+  background-color: #fcf8e3;
+  border-color: #faebcc;
+}
+
+.alert-danger {
+  color: #a94442;
+  background-color: #f2dede;
+  border-color: #ebccd1;
+}
+
+.alert-info {
+  color: #31708f;
+  background-color: #d9edf7;
+  border-color: #bce8f1;
+}
+
+.striped > tbody > tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+.striped > tbody > tr:hover {
+  background-color: #f5f5f5;
+}
 </style>
 
 <script>
@@ -1205,6 +1406,214 @@ $(document).ready(function() {
         
         // Redirect to export URL
         window.location.href = exportUrl;
+    });
+    
+    // Select all toggle
+    $('#select_all_items').on('change', function(){
+        var checked = $(this).is(':checked');
+        $('#table_content .row-select').prop('checked', checked);
+    });
+
+    function collectSelectedItems(){
+        var items = [];
+        $('#table_content .row-select:checked').each(function(){
+            items.push($(this).val());
+        });
+        return items;
+    }
+
+    function bulkUpdateStatus(statusValue){
+        var selected = collectSelectedItems();
+        if(selected.length === 0){
+            alert('Please select at least one item.');
+            return;
+        }
+        
+        // Show loading state
+        var $buttons = $('#bulk_activate, #bulk_deactivate');
+        $buttons.prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Updating...');
+        
+        $.ajax({
+            url: '<?php echo base_url(); ?>stocks/bulk_status_center',
+            type: 'POST',
+            dataType: 'json',
+            data: { item_ids: selected, status: String(statusValue) },
+            success: function(resp){
+                if(resp && resp.status == 1){
+                    alert('Successfully updated ' + resp.updated + ' items.');
+                    location.reload();
+                }else{
+                    alert('Failed to update: ' + (resp.message || 'Unknown error'));
+                }
+            },
+            error: function(xhr, status, error){
+                console.error('AJAX Error:', xhr.responseText);
+                alert('Request failed: ' + error + '\nStatus: ' + status);
+            },
+            complete: function(){
+                // Re-enable buttons
+                $buttons.prop('disabled', false);
+                $('#bulk_activate').html('<i class="fa fa-check"></i> Activate Selected');
+                $('#bulk_deactivate').html('<i class="fa fa-ban"></i> Deactivate Selected');
+            }
+        });
+    }
+
+    $('#bulk_activate').on('click', function(){ bulkUpdateStatus(1); });
+    $('#bulk_deactivate').on('click', function(){ bulkUpdateStatus(0); });
+});
+
+// Transfer History Functions
+var currentItemNumber = '';
+var currentItemName = '';
+
+function showTransferHistory(itemNumber, itemName) {
+    currentItemNumber = itemNumber;
+    currentItemName = itemName;
+    
+    // Update modal title
+    $('#transferHistoryModalLabel').html('<i class="fa fa-history"></i> Transfer History - ' + itemName);
+    
+    // Show modal using Materialize v0.97.8 syntax
+    $('#transferHistoryModal').modal('open');
+    
+    // Load transfer history
+    loadTransferHistory(itemNumber);
+}
+
+function loadTransferHistory(itemNumber) {
+    $('#transferHistoryContent').html(`
+        <div class="text-center">
+            <i class="fa fa-spinner fa-spin fa-2x"></i>
+            <p>Loading transfer history...</p>
+        </div>
+    `);
+    
+    $.ajax({
+        url: '<?php echo base_url(); ?>stocks/get_transfer_history',
+        type: 'POST',
+        dataType: 'json',
+        data: { item_number: itemNumber },
+        success: function(response) {
+            if (response.status === 'success') {
+                displayTransferHistory(response.data);
+            } else {
+                $('#transferHistoryContent').html(`
+                    <div class="alert alert-warning text-center">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        <p>No transfer history found for this item.</p>
+                    </div>
+                `);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Error loading transfer history:', error);
+            $('#transferHistoryContent').html(`
+                <div class="alert alert-danger text-center">
+                    <i class="fa fa-exclamation-circle"></i>
+                    <p>Error loading transfer history. Please try again.</p>
+                </div>
+            `);
+        }
+    });
+}
+
+function displayTransferHistory(transfers) {
+    if (transfers.length === 0) {
+        $('#transferHistoryContent').html(`
+            <div class="alert alert-info text-center">
+                <i class="fa fa-info-circle"></i>
+                <p>No transfer records found for this item.</p>
+            </div>
+        `);
+        return;
+    }
+    
+    let html = `
+        <div class="transfer-history-container">
+            <div class="history-summary">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="summary-card">
+                            <h5><i class="fa fa-cube"></i> Total Transfers</h5>
+                            <span class="summary-value">${transfers.length}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="summary-card">
+                            <h5><i class="fa fa-exchange"></i> Total Quantity</h5>
+                            <span class="summary-value">${transfers.reduce((sum, t) => sum + parseInt(t.quantity || 0), 0)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="transfer-table-container">
+                <table class="striped responsive-table">
+                    <thead>
+                        <tr>
+                            <th>Transfer Date</th>
+                            <th>From Center</th>
+                            <th>To Center</th>
+                            <th>Quantity</th>
+                            <th>Status</th>
+                            <th>Employee</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+    `;
+    
+    transfers.forEach(function(transfer) {
+        const statusClass = transfer.status == '1' ? 'success' : transfer.status == '2' ? 'danger' : 'warning';
+        const statusText = transfer.status == '1' ? 'Approved' : transfer.status == '2' ? 'Rejected' : 'Pending';
+        
+        html += `
+            <tr>
+                <td>${transfer.add_date || 'N/A'}</td>
+                <td>${transfer.center_number || 'N/A'}</td>
+                <td>${transfer.r_center_number || 'N/A'}</td>
+                <td><span class="badge blue">${transfer.quantity || 0}</span></td>
+                <td><span class="badge ${statusClass === 'success' ? 'green' : statusClass === 'danger' ? 'red' : 'orange'}">${statusText}</span></td>
+                <td>${transfer.employee_number || 'N/A'}</td>
+                <td>${transfer.remarks || 'N/A'}</td>
+            </tr>
+        `;
+    });
+    
+    html += `
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    $('#transferHistoryContent').html(html);
+}
+
+function exportTransferHistory() {
+    if (!currentItemNumber) {
+        alert('No item selected for export.');
+        return;
+    }
+    
+    // Create export URL
+    const exportUrl = '<?php echo base_url(); ?>stocks/export_transfer_history?item_number=' + encodeURIComponent(currentItemNumber);
+    
+    // Open in new window to trigger download
+    window.open(exportUrl, '_blank');
+}
+
+// Initialize Materialize modals when document is ready
+$(document).ready(function() {
+    // Initialize modals with Materialize v0.97.8 options
+    $('.modal').modal({
+        dismissible: true,
+        opacity: 0.5,
+        inDuration: 300,
+        outDuration: 200,
+        startingTop: '4%',
+        endingTop: '10%'
     });
 });
 </script>

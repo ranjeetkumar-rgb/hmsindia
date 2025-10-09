@@ -25,7 +25,7 @@
            <label for="item_name">IIC ID(Required)</label>
                 <input value="<?php echo $appointments['paitent_id']; ?>" placeholder="IIC ID" readonly="readonly" name="" id="" type="text" disabled class="form-control validate" required>
             </div>
-		</div>
+	    	</div>
 
 
          <div class="row">            
@@ -170,7 +170,6 @@
                             if($_SESSION['logged_billing_manager']['center_type'] == "associated"){ ?>
                     	      <option value="<?php echo $center['center_number']; ?>"><?php echo $center['center_name']; ?></option>
                     <?php } } ?>
-                    <option value="IndiaIVF">IndiaIVF</option>       
                 </select>
             </div>
               <div class="form-group col-sm-6 col-xs-12 hospital_id_section" style="display:none;">

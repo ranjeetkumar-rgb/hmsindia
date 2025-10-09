@@ -853,7 +853,7 @@ class Accounts extends CI_Controller {
 
 			$config = array();
         	$config["base_url"] = base_url() . "accounts/consultation_patients";
-        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center,$status, $start_date, $end_date, $patient_id);
+        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center,$status, $start_date, $end_date, $patient_id,$doctor_id = null);
         	$config["per_page"] = 10;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
@@ -1034,7 +1034,7 @@ class Accounts extends CI_Controller {
 				header('Content-Type: text/csv; charset=utf-8');
 				header('Content-Disposition: attachment; filename=Partialpaymentsreport-'.$start_date.'-'.$end_date.'.csv');
 				$fp = fopen('php://output','w');
-				$headers = 'IIC ID, Patient Name, Package ID, Receipt Number, Paid Amount, Payment Method, Billing At, Billing Type, Date, Payment Type, Center Name,Booking Date, Status,Origin';
+				$headers = 'Lead ID, Lead Source, IIC ID, Patient Name, Package ID, Receipt Number, Paid Amount, Payment Method, Billing At, Billing Type, Date, Payment Type, Center Name,Booking Date, Status,Origin';
 				//Add the headers
 				fwrite($fp, $headers. "\r\n");
 				foreach ($data as $key => $val) {//var_dump($val);die;
@@ -1051,14 +1051,17 @@ class Accounts extends CI_Controller {
 					
 					$sql = "SELECT * FROM hms_appointments WHERE paitent_id='" . $val['patient_id'] . "'";
 					$appoint_result = run_select_query($sql);
-					
+
 					$sql3 = "SELECT * FROM hms_appointments WHERE wife_phone='" . $appoint_result['wife_phone'] . "' and paitent_type='new_patient'";
 					$select_result3 = run_select_query($sql3);
+
+					$lead_id = $select_result3['crm_id'];
+					$lead_source = $select_result3['lead_source'];
 					
 					$sql4 = "SELECT * FROM hms_centers WHERE center_number='" . $select_result3['appoitment_for'] . "'";
 					$select_result4 = run_select_query($sql4);
 					
-					$lead_arr = array($val['patient_id'], $val['wife_name'], $val['billing_id'],$val['refrence_number'], $val['payment_done'], $val['payment_method'], $billing_at, $val['type'], date('Y-m-d H:i:s', strtotime($val['date'])),$val['billing_type'],$val['biller'],$booking_date,$val['status'],$select_result4['center_name']);
+					$lead_arr = array($lead_id, $lead_source, $val['patient_id'], $val['wife_name'], $val['billing_id'],$val['refrence_number'], $val['payment_done'], $val['payment_method'], $billing_at, $val['type'], date('Y-m-d H:i:s', strtotime($val['date'])),$val['billing_type'],$val['biller'],$booking_date,$val['status'],$select_result4['center_name']);
 					
 					fputcsv($fp, $lead_arr);
 				}
@@ -1850,7 +1853,7 @@ public function procedure_reports(){
 
 			$config = array();
         	$config["base_url"] = base_url() . "accounts/consultation_reports";
-        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center,$status, $start_date, $end_date, $patient_id);
+        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center,$status, $start_date, $end_date, $patient_id,$doctor_id = null);
         	$config["per_page"] = 10;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
@@ -1861,7 +1864,7 @@ public function procedure_reports(){
         	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
 			
         	$data["links"] = $this->pagination->create_links();
-			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id,$type);
+			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id,$type,$doctor_id=null);
 			$data["billing_at"] = $center;
 			$data["start_date"] = $start_date;
 			$data["end_date"] = $end_date;
@@ -1891,7 +1894,8 @@ public function procedure_reports(){
 			$start_date = $this->input->get('start_date', true);
 			$end_date = $this->input->get('end_date', true);
 			$patient_id = $this->input->get('iic_id', true);
-			$reason_of_visit = $this->input->get('reason_of_visit', true);
+			$reason_of_visit = $this->input->get('reason_of_visit');
+			$lead_source = $this->input->get('lead_source');
 			$export_billing = $this->input->get('export-billing', true);
 			$paid_amount = 0;
 			$discounted_package = 0;
@@ -1944,7 +1948,7 @@ public function procedure_reports(){
 
 			$config = array();
         	$config["base_url"] = base_url() . "accounts/consultation_origin";
-        	$config["total_rows"] = $this->accounts_model->patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit,$doctor_id);
+        	$config["total_rows"] = $this->accounts_model->patient_consultation_report_count($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source);
         	$config["per_page"] = 10;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
@@ -1965,6 +1969,7 @@ public function procedure_reports(){
 			$data["end_date"] = $end_date;
 			$data["patient_id"] = $patient_id;
 			$data["doctor_id"] = $doctor_id;
+			$data["lead_source"] = $lead_source;
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view('accounts/consultation_origin', $data);
@@ -2071,7 +2076,8 @@ public function procedure_reports(){
 					$account_email = $_SESSION['logged_accountant']['email']; //echo $mail_msg;die;
 					$admin_email = $this->accounts_model->get_admin_email();
 					$to_email =  $admin_email."|".$account_email;//echo $to_email;die;
-					$result = send_mail($to_email, $subject, $mail_msg);
+					// $result = send_mail($to_email, $subject, $mail_msg);
+					$result = true;
 				}
 			}
 			header("location:" .$_SERVER['HTTP_REFERER']. "?m=".base64_encode('Billing '.$status.' successfully').'&t='.base64_encode('success'));
@@ -3106,15 +3112,21 @@ public function moulist(){
 
 	}
 
-	
+	function get_leadsource_list($patient_id){
 
+		$name = $this->accounts_model->get_leadsource_list($patient_id);
+
+		return $name;
+
+	}	
+/*
 	function get_center_list($patient_id){
 
 		$name = $this->accounts_model->get_center_list($patient_id);
 
 		return $name;
 
-	}	
+	}	*/
 
 	
 
@@ -3504,7 +3516,7 @@ public function moulist(){
 				
 				$config = array();
 				$config["base_url"] = base_url() . "accounts/consultation_billings";
-				$config["total_rows"] = $this->accounts_model->patient_consultation_count($center,$status, $start_date, $end_date, $patient_id);
+				$config["total_rows"] = $this->accounts_model->patient_consultation_count($center,$status, $start_date, $end_date, $patient_id,$doctor_id = null);
 				$config["per_page"] = 10;
 				$config["uri_segment"] = 2;
 				$config['use_page_numbers'] = true;
@@ -3515,7 +3527,7 @@ public function moulist(){
 				$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
 				
 				$data["links"] = $this->pagination->create_links();
-				$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center,$status, $start_date, $end_date, $patient_id,$type);
+				$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center,$status, $start_date, $end_date, $patient_id,$type,$doctor_id=null);
 				$data["billing_at"] = $center;
 				$data["start_date"] = $start_date;
 				$data["end_date"] = $end_date;
@@ -5124,6 +5136,238 @@ public function partial_procedure(){
 			$this->load->view($template['footer']);
 		}else{
 			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	
+	public function export_consultation_data($patient_id){
+		$logg = checklogin();
+		if($logg['status'] == true){
+			error_reporting(0);
+			ini_set('display_errors', 0);
+			$patient_data = get_patient_detail($patient_id);
+			$patient_name = 'N/A';
+			if (is_array($patient_data)) {
+				$patient_name = isset($patient_data['wife_name']) ? $patient_data['wife_name'] : 
+							   (isset($patient_data['wife_name']) ? $patient_data['wife_name'] : 'N/A');
+			}
+			$sql = "SELECT * FROM `hms_doctor_consultation` WHERE `patient_id`='".$patient_id."' ORDER BY `ID` DESC";
+			$query = $this->db->query($sql);
+			$results = $query->result();
+			
+			// Set headers for CSV download
+			$filename = 'consultation_data_' . $patient_id . '_' . date('Y-m-d_H-i-s') . '.csv';
+			header('Content-Type: text/csv');
+			header('Content-Disposition: attachment; filename="' . $filename . '"');
+			// Create file pointer
+			$output = fopen('php://output', 'w');
+			// Add patient information header
+			fputcsv($output, array('Patient ID: ' . $patient_id));
+			fputcsv($output, array('Patient Name: ' . $patient_name));
+			fputcsv($output, array('')); // Empty row for spacing
+			// CSV headers
+			$headers = array(
+				'Date',
+				'Doctor Name',
+				'Investigation Advice',
+				'Investigation Billing Price',
+				'Procedure Advice',
+				'Procedure Billing',
+				'Medicine Advice'
+			);
+			fputcsv($output, $headers);
+			
+			if (!empty($results)) {
+				foreach ($results as $row) {
+					// Get doctor name safely
+					$doctor_name = 'N/A';
+					if (!empty($row->doctor_id)) {
+						$doc_sql = "SELECT * FROM `hms_doctors` WHERE ID='".$row->doctor_id."'";
+						$doctor_result = run_select_query($doc_sql);
+						$doctor_name = !empty($doctor_result) ? $doctor_result['name'] : 'N/A';
+					}
+					
+					// Process investigation advice
+					$investigation_advice = '';
+					$investigation_billing_price = 0;
+					
+					// Female investigations
+					if (!empty($row->female_investigation_suggestion_list)) {
+						$female_investigations = @unserialize($row->female_investigation_suggestion_list);
+						if ($female_investigations !== false && is_array($female_investigations)) {
+							foreach ($female_investigations as $key => $value) {
+								if (!empty($value)) {
+									$inv_sql = "SELECT * FROM `hms_investigation` WHERE ID IN ($value)";
+									$inv_result = run_select_query($inv_sql);
+									if (!empty($inv_result)) {
+										$investigation_advice .= "Investigation (Female): " . $inv_result['investigation'] . "; ";
+										$investigation_billing_price += (float)$inv_result['price'];
+									}
+								}
+							}
+						}
+					}
+					
+					// Male investigations
+					if (!empty($row->male_investigation_suggestion_list)) {
+						$male_investigations = @unserialize($row->male_investigation_suggestion_list);
+						if ($male_investigations !== false && is_array($male_investigations)) {
+							foreach ($male_investigations as $key => $value) {
+								if (!empty($value)) {
+									$inv_sql = "SELECT * FROM `hms_investigation` WHERE ID IN ($value)";
+									$inv_result = run_select_query($inv_sql);
+									if (!empty($inv_result)) {
+										$investigation_advice .= "Investigation (Male): " . $inv_result['investigation'] . "; ";
+										$investigation_billing_price += (float)$inv_result['price'];
+									}
+								}
+							}
+						}
+					}
+					
+					// Get actual investigation billing from approved investigations
+					if (!empty($row->appointment_id)) {
+						$inv_billing_sql = "SELECT investigations, totalpackage, discount_amount FROM hms_patient_investigations WHERE appointment_id='" . $row->appointment_id . "' AND patient_id='" . $row->patient_id . "' AND status='approved'";
+						$inv_billing_result = run_select_query($inv_billing_sql);
+						if ($inv_billing_result && isset($inv_billing_result['totalpackage'])) {
+							$investigation_billing_price = $inv_billing_result['totalpackage'] - $inv_billing_result['discount_amount'];
+						}
+					}
+					
+					// Process procedure advice
+					$procedure_advice = '';
+					$procedure_billing = 0;
+					
+					if (!empty($row->sub_procedure_suggestion_list)) {
+						$procedures = @unserialize($row->sub_procedure_suggestion_list);
+						if ($procedures !== false && is_array($procedures)) {
+							foreach ($procedures as $key => $value) {
+								if (!empty($value)) {
+									$proc_sql = "SELECT * FROM `hms_procedures` WHERE ID IN ($value)";
+									$proc_result = run_select_query($proc_sql);
+									if (!empty($proc_result)) {
+										$procedure_advice .= "Procedure: " . $proc_result['procedure_name'] . "; ";
+										$procedure_billing += (float)$proc_result['price'];
+									}
+								}
+							}
+						}
+					}
+					
+					// Get actual procedure billing from approved procedures
+					if (!empty($row->appointment_id)) {
+						$proc_billing_sql = "SELECT data, totalpackage, discount_amount FROM `hms_patient_procedure` WHERE appointment_id = ? AND patient_id = ? AND status = 'approved'";
+						$proc_billing_result = $this->db->query($proc_billing_sql, array($row->appointment_id, $row->patient_id))->row_array();
+						if ($proc_billing_result && isset($proc_billing_result['totalpackage'])) {
+							$procedure_billing = $proc_billing_result['totalpackage'] - $proc_billing_result['discount_amount'];
+						}
+					}
+					
+					// Process medicine advice
+					$medicine_advice = '';
+					$medicine_total = 0;
+					
+					// Male medicines
+					if (!empty($row->male_medicine_suggestion_list)) {
+						$male_medicines = @unserialize($row->male_medicine_suggestion_list);
+						if ($male_medicines !== false && isset($male_medicines['male_medicine_suggestion_list']) && is_array($male_medicines['male_medicine_suggestion_list'])) {
+							foreach ($male_medicines['male_medicine_suggestion_list'] as $med) {
+								if (is_array($med) && isset($med['male_medicine_name'])) {
+									// Get medicine details from database
+									$medicine_details = $this->get_medicine_details($med['male_medicine_name']);
+									$medicine_name = !empty($medicine_details) && isset($medicine_details['item_name']) ? $medicine_details['item_name'] : $med['male_medicine_name'];
+									
+									// Calculate pricing
+									$unit_price = 0;
+									$subtotal = 0;
+									if (!empty($medicine_details)) {
+										$unit_price = product_vendor_cost($medicine_details['product_id'], $medicine_details['brand_name'], $medicine_details['vendor_number']);
+										
+										// Check if it's syrup type
+										$sql = "Select * from ".$this->config->item('db_prefix')."stock_products where ID='".$medicine_details['product_id']."'";
+										$select_result = run_select_query($sql);
+										
+										if ($select_result['type'] == "Cyrup") {
+											$subtotal = (1 * 1) * ($unit_price * 1);
+										} else {
+											$frequency = medical_frequency($med['male_medicine_frequency']);
+											$subtotal = ($med['male_medicine_days'] * $frequency) * ($unit_price * $med['male_medicine_dosage']);
+										}
+										$medicine_total += $subtotal;
+									}
+									
+									$medicine_advice .= "Medicine (Male): " . $medicine_name . " - " . 
+													   (isset($med['male_medicine_dosage']) ? $med['male_medicine_dosage'] : 'N/A') . " for " . 
+													   (isset($med['male_medicine_days']) ? $med['male_medicine_days'] : 'N/A') . " days - " .
+													   "Unit Price: Rs." . round($unit_price, 2) . " - " .
+													   "Subtotal: Rs." . round($subtotal, 2) . "\n";
+								}
+							}
+						}
+					}
+					
+					// Female medicines
+					if (!empty($row->female_medicine_suggestion_list)) {
+						$female_medicines = @unserialize($row->female_medicine_suggestion_list);
+						if ($female_medicines !== false && isset($female_medicines['female_medicine_suggestion_list']) && is_array($female_medicines['female_medicine_suggestion_list'])) {
+							foreach ($female_medicines['female_medicine_suggestion_list'] as $med) {
+								if (is_array($med) && isset($med['female_medicine_name'])) {
+									// Get medicine details from database
+									$medicine_details = $this->get_medicine_details($med['female_medicine_name']);
+									$medicine_name = !empty($medicine_details) && isset($medicine_details['item_name']) ? $medicine_details['item_name'] : $med['female_medicine_name'];
+									
+									// Calculate pricing
+									$unit_price = 0;
+									$subtotal = 0;
+									if (!empty($medicine_details)) {
+										$unit_price = product_vendor_cost($medicine_details['product_id'], $medicine_details['brand_name'], $medicine_details['vendor_number']);
+										
+										// Check if it's syrup type
+										$sql = "Select * from ".$this->config->item('db_prefix')."stock_products where ID='".$medicine_details['product_id']."'";
+										$select_result = run_select_query($sql);
+										
+										if ($select_result['type'] == "Cyrup") {
+											$subtotal = (1 * 1) * ($unit_price * 1);
+										} else {
+											$frequency = medical_frequency($med['female_medicine_frequency']);
+											$subtotal = ($med['female_medicine_days'] * $frequency) * ($unit_price * $med['female_medicine_dosage']);
+										}
+										$medicine_total += $subtotal;
+									}
+									
+									$medicine_advice .= "Medicine (Female): " . $medicine_name . " - " . 
+													   (isset($med['female_medicine_dosage']) ? $med['female_medicine_dosage'] : 'N/A') . " for " . 
+													   (isset($med['female_medicine_days']) ? $med['female_medicine_days'] : 'N/A') . " days - " .
+													   "Unit Price: Rs." . round($unit_price, 2) . " - " .
+													   "Subtotal: Rs." . round($subtotal, 2) . "\n";
+								}
+							}
+						}
+					}
+					
+					// Add total medicine cost
+					if ($medicine_total > 0) {
+						$medicine_advice .= "TOTAL MEDICINE COST: Rs." . round($medicine_total, 2) . "\n";
+					}
+					
+					// Write row to CSV (without patient ID and name)
+					$csv_row = array(
+						$row->consultation_date,
+						$doctor_name,
+						$investigation_advice,
+						$investigation_billing_price,
+						$procedure_advice,
+						$procedure_billing,
+						$medicine_advice
+					);
+					fputcsv($output, $csv_row);
+				}
+			}
+			
+			fclose($output);
+			exit();
+		} else {
+			header("location:" . base_url() . "");
 			die();
 		}
 	}
@@ -7356,37 +7600,37 @@ public function partial_procedure(){
 	}
 
 
-	public function daily_sales_reporting(){
-		$logg = checklogin();
-		error_reporting(0);
-		if($logg['status'] == true){
+	// public function daily_sales_reporting(){
+	// 	$logg = checklogin();
+	// 	error_reporting(0);
+	// 	if($logg['status'] == true){
 
-			//$per_page = $this->input->get('per_page', true);
-			$center = $this->input->get('billing_at', true);
-			$payment_method = $this->input->get('payment_method', true);
-			$start_date = $this->input->get('start_date', true);
-			$end_date = $this->input->get('end_date', true);
+	// 		//$per_page = $this->input->get('per_page', true);
+	// 		$center = $this->input->get('billing_at', true);
+	// 		$payment_method = $this->input->get('payment_method', true);
+	// 		$start_date = $this->input->get('start_date', true);
+	// 		$end_date = $this->input->get('end_date', true);
 			
-			$config = array();
-        	$data['medicine_daily_result'] = $this->accounts_model->dashboard_medicine_daily_sales($center, $start_date, $end_date);
-			$data['investigations_daily_result'] = $this->accounts_model->dashboard_investigation_daily_sales($center, $start_date, $end_date);
-			$data['consultation_daily_result'] = $this->accounts_model->dashboard_consultation_daily_sales($center, $start_date, $end_date);
-			$data['registration_daily_result'] = $this->accounts_model->dashboard_registration_daily_sales($center, $start_date, $end_date);
-			$data['procedure_daily_result'] = $this->accounts_model->dashboard_procedure_daily_sales($center, $start_date, $end_date);
+	// 		$config = array();
+    //     	$data['medicine_daily_result'] = $this->accounts_model->dashboard_medicine_daily_sales($center, $start_date, $end_date);
+	// 		$data['investigations_daily_result'] = $this->accounts_model->dashboard_investigation_daily_sales($center, $start_date, $end_date);
+	// 		$data['consultation_daily_result'] = $this->accounts_model->dashboard_consultation_daily_sales($center, $start_date, $end_date);
+	// 		$data['registration_daily_result'] = $this->accounts_model->dashboard_registration_daily_sales($center, $start_date, $end_date);
+	// 		$data['procedure_daily_result'] = $this->accounts_model->dashboard_procedure_daily_sales($center, $start_date, $end_date);
 			
-			$data["billing_at"] = $center;
-			$data["start_date"] = $start_date;
-			$data["end_date"] = $end_date;
-			$data["payment_method"] = $payment_method;
-			$template = get_header_template($logg['role']);
-			$this->load->view($template['header']);
-			$this->load->view('accounts/daily_sales_reporting', $data);
-			$this->load->view($template['footer']);
-		}else{
-			header("location:" .base_url(). "");
-			die();
-		}
-	}
+	// 		$data["billing_at"] = $center;
+	// 		$data["start_date"] = $start_date;
+	// 		$data["end_date"] = $end_date;
+	// 		$data["payment_method"] = $payment_method;
+	// 		$template = get_header_template($logg['role']);
+	// 		$this->load->view($template['header']);
+	// 		$this->load->view('accounts/daily_sales_reporting', $data);
+	// 		$this->load->view($template['footer']);
+	// 	}else{
+	// 		header("location:" .base_url(). "");
+	// 		die();
+	// 	}
+	// }
 
 public function get_doctors_by_center() {
     // Enable CORS if needed
@@ -7442,15 +7686,16 @@ public function get_doctors_by_center() {
     exit;
 }
 
-/*function get_lead_source($paitent_id){
-		$lead_source = $this->accounts_model->get_lead_source($paitent_id);
-		return $lead_source;
-}
+// ... your existing Accounts controller code ...
 
-function get_lead_id($medicine){
-		$name = $this->billings_model->get_medicine_name($medicine);
-		return $name;
-}*/
+    /**
+     * Send Daily Sales Report via Email
+     */
+    public function send_daily_report_email() {
+        // Check if this is a POST request
+        if ($this->input->method() !== 'post') {
+            show_404();
+        }
 
         // Get recipient email from POST data
         $recipient_email = $this->input->post('recipient_email');

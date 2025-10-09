@@ -104,10 +104,13 @@
 							  if ($json_data == $v2_data['sub_procedures_code']){
 									  echo '<tr class="odd gradeX"><td>';
 
-									   $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
-	                $select_appoint = run_select_query($sql1);
+									   $sql = "SELECT * FROM hms_appointments WHERE paitent_id='" . $vl['patient_id'] . "'";
+					        $appoint_result = run_select_query($sql);
+
+					        $sql3 = "SELECT * FROM hms_appointments WHERE wife_phone='" . $appoint_result['wife_phone'] . "' and paitent_type='new_patient'";
+					        $select_result3 = run_select_query($sql3);
                   
-                  echo $select_appoint['crm_id'];
+                  echo $select_result3['crm_id'];
 				    echo '</td><td>';
 									  echo $vl['patient_id'];
 									  echo '</td><td>';
@@ -146,10 +149,13 @@
 						  }
 						  else{
 							  echo '<tr class="odd gradeX"><td>';
-					   $sql1 = "Select * from ".$this->config->item('db_prefix')."appointments where ID='".$vl['appointment_id']."'";
-	                $select_appoint = run_select_query($sql1);
+					  $sql = "SELECT * FROM hms_appointments WHERE paitent_id='" . $vl['patient_id'] . "'";
+					        $appoint_result = run_select_query($sql);
+
+					        $sql3 = "SELECT * FROM hms_appointments WHERE wife_phone='" . $appoint_result['wife_phone'] . "' and paitent_type='new_patient'";
+					        $select_result3 = run_select_query($sql3);
                   
-                  echo $select_appoint['crm_id'];
+                  echo $select_result3['crm_id'];
 					 
 					   echo '</td><td>';
                   echo $vl['patient_id'];

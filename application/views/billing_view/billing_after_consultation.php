@@ -239,8 +239,8 @@
                <h4>Investigations</h4>
                <?php  
                   //if (!empty($_SESSION['logged_billing_manager']['center']) && $_SESSION['logged_billing_manager']['center'] == "16133769691598") {
-                  $allowedCenters = array('16133769691598', '1581157290', '17519672203755');
-                  if (!empty($_SESSION['logged_billing_manager']['center']) && in_array($_SESSION['logged_billing_manager']['center'], $allowedCenters)) {
+                //  $allowedCenters = array('16133769691598', '1581157290', '17519672203755');
+                //  if (!empty($_SESSION['logged_billing_manager']['center']) && in_array($_SESSION['logged_billing_manager']['center'], $allowedCenters)) {
                   	?>
                   <table id="investigation_main_table">
                      <thead>
@@ -262,7 +262,7 @@
                                  foreach($male_minvestigation_suggestion_list as $key => $val){
                                     $investigation_details = $all_method->get_master_investigation_details($val);
                                     foreach ($investigation_details as $investigation_details) {
-                                       if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
+                                      // if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
                               ?>
                         <tr class="male_ivt_tr" id="male_invstg_<?php echo $male_ivt_count; ?>">
                            <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
@@ -284,7 +284,7 @@
                            <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="male_investigation_discount_<?php echo $male_ivt_count; ?>" class="investigation_discount required_value" name="male_investigation_discount_<?php echo $male_ivt_count; ?>" type="text" class="form-control " required></td>
                            <td><input type="checkbox" class="statuss" name="record"></td>
                         </tr>
-                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $male_ivt_count++;}} }} ?>
+                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $male_ivt_count++;}} }/* }*/  ?>
                         <?php  if(!empty($billing_details['female_minvestigation_suggestion_list'])){ 
                            $female_minvestigation_suggestion_list = unserialize($billing_details['female_minvestigation_suggestion_list']);
                                  $female_ivt_count = 1;
@@ -304,10 +304,10 @@
                                  
                                  if(!empty($investigation_details)){ 
                                  //if (!empty($investigation_details['center_id']) && $investigation_details['center_id'] == "16133769691598") {
-                                    $allowedCenterIds = array('16133769691598', '1581157290', '17519672203755');
+                                  //  $allowedCenterIds = array('16133769691598', '1581157290', '17519672203755');
                            
                                  // Check if the center_id exists and is in the allowed list
-                                 if (!empty($investigation_details['center_id']) && in_array($investigation_details['center_id'], $allowedCenterIds)) {
+                                // if (!empty($investigation_details['center_id']) && in_array($investigation_details['center_id'], $allowedCenterIds)) {
                                  ?>
                         <tr class="consumables_row_1 female_ivt_tr " id="fmale_invstg_<?php echo $female_ivt_count; ?>" trcount="<?php echo $female_ivt_count; ?>">
                            <td><input type="checkbox" class="active-statuss" rel="consumables" index="1"></td>
@@ -327,11 +327,11 @@
                            <td><input value="0" placeholder="Discount" investigation_price="<?php echo $invest_price; ?>" id="female_investigation_discount_<?php echo $female_ivt_count; ?>" class="investigation_discount required_value" name="female_investigation_discount_<?php echo $female_ivt_count; ?>" type="text" class="form-control " required></td>
                            <td><input type="checkbox" class="statuss" name="record"></td>
                         </tr>
-                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; } }} }} ?>
+                        <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; } }} } /*}*/ ?>
                      </tbody>
                   </table>
-               <?php }else{ ?>
-               <table id="investigation_main_table">
+               <?php /*} else{*/ ?>
+             <!--  <table id="investigation_main_table">
                   <thead>
                      <tr>
                         <th></th>
@@ -408,8 +408,8 @@
                      </tr>
                      <?php $grand_total += $invest_price; $invest_total += $invest_price; $female_ivt_count++; }}} } } ?>
                   </tbody>
-               </table>
-               <?php } ?>
+               </table>-->
+               <?php //} ?>
                <table>
                   <tr>
                      <td colspan='3'>
@@ -439,6 +439,8 @@
                   <thead>
                      <tr>
                         <th>Procedure</th>
+                        <th>HUB</th>
+                        <th>SPOKE</th>
                         <th>Code</th>
                         <th>Price</th>
                         <th>Discount</th>
@@ -450,24 +452,59 @@
                         <th>Delete</th>
                      </tr>
                   </thead>
-                  <tbody>
-                     <?php 	
-                        //var_dump($parent_procedure_details); die;	
-                        // if($_SESSION['logged_billing_manager']['center'] == "16249589462327" ) { 
-                        if ($_SESSION['logged_billing_manager']['center'] == "16249589462327" || $_SESSION['logged_billing_manager']['center'] == "16133769691598"  || $_SESSION['logged_billing_manager']['center'] == "16267558222750") {
-                        $sub_procedure_counter = 1;
-                        
-                        if(!empty($billing_details['sub_procedure_suggestion_list'])){
+                 <tbody>
+                    <?php 	
+                       // Build a map of procedure_ID => discount from $billing_details['procedure'] if available
+                       $procedure_discount_map = array();
+                       if (!empty($billing_details['procedure'])) {
+                         $procedureDataFromBilling = @unserialize($billing_details['procedure']);
+                         if ($procedureDataFromBilling !== false && !empty($procedureDataFromBilling['consumables']) && is_array($procedureDataFromBilling['consumables'])) {
+                           foreach ($procedureDataFromBilling['consumables'] as $consumableItem) {
+                             if (!empty($consumableItem['procedure_ID'])) {
+                               $procedure_discount_map[$consumableItem['procedure_ID']] = isset($consumableItem['discount']) ? $consumableItem['discount'] : '';
+                             }
+                           }
+                         }
+                       }
+                    //   if ($_SESSION['logged_billing_manager']['center'] == "16249589462327" || $_SESSION['logged_billing_manager']['center'] == "16133769691598"  || $_SESSION['logged_billing_manager']['center'] == "16267558222750") {
+                              $sub_procedure_counter = 1;
+                           if(!empty($billing_details['sub_procedure_suggestion_list'])){
                         $sub_procedure_suggestion_list = unserialize($billing_details['sub_procedure_suggestion_list']);
                         foreach($sub_procedure_suggestion_list as $key => $val){
-                          $sub_procedure_details = $all_method->get_procedure_details($val); //var_dump($val);die;
-                        
-                            if (!empty($sub_procedure_details['code']) && in_array($sub_procedure_details['code'], ["IP599","IP602","IP42", "IP43", "IP44", "IP45", "IP46","IP274", "IP201", "IP202", "IP203", "IP204", "IP205", "IP206", "IP21", "IP207", "IP208", "IP209", "IP60", "IP43", "IP55", "IP56", "IP57", "IP58", "IP89", "IP91", "IPD4", "IP210", "IP211", "IP212", "IP213", "IP214", "IP215", "IP38", "IP06", "IP15", "IP07", "IP216", "IP217", "IP01", "IP02", "IP03", "IP12", "IP18", "IP17", "IP14", "IP96", "IP65", "IP63", "IP05", "IP04", "IP08", "IP09", "IP37", "IP11", "IP59", "IP16", "IP34", "IP39", "IP20", "IP94", "IP95", "IP97", "IP90", "IP98", "IP99", "IP72", "IP73", "IP93", "IP40", "IP41", "IP48", "IP66", "IP68", "IP69", "IP47", "IP74", "IPD1", "IPD2", "IP67", "IP102", "IP103", "IP104", "IP105", "IP106", "IP107", "IP108", "IP109", "IP110", "IP111", "IP112", "IP113", "IP114", "IP115", "IP116", "IP117", "IP118", "IP119", "IP120", "IP121", "IP122", "IP123", "IP124", "IP125", "IP126", "IP127", "IP128", "IP129", "IP130", "IP131", "IP132", "IP133", "IP134", "IP135", "IP136", "IP137", "IP138", "IP139", "IP140", "IP141", "IP142", "IP143", "IP144", "IP145", "IP146", "IP147", "IP148", "IP149", "IP150", "IP151", "IP152", "IP153", "IP154", "IP155", "IP156", "IP157", "IP158", "IP159", "IP160", "IP161", "IP162", "IP163", "IP164", "IP165", "IP166", "IP167", "IP168", "IP169", "IP170", "IP171", "IP172", "IP173", "IP174", "IP175", "IP176", "IP177", "IP178", "IP179", "IP180", "IP181", "IP182", "IP183", "IP184", "IP185", "IP186", "IP187", "IP188", "IP189", "IP190", "IP191", "IP192", "IP193", "IP194", "IP195", "IP196", "IP197", "IP198", "IP199", "IP200", "IP218", "IP219", "IP220",
-                        "IP221", "IP226", "IP228", "IP230", "IP232", "IP234", "IP236", "IP238", "IP240", "IP242", "IP19", "IP62", "IP54", "IP64", "IP13", "IP22", "IP23", "IP70", "IP36", "IP71", "IP75", "IP76", "IP100", "IP78", "IP79", "IP80", "IP81", "IP82", "IP83", "IP84", "IP85", "IP86", "IP87", "IP88", "IP92", "IP222", "IP223", "IP224", "IP225", "IP227", "IP229", "IP231", "IP233", "IP235", "IP237", "IP239", "IP241", "IP245","INT78","INT65","INT13","INT02","INT11","INT54","INT42","INT64","INT20","INT229","INT230","IP101","IP250","IP251","IPD2INT","IPD1INT","INT228","INT227","IP243","INT03","INT220","IPD5","INT17","IP244","IP29","INT222","INT48","INT63","IP01D","IP252","IP253","IP286","INT225","INT226","IP24","INT40","INT246","INT07","INT19","IP286","IP292","INT53","IP299","IP300","IP302","IP301","IP303","IP27","IP26","IP298","INT292","IP447","IP246","INT47","IP458","IP357","INT31","IP32","IP453","IP451","IP459","IP288","IP289","INT67","IP31","IP254","INT298","INT458"])) {
+                          $sub_procedure_details = $all_method->get_procedure_details($val); 
+                    //        if (!empty($sub_procedure_details['code']) && in_array($sub_procedure_details['code'], ["IP599","IP602","IP42", "IP43", "IP44", "IP45", "IP46","IP274", "IP201", "IP202", "IP203", "IP204", "IP205", "IP206", "IP21", "IP207", "IP208", "IP209", "IP60", "IP43", "IP55", "IP56", "IP57", "IP58", "IP89", "IP91", "IPD4", "IP210", "IP211", "IP212", "IP213", "IP214", "IP215", "IP38", "IP06", "IP15", "IP07", "IP216", "IP217", "IP01", "IP02", "IP03", "IP12", "IP18", "IP17", "IP14", "IP96", "IP65", "IP63", "IP05", "IP04", "IP08", "IP09", "IP37", "IP11", "IP59", "IP16", "IP34", "IP39", "IP20", "IP94", "IP95", "IP97", "IP90", "IP98", "IP99", "IP72", "IP73", "IP93", "IP40", "IP41", "IP48", "IP66", "IP68", "IP69", "IP47", "IP74", "IPD1", "IPD2", "IP67", "IP102", "IP103", "IP104", "IP105", "IP106", "IP107", "IP108", "IP109", "IP110", "IP111", "IP112", "IP113", "IP114", "IP115", "IP116", "IP117", "IP118", "IP119", "IP120", "IP121", "IP122", "IP123", "IP124", "IP125", "IP126", "IP127", "IP128", "IP129", "IP130", "IP131", "IP132", "IP133", "IP134", "IP135", "IP136", "IP137", "IP138", "IP139", "IP140", "IP141", "IP142", "IP143", "IP144", "IP145", "IP146", "IP147", "IP148", "IP149", "IP150", "IP151", "IP152", "IP153", "IP154", "IP155", "IP156", "IP157", "IP158", "IP159", "IP160", "IP161", "IP162", "IP163", "IP164", "IP165", "IP166", "IP167", "IP168", "IP169", "IP170", "IP171", "IP172", "IP173", "IP174", "IP175", "IP176", "IP177", "IP178", "IP179", "IP180", "IP181", "IP182", "IP183", "IP184", "IP185", "IP186", "IP187", "IP188", "IP189", "IP190", "IP191", "IP192", "IP193", "IP194", "IP195", "IP196", "IP197", "IP198", "IP199", "IP200", "IP218", "IP219", "IP220",
+                     //   "IP221", "IP226", "IP228", "IP230", "IP232", "IP234", "IP236", "IP238", "IP240", "IP242", "IP19", "IP62", "IP54", "IP64", "IP13", "IP22", "IP23", "IP70", "IP36", "IP71", "IP75", "IP76", "IP100", "IP78", "IP79", "IP80", "IP81", "IP82", "IP83", "IP84", "IP85", "IP86", "IP87", "IP88", "IP92", "IP222", "IP223", "IP224", "IP225", "IP227", "IP229", "IP231", "IP233", "IP235", "IP237", "IP239", "IP241", "IP245","INT78","INT65","INT13","INT02","INT11","INT54","INT42","INT64","INT20","INT229","INT230","IP101","IP250","IP251","IPD2INT","IPD1INT","INT228","INT227","IP243","INT03","INT220","IPD5","INT17","IP244","IP29","INT222","INT48","INT63","IP01D","IP252","IP253","IP286","INT225","INT226","IP24","INT40","INT246","INT07","INT19","IP286","IP292","INT53","IP299","IP300","IP302","IP301","IP303","IP27","IP26","IP298","INT292","IP447","IP246","INT47","IP458","IP357","INT31","IP32","IP453","IP451","IP459","IP288","IP289","INT67","IP31","IP254","INT298","INT458"])) {
                         ?>
                      <tr>
                         <td><?php echo $sub_procedure_details['procedure_name']; ?>
                            <input value="<?php echo $val; ?>" procedure="<?php echo $sub_procedure_details['procedure_name']; ?>" readonly="readonly" id="sub_procedure_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedure_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
+                        </td>
+                        <?php
+                           $login_user_center_id = $_SESSION['logged_billing_manager']['center'];
+                           $center_exit = $all_method->check_procedure_exit_in_center($sub_procedure_details['code'],$login_user_center_id);
+                           if($center_exit) {
+                              $hub_name = $all_method->get_center_name($login_user_center_id);
+                              $spoke_name =$hub_name;
+                              $hub_center_id=$login_user_center_id;
+                              $spoke_center_id=$login_user_center_id;
+                           }else{
+                              $hub_id_of_this_procedure = $all_method->get_hub_center_id_from_spoke($login_user_center_id);
+                              $hub_name = $all_method->get_center_name($hub_id_of_this_procedure);
+                              $spoke_name =$all_method->get_center_name($login_user_center_id);
+                              $hub_center_id=$hub_id_of_this_procedure;
+                              $spoke_center_id=$login_user_center_id;
+                           }
+                        ?>
+                        <td>
+                           <?php echo $hub_name; ?>
+                           <input type="hidden" value="<?php echo $hub_center_id; ?>" name="billing_from" />
+                        </td>
+                        <td>
+                           <?php 
+                           echo !empty($spoke_name) ? $spoke_name : $hub_name; 
+                           ?>
+                           <input type="hidden" value="<?php echo !empty($spoke_name) ? $spoke_center_id : $hub_center_id; ?>"   name="billing_at" 
+                           />
                         </td>
                         <td><?php echo $sub_procedure_details['code']; ?>
                            <input value="<?php echo $sub_procedure_details['code']; ?>" readonly="readonly" id="sub_procedures_code_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedures_code_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
@@ -476,7 +513,8 @@
                            $sub_price = $sub_procedure_details['price']; echo 'Rs.'.$sub_price; ?>
                            <input value="<?php echo $sub_price; ?>" readonly="readonly" id="sub_procedures_price_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedures_price_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
                         </td>
-                        <td><input value="" placeholder="Discount" id="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" class="sub_procedures_discount required_value" name="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required sub_procedures_price="<?php echo $sub_price; ?>" ></td>
+                        <!-- <td><input value="" placeholder="Discount" id="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" class="sub_procedures_discount required_value" name="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required sub_procedures_price="<?php echo $sub_price; ?>" ></td> -->
+                        <td><input value="<?php echo isset($procedure_discount_map[$val]) ? $procedure_discount_map[$val] : ''; ?>"   placeholder="Discount" id="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" class="sub_procedures_discount required_value" name="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required sub_procedures_price="<?php echo $sub_price; ?>" ></td>
                         <td><input value="0" placeholder="GST" id="" class="sub_procedures_discount required_value" name="" type="text" class="form-control " required sub_procedures_price="" ></td>
                         <td><input value="" placeholder="Paid Price" id="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" class="sub_procedures_paid_price required_value" name="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required ></td>
                         <td>
@@ -499,12 +537,18 @@
                            </select>
                         </td>
                         <td><input value="<?php date_default_timezone_set("America/New_York");$receipt_number = date("YmdHis") . substr(microtime(), 2, 6);echo $receipt_number; ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number_<?php echo $sub_procedure_counter;?>" name="receipt_number_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required></td>
-                        <td><input type="file" name="receipt_image_<?php echo $sub_procedure_counter;?>" id="receipt_image_<?php echo $sub_procedure_counter;?>" class="form-control " required></td>
+                        <td>
+                           <input type="file" 
+                                 name="receipt_image_<?php echo $sub_procedure_counter;?>" 
+                                 id="receipt_image_<?php echo $sub_procedure_counter;?>" 
+                                 class="form-control"
+                                 >
+                        </td>
                         <td><input type="checkbox" class="statuss" name="record"></td>
                      </tr>
-                     <?php  $grand_total += $sub_price; $sub_procedure_counter++;}}}}else{ ?>
+                     <?php  $grand_total += $sub_price; $sub_procedure_counter++;}}//}}else{ ?>
                      <?php 	
-                        //var_dump($parent_procedure_details); die;	
+                   /*     //var_dump($parent_procedure_details); die;	
                         $sub_procedure_counter = 1;
                         if(!empty($billing_details['sub_procedure_suggestion_list'])){
                         $sub_procedure_suggestion_list = unserialize($billing_details['sub_procedure_suggestion_list']);
@@ -514,8 +558,37 @@
                             if (!empty($sub_procedure_details['code']) && in_array($sub_procedure_details['code'], ["IP599","IP602","IP55", "IP56", "IP57","IP16" ,"IP58", "IP89", "IP91", "IP68", "IP69", "IPD1", "IPD2", "IP67", "IP175", "IP176", "IP177", "IP178", "IP221", "IP222", "IP223", "IP224", "IP225", "IP227", "IP229", "IP231", "IP233", "IP235", "IP237", "IP239", "IP241", "IP62", "IP64", "IP13", "IP22", "IP23", "IP70", "IP36", "IP245", "IP218", "IP219", "INT222","IP101","IP250","IP251","IPD2INT","IPD1INT","INT228","INT227","INT220","IPD5","IP01D","IP286","IP450","IP452","IP289","INT67","IP451","IP02","IP218","IP45","IP11","IP459","IP14","IP298","IP04","IP64","IP601"])) {
                         ?>
                      <tr>
-                        <td><?php echo $sub_procedure_details['procedure_name']; ?>
-                           <input value="<?php echo $val; ?>" procedure="<?php echo $sub_procedure_details['procedure_name']; ?>" readonly="readonly" id="sub_procedure_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedure_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
+                     <td><?php echo $sub_procedure_details['procedure_name']; ?>
+                        <input value="<?php echo $val; ?>" procedure="<?php echo $sub_procedure_details['procedure_name']; ?>" readonly="readonly" id="sub_procedure_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedure_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
+                     </td>
+                        <?php
+                           $login_user_center_id = $_SESSION['logged_billing_manager']['center'];
+                           $center_exit = $all_method->check_procedure_exit_in_center($sub_procedure_details['code'],$login_user_center_id);
+                           if($center_exit) {
+                              $hub_name = $all_method->get_center_name($login_user_center_id);
+                              $spoke_name =$hub_name;
+                              $hub_center_id=$login_user_center_id;
+                              $spoke_center_id=$login_user_center_id;
+                           }else{
+                              $hub_id_of_this_procedure = $all_method->get_hub_center_id_from_spoke($login_user_center_id);
+                              $hub_name = $all_method->get_center_name($hub_id_of_this_procedure);
+                              $spoke_name =$all_method->get_center_name($login_user_center_id);
+                              $hub_center_id=$hub_id_of_this_procedure;
+                              $spoke_center_id=$login_user_center_id;
+                           }
+                        ?>
+                         <td>
+                           <?php echo $hub_name; ?>
+                           <input type="hidden" value="<?php echo $hub_center_id; ?>" name="billing_from" />
+                        </td>
+                        <td>
+                           <?php 
+                           echo !empty($spoke_name) ? $spoke_name : $hub_name; 
+                           ?>
+                           <input type="hidden" 
+                                 value="<?php echo !empty($spoke_name) ? $spoke_center_id : $hub_center_id; ?>" 
+                                 name="billing_at" 
+                           />
                         </td>
                         <td><?php echo $sub_procedure_details['code']; ?>
                            <input value="<?php echo $sub_procedure_details['code']; ?>" readonly="readonly" id="sub_procedures_code_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedures_code_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
@@ -524,7 +597,8 @@
                            $sub_price = $sub_procedure_details['price']; echo 'Rs.'.$sub_price; ?>
                            <input value="<?php echo $sub_price; ?>" readonly="readonly" id="sub_procedures_price_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedures_price_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
                         </td>
-                        <td><input value="" placeholder="Discount" id="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" class="sub_procedures_discount required_value" name="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required sub_procedures_price="<?php echo $sub_price; ?>" ></td>
+                        <!-- <td><input value="" placeholder="Discount" id="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" class="sub_procedures_discount required_value" name="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required sub_procedures_price="<?php echo $sub_price; ?>" ></td> -->
+                        <td><input value="<?php echo isset($procedure_discount_map[$val]) ? $procedure_discount_map[$val] : ''; ?>" placeholder="Discount" id="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" class="sub_procedures_discount required_value" name="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required sub_procedures_price="<?php echo $sub_price; ?>"  ></td>
                         <td><input value="0" placeholder="GST" id="" class="sub_procedures_discount required_value" name="" type="text" class="form-control " required sub_procedures_price="" ></td>
                         <td><input value="" placeholder="Paid Price" id="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" class="sub_procedures_paid_price required_value" name="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required ></td>
                         <td>
@@ -547,9 +621,10 @@
                            </select>
                         </td>
                         <td><input value="<?php echo getReceiptGUID(); ?>" placeholder="Receipt number" readonly="readonly" id="receipt_number_<?php echo $sub_procedure_counter;?>" name="receipt_number_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required></td>
+                        <td><input type="file" name="receipt_image_<?php echo $sub_procedure_counter;?>" id="receipt_image_<?php echo $sub_procedure_counter;?>" class="form-control " required></td>
                         <td><input type="checkbox" class="statuss" name="record"></td>
                      </tr>
-                     <?php  $grand_total += $sub_price; $sub_procedure_counter++;}}}} ?>
+                     <?php  $grand_total += $sub_price; $sub_procedure_counter++;}}}} */ ?>
                   </tbody>
                </table>
                <?php } ?>
@@ -567,6 +642,8 @@
                   <thead>
                      <tr>
                         <th>Procedure</th>
+                        <th>HUB</th>
+                        <th>SPOKE</th>
                         <th>Code</th>
                         <th>Price</th>
                         <th>Discount</th>
@@ -601,6 +678,34 @@
                         <td><?php echo $sub_procedure_details['procedure_name']; ?>
                            <input value="<?php echo $procedure_id; ?>" procedure="<?php echo $sub_procedure_details['procedure_name']; ?>" readonly="readonly" id="sub_procedure_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedure_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
                         </td>
+                         <?php
+                           $login_user_center_id = $_SESSION['logged_billing_manager']['center'];
+                           $center_exit = $all_method->check_procedure_exit_in_center($sub_procedure_details['code'],$login_user_center_id);
+                           if($center_exit) {
+                              $hub_name = $all_method->get_center_name($login_user_center_id);
+                              $spoke_name =$hub_name;
+                              $hub_center_id=$login_user_center_id;
+                              $spoke_center_id=$login_user_center_id;
+                           }else{
+                              $hub_id_of_this_procedure = $all_method->get_hub_center_id_from_spoke($login_user_center_id);
+                              $hub_name = $all_method->get_center_name($hub_id_of_this_procedure);
+                              $spoke_name =$all_method->get_center_name($login_user_center_id);
+                              $hub_center_id=$hub_id_of_this_procedure;
+                              $spoke_center_id=$login_user_center_id;
+                           }
+                        ?>
+                        <td>
+                           <?php echo $hub_name; ?>
+                           <input type="hidden" value="<?php echo $hub_center_id; ?>" name="billing_from" />
+                        </td>
+                        <td>
+                           <?php 
+                           echo !empty($spoke_name) ? $spoke_name : $hub_name; 
+                           ?>
+                           <input type="hidden" 
+                                 value="<?php echo !empty($spoke_name) ? $spoke_center_id : $hub_center_id; ?>" 
+                                 name="billing_at"/>
+                        </td>
                         <td><?php echo $sub_procedure_details['code']; ?>
                            <input value="<?php echo $sub_procedure_details['code']; ?>" readonly="readonly" id="sub_procedures_code_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedures_code_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
                         </td>
@@ -611,7 +716,9 @@
                               ?>
                            <input value="<?php echo $sub_price; ?>" readonly="readonly" id="sub_procedures_price_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedures_price_<?php echo $sub_procedure_counter;?>" type="hidden" class="form-control " required>
                         </td>
-                        <td><input value="0" placeholder="Discount" id="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" class="sub_procedures_discount required_value" name="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required sub_procedures_price="<?php echo $sub_price; ?>" ></td>
+                        <!-- <td><input value="0" placeholder="Discount" id="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" class="sub_procedures_discount required_value" name="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required sub_procedures_price="<?php echo $sub_price; ?>" ></td> -->
+
+                        <td><input value="<?php echo isset($procedure_discount_map[$procedure_id]) ? $procedure_discount_map[$procedure_id] : '0'; ?>" placeholder="Discount" id="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" class="sub_procedures_discount required_value" name="sub_procedures_discount_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required sub_procedures_price="<?php echo $sub_price; ?>" ></td>
                         <td><input value="0" placeholder="GST" id="sub_procedures_gst_<?php echo $sub_procedure_counter;?>" class="required_value" name="sub_procedures_gst_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required></td>
                         <td><input value="0" placeholder="Paid Price" id="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" class="sub_procedures_paid_price required_value" name="sub_procedures_paid_price_<?php echo $sub_procedure_counter;?>" type="text" class="form-control " required ></td>
                         <td>
@@ -815,6 +922,7 @@
                         <option value="Green Park">Green Park</option>
                         <option value="Srinagar">SRINAGAR</option>
                         <option value="Ghaziabad">Ghaziabad</option>
+                        <option value="Rohini">Rohini</option>
                      </select>
                   </div>
                </div>

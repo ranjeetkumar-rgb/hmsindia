@@ -165,7 +165,7 @@
                                         ?>
                                     </td>
                                     <td class="text-center">
-                                        <i class="fa fa-phone"></i> <?php echo $select_result_appo['wife_phone']; ?>
+                                        <i class="fa fa-phone"></i> <?php //echo $select_result_appo['wife_phone']; ?>
                                     </td>
                                     <td class="text-center">
                                         <span class="badge"><?php echo $vl['appointment_id']; ?></span>

@@ -201,6 +201,7 @@ $route['api/appointment/leadsquare'] = 'Api/AppointmentApi/leadsquareIntegration
 
 //Legacy routes (for backward compatibility)
 $route['my_appointments'] = 'appointmentcontroller/my_appointments';
+$route['my_appointments_camp'] = 'appointmentcontroller/my_appointments_in_camp';
 $route['all-appointments'] = 'appointmentcontroller/all_appointments';
 $route['telecaller-appointments'] = 'appointmentcontroller/telecaller_appointments';
 $route['follow-up-appointment'] = 'appointmentcontroller/followup_appointment';

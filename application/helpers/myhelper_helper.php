@@ -3123,22 +3123,31 @@ function get_center_notification(){
 	$db_prefix = $ci->config->config['db_prefix'];
 
 	
-    if(isset($_SESSION['logged_stock_manager']['employee_number']) && !empty($_SESSION['logged_stock_manager']['employee_number'])){
-    $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND employee_number='".$_SESSION['logged_stock_manager']['employee_number']."'";
-    }else{
-    $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND employee_number='".$_SESSION['logged_billing_manager']['employee_number']."'";
+    // Determine active session (stock manager, billing manager, or counselor)
+    $active_session = null;
+    foreach (array('logged_stock_manager','logged_billing_manager','logged_counselor') as $session_key) {
+        if (isset($_SESSION[$session_key]) && is_array($_SESSION[$session_key])) {
+            $active_session = $_SESSION[$session_key];
+            break;
+        }
+    }
+
+    $center_id = isset($active_session['center']) ? $active_session['center'] : 0;
+    $employee_number = isset($active_session['employee_number']) ? $active_session['employee_number'] : '';
+
+    // Build query safely based on available identifiers
+    if (!empty($employee_number)) {
+        $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND employee_number='".$employee_number."'";
+    } else {
+        $sql = "Select * from ".$db_prefix."center_stocks where quantity <= safety_stock AND center_number='".intval($center_id)."'";
     }
     $q = $ci->db->query($sql);
 
     $result = $q->result_array();
 
-	if(isset($_SESSION['logged_stock_manager']['employee_number']) && !empty($_SESSION['logged_stock_manager']['employee_number'])){
-	$center_id = $_SESSION['logged_stock_manager']['center'];
-	$employee_number = $_SESSION['logged_stock_manager']['employee_number'];
-	}else{
-	$center_id = $_SESSION['logged_billing_manager']['center'];
-	$employee_number = $_SESSION['logged_billing_manager']['employee_number'];
-    }
+    // Reuse derived identifiers; ensure defined
+    $center_id = isset($center_id) ? $center_id : 0;
+    $employee_number = isset($employee_number) && $employee_number !== '' ? $employee_number : '0';
 	$date = date("Y-m-d H:i:s");
 
 		
@@ -3364,7 +3373,6 @@ function getGUID(){
 function getReceiptGUID(){
     $Ymd = date('Ymd');
     $max = select_receipt_last();
-    //var_dump($max);die;
     if (strpos($max, $Ymd) === 0) {
         ++$max;
     } else {
@@ -3372,8 +3380,6 @@ function getReceiptGUID(){
     }
     return $max;
 }
-//Receipt Unique ID
-
 
 function insert_receipt_log($receipt_number){
     $ci= &get_instance();
@@ -3435,29 +3441,17 @@ function getiic(){
 }
 
 function maxpatient_id(){
-
 	$ci= &get_instance();
-
     $ci->load->database();
-
 	$db_prefix = $ci->config->config['db_prefix'];
-
 	$max = 1;
-
     $sql = "SELECT count(ID) as patient_id FROM ".$db_prefix."patients";
-
     $q   = $ci->db->query($sql);
-
     $result = $q->result_array();
-
     if(!empty($result)){
-
         $max = $result[0]['patient_id'];
-
         $max = $max + 1;
-
     }
-
     return $max;
 
 }
@@ -3905,37 +3899,21 @@ function get_master_investigation_name($id)
 
 
 function get_center_name($center_id)
-
 {
-
 	$ci = &get_instance();
-
 	$ci->load->database();
-
 	$sql = "SELECT * FROM hms_centers WHERE center_number = '".$center_id."'";
-
 	$q = $ci->db->query($sql);
-
 	$result = $q->result_array();
-
 	$center_name = ''; // Initialize the variable
-
 	if(count($result) > 0)
-
 	{
-
 		foreach($result as $key => $value)
-
 		{
-
 			$center_name = $value['center_name'];
-
 		}
-
 	}	
-
 	return $center_name;
-
 }
 
 
@@ -13312,5 +13290,7 @@ function get_billing_at_center_display($billing_at_center_id) {
         'center_id' => $billing_at_center_id
     );
 }
+
+   
 
 ?>

@@ -50,13 +50,18 @@ class Appointmentcontroller extends CI_Controller {
 			$patient_name = $this->input->get('patient_name', true);
 			$paitent_type = $this->input->get('paitent_type', true);
 			$crm_id = $this->input->get('crm_id', true);
+			$lead_source = $this->input->get('lead_source', true);
+			// Decode URL encoded values to handle spaces and special characters
+			if(!empty($lead_source)) {
+				$lead_source = urldecode($lead_source);
+			}
 			$export_billing = $this->input->get('export-billing', true);
 			if (isset($export_billing)){
-				$data = $this->appointment_model->export_my_appointments($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type,$crm_id);
+				$data = $this->appointment_model->export_my_appointments($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type,$crm_id, $lead_source);
 				header('Content-Type: text/csv; charset=utf-8');
 				header('Content-Disposition: attachment; filename=Appointments-Patients-'.$start_date.'-'.$end_date.'.csv');
 				$fp = fopen('php://output','w');
-				$headers = 'CRM ID, IIC ID, Patient Name, Husband Name, Nationality,Reason of Visit,  Appoitmented Date,Paitent Type, Status';
+				$headers = 'CRM ID,Lead Source, IIC ID, Patient Name, Husband Name, Nationality,Reason of Visit,  Appoitmented Date,Paitent Type, Status';
 				//Add the headers
 				fwrite($fp, $headers. "\r\n");
 				foreach ($data as $key => $val) {//var_dump($val);die;
@@ -65,7 +70,7 @@ class Appointmentcontroller extends CI_Controller {
 						$billing_from = get_center_name($billing_from);
 					}
 					$billing_at = get_center_name($val['billing_at']);
-					$lead_arr = array($val['crm_id'], $val['paitent_id'], $val['wife_name'], $val['husband_name'], $val['nationality'], $val['reason_of_visit'], $val['appoitmented_date'],$val['paitent_type'], $val['status']);
+					$lead_arr = array($val['crm_id'],$val['lead_source'], $val['paitent_id'], $val['wife_name'], $val['husband_name'], $val['nationality'], $val['reason_of_visit'], $val['appoitmented_date'],$val['paitent_type'], $val['status']);
 					fputcsv($fp, $lead_arr);
 				}
 				fclose($fp);
@@ -74,7 +79,7 @@ class Appointmentcontroller extends CI_Controller {
 
 			$config = array();
         	$config["base_url"] = base_url() . "my_appointments";
-        	$config["total_rows"] = $this->appointment_model->my_appointments_count($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id);
+        	$config["total_rows"] = $this->appointment_model->my_appointments_count($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source);
         	$config["per_page"] = 10;
         	$config["uri_segment"] = 2;
 			$config['use_page_numbers'] = true;
@@ -85,7 +90,7 @@ class Appointmentcontroller extends CI_Controller {
         	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
 			
         	$data["links"] = $this->pagination->create_links();
-			$data['appointments'] = $this->appointment_model->my_appointments_pagination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id);
+			$data['appointments'] = $this->appointment_model->my_appointments_pagination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source);
 			$data["status"] = $status;
 			$data["doctor"] = $doctor;
 			$data["start_date"] = $start_date;
@@ -94,10 +99,110 @@ class Appointmentcontroller extends CI_Controller {
 			$data["patient_name"] = $patient_name;
 			$data["paitent_type"] = $paitent_type;
 			$data["crm_id"] = $crm_id;
+			$data["lead_source"] = $lead_source;
+			$data["lead_sources"] = $this->appointment_model->get_all_lead_sources();
 			
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view('appointments/appointment', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+	public function my_appointments_in_camp()
+	{
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+			$data = array();
+			$template = get_header_template($logg['role']);
+			if (!empty($_SESSION['logged_billing_manager']['center'])) {
+				$center = $_SESSION['logged_billing_manager']['center'];
+			} elseif (!empty($_SESSION['logged_counselor']['center'])) {
+				$center = $_SESSION['logged_counselor']['center'];
+			} else {
+				$center = null; 
+			}
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}			
+			$start_date = $this->input->get('start_date', true);
+			$end_date = $this->input->get('end_date', true);
+			$doctor = $this->input->get('doctor', true);
+			$status = $this->input->get('status', true);
+			$patient_id = $this->input->get('patient_id', true);
+			$patient_name = $this->input->get('patient_name', true);
+			$paitent_type = $this->input->get('paitent_type', true);
+			$crm_id = $this->input->get('crm_id', true);
+			$lead_source = $this->input->get('lead_source', true);
+			$camp_id = $this->input->get('camp_id', true);
+			if(!empty($lead_source)) {
+				$lead_source = urldecode($lead_source);
+			}
+			$export_billing = $this->input->get('export-billing', true);
+			if (isset($export_billing)){
+				$data = $this->appointment_model->export_my_appointments_in_camp($start_date, $end_date, $center, $patient_id, $doctor, $patient_name, $paitent_type,$crm_id, $lead_source, $camp_id);
+				header('Content-Type: text/csv; charset=utf-8');
+				header('Content-Disposition: attachment; filename=Appointments-Patients-'.$start_date.'-'.$end_date.'.csv');
+				$fp = fopen('php://output','w');
+				$headers = 'CRM ID,Lead Source, IIC ID, Patient Name, Husband Name, Nationality,Reason of Visit,  Appoitmented Date,Paitent Type, Status';
+				//Add the headers
+				fwrite($fp, $headers. "\r\n");
+				foreach ($data as $key => $val) {//var_dump($val);die;
+					$billing_from = $val['billing_from'];
+					if($billing_from != "IndiaIVF"){
+						$billing_from = get_center_name($billing_from);
+					}
+					$billing_at = get_center_name($val['billing_at']);
+					$lead_arr = array($val['crm_id'],$val['lead_source'], $val['paitent_id'], $val['wife_name'], $val['husband_name'], $val['nationality'], $val['reason_of_visit'], $val['appoitmented_date'],$val['paitent_type'], $val['status']);
+					fputcsv($fp, $lead_arr);
+				}
+				fclose($fp);
+				exit();
+			}
+
+			$config = array();
+        	$config["base_url"] = base_url() . "my_appointments_camp";
+			$config["total_rows"] = $this->appointment_model->my_appointments_count_in_camp($center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source, $camp_id);
+        	$config["per_page"] = 10;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['appointments'] = $this->appointment_model->my_appointments_pagination_in_camp($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $patient_name, $status, $doctor, $paitent_type, $crm_id, $lead_source, $camp_id);
+			$data["status"] = $status;
+			$data["doctor"] = $doctor;
+			$data["start_date"] = $start_date;
+			$data["end_date"] = $end_date;
+			$data["patient_id"] = $patient_id;
+			$data["patient_name"] = $patient_name;
+			$data["paitent_type"] = $paitent_type;
+			$data["crm_id"] = $crm_id;
+			$data["lead_source"] = $lead_source;
+			$data["camp_id"] = $camp_id;
+			$data["lead_sources"] = $this->appointment_model->get_all_lead_sources();
+			
+			// Load camps for the current center
+			$this->load->model('camp_model');
+			$data["camps"] = $this->camp_model->get_camps_by_center($center);
+			
+			// Only show appointments if the center has camps
+			if(empty($data["camps"])) {
+				$data['appointments'] = array();
+				$data["links"] = '';
+			}
+			
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('appointments/appointment_in_camp', $data);
 			$this->load->view($template['footer']);
 		}else{
 			header("location:" .base_url(). "");
@@ -856,7 +961,8 @@ class Appointmentcontroller extends CI_Controller {
 			'end_date' => $this->input->get('end_date', TRUE),
 			'patient_type' => $this->input->get('patient_type', TRUE),
 			'crm_id' => $this->input->get('crm_id', TRUE),
-			'patient_id' => $this->input->get('patient_id', TRUE) ?: null
+			'patient_id' => $this->input->get('patient_id', TRUE) ?: null,
+			'lead_source' => $this->input->get('lead_source', TRUE) ? urldecode($this->input->get('lead_source', TRUE)) : null
 		];
 	}
 
