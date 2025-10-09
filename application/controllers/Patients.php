@@ -876,31 +876,36 @@ class Patients extends CI_Controller {
 		}
 	}
 
-    public function insert_timeline()
+ public function insert_timeline()
 {
     header('Content-Type: application/json');
 
-    $logg = checklogin();
-    if ($logg['status'] != true) {
-        echo json_encode(['status' => false, 'message' => 'Unauthorized access']);
-        return;
+    // Allow either login OR API key authentication
+    $api_key = $this->input->get_request_header('X-API-KEY', TRUE);
+
+    if ($api_key !== 'YOUR_SECRET_KEY_HERE') {
+        $logg = checklogin();
+        if ($logg['status'] != true) {
+            echo json_encode(['status' => false, 'message' => 'Unauthorized access']);
+            return;
+        }
+        $created_by = $logg['user_id'] ?? 'system';
+    } else {
+        $created_by = 'external_api';
     }
 
-    // Get POST data safely
+    // Get POST data
     $patient_id     = $this->input->post('patient_id', true);
     $event_type     = $this->input->post('event_type', true);
     $agent          = $this->input->post('agent', true);
     $event_details  = $this->input->post('event_details', true);
-    $created_by     = $logg['user_id'] ?? 'system';
     $event_date     = date('Y-m-d H:i:s');
 
-    // Validate required fields
     if (empty($patient_id) || empty($event_type)) {
         echo json_encode(['status' => false, 'message' => 'Missing required fields']);
         return;
     }
 
-    // Prepare data
     $data = [
         'patient_id'    => $patient_id,
         'event_type'    => $event_type,
@@ -910,7 +915,6 @@ class Patients extends CI_Controller {
         'event_date'    => $event_date
     ];
 
-    // Insert via model
     $insert_id = $this->patients_model->insert_patient_timeline($data);
 
     if ($insert_id) {
@@ -923,5 +927,6 @@ class Patients extends CI_Controller {
         echo json_encode(['status' => false, 'message' => 'Failed to insert record']);
     }
 }
+
 
 }
