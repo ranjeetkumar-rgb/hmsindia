@@ -542,7 +542,7 @@
                                  name="receipt_image_<?php echo $sub_procedure_counter;?>" 
                                  id="receipt_image_<?php echo $sub_procedure_counter;?>" 
                                  class="form-control"
-                                 <?php if ($sub_price > 0) echo 'required'; ?>>
+                                 >
                         </td>
                         <td><input type="checkbox" class="statuss" name="record"></td>
                      </tr>
@@ -922,6 +922,7 @@
                         <option value="Green Park">Green Park</option>
                         <option value="Srinagar">SRINAGAR</option>
                         <option value="Ghaziabad">Ghaziabad</option>
+                        <option value="Rohini">Rohini</option>
                      </select>
                   </div>
                </div>
