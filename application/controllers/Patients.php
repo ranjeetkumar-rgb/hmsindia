@@ -878,18 +878,32 @@ class Patients extends CI_Controller {
 
  public function insert_timeline()
 {
-    // Get POST data
-    $patient_id     = $this->input->post('patient_id', true);
-    $event_type     = $this->input->post('event_type', true);
-    $agent          = $this->input->post('agent', true);
-    $event_details  = $this->input->post('event_details', true);
-    $event_date     = date('Y-m-d H:i:s');
+    header('Content-Type: application/json');
 
+    // First, try to get POST data normally
+    $postData = $this->input->post();
+
+    // If no POST data found (likely JSON), decode raw input
+    if (empty($postData)) {
+        $rawInput = file_get_contents("php://input");
+        $postData = json_decode($rawInput, true);
+    }
+
+    // Extract values safely
+    $patient_id    = $postData['patient_id'] ?? null;
+    $event_type    = $postData['event_type'] ?? null;
+    $agent         = $postData['agent'] ?? null;
+    $event_details = $postData['event_details'] ?? null;
+    $created_by    = $postData['created_by'] ?? 'system';
+    $event_date    = date('Y-m-d H:i:s');
+
+    // Validate required fields
     if (empty($patient_id) || empty($event_type)) {
         echo json_encode(['status' => false, 'message' => 'Missing required fields']);
         return;
     }
 
+    // Prepare data
     $data = [
         'patient_id'    => $patient_id,
         'event_type'    => $event_type,
@@ -899,6 +913,7 @@ class Patients extends CI_Controller {
         'event_date'    => $event_date
     ];
 
+    // Insert via model
     $insert_id = $this->patients_model->insert_patient_timeline($data);
 
     if ($insert_id) {
@@ -911,6 +926,7 @@ class Patients extends CI_Controller {
         echo json_encode(['status' => false, 'message' => 'Failed to insert record']);
     }
 }
+
 
 
 }
