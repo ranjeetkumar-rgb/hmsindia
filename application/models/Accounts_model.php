@@ -1384,22 +1384,7 @@ class Accounts_model extends CI_Model
             return $result;
         }
 	}
-
-	/*function get_center_list($patient_id){
-		$result = array();
-		$sql = "Select billing_at from ".$this->config->item('db_prefix')."patient_procedure where patient_id='".$patient_id."'";
-        $q = $this->db->query($sql);
-        $result = $q->result_array();
-        if (!empty($result))
-        {
-            return array_unique($result);
-        }
-        else
-        {
-            return $result;
-        }
-	}
-	*/
+	
 	
 	function get_doctor_name($doctor){
 		
@@ -2969,8 +2954,6 @@ function patient_consultation_count_by_reason($center, $start_date, $end_date, $
     return $q->result_array(); // returns array of [reason_of_visit => total]
 }
 
-function patient_procedure_consultation_count($center, $start_date, $end_date, $patient_id,$reason_of_visit){
-    $conditions = '';
 
     if (!empty($center)){
         $conditions .= " AND billing_at='$center'";
@@ -2991,7 +2974,7 @@ function patient_procedure_consultation_count($center, $start_date, $end_date, $
         $conditions .= " AND on_date='$end_date'";
     }
 
-    $consultation_sql = "SELECT COUNT(DISTINCT T1.patient_id) AS unique_patient_count
+   echo $consultation_sql = "SELECT COUNT(DISTINCT T1.patient_id) AS unique_patient_count
     FROM hms_patient_procedure AS T1
     INNER JOIN (
         SELECT patient_id
@@ -3003,33 +2986,6 @@ function patient_procedure_consultation_count($center, $start_date, $end_date, $
     return $q->row_array(); // returns array with both counts
 }
 
-/*function patient_consultation_leadsource_count($lead_source, $reason_of_visit, $start_date, $end_date, $limit = null, $offset = 0){
-    $conditions = '';
-    
-    if (!empty($lead_source)){
-        $conditions .= " AND lead_source in ('$lead_source')";
-    }
-    if (!empty($start_date) && !empty($end_date)){
-        $conditions .= " AND appoitmented_date BETWEEN '".$start_date."' AND '".$end_date."'";
-    }
-    else if (!empty($start_date) && empty($end_date)){
-        $conditions .= " AND appoitmented_date='$start_date'";
-    }
-    else if (empty($start_date) && !empty($end_date)){
-        $conditions .= " AND appoitmented_date='$end_date'";
-    }
-
-	echo $leadsource_sql = "SELECT lead_source, COUNT(*) AS billed_count FROM hms_appointments WHERE 1 ".$conditions." AND billed = '1'";
-
-    // Add pagination if needed
-    if ($limit !== null) {
-        $leadsource_sql .= " LIMIT $limit OFFSET $offset";
-    }
-    
-    $leadsource_q = $this->db->query($leadsource_sql);
-    return $leadsource_q->result_array();
-}*/
-
 public function get_lead_source_dropdown_data() {
     $this->db->select("mapped_bucket, GROUP_CONCAT(original_lead_source) as sources");
     $this->db->from('hms_lead_source_mapping');
@@ -3037,11 +2993,16 @@ public function get_lead_source_dropdown_data() {
     $this->db->where("original_lead_source != ''");
     $this->db->group_by('mapped_bucket');
     $this->db->order_by('mapped_bucket');
-    $query = $this->db->get();
+    
+    $query = $this->db->get(); // Get the query object
+    
+    // Check if query was successful
     if (!$query) {
         return array();
     }
-    $result = $query->result_array();
+    
+    $result = $query->result_array(); // Convert to array
+    
     $dropdown_data = array();
     foreach($result as $row) {
         $sources_array = explode(',', $row['sources']);

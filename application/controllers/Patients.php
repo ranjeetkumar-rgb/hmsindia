@@ -837,4 +837,91 @@ class Patients extends CI_Controller {
 		$name = $this->billings_model->get_brand_name($brand);
 		return $name;
 	}
+
+	
+
+	public function timeline_view(){
+		$logg = checklogin();
+		error_reporting(0);
+		if($logg['status'] == true){
+
+			$per_page = $this->input->get('per_page', true);
+			if(empty($per_page)){
+				$per_page = 0;
+			}
+			$patient_id = $this->input->get('patient_id', true);
+			
+			$config = array();
+        	$config["base_url"] = base_url() . "patients/timeline_view";
+        	$config["total_rows"] = $this->patients_model->get_patient_timeline_count($patient_id);
+        	$config["per_page"] = 20;
+        	$config["uri_segment"] = 2;
+			$config['use_page_numbers'] = true;
+			$config['num_links'] = 5;
+			$config['page_query_string'] = true;
+			$config['reuse_query_string'] = true;
+        	$this->pagination->initialize($config);
+        	$page = ($this->uri->segment(2)) ? $this->uri->segment(2) : 0;
+			
+        	$data["links"] = $this->pagination->create_links();
+			$data['timeline_data'] = $this->patients_model->get_patient_timeline($config["per_page"], $per_page, $patient_id);
+			$data["patient_id"] = $patient_id;
+			$template = get_header_template($logg['role']);
+			$this->load->view($template['header']);
+			$this->load->view('patients/timeline_view', $data);
+			$this->load->view($template['footer']);
+		}else{
+			header("location:" .base_url(). "");
+			die();
+		}
+	}
+
+    public function insert_timeline()
+{
+    header('Content-Type: application/json');
+
+    $logg = checklogin();
+    if ($logg['status'] != true) {
+        echo json_encode(['status' => false, 'message' => 'Unauthorized access']);
+        return;
+    }
+
+    // Get POST data safely
+    $patient_id     = $this->input->post('patient_id', true);
+    $event_type     = $this->input->post('event_type', true);
+    $agent          = $this->input->post('agent', true);
+    $event_details  = $this->input->post('event_details', true);
+    $created_by     = $logg['user_id'] ?? 'system';
+    $event_date     = date('Y-m-d H:i:s');
+
+    // Validate required fields
+    if (empty($patient_id) || empty($event_type)) {
+        echo json_encode(['status' => false, 'message' => 'Missing required fields']);
+        return;
+    }
+
+    // Prepare data
+    $data = [
+        'patient_id'    => $patient_id,
+        'event_type'    => $event_type,
+        'agent'         => $agent,
+        'event_details' => $event_details,
+        'created_by'    => $created_by,
+        'event_date'    => $event_date
+    ];
+
+    // Insert via model
+    $insert_id = $this->patients_model->insert_patient_timeline($data);
+
+    if ($insert_id) {
+        echo json_encode([
+            'status' => true,
+            'message' => 'Timeline record added successfully',
+            'insert_id' => $insert_id
+        ]);
+    } else {
+        echo json_encode(['status' => false, 'message' => 'Failed to insert record']);
+    }
+}
+
 }

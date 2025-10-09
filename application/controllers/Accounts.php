@@ -1962,8 +1962,6 @@ public function procedure_reports(){
 			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source);
 			$data['reason_counts'] = $this->accounts_model->patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source);
 			$data['patient_counts'] = $this->accounts_model->patient_procedure_consultation_count($center, $start_date, $end_date, $patient_id,$reason_of_visit);
-			//$data['app_lead_source'] = $this->accounts_model->patient_consultation_leadsource_count($lead_source,$reason_of_visit,$start_date, $end_date);
-
 			$data['lead_sources'] = $this->accounts_model->get_lead_source_dropdown_data();
 
 			$data["billing_at"] = $center;
@@ -7943,3 +7941,9 @@ public function get_doctors_by_center() {
     }
 
 } // End of class - MAKE SURE THIS IS THE LAST LINE
+<<<<<<< HEAD
+=======
+
+	
+
+>>>>>>> 2a0edf535128b491e2e995db9b0829444ed0f901

@@ -474,6 +474,42 @@ class Patients_model extends CI_Model
 		$embryo_semen_analysis_result = $semen_analysis_q->result_array();
 		return $embryo_semen_analysis_result;
 	}
+
+	function get_patient_timeline_count($patient_id){
+		$semen_analysis_result = array();
+		$conditions = '';
+		if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		$semen_analysis_sql = "Select * from hms_patient_timeline where 1 ".$conditions."";
+		$q = $this->db->query($semen_analysis_sql);
+		return $q->num_rows();
+	}
+	
+	function get_patient_timeline($limit, $page, $patient_id){
+		$semen_analysis_result = array();
+		$conditions = '';
+		if(empty($page)){
+			$offset = 0;
+		}else{
+			$offset = ($page - 1) * $limit;
+		}
+		if (!empty($patient_id)){
+			$conditions .= " and patient_id='$patient_id'";
+		}
+		$semen_analysis_sql = "Select * from hms_patient_timeline where 1".$conditions." order by event_date desc limit ". $limit." OFFSET ".$offset."";
+		$semen_analysis_q = $this->db->query($semen_analysis_sql);
+		$embryo_semen_analysis_result = $semen_analysis_q->result_array();
+		return $embryo_semen_analysis_result;
+	}
+	public function insert_patient_timeline($data)
+	{
+		$this->db->insert('hms_patient_timeline', $data);
+		return $this->db->insert_id(); // return last inserted ID
+	}
+
+
+
 }
 // END Patients_model class
 /* End of file Patients_model.php */
