@@ -2655,7 +2655,7 @@ class Doctors extends CI_Controller {
 	}
 	
 	/**
-	 * Process medicine suggestions with validation
+	 * Process medicine suggestions for both OPD and IPD
 	 * 
 	 * @return array - Medicine data with status
 	 */
@@ -2663,18 +2663,56 @@ class Doctors extends CI_Controller {
 		try {
 			$medicine_data = array();
 			$medicine_data['medicine_suggestion'] = 1;
-			// Process male medicine suggestions
+			
+			// Process basic multiselect medicine values (simple array of medicine IDs)
+			if($this->input->post('male_medicine_suggestion_list')) {
+				$medicine_data['male_medicine_suggestion_list'] = serialize($this->input->post('male_medicine_suggestion_list'));
+			}
+			if($this->input->post('female_medicine_suggestion_list')) {
+				$medicine_data['female_medicine_suggestion_list'] = serialize($this->input->post('female_medicine_suggestion_list'));
+			}
+			
+			// Process OPD male medicine suggestions (detailed with dosage, timing, etc.)
 			$male_medicine_data = $this->extract_medicine_data('male');
 			if($male_medicine_data['status'] == 'error') {
 				return $male_medicine_data;
 			}
 			$medicine_data['male_medicine_suggestion_list'] = $male_medicine_data['data'];
-			// Process female medicine suggestions
+			
+			// Process OPD female medicine suggestions (detailed with dosage, timing, etc.)
 			$female_medicine_data = $this->extract_medicine_data('female');
 			if($female_medicine_data['status'] == 'error') {
 				return $female_medicine_data;
 			}
 			$medicine_data['female_medicine_suggestion_list'] = $female_medicine_data['data'];
+			
+			// Process IPD medicine suggestions if present
+			if($this->input->post('medicine_suggestion_ipd')) {
+				$medicine_data['medicine_suggestion_ipd'] = 1;
+				
+				// Process basic multiselect IPD medicine values
+				if($this->input->post('male_medicine_suggestion_list_ipd')) {
+					$medicine_data['male_medicine_suggestion_list_ipd'] = serialize($this->input->post('male_medicine_suggestion_list_ipd'));
+				}
+				if($this->input->post('female_medicine_suggestion_list_ipd')) {
+					$medicine_data['female_medicine_suggestion_list_ipd'] = serialize($this->input->post('female_medicine_suggestion_list_ipd'));
+				}
+				
+				// Process IPD male medicine suggestions (detailed with dosage, timing, etc.)
+				$male_medicine_ipd_data = $this->extract_medicine_data('male', '_ipd');
+				if($male_medicine_ipd_data['status'] == 'error') {
+					return $male_medicine_ipd_data;
+				}
+				$medicine_data['male_medicine_suggestion_list_ipd'] = $male_medicine_ipd_data['data'];
+				
+				// Process IPD female medicine suggestions (detailed with dosage, timing, etc.)
+				$female_medicine_ipd_data = $this->extract_medicine_data('female', '_ipd');
+				if($female_medicine_ipd_data['status'] == 'error') {
+					return $female_medicine_ipd_data;
+				}
+				$medicine_data['female_medicine_suggestion_list_ipd'] = $female_medicine_ipd_data['data'];
+			}
+			
 			return ['status' => 'success', 'data' => $medicine_data];
 		} catch (Exception $e) {
 			return ['status' => 'error', 'message' => 'Error processing medicine suggestions: ' . $e->getMessage()];
@@ -2682,40 +2720,41 @@ class Doctors extends CI_Controller {
 	}
 	
 	/**
-	 * Extract medicine data for male or female
+	 * Extract medicine data for male or female (OPD or IPD)
 	 * 
 	 * @param string $gender - 'male' or 'female'
+	 * @param string $suffix - '' for OPD or '_ipd' for IPD
 	 * @return array - Medicine data with status
 	 */
-	private function extract_medicine_data($gender) {
+	private function extract_medicine_data($gender, $suffix = '') {
 		try {
 			$medicine_array = array();
 			$medicine_numbers = array();
-			// Find medicine field names
+			$field_prefix = $gender . '_medicine_name' . $suffix;
+			
+			// Find medicine field names using regex pattern
+			$pattern = '/^' . preg_quote($field_prefix, '/') . '_(\d+)$/';
 			foreach($_POST as $key => $val) {
-				if (substr($key, 0, strlen($gender . '_medicine_name_')) === $gender . '_medicine_name_') {
+				if (preg_match($pattern, $key, $matches)) {
 					$medicine_array[] = $key;
+					$medicine_numbers[] = $matches[1];
 				}
 			}
-			// Extract medicine numbers
-			foreach($medicine_array as $key => $val) {
-				$explode = explode($gender . '_medicine_name_', $val);
-				$medicine_numbers[] = $explode[1];
-			}
 			$medicine_numbers = array_unique($medicine_numbers);
+			
 			// Build medicine suggestion list
 			$medicine_suggestion_list = array();
 			foreach($medicine_numbers as $key => $val) {
 				$medicine_suggestion_list[$gender . '_medicine_suggestion_list'][] = array(
-					$gender . '_medicine_name' => $this->input->post($gender . '_medicine_name_' . $val, TRUE),
-					$gender . '_medicine_dosage' => $this->input->post($gender . '_medicine_dosage_' . $val, TRUE),
-					$gender . '_medicine_remarks' => $this->input->post($gender . '_medicine_remarks_' . $val, TRUE),
-					$gender . '_medicine_when_start' => $this->input->post($gender . '_medicine_when_start_' . $val, TRUE),
-					$gender . '_medicine_days' => $this->input->post($gender . '_medicine_days_' . $val, TRUE),
-					$gender . '_medicine_route' => $this->input->post($gender . '_medicine_route_' . $val, TRUE),
-					$gender . '_medicine_frequency' => $this->input->post($gender . '_medicine_frequency_' . $val, TRUE),
-					$gender . '_medicine_timing' => $this->input->post($gender . '_medicine_timing_' . $val, TRUE),
-					$gender . '_medicine_take' => $this->input->post($gender . '_medicine_take_' . $val, TRUE)
+					$gender . '_medicine_name' => $this->input->post($gender . '_medicine_name' . $suffix . '_' . $val, TRUE),
+					$gender . '_medicine_dosage' => $this->input->post($gender . '_medicine_dosage' . $suffix . '_' . $val, TRUE),
+					$gender . '_medicine_remarks' => $this->input->post($gender . '_medicine_remarks' . $suffix . '_' . $val, TRUE),
+					$gender . '_medicine_when_start' => $this->input->post($gender . '_medicine_when_start' . $suffix . '_' . $val, TRUE),
+					$gender . '_medicine_days' => $this->input->post($gender . '_medicine_days' . $suffix . '_' . $val, TRUE),
+					$gender . '_medicine_route' => $this->input->post($gender . '_medicine_route' . $suffix . '_' . $val, TRUE),
+					$gender . '_medicine_frequency' => $this->input->post($gender . '_medicine_frequency' . $suffix . '_' . $val, TRUE),
+					$gender . '_medicine_timing' => $this->input->post($gender . '_medicine_timing' . $suffix . '_' . $val, TRUE),
+					$gender . '_medicine_take' => $this->input->post($gender . '_medicine_take' . $suffix . '_' . $val, TRUE)
 				);
 			}
 			return ['status' => 'success', 'data' => serialize($medicine_suggestion_list)];

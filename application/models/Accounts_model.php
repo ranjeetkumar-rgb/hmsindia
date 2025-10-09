@@ -3037,16 +3037,11 @@ public function get_lead_source_dropdown_data() {
     $this->db->where("original_lead_source != ''");
     $this->db->group_by('mapped_bucket');
     $this->db->order_by('mapped_bucket');
-    
-    $query = $this->db->get(); // Get the query object
-    
-    // Check if query was successful
+    $query = $this->db->get();
     if (!$query) {
         return array();
     }
-    
-    $result = $query->result_array(); // Convert to array
-    
+    $result = $query->result_array();
     $dropdown_data = array();
     foreach($result as $row) {
         $sources_array = explode(',', $row['sources']);
