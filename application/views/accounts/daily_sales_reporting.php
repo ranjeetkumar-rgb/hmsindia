@@ -1,4 +1,92 @@
  <?php $all_method =&get_instance(); ?>
+<!-- Email Sending Section -->
+<div class="card mt-4">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="fas fa-envelope"></i> Send Report via Email</h5>
+    </div>
+    <div class="card-body">
+        <form id="emailDailyReportForm">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="recipient_email"><strong>Recipient Email:</strong></label>
+                        <input type="email" id="recipient_email" name="recipient_email" 
+                               class="form-control" required 
+                               placeholder="Enter email address"
+                               value="ghanshyam.it.kr@gmail.com">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="email_subject"><strong>Subject:</strong></label>
+                        <input type="text" id="email_subject" name="email_subject" 
+                               class="form-control" 
+                               value="Daily Sales Report - <?php echo date('Y-m-d'); ?>">
+                    </div>
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="fas fa-paper-plane"></i> Send Daily Report
+            </button>
+            
+            <div class="mt-2">
+                <small class="text-muted">This will send the complete orderbook summary shown above.</small>
+            </div>
+        </form>
+        
+        <div id="emailResult" class="mt-3"></div>
+    </div>
+</div>
+
+<script>
+$(document).ready(function() {
+    $('#emailDailyReportForm').submit(function(e) {
+        e.preventDefault();
+        
+        var submitBtn = $(this).find('button[type="submit"]');
+        var originalText = submitBtn.html();
+        submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Sending...');
+        
+        $.ajax({
+            url: '<?php echo site_url("accounts/send_daily_report_email"); ?>',
+            type: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    $('#emailResult').html(
+                        '<div class="alert alert-success alert-dismissible fade show">' +
+                        '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                        '<i class="fas fa-check-circle"></i> <strong>Success!</strong> ' + response.message + '<br>' +
+                        '<small>Sent to: ' + response.recipient + ' at ' + response.timestamp + '</small>' +
+                        '</div>'
+                    );
+                } else {
+                    $('#emailResult').html(
+                        '<div class="alert alert-danger alert-dismissible fade show">' +
+                        '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                        '<i class="fas fa-exclamation-circle"></i> <strong>Error!</strong> ' + response.message +
+                        '</div>'
+                    );
+                }
+            },
+            error: function(xhr, status, error) {
+                $('#emailResult').html(
+                    '<div class="alert alert-danger alert-dismissible fade show">' +
+                    '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                    '<i class="fas fa-exclamation-circle"></i> <strong>Request Failed!</strong> Please try again.' +
+                    '</div>'
+                );
+            },
+            complete: function() {
+                submitBtn.prop('disabled', false).html(originalText);
+            }
+        });
+    });
+});
+</script>
+ 
  	<div class="container-2">
         <header>
             <div class="header-top">
@@ -35,6 +123,7 @@
                     <span>Orderbook Summary</span>
                     <i class="fas fa-clipboard-list"></i>
                 </div>
+                <form >
                 <div class="card-content">
                     <div class="summary-stats">
                         <div class="stat">
@@ -59,33 +148,33 @@
                         <tbody>
                             <tr>
                                 <td>IVF Cycles Sold</td>
-                                <td></td>
-                                <td></td>
-                                <td class="numeric">-</td>
+                                <td><input type="text" id="ivf_cycles_sold_c_count" name="ivf_cycles_sold_c_count"></td>
+                                <td><input type="text" id="ivf_cycles_sold_b_count" name="ivf_cycles_sold_b_count"></td>
+                                <td class="numeric"><input type="text" id="ivf_cycles_sold_amount" name="ivf_cycles_sold_amount"></td>
                             </tr>
                             <tr>
                                 <td>IVF with Bed</td>
-                                <td></td>
-                                <td></td>
-                                <td class="numeric">-</td>
+                                <td><input type="text" id="ivf_with_bed_c_count" name="ivf_with_bed_c_count"></td>
+                                <td><input type="text" id="ivf_with_bed_b_count" name="ivf_with_bed_b_count"></td>
+                                <td class="numeric"><input type="text" id="ivf_with_bed_amount" name="ivf_with_bed_amount"></td>
                             </tr>
                             <tr>
                                 <td>Non IVF with Bed</td>
-                                <td></td>
-                                <td>-</td>
-                                <td class="numeric">-</td>
+                                <td><input type="text" id="non_ivf_with_bed_c_count" name="non_ivf_with_bed_c_count"></td>
+                                <td><input type="text" id="non_ivf_with_bed_b_count" name="non_ivf_with_bed_b_count"></td>
+                                <td class="numeric"><input type="text" id="non_ivf_with_bed_amount" name="non_ivf_with_bed_amount"></td>
                             </tr>
                             <tr>
                                 <td>Non IVF without Bed</td>
-                                <td></td>
-                                <td>-</td>
-                                <td class="numeric">-</td>
+                                <td><input type="text" id="non_ivf_without_bed_c_count" name="non_ivf_without_bed_c_count"></td>
+                                <td><input type="text" id="non_ivf_without_bed_b_count" name="non_ivf_without_bed_b_count"></td>
+                                <td class="numeric"><input type="text" id="non_ivf_without_bed_amount" name="non_ivf_without_bed_amount"></td>
                             </tr>
                             <tr>
                                 <td>(Not Tagged)</td>
-                                <td>-</td>
-                                <td>-</td>
-                                <td class="numeric">-</td>
+                                <td><input type="text" id="not_tagged_c_count" name="not_tagged_c_count"></td>
+                                <td><input type="text" id="not_tagged_b_count" name="not_tagged_b_count"></td>
+                                <td class="numeric"><input type="text" id="not_tagged_amount" name="not_tagged_amount"></td>
                             </tr>
                            <?php 
             $procedure_net = 0;
@@ -100,9 +189,9 @@
             ?>
                     <tr class="sub-header">
                         <td>A. Package Revenue Total</td>
-                        <td><?php echo round($vl['total_patients'],2); ?></td>
-                        <td><?php echo round($vl['total_fees'],2); ?></td>
-                        <td><?php echo round($vl['total_patients'],2); ?></td>
+                        <td><input type="text" id="package_customer_count" name="package_customer_count" value="<?php echo round($vl['total_patients'],2); ?>"></td>
+                        <td><input type="text" id="package_bill_count" name="package_bill_count" value="<?php echo round($vl['total_fees'],2); ?>"></td>
+                        <td><input type="text" id="package_amount" name="package_amount" value="<?php echo round($vl['total_patients'],2); ?>"></td>
                     </tr>
 					<?php } ?>
                 			 <?php 
@@ -118,9 +207,9 @@
             ?>
                     <tr>
                         <td>Medicine</td>
-                        <td><?php echo round($vl['total_patients'],2); ?></td>
-                        <td><?php echo round($vl['total_payment'],2); ?></td>
-                        <td><?php echo round($vl['total_patients'],2); ?></td>
+                        <td><input type="text" id="medicine_customer_count" name="medicine_customer_count" value="<?php echo round($vl['total_patients'],2); ?>"></td>
+                        <td><input type="text" id="medicine_bill_count" name="medicine_bill_count" value="<?php echo round($vl['total_payment'],2); ?>"></td>
+                        <td><input type="text" id="medicine_amount" name="medicine_amount" value="<?php echo round($vl['total_patients'],2); ?>"></td>
                     </tr>
 					<?php } ?>
 							<?php 
@@ -136,9 +225,9 @@
             ?>
                     <tr>
                         <td>Diagnosis</td>
-                        <td><?php echo round($vl['total_patients'],2); ?></td>
-                        <td><?php echo round($vl['total_payment'],2); ?></td>
-                        <td><?php echo round($vl['total_patients'],2); ?></td>
+                        <td><input type="text" id="diagnosis_customer_count" name="diagnosis_customer_count" value="<?php echo round($vl['total_patients'],2); ?>"></td>
+                        <td><input type="text" id="diagnosis_bill_count" name="diagnosis_bill_count" value="<?php echo round($vl['total_patients'],2); ?>"></td>
+                        <td><input type="text" id="diagnosis_amount" name="diagnosis_amount" value="<?php echo round($vl['total_patients'],2); ?>"></td>
                     </tr>
 					<?php } ?>
                            <?php 
@@ -158,9 +247,9 @@
             ?>
                     <tr>
                         <td>Consultation / Registration - Paid</td>
-                        <td><?php echo round($vl['total_patients'],2); ?></td>
-                        <td><?php echo round($vl['total_payment'],2) + $registration_payment; ?></td>
-                        <td><?php echo round($vl['total_patients'],2); ?></td>
+                        <td><input type="text" id="diagnosis_amount" name="diagnosis_amount" value="<?php echo round($vl['total_patients'],2); ?>"></td>
+                        <td><input type="text" id="diagnosis_amount" name="diagnosis_amount" value="<?php echo round($vl['total_payment'],2) + $registration_payment; ?>"></td>
+                        <td><input type="text" id="diagnosis_amount" name="diagnosis_amount" value="<?php echo round($vl['total_patients'],2); ?>"></td>
                     </tr>
 					<?php } ?>
                             <tr>
@@ -179,14 +268,16 @@
                                 <td>Status</td>
                                 <td></td>
                                 <td colspan="2">
-								<div class="approver-item" style="margin-bottom: 8px; padding: 6px; border-radius: 4px; border-left: 3px solid #ffc107; background-color: #f8f9fa;"><div style="display: flex; align-items: center; margin-bottom: 4px;"><span class="status-icon" style="color: #ffc107; font-weight: bold;">⏳</span><span class="status-text" style="color: #333;">Pending</span></div><div class="approver-email">ranjeetmaurya2033@gmail.com</div></div>
-								<div class="approver-item" style="margin-bottom: 8px; padding: 6px; border-radius: 4px; border-left: 3px solid #ffc107; background-color: #f8f9fa;"><div style="display: flex; align-items: center; margin-bottom: 4px;"><span class="status-icon" style="color: #ffc107; font-weight: bold;">⏳</span><span class="status-text" style="color: #333;">Pending</span></div><div class="approver-email">ranjeetmaurya2033@gmail.com</div></div>
+								<div class="approver-item"><div style="display: flex; align-items: center; margin-bottom: 4px;"><a href="javascript:void(0);" class="btn btn-large" onclick="approveProcedure('<?php echo $vl['ID']; ?>')">Approve</a></div><div class="approver-email"><?php echo $_SESSION['logged_billing_manager']['name']?></div></div>
+								<div class="approver-item"><div style="display: flex; align-items: center; margin-bottom: 4px;"><a href="javascript:void(0);" class="btn btn-large" onclick="approveProcedure('<?php echo $vl['ID']; ?>')">Approve</a></div><div class="approver-email"><?php echo $_SESSION['logged_counselor']['name']?></div></div>
 								</td>
                                 
                             </tr>
                         </tbody>
                     </table>
                 </div>
+                <input type="submit" id="submit">
+            </form>
             </div>
             
             <div class="card">
