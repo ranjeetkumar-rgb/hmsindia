@@ -890,7 +890,7 @@ class Patients extends CI_Controller {
     }
 
     // Extract values safely
-    $patient_id    = $postData['patient_id'] ?? null;
+    $crm_id    = $postData['crm_id'] ?? null;
     $event_type    = $postData['event_type'] ?? null;
     $agent         = $postData['agent'] ?? null;
     $event_details = $postData['event_details'] ?? null;
@@ -905,7 +905,7 @@ class Patients extends CI_Controller {
 
     // Prepare data
     $data = [
-        'patient_id'    => $patient_id,
+        'crm_id'    => $crm_id,
         'event_type'    => $event_type,
         'agent'         => $agent,
         'event_details' => $event_details,
