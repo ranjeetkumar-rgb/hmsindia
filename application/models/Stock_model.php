@@ -842,10 +842,7 @@ class Stock_model extends CI_Model
 	
 	public function update_item_data($data, $item, $company, $item_name, $generic_name, $batch_number, $mrp, $product_id, $vendor_price, $quantity_in, $hsn, $pack_size, $gstrate, $gstdivision, $expiry, $vendor_number, $brand_name, $status)
     {
-		 $sql3 = "UPDATE hms_stocks SET `item_number` = '$item', `company` = '$company', `item_name` = '$item_name', `generic_name` = '$generic_name', `batch_number` = '".$batch_number."', `mrp` = '".$data['mrp']."', `product_id` = '".$data['product_id']."', `vendor_price` = '".$data['vendor_price']."', `quantity` = quantity+".$data['quantity_in'].", `hsn` = '".$data['hsn']."', `pack_size` = '".$data['pack_size']."', `gstrate` = '".$data['gstrate']."',`gstdivision` = '".$data['gstdivision']."', `expiry` = '".$data['expiry']."', `safety_stock` = '".$data['safety_stock']."', `order_qty` = '".$data['order_qty']."', `category` = '".$data['category']."',`vendor_number` = '".$data['vendor_number']."',`brand_name` = '".$data['brand_name']."', `status` = '".$data['status']."' WHERE `item_number`='".$item."'";
-		//var_dump($data);
-		//die;
-		//$sql .= " ;
+		 $sql3 = "UPDATE hms_stocks SET `item_number` = '$item', `company` = '$company', `item_name` = '$item_name', `generic_name` = '$generic_name', `batch_number` = '".$batch_number."', `mrp` = '".$data['mrp']."', `product_id` = '".$data['product_id']."', `vendor_price` = '".$data['vendor_price']."', `quantity` = quantity+".$data['quantity_in'].", `hsn` = '".$data['hsn']."', `pack_size` = '".$data['pack_size']."', `gstrate` = '".$data['gstrate']."',`gstdivision` = '".$data['gstdivision']."', `expiry` = '".$data['expiry']."', `safety_stock` = '".$data['safety_stock']."', `order_qty` = '".$data['order_qty']."', `category` = '".$data['category']."',`vendor_number` = '".$data['vendor_number']."',`brand_name` = '".$data['brand_name']."', `status` = '".$data['status']."',`medicine_type` = '".$data['medicine_type']."'  WHERE `item_number`='".$item."'"; //echo $sql3; die;` WHERE `item_number`='".$item."'";
 		$this->db->query($sql3);
         return $this->db->affected_rows();
     }

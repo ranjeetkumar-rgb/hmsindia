@@ -2062,26 +2062,14 @@ class Doctors extends CI_Controller {
 		// Check if user is logged in
 		$logg = checklogin();
 		if($logg['status'] == true){
-			// Check if form is being submitted for consultation completion
-			// NOTE: Duplicate isset check - should be fixed
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_consultation_done'){
-				// Remove action from POST data
 				unset($_POST['action']);
-				
-				// PROCESS MEDICINE SUGGESTIONS
-				// This section handles dynamic medicine fields for both male and female patients
-				// The form creates fields like: male_medicine_name_1, male_medicine_dosage_1, etc.
 				if(isset($_POST['medicine_suggestion'])){
-					// Initialize arrays to store medicine field names
 					$male_med_array = $female_med_array = array();
-					
-					// Loop through all POST data to find medicine-related fields
 					foreach($_POST as $key => $val){
-						// Find male medicine name fields (e.g., male_medicine_name_1, male_medicine_name_2)
 						if (substr( $key, 0, 19 ) === "male_medicine_name_") {
 							$male_med_array[] = $key;
 						}
-						// Find female medicine name fields (e.g., female_medicine_name_1, female_medicine_name_2)
 						if (substr( $key, 0, 21 ) === "female_medicine_name_") {
 							$female_med_array[] = $key;
 						}
@@ -2267,19 +2255,12 @@ class Doctors extends CI_Controller {
 					$appointment_arr['follow_up_appointment'] = 1;
 					$appointment_arr['previous_appointment'] = $consultation_post['appointment_id'];
 					$appointment_arr['appointment_added'] = date('Y-m-d H:i:s');
-					//var_dump($appointment_arr['appoitment_for']);
-					//die();
 					$appointment = $this->billingmodel_model->insert_appointments($appointment_arr);
-					
-					//var_dump($centre_details = get_centre_details($appointment_arr['appoitment_for']));
-					//die();
-					
 					if($appointment > 0){
-						
 						$centre_details = get_centre_details($appointment_arr['appoitment_for']);
 						$appointwhatmsg = array();
-					$appointwhatmsg = array($appointment_arr['wife_name'], $centre_details['center_name'], date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])), $appointment_arr['appoitmented_slot'], isset($centre_details['center_location'])?$centre_details['center_location']:"");
-					$appointsendmsg = whatsappappointment(
+						$appointwhatmsg = array($appointment_arr['wife_name'], $centre_details['center_name'], date("d-m-Y", strtotime($appointment_arr['appoitmented_date'])), $appointment_arr['appoitmented_slot'], isset($centre_details['center_location'])?$centre_details['center_location']:"");
+						$appointsendmsg = whatsappappointment(
 						$appointment_arr['wife_phone'], 
 						$appointment_arr['wife_name'],
 						$centre_details['center_name'],
@@ -2526,242 +2507,279 @@ class Doctors extends CI_Controller {
 	 * @param int $appointment_id - The appointment ID for the consultation
 	 * @return void
 	 */
-	function follow_up($appointment_id){
-		$logg = checklogin();
-		if($logg['status'] == true){
-			if(isset($_POST['action']) && $_POST['action'] == 'add_consultation_done'){
-				// Process consultation data with validation
-				$consultation_data = $this->process_consultation_data();
-				if($consultation_data['status'] == 'error') {
-					header("location:" .base_url(). "doctor_appointments?m=".base64_encode($consultation_data['message']).'&t='.base64_encode('error'));
-					die();
-				}
-				// Process follow-up appointment if required
-				if($consultation_data['data']['follow_up'] == 1) {
-					$followup_result = $this->process_followup_appointment($consultation_data['data']);
-					if($followup_result['status'] == 'error') {
-						header("location:" .base_url(). "doctor_appointments?m=".base64_encode($followup_result['message']).'&t='.base64_encode('error'));
-						die();
-					}
-				}
-				// Save consultation data
-				$consultation_done = $this->doctors_model->consultation_done($consultation_data['data']);
-				if($consultation_done > 0) {
-					// Process external API calls
-					$this->send_consultation_to_external_apis($consultation_data['data']);
-					// Send advisory emails if templates selected
-					$this->send_advisory_emails($consultation_data['data']);
-					// Update appointment status
-					$this->appointment_model->appointment_status('consultation_done', $consultation_data['data']['appointment_id']);
-					header("location:" .base_url(). "doctor_appointments?m=".base64_encode('Consultation done!').'&t='.base64_encode('success'));
-					die();
-				} else {
-					header("location:" .base_url(). "doctor_appointments?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
-					die();
-				}
-			}
-			// Load view data (same as original)
-			$data = array();
-			$data['appointments'] = $this->appointment_model->doctor_appointment_details($appointment_id);
-			$data['consultation_medicine'] = $this->doctors_model->consultation_medicine();
-			$data['investigations'] = $this->investigation_model->get_investigations_list();
-			$data['master_investigations'] = $this->investigation_model->get_master_investigations_list();
-			$data['procedures'] = $this->procedures_model->get_procedures_list();
-			$data['package'] = $this->procedures_model->get_procedure_package_list();			
-			$template = get_header_template($logg['role']);
-			$this->load->view($template['header']);
-			$this->load->view('appointments/follow_up', $data);
-			$this->load->view($template['footer']);
-		} else {
-			header("location:" .base_url(). "");
-			die();
-		}
-	}
+	
+	// function follow_up($appointment_id){
+	// 	$logg = checklogin();
+	// 	if($logg['status'] == true){
+	// 		if(isset($_POST['action']) && $_POST['action'] == 'add_consultation_done'){
+	// 			// Process consultation data with validation
+	// 			$consultation_data = $this->process_consultation_data();
+	// 			if($consultation_data['status'] == 'error') {
+	// 				header("location:" .base_url(). "doctor_appointments?m=".base64_encode($consultation_data['message']).'&t='.base64_encode('error'));
+	// 				die();
+	// 			}
+	// 			// Process follow-up appointment if required
+	// 			if($consultation_data['data']['follow_up'] == 1) {
+	// 				$followup_result = $this->process_followup_appointment($consultation_data['data']);
+	// 				if($followup_result['status'] == 'error') {
+	// 					header("location:" .base_url(). "doctor_appointments?m=".base64_encode($followup_result['message']).'&t='.base64_encode('error'));
+	// 					die();
+	// 				}
+	// 			}
+	// 			// Save consultation data
+	// 			$consultation_done = $this->doctors_model->consultation_done($consultation_data['data']);
+	// 			if($consultation_done > 0) {
+	// 				// Process external API calls
+	// 				// $this->send_consultation_to_external_apis($consultation_data['data']);
+	// 				// Send advisory emails if templates selected
+	// 				$this->send_advisory_emails($consultation_data['data']);
+	// 				// Update appointment status
+	// 				$this->appointment_model->appointment_status('consultation_done', $consultation_data['data']['appointment_id']);
+	// 				header("location:" .base_url(). "doctor_appointments?m=".base64_encode('Consultation done!').'&t='.base64_encode('success'));
+	// 				die();
+	// 			} else {
+	// 				header("location:" .base_url(). "doctor_appointments?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
+	// 				die();
+	// 			}
+	// 		}
+	// 		// Load view data (same as original)
+	// 		$data = array();
+	// 		$data['appointments'] = $this->appointment_model->doctor_appointment_details($appointment_id);
+	// 		$data['consultation_medicine'] = $this->doctors_model->consultation_medicine();
+	// 		$data['investigations'] = $this->investigation_model->get_investigations_list();
+	// 		$data['master_investigations'] = $this->investigation_model->get_master_investigations_list();
+	// 		$data['procedures'] = $this->procedures_model->get_procedures_list();
+	// 		$data['package'] = $this->procedures_model->get_procedure_package_list();			
+	// 		$template = get_header_template($logg['role']);
+	// 		$this->load->view($template['header']);
+	// 		$this->load->view('appointments/follow_up', $data);
+	// 		$this->load->view($template['footer']);
+	// 	} else {
+	// 		header("location:" .base_url(). "");
+	// 		die();
+	// 	}
+	// }
+	// private function process_consultation_data() {
+	// 	try {
+	// 		// Debug: Log all POST data
+	// 		log_message('debug', 'Follow-up POST data: ' . print_r($_POST, true));
+			
+	// 		// Remove action from POST data
+	// 		unset($_POST['action']);
+	// 		// Initialize consultation data array
+	// 		$consultation_post = array();
+	// 		// Process basic consultation data
+	// 		$consultation_post['appointment_id'] = $this->input->post('appointment_id', TRUE);
+	// 		$consultation_post['patient_id'] = $this->input->post('patient_id', TRUE);
+	// 		$consultation_post['wife_phone'] = $this->input->post('wife_phone', TRUE);
+	// 		$consultation_post['doctor_id'] = $this->input->post('doctor_id', TRUE);
+	// 		$consultation_post['center_number'] = $this->input->post('center_number', TRUE);
+	// 		$consultation_post['female_findings'] = $this->input->post('female_findings', TRUE) ?: '';
+	// 		$consultation_post['male_findings'] = $this->input->post('male_findings', TRUE) ?: '';
+	// 		$consultation_post['follow_up'] = $this->input->post('follow_up', TRUE) ?: '';
+	// 		$consultation_post['follow_up_date'] = $this->input->post('follow_up_date', TRUE) ?: '';
+	// 		$consultation_post['follow_slot'] = $this->input->post('appoitmented_slot', TRUE) ?: '';
+	// 		$consultation_post['follow_up_purpose'] = $this->input->post('follow_up_purpose', TRUE) ?: '';
+			
+	// 		// Debug: Log processed basic data
+	// 		log_message('debug', 'Processed basic consultation data: ' . print_r($consultation_post, true));
+	// 		// Validate required fields
+	// 		$required_fields = ['appointment_id', 'patient_id', 'doctor_id', 'center_number'];
+	// 		foreach($required_fields as $field) {
+	// 			if(empty($consultation_post[$field])) {
+	// 				return ['status' => 'error', 'message' => 'Required field missing: ' . $field];
+	// 			}
+	// 		}
+	// 		// Process medicine suggestions
+	// 		if($this->input->post('medicine_suggestion')) {
+	// 			$medicine_data = $this->process_medicine_suggestions();
+	// 			if($medicine_data['status'] == 'error') {
+	// 				return $medicine_data;
+	// 			}
+	// 			$consultation_post = array_merge($consultation_post, $medicine_data['data']);
+	// 		}
+	// 		// Process investigation suggestions
+	// 		if($this->input->post('investigation_suggestion')) {
+	// 			$investigation_data = $this->process_investigation_suggestions();
+	// 			if($investigation_data['status'] == 'error') {
+	// 				return $investigation_data;
+	// 			}
+	// 			$consultation_post = array_merge($consultation_post, $investigation_data['data']);
+	// 		}
+	// 		// Process procedure suggestions
+	// 		if($this->input->post('procedure_suggestion')) {
+	// 			$procedure_data = $this->process_procedure_suggestions();
+	// 			if($procedure_data['status'] == 'error') {
+	// 				return $procedure_data;
+	// 			}
+	// 			$consultation_post = array_merge($consultation_post, $procedure_data['data']);
+	// 		}
+	// 		// Process package suggestions
+	// 		if($this->input->post('package_suggestion')) {
+	// 			$package_data = $this->process_package_suggestions();
+	// 			if($package_data['status'] == 'error') {
+	// 				return $package_data;
+	// 			}
+	// 			$consultation_post = array_merge($consultation_post, $package_data['data']);
+	// 		}
+	// 		// Process prescription file upload
+	// 		$prescription = $this->process_prescription_upload();
+	// 		$consultation_post['prescription'] = $prescription;
+	// 		// Set final consultation data
+	// 		$consultation_post['final_mode'] = 1;
+	// 		$consultation_post['consultation_date'] = date("Y-m-d H:i:s");
+	// 		return ['status' => 'success', 'data' => $consultation_post];
+			
+	// 	} catch (Exception $e) {
+	// 		return ['status' => 'error', 'message' => 'Error processing consultation data: ' . $e->getMessage()];
+	// 	}
+	// }
+	
+	
+	// private function process_medicine_suggestions() {
+	// 		$medicine_data = array();
+	// 		$medicine_data['medicine_suggestion'] = 1;
+	// 		$male_multiselect_data = $this->input->post('male_medicine_suggestion_list');
+	// 		$female_multiselect_data = $this->input->post('female_medicine_suggestion_list');
+			
+	// 		if($male_multiselect_data) {
+	// 			$medicine_data['male_medicine_suggestion_list'] = serialize($male_multiselect_data);
+	// 		}
+	// 		if($female_multiselect_data) {
+	// 			$medicine_data['female_medicine_suggestion_list'] = serialize($female_multiselect_data);
+	// 		}
+	// 		// Process OPD male medicine suggestions (detailed with dosage, timing, etc.)
+	// 		$male_medicine_data = $this->extract_medicine_data('male');
+	// 		if($male_medicine_data['status'] == 'error') {
+	// 			return $male_medicine_data;
+	// 		}
+	// 		// Only overwrite if we have detailed data, otherwise create from multiselect data
+	// 		if($male_medicine_data['data'] && $male_medicine_data['data'] !== 'a:0:{}') {
+	// 			$medicine_data['male_medicine_suggestion_list'] = $male_medicine_data['data'];
+	// 		} elseif($male_multiselect_data) {
+	// 			// Create detailed data from multiselect values
+	// 			$medicine_data['male_medicine_suggestion_list'] = $this->create_medicine_data_from_multiselect($male_multiselect_data, 'male');
+	// 		}
+			
+	// 		// Process OPD female medicine suggestions (detailed with dosage, timing, etc.)
+	// 		$female_medicine_data = $this->extract_medicine_data('female');
+	// 		if($female_medicine_data['status'] == 'error') {
+	// 			return $female_medicine_data;
+	// 		}
+	// 		// Only overwrite if we have detailed data, otherwise create from multiselect data
+	// 		if($female_medicine_data['data'] && $female_medicine_data['data'] !== 'a:0:{}') {
+	// 			$medicine_data['female_medicine_suggestion_list'] = $female_medicine_data['data'];
+	// 		} elseif($female_multiselect_data) {
+	// 			// Create detailed data from multiselect values
+	// 			$medicine_data['female_medicine_suggestion_list'] = $this->create_medicine_data_from_multiselect($female_multiselect_data, 'female');
+	// 		}
+			
+	// 		// Process IPD medicine suggestions if present
+	// 		if($this->input->post('medicine_suggestion_ipd')) {
+	// 			$medicine_data['medicine_suggestion_ipd'] = 1;
+	// 			// Process basic multiselect IPD medicine values
+	// 			$male_ipd_multiselect_data = $this->input->post('male_medicine_suggestion_list_ipd');
+	// 			$female_ipd_multiselect_data = $this->input->post('female_medicine_suggestion_list_ipd');
+				
+	// 			if($male_ipd_multiselect_data) {
+	// 				$medicine_data['male_medicine_suggestion_list_ipd'] = serialize($male_ipd_multiselect_data);
+	// 			}
+	// 			if($female_ipd_multiselect_data) {
+	// 				$medicine_data['female_medicine_suggestion_list_ipd'] = serialize($female_ipd_multiselect_data);
+	// 			}
+				
+	// 			// Process IPD male medicine suggestions (detailed with dosage, timing, etc.)
+	// 			$male_medicine_ipd_data = $this->extract_medicine_data('male', '_ipd');
+	// 			if($male_medicine_ipd_data['status'] == 'error') {
+	// 				return $male_medicine_ipd_data;
+	// 			}
+	// 			if($male_medicine_ipd_data['data'] && $male_medicine_ipd_data['data'] !== 'a:0:{}') {
+	// 				$medicine_data['male_medicine_suggestion_list_ipd'] = $male_medicine_ipd_data['data'];
+	// 			} elseif($male_ipd_multiselect_data) {
+	// 				// Create detailed data from multiselect values
+	// 				$medicine_data['male_medicine_suggestion_list_ipd'] = $this->create_medicine_data_from_multiselect($male_ipd_multiselect_data, 'male');
+	// 			}
+	// 			$female_medicine_ipd_data = $this->extract_medicine_data('female', '_ipd');
+	// 			if($female_medicine_ipd_data['status'] == 'error') {
+	// 				return $female_medicine_ipd_data;
+	// 			}
+	// 			if($female_medicine_ipd_data['data'] && $female_medicine_ipd_data['data'] !== 'a:0:{}') {
+	// 				$medicine_data['female_medicine_suggestion_list_ipd'] = $female_medicine_ipd_data['data'];
+	// 			} elseif($female_ipd_multiselect_data) {
+	// 				// Create detailed data from multiselect values
+	// 				$medicine_data['female_medicine_suggestion_list_ipd'] = $this->create_medicine_data_from_multiselect($female_ipd_multiselect_data, 'female');
+	// 			}
+	// 		}
+	// 		return ['status' => 'success', 'data' => $medicine_data];
+		
+	// }
+	
+	
+	// private function extract_medicine_data($gender, $suffix = '') {
+	// 		$medicine_array = array();
+	// 		$medicine_numbers = array();
+	// 		$field_prefix = $gender . '_medicine_name' . $suffix;
+
+	// 		$pattern = '/^' . preg_quote($field_prefix, '/') . '_(\d+)$/';
+	// 		foreach($_POST as $key => $val) {
+	// 			if (preg_match($pattern, $key, $matches)) {
+	// 				$medicine_array[] = $key;
+	// 				$medicine_numbers[] = $matches[1];
+	// 			}
+	// 		}
+	// 		$medicine_numbers = array_unique($medicine_numbers);
+	// 		if(empty($medicine_numbers)) {
+	// 			return ['status' => 'success', 'data' => serialize(array())];
+	// 		}
+			
+	// 		// Build medicine suggestion list
+	// 		$medicine_suggestion_list = array();
+	// 		foreach($medicine_numbers as $key => $val) {
+	// 			$medicine_suggestion_list[$gender . '_medicine_suggestion_list'][] = array(
+	// 				$gender . '_medicine_name' => $this->input->post($gender . '_medicine_name' . $suffix . '_' . $val, TRUE),
+	// 				$gender . '_medicine_dosage' => $this->input->post($gender . '_medicine_dosage' . $suffix . '_' . $val, TRUE),
+	// 				$gender . '_medicine_remarks' => $this->input->post($gender . '_medicine_remarks' . $suffix . '_' . $val, TRUE),
+	// 				$gender . '_medicine_when_start' => $this->input->post($gender . '_medicine_when_start' . $suffix . '_' . $val, TRUE),
+	// 				$gender . '_medicine_days' => $this->input->post($gender . '_medicine_days' . $suffix . '_' . $val, TRUE),
+	// 				$gender . '_medicine_route' => $this->input->post($gender . '_medicine_route' . $suffix . '_' . $val, TRUE),
+	// 				$gender . '_medicine_frequency' => $this->input->post($gender . '_medicine_frequency' . $suffix . '_' . $val, TRUE),
+	// 				$gender . '_medicine_timing' => $this->input->post($gender . '_medicine_timing' . $suffix . '_' . $val, TRUE),
+	// 				$gender . '_medicine_take' => $this->input->post($gender . '_medicine_take' . $suffix . '_' . $val, TRUE)
+	// 			);
+	// 		}
+	// 		return ['status' => 'success', 'data' => serialize($medicine_suggestion_list)];
+	// }
 	
 	/**
-	 * Process consultation data with proper validation
-	 * Handles medicine, investigation, procedure, and package suggestions
+	 * Create medicine data from multiselect values when detailed data is not available
 	 * 
-	 * @return array - Processed consultation data with status
-	 */
-	private function process_consultation_data() {
-		try {
-			// Remove action from POST data
-			unset($_POST['action']);
-			// Initialize consultation data array
-			$consultation_post = array();
-			// Process basic consultation data
-			$consultation_post['appointment_id'] = $this->input->post('appointment_id', TRUE);
-			$consultation_post['patient_id'] = $this->input->post('patient_id', TRUE);
-			$consultation_post['wife_phone'] = $this->input->post('wife_phone', TRUE);
-			$consultation_post['doctor_id'] = $this->input->post('doctor_id', TRUE);
-			$consultation_post['center_number'] = $this->input->post('center_number', TRUE);
-			$consultation_post['female_findings'] = $this->input->post('female_findings', TRUE) ?: '';
-			$consultation_post['male_findings'] = $this->input->post('male_findings', TRUE) ?: '';
-			$consultation_post['follow_up'] = $this->input->post('follow_up', TRUE) ?: '';
-			$consultation_post['follow_up_date'] = $this->input->post('follow_up_date', TRUE) ?: '';
-			$consultation_post['follow_slot'] = $this->input->post('appoitmented_slot', TRUE) ?: '';
-			$consultation_post['follow_up_purpose'] = $this->input->post('follow_up_purpose', TRUE) ?: '';
-			// Validate required fields
-			$required_fields = ['appointment_id', 'patient_id', 'doctor_id', 'center_number'];
-			foreach($required_fields as $field) {
-				if(empty($consultation_post[$field])) {
-					return ['status' => 'error', 'message' => 'Required field missing: ' . $field];
-				}
-			}
-			// Process medicine suggestions
-			if($this->input->post('medicine_suggestion')) {
-				$medicine_data = $this->process_medicine_suggestions();
-				if($medicine_data['status'] == 'error') {
-					return $medicine_data;
-				}
-				$consultation_post = array_merge($consultation_post, $medicine_data['data']);
-			}
-			// Process investigation suggestions
-			if($this->input->post('investigation_suggestion')) {
-				$investigation_data = $this->process_investigation_suggestions();
-				if($investigation_data['status'] == 'error') {
-					return $investigation_data;
-				}
-				$consultation_post = array_merge($consultation_post, $investigation_data['data']);
-			}
-			// Process procedure suggestions
-			if($this->input->post('procedure_suggestion')) {
-				$procedure_data = $this->process_procedure_suggestions();
-				if($procedure_data['status'] == 'error') {
-					return $procedure_data;
-				}
-				$consultation_post = array_merge($consultation_post, $procedure_data['data']);
-			}
-			// Process package suggestions
-			if($this->input->post('package_suggestion')) {
-				$package_data = $this->process_package_suggestions();
-				if($package_data['status'] == 'error') {
-					return $package_data;
-				}
-				$consultation_post = array_merge($consultation_post, $package_data['data']);
-			}
-			// Process prescription file upload
-			$prescription = $this->process_prescription_upload();
-			$consultation_post['prescription'] = $prescription;
-			// Set final consultation data
-			$consultation_post['final_mode'] = 1;
-			$consultation_post['consultation_date'] = date("Y-m-d H:i:s");
-			return ['status' => 'success', 'data' => $consultation_post];
-			
-		} catch (Exception $e) {
-			return ['status' => 'error', 'message' => 'Error processing consultation data: ' . $e->getMessage()];
-		}
-	}
-	
-	/**
-	 * Process medicine suggestions for both OPD and IPD
-	 * 
-	 * @return array - Medicine data with status
-	 */
-	private function process_medicine_suggestions() {
-		try {
-			$medicine_data = array();
-			$medicine_data['medicine_suggestion'] = 1;
-			
-			// Process basic multiselect medicine values (simple array of medicine IDs)
-			if($this->input->post('male_medicine_suggestion_list')) {
-				$medicine_data['male_medicine_suggestion_list'] = serialize($this->input->post('male_medicine_suggestion_list'));
-			}
-			if($this->input->post('female_medicine_suggestion_list')) {
-				$medicine_data['female_medicine_suggestion_list'] = serialize($this->input->post('female_medicine_suggestion_list'));
-			}
-			
-			// Process OPD male medicine suggestions (detailed with dosage, timing, etc.)
-			$male_medicine_data = $this->extract_medicine_data('male');
-			if($male_medicine_data['status'] == 'error') {
-				return $male_medicine_data;
-			}
-			$medicine_data['male_medicine_suggestion_list'] = $male_medicine_data['data'];
-			
-			// Process OPD female medicine suggestions (detailed with dosage, timing, etc.)
-			$female_medicine_data = $this->extract_medicine_data('female');
-			if($female_medicine_data['status'] == 'error') {
-				return $female_medicine_data;
-			}
-			$medicine_data['female_medicine_suggestion_list'] = $female_medicine_data['data'];
-			
-			// Process IPD medicine suggestions if present
-			if($this->input->post('medicine_suggestion_ipd')) {
-				$medicine_data['medicine_suggestion_ipd'] = 1;
-				
-				// Process basic multiselect IPD medicine values
-				if($this->input->post('male_medicine_suggestion_list_ipd')) {
-					$medicine_data['male_medicine_suggestion_list_ipd'] = serialize($this->input->post('male_medicine_suggestion_list_ipd'));
-				}
-				if($this->input->post('female_medicine_suggestion_list_ipd')) {
-					$medicine_data['female_medicine_suggestion_list_ipd'] = serialize($this->input->post('female_medicine_suggestion_list_ipd'));
-				}
-				
-				// Process IPD male medicine suggestions (detailed with dosage, timing, etc.)
-				$male_medicine_ipd_data = $this->extract_medicine_data('male', '_ipd');
-				if($male_medicine_ipd_data['status'] == 'error') {
-					return $male_medicine_ipd_data;
-				}
-				$medicine_data['male_medicine_suggestion_list_ipd'] = $male_medicine_ipd_data['data'];
-				
-				// Process IPD female medicine suggestions (detailed with dosage, timing, etc.)
-				$female_medicine_ipd_data = $this->extract_medicine_data('female', '_ipd');
-				if($female_medicine_ipd_data['status'] == 'error') {
-					return $female_medicine_ipd_data;
-				}
-				$medicine_data['female_medicine_suggestion_list_ipd'] = $female_medicine_ipd_data['data'];
-			}
-			
-			return ['status' => 'success', 'data' => $medicine_data];
-		} catch (Exception $e) {
-			return ['status' => 'error', 'message' => 'Error processing medicine suggestions: ' . $e->getMessage()];
-		}
-	}
-	
-	/**
-	 * Extract medicine data for male or female (OPD or IPD)
-	 * 
+	 * @param array $multiselect_data - Array of medicine IDs from multiselect
 	 * @param string $gender - 'male' or 'female'
-	 * @param string $suffix - '' for OPD or '_ipd' for IPD
-	 * @return array - Medicine data with status
+	 * @return string - Serialized medicine data
 	 */
-	private function extract_medicine_data($gender, $suffix = '') {
-		try {
-			$medicine_array = array();
-			$medicine_numbers = array();
-			$field_prefix = $gender . '_medicine_name' . $suffix;
-			
-			// Find medicine field names using regex pattern
-			$pattern = '/^' . preg_quote($field_prefix, '/') . '_(\d+)$/';
-			foreach($_POST as $key => $val) {
-				if (preg_match($pattern, $key, $matches)) {
-					$medicine_array[] = $key;
-					$medicine_numbers[] = $matches[1];
-				}
-			}
-			$medicine_numbers = array_unique($medicine_numbers);
-			
-			// Build medicine suggestion list
-			$medicine_suggestion_list = array();
-			foreach($medicine_numbers as $key => $val) {
-				$medicine_suggestion_list[$gender . '_medicine_suggestion_list'][] = array(
-					$gender . '_medicine_name' => $this->input->post($gender . '_medicine_name' . $suffix . '_' . $val, TRUE),
-					$gender . '_medicine_dosage' => $this->input->post($gender . '_medicine_dosage' . $suffix . '_' . $val, TRUE),
-					$gender . '_medicine_remarks' => $this->input->post($gender . '_medicine_remarks' . $suffix . '_' . $val, TRUE),
-					$gender . '_medicine_when_start' => $this->input->post($gender . '_medicine_when_start' . $suffix . '_' . $val, TRUE),
-					$gender . '_medicine_days' => $this->input->post($gender . '_medicine_days' . $suffix . '_' . $val, TRUE),
-					$gender . '_medicine_route' => $this->input->post($gender . '_medicine_route' . $suffix . '_' . $val, TRUE),
-					$gender . '_medicine_frequency' => $this->input->post($gender . '_medicine_frequency' . $suffix . '_' . $val, TRUE),
-					$gender . '_medicine_timing' => $this->input->post($gender . '_medicine_timing' . $suffix . '_' . $val, TRUE),
-					$gender . '_medicine_take' => $this->input->post($gender . '_medicine_take' . $suffix . '_' . $val, TRUE)
-				);
-			}
-			return ['status' => 'success', 'data' => serialize($medicine_suggestion_list)];
-		} catch (Exception $e) {
-			return ['status' => 'error', 'message' => 'Error extracting ' . $gender . ' medicine data: ' . $e->getMessage()];
-		}
-	}
+	// private function create_medicine_data_from_multiselect($multiselect_data, $gender) {
+	// 	if(empty($multiselect_data) || !is_array($multiselect_data)) {
+	// 		return serialize(array());
+	// 	}
+		
+	// 	$medicine_suggestion_list = array();
+	// 	foreach($multiselect_data as $index => $medicine_id) {
+	// 		if($medicine_id && $medicine_id !== '0') {
+	// 			$medicine_suggestion_list[$gender . '_medicine_suggestion_list'][] = array(
+	// 				$gender . '_medicine_name' => $medicine_id,
+	// 				$gender . '_medicine_dosage' => '',
+	// 				$gender . '_medicine_remarks' => '',
+	// 				$gender . '_medicine_when_start' => '',
+	// 				$gender . '_medicine_days' => '',
+	// 				$gender . '_medicine_route' => 'PO',
+	// 				$gender . '_medicine_frequency' => 'OD',
+	// 				$gender . '_medicine_timing' => 'AFTER MEAL',
+	// 				$gender . '_medicine_take' => 'Daily'
+	// 			);
+	// 		}
+	// 	}
+	// 	return serialize($medicine_suggestion_list);
+	// }
 	
 	/**
 	 * Process investigation suggestions
@@ -3115,7 +3133,6 @@ class Doctors extends CI_Controller {
 	private function get_medicine_names_for_api($consultation_data) {
 		$result = ['female' => '', 'male' => ''];
 		try {
-			// Female medicines
 			if(isset($consultation_data['female_medicine_suggestion_list'])) {
 				$female_medicines = unserialize($consultation_data['female_medicine_suggestion_list']);
 				$item_names = [];
@@ -3133,7 +3150,6 @@ class Doctors extends CI_Controller {
 				}
 				$result['female'] = implode(', ', $item_names);
 			}
-			// Male medicines
 			if(isset($consultation_data['male_medicine_suggestion_list'])) {
 				$male_medicines = unserialize($consultation_data['male_medicine_suggestion_list']);
 				$item_names = [];
@@ -3291,9 +3307,6 @@ class Doctors extends CI_Controller {
 		if($logg['status'] == true){
 			$data = array();
 			$procedure_form_data = $this->doctors_model->check_procedure_form($form_id, $patient_procedure_id, $procedure_id);
-// 			if($_SERVER['REMOTE_ADDR'] == "182.68.175.175"){
-// 			    var_dump($procedure_form_data);die;
-// 			}
 			if(count($procedure_form_data) > 0){
 				$form_data = get_prodecure_form($form_id);
 				$data['form_data'] = $form_data;
@@ -3404,7 +3417,6 @@ class Doctors extends CI_Controller {
 		    $count=1;
 			foreach($procedures_forms as $key => $val){
 				$form_details = get_prodecure_form($val['form_id']);
-				//var_dump($form_details);die;
 				if(isset($_SESSION['logged_doctor'])){
 					if($form_details['form_for'] != "lab_procedure"){
 						$check_form_data = check_form_data($patient_id, $patient_procedure_data['receipt_number'], $form_details['form_area']);
@@ -3580,23 +3592,6 @@ class Doctors extends CI_Controller {
 			die();
 		}
 	}
-
-	/*public function my_ipd(){
-		$logg = checklogin();
-		if($logg['status'] == true){
-
-			$data = array();
-			$doctor_id = $_SESSION['logged_doctor']['doctor_id'];
-			$data['ipd_data'] = $this->doctors_model->doctor_ipd_lists($doctor_id);
-			$template = get_header_template($logg['role']);
-			$this->load->view($template['header']);
-			$this->load->view('doctors/my_ipd', $data);
-			$this->load->view($template['footer']);
-		}else{
-			header("location:" .base_url(). "");
-			die();
-		}		
-	}*/
 	
 	public function my_ipd(){
 		$logg = checklogin();
@@ -3703,7 +3698,7 @@ class Doctors extends CI_Controller {
 	// Dashbaord END
 
 
-public function pcp_ndt(){
+    public function pcp_ndt(){
 		$logg = checklogin();
 		error_reporting(0);
 		if($logg['status'] == true){
@@ -3771,7 +3766,7 @@ public function pcp_ndt(){
 		}
 	}
 	
- public function patient_details(){
+    public function patient_details(){
 		$logg = checklogin();
 		if($logg['status'] == true){		
 			$data = array();
@@ -4072,15 +4067,15 @@ public function pcp_ndt(){
 				header("location:" .base_url(). "doctors/consent_book?m=".base64_encode('Something went wrong!').'&t='.base64_encode('error'));
 				die();
 			}
-	}
-	$template = get_header_template($logg['role']);
-	$this->load->view($template['header']);
-	$this->load->view('doctors/consent_book', $data);
-	$this->load->view($template['footer']);
-	}else{
-	header("location:" .base_url(). "");
-	die();
 		}
+		$template = get_header_template($logg['role']);
+		$this->load->view($template['header']);
+		$this->load->view('doctors/consent_book', $data);
+		$this->load->view($template['footer']);
+		}else{
+		header("location:" .base_url(). "");
+		die();
+			}
 	}
 	
 	public function consent_book_list(){
@@ -4448,7 +4443,6 @@ public function pcp_ndt(){
 		$logg = checklogin();
 		if($logg['status'] == true){
 			$data = array();
-			
 			// Handle form update
 			if(isset($_POST['action']) && $_POST['action'] == 'update_discharge_form'){
 				unset($_POST['action']);
@@ -4677,4 +4671,395 @@ public function pcp_ndt(){
 			die();
 		}
 	}
-} 
+	
+
+	function follow_up_clean($appointment_id) {
+		header('Content-Type: application/json');
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			if(isset($_POST['action']) && $_POST['action'] == 'add_consultation_done') {
+				try {
+					$result = $this->process_structured_consultation_data();
+					if($result['status'] == 'success') {
+						echo json_encode([
+							'status' => 'success',
+							'message' => 'Follow-up consultation completed successfully!',
+							'redirect_url' => base_url('doctor_appointments')
+						]);
+					} else {
+						echo json_encode([
+							'status' => 'error',
+							'message' => $result['message']
+						]);
+					}
+				} catch (Exception $e) {
+					echo json_encode([
+						'status' => 'error',
+						'message' => 'An error occurred while processing the consultation: ' . $e->getMessage()
+					]);
+				}
+			} else {
+				// For non-AJAX requests, return error
+				echo json_encode([
+					'status' => 'error',
+					'message' => 'Invalid request method or missing action parameter'
+				]);
+			}
+		} else {
+			echo json_encode([
+				'status' => 'error',
+				'message' => 'Authentication required'
+			]);
+		}
+	}
+	function follow_up_form($appointment_id) {
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			$this->load_follow_up_form($appointment_id);
+		} else {
+			header("location:" . base_url() . "");
+			die();
+		}
+	}
+	
+	/**
+	 * Process structured consultation data from the new form submission
+	 * 
+	 * @return array - Processing result with status and message
+	 */
+	private function process_structured_consultation_data() {
+		try {
+			// Get basic consultation data
+			$consultation_data = [
+				'appointment_id' => $this->input->post('appointment_id', TRUE),
+				'patient_id' => $this->input->post('patient_id', TRUE),
+				'wife_phone' => $this->input->post('wife_phone', TRUE),
+				'doctor_id' => $this->input->post('doctor_id', TRUE),
+				'center_number' => $this->input->post('center_number', TRUE),
+				'female_findings' => $this->input->post('female_findings', TRUE) ?: '',
+				'male_findings' => $this->input->post('male_findings', TRUE) ?: '',
+				'follow_up' => $this->input->post('follow_up', TRUE) ?: 0,
+				'follow_up_date' => $this->input->post('follow_up_date', TRUE) ?: '',
+				'follow_slot' => $this->input->post('follow_slot', TRUE) ?: '',
+				'follow_up_purpose' => $this->input->post('follow_up_purpose', TRUE) ?: '',
+				'consultation_date' => date("Y-m-d H:i:s")
+			];
+			$required_fields = ['appointment_id', 'patient_id', 'doctor_id', 'center_number'];
+			foreach($required_fields as $field) {
+				if(empty($consultation_data[$field])) {
+					return ['status' => 'error', 'message' => 'Required field missing: ' . $field];
+				}
+			}
+			$sections_data = $this->input->post('sections');
+			if($sections_data) {
+				if(isset($sections_data['investigations']) && $sections_data['investigations']['enabled']) {
+					$consultation_data['investation_suggestion'] = 1;
+					$consultation_data['female_minvestigation_suggestion_list'] = serialize($sections_data['investigations']['female_minvestigation_suggestion_list']);
+					$consultation_data['male_minvestigation_suggestion_list'] = serialize($sections_data['investigations']['male_minvestigation_suggestion_list']);
+				}
+				if(isset($sections_data['medicines_opd']) && $sections_data['medicines_opd']['enabled']) {
+					$consultation_data['medicine_suggestion'] = 1;
+					$female_medicines = isset($sections_data['medicines_opd']['female_medicines']) ? $sections_data['medicines_opd']['female_medicines'] : [];
+					$male_medicines = isset($sections_data['medicines_opd']['male_medicines']) ? $sections_data['medicines_opd']['male_medicines'] : [];
+					$consultation_data['female_medicine_suggestion_list'] = serialize($this->format_medicine_data($female_medicines, 'female'));
+					$consultation_data['male_medicine_suggestion_list'] = serialize($this->format_medicine_data($male_medicines, 'male'));
+				}
+				if(isset($sections_data['medicines_ipd']) && $sections_data['medicines_ipd']['enabled']) {
+					$consultation_data['medicine_suggestion_ipd'] = 1;
+					$female_medicines_ipd = isset($sections_data['medicines_ipd']['female_medicines']) ? $sections_data['medicines_ipd']['female_medicines'] : [];
+					$male_medicines_ipd = isset($sections_data['medicines_ipd']['male_medicines']) ? $sections_data['medicines_ipd']['male_medicines'] : [];
+					$consultation_data['female_medicine_suggestion_list_ipd'] = serialize($this->format_medicine_data($female_medicines_ipd, 'female'));
+					$consultation_data['male_medicine_suggestion_list_ipd'] = serialize($this->format_medicine_data($male_medicines_ipd, 'male'));
+				}
+				
+				// Process procedures
+				if(isset($sections_data['procedures']) && $sections_data['procedures']['enabled']) {
+					$consultation_data['procedure_suggestion'] = 1;
+					$consultation_data['sub_procedure_suggestion_list'] = serialize($sections_data['procedures']['sub_procedure_suggestion_list']);
+				}
+				
+				// Process packages
+				if(isset($sections_data['packages']) && $sections_data['packages']['enabled']) {
+					$consultation_data['package_suggestion'] = 1;
+					$consultation_data['package_suggestion_list'] = serialize($sections_data['packages']['package_suggestion_list']);
+				}
+			}
+			
+			// Process follow-up appointment if required
+			if($consultation_data['follow_up'] == 1) {
+				$followup_result = $this->process_followup_appointment_clean($consultation_data);
+				if($followup_result['status'] == 'error') {
+					return $followup_result;
+				}
+			}
+			// Save consultation data
+			$consultation_done = $this->doctors_model->consultation_done($consultation_data);
+			if($consultation_done > 0) {
+				$this->send_consultation_to_external_apis($consultation_data['data']);
+				$this->appointment_model->appointment_status('consultation_done', $consultation_data['appointment_id']);
+				if(isset($sections_data['advisory_templates']) && !empty($sections_data['advisory_templates'])) {
+					$this->send_advisory_emails_clean($consultation_data, $sections_data['advisory_templates']);
+				}
+				
+				return ['status' => 'success', 'message' => 'Consultation completed successfully'];
+			} else {
+				return ['status' => 'error', 'message' => 'Failed to save consultation data'];
+			}
+			
+		} catch (Exception $e) {
+			return ['status' => 'error', 'message' => 'Error processing consultation: ' . $e->getMessage()];
+		}
+	}
+	
+	private function format_medicine_data($medicines, $gender) {
+		$formatted_data = [];
+		$formatted_data[$gender . '_medicine_suggestion_list'] = [];
+		
+		// Check if medicines is an array and not null
+		if(is_array($medicines) && !empty($medicines)) {
+			foreach($medicines as $medicine) {
+				$formatted_data[$gender . '_medicine_suggestion_list'][] = [
+					$gender . '_medicine_name' => isset($medicine['medicine_id']) ? $medicine['medicine_id'] : '',
+					$gender . '_medicine_dosage' => isset($medicine['dosage']) ? $medicine['dosage'] : '',
+					$gender . '_medicine_remarks' => isset($medicine['remarks']) ? $medicine['remarks'] : '',
+					$gender . '_medicine_when_start' => isset($medicine['when_start']) ? $medicine['when_start'] : '',
+					$gender . '_medicine_days' => isset($medicine['days']) ? $medicine['days'] : '',
+					$gender . '_medicine_route' => isset($medicine['route']) ? $medicine['route'] : '',
+					$gender . '_medicine_frequency' => isset($medicine['frequency']) ? $medicine['frequency'] : '',
+					$gender . '_medicine_timing' => isset($medicine['timing']) ? $medicine['timing'] : '',
+					$gender . '_medicine_take' => isset($medicine['take']) ? $medicine['take'] : ''
+				];
+			}
+		}
+		
+		return $formatted_data;
+	}
+	
+	private function process_followup_appointment_clean($consultation_data) {
+		try {
+			if(empty($this->input->post('appoitment_for')) || 
+			   empty($consultation_data['follow_up_date']) || 
+			   empty($this->input->post('appoitmented_doctor')) || 
+			   empty($consultation_data['follow_slot'])) {
+				return ['status' => 'error', 'message' => 'Follow-up appointment data incomplete'];
+			}
+			
+			$patient_details = get_patient_detail($consultation_data['patient_id']);
+			$appointment_arr = [
+				'paitent_type' => 'exist_patient',
+				'paitent_id' => $consultation_data['patient_id'],
+				'wife_name' => isset($patient_details['wife_name']) ? $patient_details['wife_name'] : '',
+				'wife_phone' => $consultation_data['wife_phone'],
+				'wife_email' => isset($patient_details['wife_email']) ? $patient_details['wife_email'] : '',
+				'nationality' => isset($patient_details['nationality']) ? $patient_details['nationality'] : '',
+				'reason_of_visit' => $consultation_data['follow_up_purpose'],
+				'appoitment_for' => $this->input->post('appoitment_for'),
+				'appoitmented_date' => $consultation_data['follow_up_date'],
+				'appoitmented_doctor' => $this->input->post('appoitmented_doctor'),
+				'appoitmented_slot' => $consultation_data['follow_slot'],
+				'follow_up_appointment' => 1,
+				'previous_appointment' => $consultation_data['appointment_id'],
+				'appointment_added' => date('Y-m-d H:i:s')
+			];
+			$appointment = $this->billingmodel_model->insert_appointments($appointment_arr);
+			if($appointment > 0) {
+				$doctor_details = doctor_details($consultation_data['doctor_id']);
+				$this->send_followup_notifications($appointment_arr, $patient_details, $doctor_details);
+				return ['status' => 'success', 'message' => 'Follow-up appointment created successfully'];
+			} else {
+				return ['status' => 'error', 'message' => 'Failed to create follow-up appointment'];
+			}
+			
+		} catch (Exception $e) {
+			return ['status' => 'error', 'message' => 'Error creating follow-up appointment: ' . $e->getMessage()];
+		}
+	}
+	private function send_advisory_emails_clean($consultation_data) {
+		try {
+			if($this->input->post('advisory_templates')) {
+				$patient_details = get_patient_detail($consultation_data['patient_id']);
+				$patient_to = $patient_details['wife_email'];
+				$patient_name = $patient_details['wife_name'];
+				$advisory_subject = "IVF related advisory";
+				$advisory_message = "Hi " . $patient_name . ", Hope you are doing well!<br/>Here are some suggestion you can follow for successfull IVF. Please find the attached instruction below.<br/> Thanks & Regards<br/> IndiaIVF";
+				$advisory_templates = implode(',', $this->input->post('advisory_templates'));
+				send_mail($patient_to, $advisory_subject, $advisory_message, $advisory_templates);
+			}
+		} catch (Exception $e) {
+			log_message('error', 'Error sending advisory emails: ' . $e->getMessage());
+		}
+	}
+	private function load_follow_up_form($appointment_id) {
+		$appointments = $this->appointment_model->doctor_appointment_details($appointment_id);
+		if(!$appointments) {
+			header("location:" . base_url() . "doctor_appointments?m=" . base64_encode('Appointment not found') . '&t=' . base64_encode('error'));
+			die();
+		}
+		$consultation_data = $this->get_consultation($appointment_id);
+		$patient_data = get_patient_detail($consultation_data['patient_id']);
+		$patient_doctor_consultation = patient_doctor_consultation_data($appointment_id, $consultation_data['patient_id']);
+		// Load master data using correct model methods
+		$master_investigations = $this->investigation_model->get_master_investigations_list();
+		$consultation_medicine = $this->doctors_model->consultation_medicine();
+		$consultation_medicine_ipd = $this->doctors_model->consultation_medicine_ipd();
+		$procedures = $this->procedures_model->get_procedures_list();
+		$package = $this->procedures_model->get_procedure_package_list();
+		// Load view data
+		$data = [
+			'appointments' => $appointments,
+			'consultation_data' => $consultation_data,
+			'patient_data' => $patient_data,
+			'patient_doctor_consultation' => $patient_doctor_consultation,
+			'master_investigations' => $master_investigations,
+			'consultation_medicine' => $consultation_medicine,
+			'consultation_medicine_ipd'=>$consultation_medicine_ipd,
+			'procedures' => $procedures,
+			'package' => $package
+		];
+		
+		// Load template and view
+		$logg = checklogin();
+		$template = get_header_template($logg['role']);
+		$this->load->view($template['header']);
+		$this->load->view('appointments/follow_up', $data);
+		$this->load->view($template['footer']);
+	}
+	
+	function follow_up_print($appointment_id) {
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			// Load appointment data
+			$appointments = $this->appointment_model->doctor_appointment_details($appointment_id);
+			if(!$appointments) {
+				header("location:" . base_url() . "doctor_appointments?m=" . base64_encode('Appointment not found') . '&t=' . base64_encode('error'));
+				die();
+			}
+			
+			// Load consultation data
+			$consultation_data = $this->get_consultation($appointment_id);
+			$patient_data = get_patient_detail($consultation_data['patient_id']);
+			$patient_doctor_consultation = patient_doctor_consultation_data($appointment_id, $consultation_data['patient_id']);
+			
+			// Load master data
+			$master_investigations = $this->investigation_model->get_master_investigations_list();
+			$consultation_medicine = $this->doctors_model->consultation_medicine();
+			$procedures = $this->procedures_model->get_procedures_list();
+			$package = $this->procedures_model->get_procedure_package_list();
+			
+			// Prepare data for print view
+			$data = [
+				'appointments' => $appointments,
+				'consultation_data' => $consultation_data,
+				'patient_data' => $patient_data,
+				'patient_doctor_consultation' => $patient_doctor_consultation,
+				'master_investigations' => $master_investigations,
+				'consultation_medicine' => $consultation_medicine,
+				'procedures' => $procedures,
+				'package' => $package,
+				'print_mode' => true
+			];
+			
+			// Load print view
+			$this->load->view('appointments/follow_up_print', $data);
+		} else {
+			header("location:" . base_url() . "");
+			die();
+		}
+	}
+	
+	function print_submitted_consultation($appointment_id) {
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			// Load appointment data
+			$appointments = $this->appointment_model->doctor_appointment_details($appointment_id);
+			if(!$appointments) {
+				header("location:" . base_url() . "doctor_appointments?m=" . base64_encode('Appointment not found') . '&t=' . base64_encode('error'));
+				die();
+			}
+			$consultation_data = $this->get_consultation($appointment_id);
+			$patient_data = get_patient_detail($consultation_data['patient_id']);
+			// Process the submitted data for printing
+			$print_data = $this->process_submitted_data_for_print($consultation_data);
+			$data = [
+				'appointments' => $appointments,
+				'consultation_data' => $consultation_data,
+				'patient_data' => $patient_data,
+				'print_data' => $print_data,
+				'print_mode' => true
+			];
+			
+			// Load print view
+			$this->load->view('appointments/submitted_consultation_print', $data);
+		} else {
+			header("location:" . base_url() . "");
+			die();
+		}
+	}
+	private function process_submitted_data_for_print($consultation_data) {
+		$print_data = [
+			'patient_info' => [],
+			'clinical_findings' => [],
+			'investigations' => [],
+			'medicines_opd' => [],
+			'medicines_ipd' => [],
+			'procedures' => [],
+			'packages' => [],
+			'follow_up' => []
+		];
+		if(isset($consultation_data['investation_suggestion']) && $consultation_data['investation_suggestion'] == 1) {
+			$print_data['investigations']['enabled'] = true;
+			if(!empty($consultation_data['female_minvestigation_suggestion_list'])) {
+				$print_data['investigations']['female'] = unserialize($consultation_data['female_minvestigation_suggestion_list']);
+			}
+			
+			if(!empty($consultation_data['male_minvestigation_suggestion_list'])) {
+				$print_data['investigations']['male'] = unserialize($consultation_data['male_minvestigation_suggestion_list']);
+			}
+		}
+		if(isset($consultation_data['medicine_suggestion']) && $consultation_data['medicine_suggestion'] == 1) {
+			$print_data['medicines_opd']['enabled'] = true;
+			
+			if(!empty($consultation_data['female_medicine_suggestion_list'])) {
+				$print_data['medicines_opd']['female'] = unserialize($consultation_data['female_medicine_suggestion_list']);
+			}
+			
+			if(!empty($consultation_data['male_medicine_suggestion_list'])) {
+				$print_data['medicines_opd']['male'] = unserialize($consultation_data['male_medicine_suggestion_list']);
+			}
+		}
+		if(isset($consultation_data['medicine_suggestion_ipd']) && $consultation_data['medicine_suggestion_ipd'] == 1) {
+			$print_data['medicines_ipd']['enabled'] = true;
+			
+			if(!empty($consultation_data['female_medicine_suggestion_list_ipd'])) {
+				$print_data['medicines_ipd']['female'] = unserialize($consultation_data['female_medicine_suggestion_list_ipd']);
+			}
+			if(!empty($consultation_data['male_medicine_suggestion_list_ipd'])) {
+				$print_data['medicines_ipd']['male'] = unserialize($consultation_data['male_medicine_suggestion_list_ipd']);
+			}
+		}
+		if(isset($consultation_data['procedure_suggestion']) && $consultation_data['procedure_suggestion'] == 1) {
+			$print_data['procedures']['enabled'] = true;
+			
+			if(!empty($consultation_data['sub_procedure_suggestion_list'])) {
+				$print_data['procedures']['list'] = unserialize($consultation_data['sub_procedure_suggestion_list']);
+			}
+		}
+		if(isset($consultation_data['package_suggestion']) && $consultation_data['package_suggestion'] == 1) {
+			$print_data['packages']['enabled'] = true;
+			
+			if(!empty($consultation_data['package_suggestion_list'])) {
+				$print_data['packages']['list'] = unserialize($consultation_data['package_suggestion_list']);
+			}
+		}
+		
+		// Process follow-up
+		if(isset($consultation_data['follow_up']) && $consultation_data['follow_up'] == 1) {
+			$print_data['follow_up']['enabled'] = true;
+			$print_data['follow_up']['date'] = $consultation_data['follow_up_date'] ?? '';
+			$print_data['follow_up']['slot'] = $consultation_data['follow_slot'] ?? '';
+			$print_data['follow_up']['purpose'] = $consultation_data['follow_up_purpose'] ?? '';
+		}
+		
+		return $print_data;
+	}
+}

@@ -325,7 +325,7 @@
 </style>
 <div class="follow-up-container">
    <div class="container-fluid">
-      <form method="post" action="" enctype="multipart/form-data">
+      <form method="post" action="<?php echo base_url('doctors/follow_up_clean/'.$appointments['ID']); ?>" enctype="multipart/form-data">
          <input type="hidden" name="action" value="add_consultation_done" />
          <input type="hidden" name="appointment_id" value="<?php echo $appointments['ID']; ?>" />
          <input type="hidden" name="patient_id" value="<?php echo $patient_data['patient_id']; ?>" />
@@ -522,7 +522,7 @@
                         <div class="form-group-enhanced">
                            <label><i class="fa fa-female"></i> Patient Medication</label>
                            <select class="form-control multidselect_dropdown" multiple id="female_medicine_suggestion_list_ipd" name="female_medicine_suggestion_list_ipd[]" disabled>
-                              <?php if(!empty($consultation_medicine)) { foreach($consultation_medicine as $key => $val) { ?>
+                              <?php if(!empty($consultation_medicine_ipd)) { foreach($consultation_medicine_ipd as $key => $val) { ?>
                               <option value="<?php echo $val['item_number']; ?>" medicine="<?php echo $val['item_name']; ?>"><?php echo $val['item_name']; ?></option>
                               <?php  } } ?>
                               <option value="0" medicine="NA">NA</option>
@@ -979,6 +979,14 @@
                <button type="submit" class="btn btn-primary btn-enhanced btn-primary-enhanced">
                <i class="fa fa-save"></i> Submit Follow-up Consultation
                </button>
+               
+                  <!-- <button type="button" class="btn btn-info btn-enhanced" onclick="printConsultationForm()" style="margin-left: 10px;">
+                  <i class="fa fa-print"></i> Print Current Form
+                  </button>
+                  
+                  <button type="button" class="btn btn-success btn-enhanced" onclick="printSubmittedData()" style="margin-left: 10px;">
+                  <i class="fa fa-file-text"></i> Print Submitted Data
+                  </button> -->
             </div>
       </form>
       </div>
@@ -1077,37 +1085,7 @@
    	}
    });
    
-   $(function() {
-   $('#male_medicine_suggestion_list').change(function(e) {
-   	$("table#male_medicine_table").hide();
-   	var brands = $('#male_medicine_suggestion_list option:selected');
-   	var selected = "";
-   	var countr=1;
-   	// Don't empty existing data - preserve it
-   	// $("tbody#male_medicine_suggestion_table").empty();
-   	$(brands).each(function(index, brand){
-   		$("tbody#male_medicine_suggestion_table").append("<tr style='border:1px solid #000;'><td style='border:1px solid #000;'>"+$(this).attr('medicine')+"<input type='hidden' required readonly value='"+$(this).val()+"' style='margin:0;padding:0;' name='male_medicine_name_"+countr+"' id='male_medicine_name_"+countr+"'></td><td style='border:1px solid #000;'><input type='number' step='0.1' style='margin:0;padding:0;' name='male_medicine_dosage_"+countr+"' required id='male_medicine_dosage_"+countr+"'></td><td style='border:1px solid #000;'><input type='text' style='margin:0;padding:0;' name='male_medicine_remarks_"+countr+"' required id='male_medicine_remarks_"+countr+"'></td><td style='border:1px solid #000;'><input type='date' placeholder='DD-MM-YYYY' style='margin:0;padding:0;' name='male_medicine_when_start_"+countr+"' id='male_medicine_when_start_"+countr+"' required></td><td style='border:1px solid #000;'><input type='number' style='margin:0;padding:0;' name='male_medicine_days_"+countr+"' required id='male_medicine_days_"+countr+"'></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='male_medicine_route_"+countr+"' id='male_medicine_route_"+countr+"' required> <option value='PO'>PO</option> <option value='IM'>IM</option> <option value='SC'>SC</option> <option value='VAGINA-LY'>VAGINA-LY</option> <option value='IV'>IV</option> <option value='LOCAL'>LOCAL</option> <option value='NASALY'>NASALY</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='male_medicine_frequency_"+countr+"' id='male_medicine_frequency_"+countr+"' required> <option value='OD'>OD</option> <option value='BD'>BD</option> <option value='TDS'>TDS</option> <option value='QID'>QID</option> <option value='SOS'>SOS</option> <option value='HS'>HS</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='male_medicine_timing_"+countr+"' id='male_medicine_timing_"+countr+"' required> <option value='EMPTY STOMACH'>EMPTY STOMACH</option> <option value='BEFORE MEAL'>BEFORE MEAL</option> <option value='AFTER MEAL'>AFTER MEAL</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='male_medicine_take_"+countr+"' id='male_medicine_take_"+countr+"' required> <option value='Daily'>Daily</option> <option value='Biweekly'>Biweekly</option> <option value='Weekly'>Weekly</option> <option value='Blank'>Blank</option> <option value='Alternate Day'>Alternate Day</option></select></td></tr>");
-   		countr++;
-   	});
-   	$("table#male_medicine_table").show();
-   }); 
-   
-   $('#female_medicine_suggestion_list').change(function(e) {
-   	$("table#female_medicine_table").hide();
-   	var brands = $('#female_medicine_suggestion_list option:selected');
-   	var selected = "";
-   	var countr=1;
-   	// Don't empty existing data - preserve it
-   	// $("tbody#female_medicine_suggestion_table").empty();
-   	$(brands).each(function(index, brand){
-   		$("tbody#female_medicine_suggestion_table").append("<tr style='border:1px solid #000;'><td style='border:1px solid #000;'>"+$(this).attr('medicine')+"<input type='hidden' required readonly value='"+$(this).val()+"' style='margin:0;padding:0;' name='female_medicine_name_"+countr+"' id='female_medicine_name_"+countr+"'></td><td style='border:1px solid #000;'><input type='number' step='0.1' style='margin:0;padding:0;' name='female_medicine_dosage_"+countr+"' required id='female_medicine_dosage_"+countr+"'></td><td style='border:1px solid #000;'><input type='text' style='margin:0;padding:0;' name='female_medicine_remarks_"+countr+"' required id='female_medicine_remarks_"+countr+"'></td><td style='border:1px solid #000;'><input type='date' placeholder='DD-MM-YYYY' style='margin:0;padding:0;' name='female_medicine_when_start_"+countr+"' id='female_medicine_when_start_"+countr+"' required></td><td style='border:1px solid #000;'><input type='number' style='margin:0;padding:0;' name='female_medicine_days_"+countr+"' required id='female_medicine_days_"+countr+"'></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='female_medicine_route_"+countr+"' id='female_medicine_route_"+countr+"' required> <option value='PO'>PO</option> <option value='IM'>IM</option> <option value='SC'>SC</option> <option value='VAGINA-LY'>VAGINA-LY</option> <option value='IV'>IV</option> <option value='LOCAL'>LOCAL</option> <option value='NASALY'>NASALY</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='female_medicine_frequency_"+countr+"' id='female_medicine_frequency_"+countr+"' required> <option value='OD'>OD</option> <option value='BD'>BD</option> <option value='TDS'>TDS</option> <option value='QID'>QID</option> <option value='SOS'>SOS</option> <option value='HS'>HS</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='female_medicine_timing_"+countr+"' id='female_medicine_timing_"+countr+"' required> <option value='EMPTY STOMACH'>EMPTY STOMACH</option> <option value='BEFORE MEAL'>BEFORE MEAL</option> <option value='AFTER MEAL'>AFTER MEAL</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='female_medicine_take_"+countr+"' id='female_medicine_take_"+countr+"' required> <option value='Daily'>Daily</option> <option value='Biweekly'>Biweekly</option> <option value='Weekly'>Weekly</option> <option value='Blank'>Blank</option> <option value='Alternate Day'>Alternate Day</option></select></td></tr>");
-   		countr++;
-   		//selected.push([$(this).val()+"--------"+$(this).attr('medicine')]);
-   	});
-   	//console.log(selected);
-   	$("table#female_medicine_table").show();
-   }); 
-   });
+   // Old medicine handlers removed - using new improved handlers below
    
    
    
@@ -1140,6 +1118,14 @@
    $("#female_medicine_suggestion_list").multiselect('refresh');	
    $("select#female_medicine_suggestion_list").prop('required',false);
    
+   // Hide tables and clear fields when unchecked
+   $("#male_medicine_table").hide();
+   $("#female_medicine_table").hide();
+   $('div[id^="medicine_male_"]').remove();
+   $('div[id^="medicine_female_"]').remove();
+   $('input[name^="male_medicine_name_"]').remove();
+   $('input[name^="female_medicine_name_"]').remove();
+   
    if(this.checked) {
    	//Male Investigation
    	$("select#male_medicine_suggestion_list").prop('required',false);
@@ -1154,38 +1140,7 @@
    }
    });
    
-   // IPD Medication JavaScript
-   $(function() {
-   $('#male_medicine_suggestion_list_ipd').change(function(e) {
-   	$("table#male_medicine_table_ipd").hide();
-   	var brands = $('#male_medicine_suggestion_list_ipd option:selected');
-   	var selected = "";
-   	var countr=1;
-   	// Don't empty existing data - preserve it
-   	// $("tbody#male_medicine_suggestion_table_ipd").empty();
-   	$(brands).each(function(index, brand){
-   		$("tbody#male_medicine_suggestion_table_ipd").append("<tr style='border:1px solid #000;'><td style='border:1px solid #000;'>"+$(this).attr('medicine')+"<input type='hidden' required readonly value='"+$(this).val()+"' style='margin:0;padding:0;' name='male_medicine_name_ipd_"+countr+"' id='male_medicine_name_ipd_"+countr+"'></td><td style='border:1px solid #000;'><input type='number' step='0.1' style='margin:0;padding:0;' name='male_medicine_dosage_ipd_"+countr+"' required id='male_medicine_dosage_ipd_"+countr+"'></td><td style='border:1px solid #000;'><input type='text' style='margin:0;padding:0;' name='male_medicine_remarks_ipd_"+countr+"' required id='male_medicine_remarks_ipd_"+countr+"'></td><td style='border:1px solid #000;'><input type='date' placeholder='DD-MM-YYYY' style='margin:0;padding:0;' name='male_medicine_when_start_ipd_"+countr+"' id='male_medicine_when_start_ipd_"+countr+"' required></td><td style='border:1px solid #000;'><input type='number' style='margin:0;padding:0;' name='male_medicine_days_ipd_"+countr+"' required id='male_medicine_days_ipd_"+countr+"'></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='male_medicine_route_ipd_"+countr+"' id='male_medicine_route_ipd_"+countr+"' required> <option value='PO'>PO</option> <option value='IM'>IM</option> <option value='SC'>SC</option> <option value='VAGINA-LY'>VAGINA-LY</option> <option value='IV'>IV</option> <option value='LOCAL'>LOCAL</option> <option value='NASALY'>NASALY</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='male_medicine_frequency_ipd_"+countr+"' id='male_medicine_frequency_ipd_"+countr+"' required> <option value='OD'>OD</option> <option value='BD'>BD</option> <option value='TDS'>TDS</option> <option value='QID'>QID</option> <option value='SOS'>SOS</option> <option value='HS'>HS</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='male_medicine_timing_ipd_"+countr+"' id='male_medicine_timing_ipd_"+countr+"' required> <option value='EMPTY STOMACH'>EMPTY STOMACH</option> <option value='BEFORE MEAL'>BEFORE MEAL</option> <option value='AFTER MEAL'>AFTER MEAL</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='male_medicine_take_ipd_"+countr+"' id='male_medicine_take_ipd_"+countr+"' required> <option value='Daily'>Daily</option> <option value='Biweekly'>Biweekly</option> <option value='Weekly'>Weekly</option> <option value='Blank'>Blank</option> <option value='Alternate Day'>Alternate Day</option></select></td></tr>");
-   		countr++;
-   	});
-   	$("table#male_medicine_table_ipd").show();
-   }); 
-   
-   $('#female_medicine_suggestion_list_ipd').change(function(e) {
-   	$("table#female_medicine_table_ipd").hide();
-   	var brands = $('#female_medicine_suggestion_list_ipd option:selected');
-   	var selected = "";
-   	var countr=1;
-   	// Don't empty existing data - preserve it
-   	// $("tbody#female_medicine_suggestion_table_ipd").empty();
-   	$(brands).each(function(index, brand){
-   		$("tbody#female_medicine_suggestion_table_ipd").append("<tr style='border:1px solid #000;'><td style='border:1px solid #000;'>"+$(this).attr('medicine')+"<input type='hidden' required readonly value='"+$(this).val()+"' style='margin:0;padding:0;' name='female_medicine_name_ipd_"+countr+"' id='female_medicine_name_ipd_"+countr+"'></td><td style='border:1px solid #000;'><input type='number' step='0.1' style='margin:0;padding:0;' name='female_medicine_dosage_ipd_"+countr+"' required id='female_medicine_dosage_ipd_"+countr+"'></td><td style='border:1px solid #000;'><input type='text' style='margin:0;padding:0;' name='female_medicine_remarks_ipd_"+countr+"' required id='female_medicine_remarks_ipd_"+countr+"'></td><td style='border:1px solid #000;'><input type='date' placeholder='DD-MM-YYYY' style='margin:0;padding:0;' name='female_medicine_when_start_ipd_"+countr+"' id='female_medicine_when_start_ipd_"+countr+"' required></td><td style='border:1px solid #000;'><input type='number' style='margin:0;padding:0;' name='female_medicine_days_ipd_"+countr+"' required id='female_medicine_days_ipd_"+countr+"'></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='female_medicine_route_ipd_"+countr+"' id='female_medicine_route_ipd_"+countr+"' required> <option value='PO'>PO</option> <option value='IM'>IM</option> <option value='SC'>SC</option> <option value='VAGINA-LY'>VAGINA-LY</option> <option value='IV'>IV</option> <option value='LOCAL'>LOCAL</option> <option value='NASALY'>NASALY</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='female_medicine_frequency_ipd_"+countr+"' id='female_medicine_frequency_ipd_"+countr+"' required> <option value='OD'>OD</option> <option value='BD'>BD</option> <option value='TDS'>TDS</option> <option value='QID'>QID</option> <option value='SOS'>SOS</option> <option value='HS'>HS</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='female_medicine_timing_ipd_"+countr+"' id='female_medicine_timing_ipd_"+countr+"' required> <option value='EMPTY STOMACH'>EMPTY STOMACH</option> <option value='BEFORE MEAL'>BEFORE MEAL</option> <option value='AFTER MEAL'>AFTER MEAL</option></select></td><td style='border:1px solid #000;' class='role'><select style='margin:0;padding:0;' name='female_medicine_take_ipd_"+countr+"' id='female_medicine_take_ipd_"+countr+"' required> <option value='Daily'>Daily</option> <option value='Biweekly'>Biweekly</option> <option value='Weekly'>Weekly</option> <option value='Blank'>Blank</option> <option value='Alternate Day'>Alternate Day</option></select></td></tr>");
-   		countr++;
-   		//selected.push([$(this).val()+"--------"+$(this).attr('medicine')]);
-   	});
-   	//console.log(selected);
-   	$("table#female_medicine_table_ipd").show();
-   }); 
-   });
+   // Old IPD medicine handlers removed - using new improved handlers below
    
    $("#medicine_suggestion_ipd").change(function() {
    //Male Investigation IPD
@@ -1206,6 +1161,14 @@
    });
    $("#female_medicine_suggestion_list_ipd").multiselect('refresh');	
    $("select#female_medicine_suggestion_list_ipd").prop('required',false);
+   
+   // Hide tables and clear fields when unchecked
+   $("#male_medicine_table_ipd").hide();
+   $("#female_medicine_table_ipd").hide();
+   $('div[id^="medicine_male_ipd_"]').remove();
+   $('div[id^="medicine_female_ipd_"]').remove();
+   $('input[name^="male_medicine_name_ipd_"]').remove();
+   $('input[name^="female_medicine_name_ipd_"]').remove();
    
    if(this.checked) {
    	//Male Investigation IPD
@@ -1362,8 +1325,19 @@
                    // Get selected options directly
                    var selectedValues = [];
                    $select.find('option:selected').each(function() {
-                       selectedValues.push($(this).val());
+                       var value = $(this).val();
+                       if (value && value !== '0') {
+                           selectedValues.push(value);
+                       }
                    });
+                   
+                   // If no values found, try jQuery val() method
+                   if (selectedValues.length === 0) {
+                       var valResult = $select.val();
+                       if (valResult && Array.isArray(valResult)) {
+                           selectedValues = valResult.filter(function(v) { return v && v !== '0'; });
+                       }
+                   }
                    
                    // Store the values
                    if (selectedValues.length > 0) {
@@ -1474,12 +1448,6 @@
        var tableId = '#' + gender + '_medicine_table' + suffix;
        var tbodyId = '#' + gender + '_medicine_suggestion_table' + suffix;
        
-       console.log('generateMedicineTable called with:', gender, suffix);
-       console.log('selectId:', selectId);
-       console.log('tableId:', tableId);
-       console.log('tbodyId:', tbodyId);
-       console.log('Selected options count:', $(selectId + ' option:selected').length);
-       
        $(tableId).hide();
        var brands = $(selectId + ' option:selected');
        var countr = 1;
@@ -1538,56 +1506,546 @@
        $(tableId).show();
    }
    
+   // Function to generate medicine fields from multiselect array
+   function generateMedicineFieldsFromArray(gender, medicineIds, suffix) {
+       var tableId = '#' + gender + '_medicine_table' + suffix;
+       var tbodyId = '#' + gender + '_medicine_suggestion_table' + suffix;
+       
+       // Clear existing table rows
+       $(tbodyId).empty();
+       
+       var countr = 1;
+       medicineIds.forEach(function(medicineId) {
+           // Find the medicine name from the option
+           var medicineName = '';
+           var selectId = '#' + gender + '_medicine_suggestion_list' + suffix;
+           $(selectId + ' option[value="' + medicineId + '"]').each(function() {
+               medicineName = $(this).attr('medicine') || $(this).text();
+           });
+           
+           // Create table row with form fields
+           var row = '<tr style="border:1px solid #000;">' +
+               '<td style="border:1px solid #000;">' + medicineName + 
+               '<input type="hidden" required readonly value="' + medicineId + '" style="margin:0;padding:0;" name="' + gender + '_medicine_name' + suffix + '_' + countr + '" id="' + gender + '_medicine_name' + suffix + '_' + countr + '">' +
+               '</td>' +
+               '<td style="border:1px solid #000;"><input type="number" step="0.1" style="margin:0;padding:0;" name="' + gender + '_medicine_dosage' + suffix + '_' + countr + '" required id="' + gender + '_medicine_dosage' + suffix + '_' + countr + '"></td>' +
+               '<td style="border:1px solid #000;"><input type="text" style="margin:0;padding:0;" name="' + gender + '_medicine_remarks' + suffix + '_' + countr + '" required id="' + gender + '_medicine_remarks' + suffix + '_' + countr + '"></td>' +
+               '<td style="border:1px solid #000;"><input type="date" placeholder="DD-MM-YYYY" style="margin:0;padding:0;" name="' + gender + '_medicine_when_start' + suffix + '_' + countr + '" id="' + gender + '_medicine_when_start' + suffix + '_' + countr + '" required></td>' +
+               '<td style="border:1px solid #000;"><input type="number" style="margin:0;padding:0;" name="' + gender + '_medicine_days' + suffix + '_' + countr + '" required id="' + gender + '_medicine_days' + suffix + '_' + countr + '"></td>' +
+               '<td style="border:1px solid #000;" class="role"><select style="margin:0;padding:0;" name="' + gender + '_medicine_route' + suffix + '_' + countr + '" id="' + gender + '_medicine_route' + suffix + '_' + countr + '" required>' +
+               '<option value="PO">PO</option>' +
+               '<option value="IM">IM</option>' +
+               '<option value="SC">SC</option>' +
+               '<option value="VAGINA-LY">VAGINA-LY</option>' +
+               '<option value="IV">IV</option>' +
+               '<option value="LOCAL">LOCAL</option>' +
+               '<option value="NASALY">NASALY</option>' +
+               '</select></td>' +
+               '<td style="border:1px solid #000;" class="role"><select style="margin:0;padding:0;" name="' + gender + '_medicine_frequency' + suffix + '_' + countr + '" id="' + gender + '_medicine_frequency' + suffix + '_' + countr + '" required>' +
+               '<option value="OD">OD</option>' +
+               '<option value="BD">BD</option>' +
+               '<option value="TDS">TDS</option>' +
+               '<option value="QID">QID</option>' +
+               '<option value="SOS">SOS</option>' +
+               '<option value="HS">HS</option>' +
+               '</select></td>' +
+               '<td style="border:1px solid #000;" class="role"><select style="margin:0;padding:0;" name="' + gender + '_medicine_timing' + suffix + '_' + countr + '" id="' + gender + '_medicine_timing' + suffix + '_' + countr + '" required>' +
+               '<option value="EMPTY STOMACH">EMPTY STOMACH</option>' +
+               '<option value="BEFORE MEAL">BEFORE MEAL</option>' +
+               '<option value="AFTER MEAL">AFTER MEAL</option>' +
+               '</select></td>' +
+               '<td style="border:1px solid #000;" class="role"><select style="margin:0;padding:0;" name="' + gender + '_medicine_take' + suffix + '_' + countr + '" id="' + gender + '_medicine_take' + suffix + '_' + countr + '" required>' +
+               '<option value="Daily">Daily</option>' +
+               '<option value="Biweekly">Biweekly</option>' +
+               '<option value="Weekly">Weekly</option>' +
+               '<option value="Blank">Blank</option>' +
+               '<option value="Alternate Day">Alternate Day</option>' +
+               '</select></td>' +
+               '</tr>';
+           
+           $(tbodyId).append(row);
+           countr++;
+       });
+       
+       // Show the table
+       $(tableId).show();
+   }
    
-   // Fix for multiselect data not going in POST - Enable all elements before submission
-   $('form').on('submit', function(e) {
-       // Prevent default form submission temporarily
-       e.preventDefault();
-       
-       // Enable all multiselect elements first
-       $('.multidselect_dropdown, .multidselect_dropdown_1, .multidselect_dropdown_2').prop('disabled', false);
-       
-       // Generate medicine tables directly for OPD medicines
-       if ($('#medicine_suggestion').is(':checked')) {
-           console.log('OPD medicine suggestion is checked, generating OPD tables');
-           generateMedicineTable('male');
-           generateMedicineTable('female');
+   // Generate medicine fields when medicines are selected
+   $('#female_medicine_suggestion_list').change(function() {
+       var selectedMedicines = $(this).val();
+       if (selectedMedicines && selectedMedicines.length > 0 && selectedMedicines[0] !== '0') {
+           generateMedicineFieldsFromArray('female', selectedMedicines, '');
        } else {
-           console.log('OPD medicine suggestion is NOT checked');
+           $('#female_medicine_table').hide();
+           $('#female_medicine_suggestion_table').empty();
        }
-       
-       // Generate medicine tables directly for IPD medicines
-       if ($('#medicine_suggestion_ipd').is(':checked')) {
-           console.log('IPD medicine suggestion is checked, generating IPD tables');
-           generateMedicineTable('male', '_ipd');
-           generateMedicineTable('female', '_ipd');
-       } else {
-           console.log('IPD medicine suggestion is NOT checked');
-       }
-       
-       // Force capture multiselect values
-       var capturedValues = forceCaptureMultiselectValues();
-       console.log('Captured multiselect values:', capturedValues);
-       
-       // Add hidden inputs for all captured values
-       for (var fieldName in capturedValues) {
-           var values = capturedValues[fieldName];
-           console.log('Processing field:', fieldName, 'with values:', values);
-           
-           // Remove existing hidden inputs for this field
-           $('input[name="' + fieldName + '"]').remove();
-           
-           // Add hidden inputs for each value
-           if (values && values.length > 0) {
-               values.forEach(function(value) {
-                   $('form').append('<input type="hidden" name="' + fieldName + '" value="' + value + '">');
-               });
-           }
-       }
-       
-       // Submit the form
-       $('form')[0].submit();
    });
+   
+   $('#male_medicine_suggestion_list').change(function() {
+       var selectedMedicines = $(this).val();
+       if (selectedMedicines && selectedMedicines.length > 0 && selectedMedicines[0] !== '0') {
+           generateMedicineFieldsFromArray('male', selectedMedicines, '');
+       } else {
+           $('#male_medicine_table').hide();
+           $('#male_medicine_suggestion_table').empty();
+       }
+   });
+   
+   $('#female_medicine_suggestion_list_ipd').change(function() {
+       var selectedMedicines = $(this).val();
+       if (selectedMedicines && selectedMedicines.length > 0 && selectedMedicines[0] !== '0') {
+           generateMedicineFieldsFromArray('female', selectedMedicines, '_ipd');
+       } else {
+           $('#female_medicine_table_ipd').hide();
+           $('#female_medicine_suggestion_table_ipd').empty();
+       }
+   });
+   
+   $('#male_medicine_suggestion_list_ipd').change(function() {
+       var selectedMedicines = $(this).val();
+       if (selectedMedicines && selectedMedicines.length > 0 && selectedMedicines[0] !== '0') {
+           generateMedicineFieldsFromArray('male', selectedMedicines, '_ipd');
+       } else {
+           $('#male_medicine_table_ipd').hide();
+           $('#male_medicine_suggestion_table_ipd').empty();
+       }
+   });
+   
+   // New Clean Form Submission Method
+   $('form').on('submit', function(e) {
+       e.preventDefault(); // Prevent default form submission
+       
+       // Collect all form data into a structured object
+       var formData = collectFormData();
+       
+       // Submit data via AJAX
+       submitFollowUpData(formData);
+   });
+   
+   // Function to collect all form data in a clean structure
+   function collectFormData() {
+       var data = {
+           // Basic consultation data
+           action: 'add_consultation_done',
+           appointment_id: $('input[name="appointment_id"]').val(),
+           patient_id: $('input[name="patient_id"]').val(),
+           wife_phone: $('input[name="wife_phone"]').val(),
+           doctor_id: $('input[name="doctor_id"]').val(),
+           center_number: $('input[name="center_number"]').val(),
+           doc_consult_id: $('input[name="doc_consult_id"]').val() || '',
+           
+           // Findings
+           female_findings: $('input[name="female_findings"]').val(),
+           male_findings: $('input[name="male_findings"]').val(),
+           
+           // Follow-up appointment data
+           follow_up: $('input[name="follow_up"]').val(),
+           follow_up_date: $('input[name="follow_up_date"]').val(),
+           follow_slot: $('select[name="appoitmented_slot"]').val(),
+           follow_up_purpose: $('input[name="follow_up_purpose"]:checked').val(),
+           appoitment_for: $('select[name="appoitment_for"]').val(),
+           appoitmented_doctor: $('select[name="appoitmented_doctor"]').val(),
+           
+           // Dynamic sections
+           sections: {}
+       };
+       
+       // Collect investigation data
+       if ($('#investigation_suggestion').is(':checked')) {
+           data.sections.investigations = {
+               enabled: true,
+               female_minvestigation_suggestion_list: getMultiselectValues('female_minvestigation_suggestion_list'),
+               male_minvestigation_suggestion_list: getMultiselectValues('male_minvestigation_suggestion_list')
+           };
+       }
+       
+       // Collect medicine data (OPD)
+       if ($('#medicine_suggestion').is(':checked')) {
+           data.sections.medicines_opd = {
+               enabled: true,
+               female_medicines: collectMedicineData('female', ''),
+               male_medicines: collectMedicineData('male', '')
+           };
+       }
+       
+       // Collect medicine data (IPD)
+       if ($('#medicine_suggestion_ipd').is(':checked')) {
+           data.sections.medicines_ipd = {
+               enabled: true,
+               female_medicines: collectMedicineData('female', '_ipd'),
+               male_medicines: collectMedicineData('male', '_ipd')
+           };
+       }
+       
+       // Collect procedure data
+       if ($('#procedure_suggestion').is(':checked')) {
+           data.sections.procedures = {
+               enabled: true,
+               sub_procedure_suggestion_list: getMultiselectValues('sub_procedure_suggestion_list')
+           };
+       }
+       
+       // Collect package data
+       if ($('#package_suggestion').is(':checked')) {
+           data.sections.packages = {
+               enabled: true,
+               package_suggestion_list: getMultiselectValues('package_suggestion_list')
+           };
+       }
+       
+       // Collect advisory templates
+       data.sections.advisory_templates = getMultiselectValues('advisory_templates');
+       
+       return data;
+   }
+   
+   // Helper function to get multiselect values
+   function getMultiselectValues(selectId) {
+       var $select = $('#' + selectId);
+       var values = $select.val() || [];
+       return values.filter(function(v) { return v && v !== '0'; });
+   }
+   
+   // Helper function to collect medicine data
+   function collectMedicineData(gender, suffix) {
+       var medicines = [];
+       var medicineIds = getMultiselectValues(gender + '_medicine_suggestion_list' + suffix);
+       
+       medicineIds.forEach(function(medicineId, index) {
+           var medicineData = {
+               medicine_id: medicineId,
+               medicine_name: $('#' + gender + '_medicine_suggestion_list' + suffix + ' option[value="' + medicineId + '"]').attr('medicine'),
+               dosage: $('input[name="' + gender + '_medicine_dosage' + suffix + '_' + (index + 1) + '"]').val(),
+               remarks: $('input[name="' + gender + '_medicine_remarks' + suffix + '_' + (index + 1) + '"]').val(),
+               when_start: $('input[name="' + gender + '_medicine_when_start' + suffix + '_' + (index + 1) + '"]').val(),
+               days: $('input[name="' + gender + '_medicine_days' + suffix + '_' + (index + 1) + '"]').val(),
+               route: $('select[name="' + gender + '_medicine_route' + suffix + '_' + (index + 1) + '"]').val(),
+               frequency: $('select[name="' + gender + '_medicine_frequency' + suffix + '_' + (index + 1) + '"]').val(),
+               timing: $('select[name="' + gender + '_medicine_timing' + suffix + '_' + (index + 1) + '"]').val(),
+               take: $('select[name="' + gender + '_medicine_take' + suffix + '_' + (index + 1) + '"]').val()
+           };
+           medicines.push(medicineData);
+       });
+       
+       return medicines;
+   }
+   
+   // Function to submit data via AJAX
+   function submitFollowUpData(formData) {
+       // Show loading indicator
+       $('#loader_div').show();
+       
+       $.ajax({
+           url: '<?php echo base_url('doctors/follow_up_clean/'.$appointments['ID']); ?>',
+           type: 'POST',
+           data: formData,
+           dataType: 'json',
+           success: function(response) {
+               $('#loader_div').hide();
+               if (response.status === 'success') {
+                   showMessage(response.message, 'success');
+                   setTimeout(function() {
+                       window.location.href = response.redirect_url || '<?php echo base_url("doctor_appointments"); ?>';
+                   }, 2000);
+               } else {
+                   showMessage(response.message, 'error');
+               }
+           },
+           error: function(xhr, status, error) {
+               $('#loader_div').hide();
+               
+               // Log the full response for debugging
+               console.error('AJAX Error:', error);
+               console.error('Status:', status);
+               console.error('Response Text:', xhr.responseText);
+               console.error('Response Headers:', xhr.getAllResponseHeaders());
+               
+               // Try to parse response as JSON to get better error message
+               var errorMessage = 'An error occurred while submitting the form. Please try again.';
+               try {
+                   var response = JSON.parse(xhr.responseText);
+                   if (response.message) {
+                       errorMessage = response.message;
+                   }
+               } catch (e) {
+                   // If not JSON, show the raw response (truncated)
+                   var responseText = xhr.responseText.substring(0, 200);
+                   errorMessage = 'Server Error: ' + responseText + '...';
+               }
+               
+               showMessage(errorMessage, 'error');
+           }
+       });
+   }
+   
+   // Function to print submitted consultation data
+   function printSubmittedData() {
+       var appointmentId = '<?php echo $appointments["ID"]; ?>';
+       var printUrl = '<?php echo base_url("print-submitted-consultation/"); ?>' + appointmentId;
+       
+       // Open print window
+       var printWindow = window.open(printUrl, '_blank', 'width=1000,height=700');
+       
+       // Focus on the new window
+       if (printWindow) {
+           printWindow.focus();
+       } else {
+           alert('Please allow popups for this site to print the consultation report.');
+       }
+   }
+   
+   // Function to print consultation form
+   function printConsultationForm() {
+       // Collect all form data
+       var formData = collectFormData();
+       
+       // Create print content
+       var printContent = generatePrintContent(formData);
+       
+       // Open print window
+       var printWindow = window.open('', '_blank', 'width=800,height=600');
+       printWindow.document.write(printContent);
+       printWindow.document.close();
+       
+       // Wait for content to load then print
+       printWindow.onload = function() {
+           printWindow.print();
+           printWindow.close();
+       };
+   }
+   
+   // Function to generate print-friendly content
+   function generatePrintContent(formData) {
+       var patientName = '<?php echo isset($patient_data["wife_name"]) ? $patient_data["wife_name"] : "N/A"; ?>';
+       var patientPhone = '<?php echo isset($patient_data["wife_phone"]) ? $patient_data["wife_phone"] : "N/A"; ?>';
+       var doctorName = '<?php echo isset($appointments["doctor_name"]) ? $appointments["doctor_name"] : "N/A"; ?>';
+       var appointmentDate = '<?php echo isset($appointments["appoitmented_date"]) ? date("d-m-Y", strtotime($appointments["appoitmented_date"])) : "N/A"; ?>';
+       var centerName = '<?php echo isset($appointments["center_name"]) ? $appointments["center_name"] : "N/A"; ?>';
+       
+       var html = `
+       <!DOCTYPE html>
+       <html>
+       <head>
+           <title>Follow-up Consultation Report</title>
+           <style>
+               body { font-family: Arial, sans-serif; margin: 20px; }
+               .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+               .section { margin-bottom: 25px; }
+               .section-title { background-color: #f5f5f5; padding: 10px; font-weight: bold; border-left: 4px solid #007bff; }
+               .field { margin: 8px 0; }
+               .field-label { font-weight: bold; display: inline-block; width: 200px; }
+               .field-value { display: inline-block; }
+               .medicine-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+               .medicine-table th, .medicine-table td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+               .medicine-table th { background-color: #f2f2f2; }
+               .footer { margin-top: 40px; text-align: center; font-size: 12px; color: #666; }
+               @media print { body { margin: 0; } }
+           </style>
+       </head>
+       <body>
+           <div class="header">
+               <h1>Follow-up Consultation Report</h1>
+               <p><strong>Hospital Management System</strong></p>
+           </div>
+           
+           <div class="section">
+               <div class="section-title">Patient Information</div>
+               <div class="field"><span class="field-label">Patient Name:</span> <span class="field-value">${patientName}</span></div>
+               <div class="field"><span class="field-label">Phone Number:</span> <span class="field-value">${patientPhone}</span></div>
+               <div class="field"><span class="field-label">Doctor:</span> <span class="field-value">${doctorName}</span></div>
+               <div class="field"><span class="field-label">Appointment Date:</span> <span class="field-value">${appointmentDate}</span></div>
+               <div class="field"><span class="field-label">Center:</span> <span class="field-value">${centerName}</span></div>
+           </div>
+           
+           <div class="section">
+               <div class="section-title">Clinical Findings</div>
+               <div class="field"><span class="field-label">Female Findings:</span> <span class="field-value">${formData.female_findings || 'N/A'}</span></div>
+               <div class="field"><span class="field-label">Male Findings:</span> <span class="field-value">${formData.male_findings || 'N/A'}</span></div>
+           </div>
+           
+           ${generateInvestigationSection(formData)}
+           ${generateMedicineSection(formData)}
+           ${generateProcedureSection(formData)}
+           ${generatePackageSection(formData)}
+           ${generateFollowUpSection(formData)}
+           
+           <div class="footer">
+               <p>Generated on: ${new Date().toLocaleString()}</p>
+               <p>This is a computer-generated report.</p>
+           </div>
+       </body>
+       </html>`;
+       
+       return html;
+   }
+   
+   // Generate investigation section for print
+   function generateInvestigationSection(formData) {
+       if (!formData.sections || !formData.sections.investigations || !formData.sections.investigations.enabled) {
+           return '';
+       }
+       
+       var html = '<div class="section"><div class="section-title">Investigations Recommended</div>';
+       
+       if (formData.sections.investigations.female_minvestigation_suggestion_list && formData.sections.investigations.female_minvestigation_suggestion_list.length > 0) {
+           html += '<div class="field"><span class="field-label">Female Investigations:</span></div>';
+           html += '<ul>';
+           formData.sections.investigations.female_minvestigation_suggestion_list.forEach(function(inv) {
+               html += '<li>' + inv + '</li>';
+           });
+           html += '</ul>';
+       }
+       
+       if (formData.sections.investigations.male_minvestigation_suggestion_list && formData.sections.investigations.male_minvestigation_suggestion_list.length > 0) {
+           html += '<div class="field"><span class="field-label">Male Investigations:</span></div>';
+           html += '<ul>';
+           formData.sections.investigations.male_minvestigation_suggestion_list.forEach(function(inv) {
+               html += '<li>' + inv + '</li>';
+           });
+           html += '</ul>';
+       }
+       
+       html += '</div>';
+       return html;
+   }
+   
+   // Generate medicine section for print
+   function generateMedicineSection(formData) {
+       var html = '';
+       
+       // OPD Medicines
+       if (formData.sections && formData.sections.medicines_opd && formData.sections.medicines_opd.enabled) {
+           html += '<div class="section"><div class="section-title">OPD Medicines</div>';
+           
+           if (formData.sections.medicines_opd.female_medicines && formData.sections.medicines_opd.female_medicines.length > 0) {
+               html += '<div class="field"><span class="field-label">Female Medicines:</span></div>';
+               html += generateMedicineTable(formData.sections.medicines_opd.female_medicines);
+           }
+           
+           if (formData.sections.medicines_opd.male_medicines && formData.sections.medicines_opd.male_medicines.length > 0) {
+               html += '<div class="field"><span class="field-label">Male Medicines:</span></div>';
+               html += generateMedicineTable(formData.sections.medicines_opd.male_medicines);
+           }
+           
+           html += '</div>';
+       }
+       
+       // IPD Medicines
+       if (formData.sections && formData.sections.medicines_ipd && formData.sections.medicines_ipd.enabled) {
+           html += '<div class="section"><div class="section-title">IPD Medicines</div>';
+           
+           if (formData.sections.medicines_ipd.female_medicines && formData.sections.medicines_ipd.female_medicines.length > 0) {
+               html += '<div class="field"><span class="field-label">Female Medicines:</span></div>';
+               html += generateMedicineTable(formData.sections.medicines_ipd.female_medicines);
+           }
+           
+           if (formData.sections.medicines_ipd.male_medicines && formData.sections.medicines_ipd.male_medicines.length > 0) {
+               html += '<div class="field"><span class="field-label">Male Medicines:</span></div>';
+               html += generateMedicineTable(formData.sections.medicines_ipd.male_medicines);
+           }
+           
+           html += '</div>';
+       }
+       
+       return html;
+   }
+   
+   // Generate medicine table for print
+   function generateMedicineTable(medicines) {
+       if (!medicines || medicines.length === 0) return '';
+       
+       var html = '<table class="medicine-table"><thead><tr><th>Medicine</th><th>Dosage</th><th>Frequency</th><th>Duration</th><th>Route</th><th>Remarks</th></tr></thead><tbody>';
+       
+       medicines.forEach(function(medicine) {
+           html += '<tr>';
+           html += '<td>' + (medicine.medicine_name || 'N/A') + '</td>';
+           html += '<td>' + (medicine.dosage || 'N/A') + '</td>';
+           html += '<td>' + (medicine.frequency || 'N/A') + '</td>';
+           html += '<td>' + (medicine.days || 'N/A') + '</td>';
+           html += '<td>' + (medicine.route || 'N/A') + '</td>';
+           html += '<td>' + (medicine.remarks || 'N/A') + '</td>';
+           html += '</tr>';
+       });
+       
+       html += '</tbody></table>';
+       return html;
+   }
+   
+   // Generate procedure section for print
+   function generateProcedureSection(formData) {
+       if (!formData.sections || !formData.sections.procedures || !formData.sections.procedures.enabled) {
+           return '';
+       }
+       
+       var html = '<div class="section"><div class="section-title">Procedures Recommended</div>';
+       
+       if (formData.sections.procedures.sub_procedure_suggestion_list && formData.sections.procedures.sub_procedure_suggestion_list.length > 0) {
+           html += '<ul>';
+           formData.sections.procedures.sub_procedure_suggestion_list.forEach(function(proc) {
+               html += '<li>' + proc + '</li>';
+           });
+           html += '</ul>';
+       }
+       
+       html += '</div>';
+       return html;
+   }
+   
+   // Generate package section for print
+   function generatePackageSection(formData) {
+       if (!formData.sections || !formData.sections.packages || !formData.sections.packages.enabled) {
+           return '';
+       }
+       
+       var html = '<div class="section"><div class="section-title">Packages Recommended</div>';
+       
+       if (formData.sections.packages.package_suggestion_list && formData.sections.packages.package_suggestion_list.length > 0) {
+           html += '<ul>';
+           formData.sections.packages.package_suggestion_list.forEach(function(pkg) {
+               html += '<li>' + pkg + '</li>';
+           });
+           html += '</ul>';
+       }
+       
+       html += '</div>';
+       return html;
+   }
+   
+   // Generate follow-up section for print
+   function generateFollowUpSection(formData) {
+       if (!formData.follow_up || formData.follow_up != 1) {
+           return '';
+       }
+       
+       var html = '<div class="section"><div class="section-title">Follow-up Appointment</div>';
+       html += '<div class="field"><span class="field-label">Follow-up Date:</span> <span class="field-value">' + (formData.follow_up_date || 'N/A') + '</span></div>';
+       html += '<div class="field"><span class="field-label">Follow-up Time:</span> <span class="field-value">' + (formData.follow_slot || 'N/A') + '</span></div>';
+       html += '<div class="field"><span class="field-label">Purpose:</span> <span class="field-value">' + (formData.follow_up_purpose || 'N/A') + '</span></div>';
+       html += '</div>';
+       
+       return html;
+   }
+   
+   // Function to show messages
+   function showMessage(message, type) {
+       var alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+       var messageHtml = '<div class="alert ' + alertClass + ' alert-dismissible fade in" role="alert">' +
+                        '<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+                        '<span aria-hidden="true">&times;</span></button>' +
+                        message + '</div>';
+       
+       // Remove existing alerts
+       $('.alert').remove();
+       
+       // Add new alert at the top of the form
+       $('.follow-up-container').prepend(messageHtml);
+       
+       // Auto-hide after 5 seconds
+       setTimeout(function() {
+           $('.alert').fadeOut();
+       }, 5000);
+   }
    
    
 </script>

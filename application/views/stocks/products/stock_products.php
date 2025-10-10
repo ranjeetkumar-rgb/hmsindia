@@ -17,14 +17,25 @@
             </tr>
           </thead>
           <tbody id="table_content">
-          <?php foreach($data as $ky => $vl){ ?>
-            <tr class="odd gradeX">
-              <td><?php echo $vl['name']?>- <?php echo $vl['batch_number']?></td>
-              <td><?php echo $vl['type']?></td>
-              <td><?php echo $vl['consumption_unit']?></td>
-              <td><a href="<?php echo base_url();?>product-brands/<?php echo $vl['ID']?>" class="btn btn-primary">Assign Brands</a></td>
-              <td><a href="<?php echo base_url();?>edit-product?id=<?php echo $vl['ID']?>" class="edit"><i class="material-icons">edit</i></a><!-- <a href="<?php echo base_url();?>stocks/delete?item_number=<?php echo $vl['item_number']?>" class="delete"><i class="material-icons">delete</i></a>--></td> 
-            </tr>
+          <?php  foreach($data as $ky => $vl){ ?>
+         <tr class="odd gradeX">
+              <td>
+                  <?php echo $vl['name'] ?? 'N/A'; ?> - <?php echo $vl['batch_number'] ?? 'N/A'; ?>
+              </td>
+              <td><?php echo $vl['type'] ?? 'N/A'; ?></td>
+              <td><?php echo $vl['consumption_unit'] ?? 'N/A'; ?></td>
+              <td>
+                  <a href="<?php echo base_url(); ?>product-brands/<?php echo $vl['ID'] ?? 0; ?>" class="btn btn-primary">Assign Brands</a>
+              </td>
+              <td>
+                  <a href="<?php echo base_url(); ?>edit-product?id=<?php echo $vl['ID'] ?? 0; ?>" class="edit">
+                      <i class="material-icons">edit</i>
+                  </a>
+                  <!-- <a href="<?php echo base_url(); ?>stocks/delete?item_number=<?php echo $vl['item_number'] ?? 0; ?>" class="delete">
+                      <i class="material-icons">delete</i>
+                  </a> -->
+              </td> 
+          </tr>
           <?php } ?>
           </tbody>
         </table>

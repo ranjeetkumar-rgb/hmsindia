@@ -5084,38 +5084,30 @@ function follow_medical_info($patient_id, $appointment_id){
 
 	//var_dump($parent_proce$procedure_suggestiondure_data);die;
 
-    $male_medicine_html = $female_medicine_html = "";
+    $male_medicine_html = $female_medicine_html = $male_medicine_html_ipd = $female_medicine_html_ipd = "";
+
 
     if($medicine_suggestion == 1){        
-
 	    $male_medicine_suggestion_list = unserialize($patient_result['male_medicine_suggestion_list']);
-
         $female_medicine_suggestion_list = unserialize($patient_result['female_medicine_suggestion_list']);
-
+        $male_medicine_suggestion_list_ipd=unserialize($patient_result['male_medicine_suggestion_list_ipd']);
+        $female_medicine_suggestion_list_ipd=unserialize($patient_result['female_medicine_suggestion_list_ipd']); 
         if(!empty($male_medicine_suggestion_list)){
-$male_med_count =1; 
+            $male_med_count =1; 
             $male_medicine_html = '<table style="width:100%; border:1px solid #000;" id="male_medicine_table" border="1">
                                         <thead style="border:1px solid #000; padding:10px; width:100%;">
                                             <tr>
                                                 <td style="border:1px solid #000; padding:10px;" colspan="8">Male</td>
                                             </tr>
                                             <tr>
-
                                                 <th style="border:1px solid #000; padding:10px;">Medicine</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Dosage</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Start on</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Days</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Route</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Frequency</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Timing</th>
                                                 <th style="border:1px solid #000; padding:10px;">Take</th>
-
                                             </tr>
                                             <tbody id="male_medicine_suggestion_table"  style="border:1px solid #000; padding:10px; width:100%;">';                                           
                                             foreach($male_medicine_suggestion_list['male_medicine_suggestion_list'] as $key => $vals){//var_dump($vals);die;
@@ -5140,11 +5132,8 @@ $male_med_count =1;
                                             $male_med_count++; }                           
             $male_medicine_html .= '</tbody> </thead> </table>';
         }
-
-
-
         if(!empty($female_medicine_suggestion_list)){
-        $fmale_med_count = 1;
+            $fmale_med_count = 1;
             $female_medicine_html .= '<table style="width:100%; border:1px solid #000;" id="male_medicine_table" border="1">
                                         <thead style="border:1px solid #000; padding:10px; width:100%;">
                                             <tr>
@@ -5193,135 +5182,153 @@ $male_med_count =1;
             $female_medicine_html .= '</tbody> </thead> </table>';
 
         }
+        if(!empty($male_medicine_suggestion_list_ipd)){
+            $male_med_count_ipd =1; 
+            $male_medicine_html_ipd = '<table style="width:100%; border:1px solid #000;" id="male_medicine_table_ipd" border="1">
+                                        <thead style="border:1px solid #000; padding:10px; width:100%;">
+                                            <tr>
+                                                <td style="border:1px solid #000; padding:10px;" colspan="8">Male</td>
+                                            </tr>
+                                            <tr>
+
+                                                <th style="border:1px solid #000; padding:10px;">Medicine</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Dosage</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Start on</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Days</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Route</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Frequency</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Timing</th>
+                                                <th style="border:1px solid #000; padding:10px;">Take</th>
+
+                                            </tr>
+                                            <tbody id="male_medicine_suggestion_table_ipd"  style="border:1px solid #000; padding:10px; width:100%;">';                                           
+                                            foreach($male_medicine_suggestion_list_ipd['male_medicine_suggestion_list'] as $key => $vals){//var_dump($vals);die;
+                                                $male_take = isset($vals['male_medicine_take'])?$vals['male_medicine_take']:"";
+                                                $male_medicine_html_ipd .= '<tr style="border:1px solid #000; width:40%;">  
+                                                <td style="border:1px solid #000; width:20%;">'.get_medicine_name($vals['male_medicine_name']).'</td>
+                                             
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_dosage'].'</td>
+                                            
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_when_start'].'</td>
+                                            
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_days'].'</td>
+                                             
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_route'].'</td>
+                                             
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_frequency'].'</td>
+                                            
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_timing'].'</td>
+                                             
+                                                <td style="border:1px solid #000; width:20%;">'.$male_take.'</td>
+                                             </tr>';
+                                            $male_med_count_ipd++; }                           
+            $male_medicine_html_ipd.= '</tbody> </thead> </table>';
+        }
+        if(!empty($female_medicine_suggestion_list_ipd)){
+                $fmale_med_count_ipd = 1;
+                $female_medicine_html_ipd .= '<table style="width:100%; border:1px solid #000;" id="female_medicine_table_ipd" border="1">
+                                        <thead style="border:1px solid #000; padding:10px; width:100%;">
+                                            <tr>
+                                                <td style="border:1px solid #000; padding:10px;" colspan="8">Female</td>
+                                            </tr>
+                                             <tr>
+                                                <th style="border:1px solid #000; padding:10px;">Medicine</th>
+                                                <th style="border:1px solid #000; padding:10px;">Dosage</th>
+                                                <th style="border:1px solid #000; padding:10px;">Start on</th>
+                                                <th style="border:1px solid #000; padding:10px;">Days</th>
+                                                <th style="border:1px solid #000; padding:10px;">Route</th>
+                                                <th style="border:1px solid #000; padding:10px;">Frequency</th>
+                                                <th style="border:1px solid #000; padding:10px;">Timing</th>
+                                                <th style="border:1px solid #000; padding:10px;">Take</th>
+
+                                            </tr>   
+                                            <tbody id="male_medicine_suggestion_table_ipd" style="border:1px solid #000; padding:10px; width:100%;">';                                           
+                                            foreach($female_medicine_suggestion_list_ipd['female_medicine_suggestion_list'] as $key => $vals){
+                                                $female_take = isset($vals['female_medicine_take'])?$vals['female_medicine_take']:"";
+                                                $female_medicine_html_ipd .= '<tr style="border:1px solid #000; width:40%;">    
+                                                
+                                                <td style="border:1px solid #000; width:20%;">'.get_medicine_name($vals['female_medicine_name']).'</td>
+                                            
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_dosage'].'</td>
+                                            
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_when_start'].'</td>
+                                             
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_days'].'</td>
+                                             
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_route'].'</td>
+                                             
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_frequency'].'</td>
+                                            
+                                                <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_timing'].'</td>
+                                             
+                                                <td style="border:1px solid #000; width:20%;">'.$female_take.'</td>
+                                             </tr>';
+                                            $fmale_med_count_ipd++; }                               
+            $female_medicine_html_ipd .= '</tbody> </thead> </table>';
+        }
 
     }
-
-    
-
     $investation_suggestion = $patient_result['investation_suggestion'];
-
-	//var_dump($parent_proce$procedure_suggestiondure_data);die;
-
     $male_investation_html = $female_investation_html = $male_minvestation_html = $female_minvestation_html = "";
 
     if($investation_suggestion == 1){        
-
         $male_investigation_suggestion_list = unserialize($patient_result['male_investigation_suggestion_list']);
-
         $female_investigation_suggestion_list = unserialize($patient_result['female_investigation_suggestion_list']);
-
 		$male_minvestigation_suggestion_list = unserialize($patient_result['male_minvestigation_suggestion_list']);
-
         $female_minvestigation_suggestion_list = unserialize($patient_result['female_minvestigation_suggestion_list']);
-
         $male_investation_html = "<ul>";
-
-        
-
         if(!empty($male_investigation_suggestion_list)){
-
             foreach($male_investigation_suggestion_list as $key => $vals){//var_dump($vals);die;
-
                 $investigation_name = get_investigation_name($vals);
-
                 $male_investation_html .= "<li>".$investigation_name."</li>";
-
             }
-
         }
-
         $male_investation_html .= "</ul>";
-
-
-
         $female_investation_html = "<ul>";
-
-        
-
         if(!empty($female_investigation_suggestion_list)){
-
             foreach($female_investigation_suggestion_list as $key => $vals){
-
                 $investigation_name = get_investigation_name($vals);
-
                 $female_investation_html .= "<li>".$investigation_name."</li>";
 
             }
-
         }
-
         $female_investation_html .= "</ul>";
-		
 		$male_minvestation_html = "<ul>";
-
-        
-
         if(!empty($male_minvestigation_suggestion_list)){
-
-            foreach($male_minvestigation_suggestion_list as $key => $vals){//var_dump($vals);die;
-
+            foreach($male_minvestigation_suggestion_list as $key => $vals){
                 $investigation_name = get_master_investigation_name($vals);
-
                 $male_minvestation_html .= "<li>".$investigation_name."</li>";
-
             }
-
         }
-
         $male_minvestation_html .= "</ul>";
-
-
-
         $female_minvestation_html = "<ul>";
-
-        
-
         if(!empty($female_minvestigation_suggestion_list)){
-
             foreach($female_minvestigation_suggestion_list as $key => $vals){
-
                 $investigation_name = get_master_investigation_name($vals);
-
                 $female_minvestation_html .= "<li>".$investigation_name."</li>";
-
             }
-
         }
-
         $female_minvestation_html .= "</ul>";
-
     }
-
-    
-
     $patient_details = get_patient_detail($patient_id);
-
-    //var_dump($patient_details);die;
-
-//var_dump($patient_result);die;
-
-$doctor_center=get_doctor_centre($doctor_id);
-//var_dump($doctor_center);die;
-$center_details= get_center_detail($doctor_center);
-//var_dump ($center_details);
-$center_logo= $center_details['upload_photo_1'];
-
-if(!empty($center_logo)){
-  $logo= $center_details['upload_photo_1']; 
-    
-}
-
-else {
-    
-   $logo= "https://stage.indiaivf.website/assets/images/indiaivf-logo.png" ;
-}
-
+    $doctor_center=get_doctor_centre($doctor_id);
+    $center_details= get_center_detail($doctor_center);
+    $center_logo= $center_details['upload_photo_1'];
+    if(!empty($center_logo)){
+    $logo= $center_details['upload_photo_1']; 
+    }
+    else {
+    $logo= base_url()."assets/images/IndiaIVFClinic_logo.png";
+    }
     $info_html = "";
-$rand_tr = rand(100, 999999999);
+    $rand_tr = rand(100, 999999999);
     $info_html = '<hr/>
-    
-    
-    
     <table id="example1" class="table" border="1" style="width:100%;">
     <tbody>
         <tr style="border:1px solid #000; width:100%;">
@@ -5403,12 +5410,19 @@ $rand_tr = rand(100, 999999999);
         <table style="width:100%; border:1px solid #000;" border="1">
         
         <tr style="border:1px solid #000; width:100%;" colspan="2">
-            <td style="border:0px solid #000; padding:10px;">Medicines</td>
+            <td style="border:0px solid #000; padding:10px;">Medicines Opd</td>
         </tr>
     
         <tr style="border:1px solid #000; width:100%;">
             <td colspan="2">'.$female_medicine_html.'</td>
             <td>'.$male_medicine_html.'</td>
+        </tr>
+        <tr style="border:1px solid #000; width:100%;" colspan="2">
+            <td style="border:0px solid #000; padding:10px;">Medicines Ipd</td>
+        </tr>
+          <tr style="border:1px solid #000; width:100%;">
+            <td colspan="2">'.$female_medicine_html_ipd.'</td>
+            <td>'.$male_medicine_html_ipd.'</td>
         </tr>
         
         <tr style="border:1px solid #000; width:100%;">
@@ -5621,19 +5635,13 @@ function print_follow_medical_info_html($patient_id, $appointment_id){
 	
 
     $medicine_suggestion = $patient_result['medicine_suggestion'];
-
-	//var_dump(get_package_data);die;
-
-    $male_medicine_html = $female_medicine_html = "";
-
+    $male_medicine_html = $female_medicine_html = $male_medicine_html_ipd = $female_medicine_html_ipd = "";
     if($medicine_suggestion == 1){        
-
 	    $male_medicine_suggestion_list = unserialize($patient_result['male_medicine_suggestion_list']);
-
         $female_medicine_suggestion_list = unserialize($patient_result['female_medicine_suggestion_list']);
-
+        $male_medicine_suggestion_list_ipd=unserialize($patient_result['male_medicine_suggestion_list_ipd']);
+        $female_medicine_suggestion_list_ipd=unserialize($patient_result['female_medicine_suggestion_list_ipd']); 
         if(!empty($male_medicine_suggestion_list)){
-
             $male_medicine_html = '<table style="width:100%; border:1px solid #000;" id="male_medicine_table" border="1">
                                 
                                         <thead>
@@ -5680,22 +5688,11 @@ function print_follow_medical_info_html($patient_id, $appointment_id){
                                             }                                   
 
             $male_medicine_html .= '</tbody> </thead> </table>';
-
-           
-
         }
-
-
-
         if(!empty($female_medicine_suggestion_list)){
-
             $female_medicine_html .= '<table style="width:100%; border:1px solid #000;" id="male_medicine_table" border="1">
-
                                         <thead>
-
-                                            
                                             <tbody id="male_medicine_suggestion_table">';                                           
-
                                             $fmale_med_count = 1;
                                             foreach($female_medicine_suggestion_list['female_medicine_suggestion_list'] as $key => $vals){
                                                 $female_take = isset($vals['female_medicine_take'])?$vals['female_medicine_take']:"";
@@ -5738,7 +5735,93 @@ function print_follow_medical_info_html($patient_id, $appointment_id){
             $female_medicine_html .= '</tbody> </thead> </table>';
 
         }
-
+        if(!empty($male_medicine_suggestion_list_ipd)){
+            $male_medicine_html_ipd = '<table style="width:100%; border:1px solid #000;" id="male_medicine_table_ipd" border="1">
+                                        <thead>
+                                            <tbody id="male_medicine_suggestion_table_ipd">';                                           
+                                            $male_med_count_ipd = 1;
+                                            foreach($male_medicine_suggestion_list_ipd['male_medicine_suggestion_list'] as $key => $vals){//var_dump($vals);die;
+                                                $male_take = isset($vals['male_medicine_take'])?$vals['male_medicine_take']:"";
+                                                
+                                                $male_medicine_html_ipd .='<tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Medicine '.$male_med_count_ipd.':-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.get_medicine_name($vals['male_medicine_name']).'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Dosage:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_dosage'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Start on:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_when_start'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Days:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_days'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Route:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_route'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Frequency:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_frequency'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Timing:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_timing'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Take:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$male_take.'</td>
+                                                                        </tr>';
+                                            $male_med_count_ipd++;
+                                            }                                   
+            $male_medicine_html_ipd .= '</tbody> </thead> </table>';
+        }
+         if(!empty($female_medicine_suggestion_list_ipd)){
+            $female_medicine_html_ipd .= '<table style="width:100%; border:1px solid #000;" id="male_medicine_table" border="1">
+                                        <thead>
+                                            <tbody id="male_medicine_suggestion_table_ipd">';                                           
+                                            $fmale_med_count_ipd = 1;
+                                            foreach($female_medicine_suggestion_list_ipd['female_medicine_suggestion_list'] as $key => $vals){
+                                                $female_take = isset($vals['female_medicine_take'])?$vals['female_medicine_take']:"";
+                                                $female_medicine_html_ipd .='<tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Medicine '.$fmale_med_count_ipd.':-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.get_medicine_name($vals['female_medicine_name']).'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Dosage:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_dosage'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Start on:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_when_start'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Days:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_days'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Route:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_route'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Frequency:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_frequency'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Timing:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_timing'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Take:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$female_take.'</td>
+                                                                        </tr>';
+                                            $fmale_med_count_ipd++;    
+                                            }                                                            
+            $female_medicine_html_ipd .= '</tbody> </thead> </table>';
+        }
     }
 
     
@@ -5895,25 +5978,20 @@ function print_follow_medical_info_html($patient_id, $appointment_id){
         </tr>
 
         <tr>
-
-            <th>Medicines</th>
-
+            <th>Medicines Opd</th>
             <td>'.$female_medicine_html.'</td>
-
             <td>'.$male_medicine_html.'</td>
-
         </tr>
-
         <tr>
-
-            <th>Investigations</th>
-
-            <td>'.$female_investation_html.'</td>
-
-            <td>'.$male_investation_html.'</td>
-
+            <th>Medicines Ipd</th>
+            <td>'.$female_medicine_html_ipd.'</td>
+            <td>'.$male_medicine_html_ipd.'</td>
         </tr>
-		
+        <tr>
+            <th>Investigations</th>
+            <td>'.$female_investation_html.'</td>
+            <td>'.$male_investation_html.'</td>
+        </tr>
 		<tr>
 
             <th>IIC Investigations</th>
@@ -6057,16 +6135,14 @@ die();*/
     
     //var_dump($parent_proce$procedure_suggestiondure_data);die;
     
-    $male_medicine_html = $female_medicine_html = "";
+    $male_medicine_html = $female_medicine_html = $male_medicine_html_ipd = $female_medicine_html_ipd = "";
     
     if($medicine_suggestion == 1){        
-    
         $male_medicine_suggestion_list = unserialize($patient_result['male_medicine_suggestion_list']);
-    
         $female_medicine_suggestion_list = unserialize($patient_result['female_medicine_suggestion_list']);
-    
+        $male_medicine_suggestion_list_ipd=unserialize($patient_result['male_medicine_suggestion_list_ipd']);
+        $female_medicine_suggestion_list_ipd=unserialize($patient_result['female_medicine_suggestion_list_ipd']); 
         if(!empty($male_medicine_suggestion_list)){
-    
             $male_medicine_html = '<table style="width:40%; border:1px solid #000;" id="male_medicine_table" border="1">
                                         <thead>
                                             <tbody id="male_medicine_suggestion_table">';                                           
@@ -6110,8 +6186,6 @@ die();*/
     
             $male_medicine_html .= '</tbody> </thead> </table>';    
         }
-
-    
         if(!empty($female_medicine_suggestion_list)){
     
             $female_medicine_html .= '<table style="width:40%; border:1px solid #000;" id="male_medicine_table" border="1">
@@ -6157,6 +6231,96 @@ die();*/
                                             }                                          
     
             $female_medicine_html .= '</tbody> </thead> </table>';
+    
+        }
+        if(!empty($male_medicine_suggestion_list_ipd)){
+            $male_medicine_html_ipd = '<table style="width:40%; border:1px solid #000;" id="male_medicine_table_ipd" border="1">
+                                        <thead>
+                                            <tbody id="male_medicine_suggestion_table_ipd">';                                           
+                                            $male_med_count_ipd = 1;
+                                            foreach($male_medicine_suggestion_list_ipd['male_medicine_suggestion_list'] as $key => $vals){//var_dump($vals);die;
+                                                    $male_take = isset($vals['male_medicine_take'])?$vals['male_medicine_take']:"";
+                                                $male_medicine_html_ipd .='<tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Medicine '.$male_med_count_ipd.':-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.get_medicine_name($vals['male_medicine_name']).'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Dosage:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_dosage'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Start on:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_when_start'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Days:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_days'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Route:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_route'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Frequency:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_frequency'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Timing:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_timing'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Take:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$male_take.'</td>
+                                                                        </tr>';
+                                            $male_med_count_ipd++;
+                                            }                                      
+            $male_medicine_html_ipd .= '</tbody> </thead> </table>';    
+        }
+        if(!empty($female_medicine_suggestion_list_ipd)){
+    
+            $female_medicine_html_ipd .= '<table style="width:40%; border:1px solid #000;" id="male_medicine_table_ipd" border="1">
+    
+                                        <thead>    
+                                            <tbody id="male_medicine_suggestion_table_ipd">';                                           
+                                            $fmale_med_count_ipd = 1;
+                                            foreach($female_medicine_suggestion_list_ipd['female_medicine_suggestion_list'] as $key => $vals){
+                                                $female_take = isset($vals['female_medicine_take'])?$vals['female_medicine_take']:"";
+                                                $female_medicine_html_ipd .='<tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Medicine '.$fmale_med_count_ipd.':-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.get_medicine_name($vals['female_medicine_name']).'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Dosage:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_dosage'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Start on:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_when_start'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Days:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_days'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Route:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_route'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Frequency:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_frequency'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Timing:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_timing'].'</td>
+                                                                        </tr>
+                                                                        <tr style="border:1px solid #000; width:40%;">    
+                                                                           <td style="border:1px solid #000; width:80%;">Take:-</td>
+                                                                           <td style="border:1px solid #000; width:20%;">'.$female_take.'</td>
+                                                                        </tr>';
+                                            $fmale_med_count_ipd++;    
+                                            }                                          
+    
+            $female_medicine_html_ipd .= '</tbody> </thead> </table>';
     
         }
     
@@ -7554,13 +7718,12 @@ die();*/
     </tr>
     
     <tr style="border:1px solid #000; width:100%;">
-    
-    <th style="border:1px solid #000; padding:10px;">Medicines</th>
-    
-    <td>'.$female_medicine_html.'</td>
-    
-    <td>'.$male_medicine_html.'</td>
-    
+    <th style="border:1px solid #000; padding:10px;">Medicines Opd</th>
+        <td>'.$female_medicine_html.'</td>
+        <td>'.$male_medicine_html.'</td>
+    <th style="border:1px solid #000; padding:10px;">Medicines Ipd</th>
+        <td>'.$female_medicine_html_ipd.'</td>
+        <td>'.$male_medicine_html_ipd.'</td>
     </tr>
     
     <tr style="border:1px solid #000; width:100%;">
@@ -7594,126 +7757,64 @@ die();*/
 
 function print_patient_medical_info($patient_id){
 
-    //return "";
-    
     $ci = &get_instance();
-    
     $ci->load->database();
-    
     $db_prefix = $ci->config->config['db_prefix'];   
-    
     $patient_sql = "Select * from ".$db_prefix."patient_medical_info RIGHT join ".$db_prefix."doctor_consultation on ".$db_prefix."doctor_consultation.patient_id=".$db_prefix."patient_medical_info.patient_id where ".$db_prefix."doctor_consultation.patient_id='$patient_id' AND ".$db_prefix."doctor_consultation.final_mode='1' order by ".$db_prefix."doctor_consultation.ID ASC limit 1";
-    // echo $patient_sql;die;
-    
     $patient_q = $ci->db->query($patient_sql);
-    
     $patient_result = $patient_q->result_array();
-    
-    //var_dump($patient_result);die;
-    
     if(empty($patient_result)){
-    
         $response = "reportnotfound";
-    
         return $response;
-    
     }
-    
     $patient_result = $patient_result[0];
-    
     //$get_procedure_data = get_procedure_data();
-    
     $procedure_suggestion = $patient_result['procedure_suggestion'];
-    
     $sub_procedure_suggestion_list = unserialize($patient_result['sub_procedure_suggestion_list']);
-    
-    //var_dump($parent_proce$procedure_suggestiondure_data);die;
-    
     $procedure_html = "";
-    
     if($procedure_suggestion == 1){
-    
         $procedure_html = "<ul>";
-    
-        
-    
         if(!empty($sub_procedure_suggestion_list)){
-    
             foreach($sub_procedure_suggestion_list as $key => $vals){
-    
                 $sub_procedure_data = get_procedure_data($vals);
-    
                 $procedure_html .= "<li>".$sub_procedure_data."</li>";
-    
             }
-    
         }
-    
         $procedure_html .= "</ul>";
-    
     }
-	
 	$package_suggestion = $patient_result['package_suggestion'];
-    
     $package_suggestion_list = unserialize($patient_result['package_suggestion_list']);
-	
 	 $package_html = "";
-    
     if($package_suggestion == 1){
-    
         $package_html = "<ul>";
-    
-        
-    
         if(!empty($package_suggestion_list)){
-    
             foreach($package_suggestion_list as $key => $vals){
-    
                 $sub_package_data = get_package_data($vals);
-    
                 $package_html .= "<li>".$sub_package_data."</li>";
-    
             }
-    
         }
-    
         $package_html .= "</ul>";
     
     }
-    
     $medicine_suggestion = $patient_result['medicine_suggestion'];
-    
-    //var_dump($parent_proce$procedure_suggestiondure_data);die;
-    
-    $male_medicine_html = $female_medicine_html = "";
-    
+    $male_medicine_html = $female_medicine_html = $male_medicine_html_ipd = $female_medicine_html_ipd = "";
     if($medicine_suggestion == 1){        
-    
         $male_medicine_suggestion_list = unserialize($patient_result['male_medicine_suggestion_list']);
-    
         $female_medicine_suggestion_list = unserialize($patient_result['female_medicine_suggestion_list']);
-    
+        $male_medicine_suggestion_list_ipd=unserialize($patient_result['male_medicine_suggestion_list_ipd']);
+        $female_medicine_suggestion_list_ipd=unserialize($patient_result['female_medicine_suggestion_list_ipd']); 
         if(!empty($male_medicine_suggestion_list)){
-    
             $male_medicine_html = '<table style="width:40%; border:1px solid #000;" id="male_medicine_table" border="1">
                                         <thead>
                                             <tr>
-
                                                 <th style="border:1px solid #000; padding:10px;">Medicine</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Dosage</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Start on</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Days</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Route</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Frequency</th>
-
                                                 <th style="border:1px solid #000; padding:10px;">Timing</th>
                                                 <th style="border:1px solid #000; padding:10px;">Take</th>
-
                                             </tr>
                                             <tbody id="male_medicine_suggestion_table">';                                           
                                             $male_med_count = 1;
@@ -7741,10 +7842,7 @@ function print_patient_medical_info($patient_id){
     
             $male_medicine_html .= '</tbody> </thead> </table>';    
         }
-
-    
         if(!empty($female_medicine_suggestion_list)){
-    
             $female_medicine_html .= '<table style="width:40%; border:1px solid #000;" id="male_medicine_table" border="1">
     
                                         <thead>    
@@ -7794,6 +7892,95 @@ function print_patient_medical_info($patient_id){
             $female_medicine_html .= '</tbody> </thead> </table>';
     
         }
+        if(!empty($male_medicine_suggestion_list_ipd)){
+            $male_medicine_html = '<table style="width:40%; border:1px solid #000;" id="male_medicine_table_ipd" border="1">
+                                        <thead>
+                                            <tr>
+                                                <th style="border:1px solid #000; padding:10px;">Medicine</th>
+                                                <th style="border:1px solid #000; padding:10px;">Dosage</th>
+                                                <th style="border:1px solid #000; padding:10px;">Start on</th>
+                                                <th style="border:1px solid #000; padding:10px;">Days</th>
+                                                <th style="border:1px solid #000; padding:10px;">Route</th>
+                                                <th style="border:1px solid #000; padding:10px;">Frequency</th>
+                                                <th style="border:1px solid #000; padding:10px;">Timing</th>
+                                                <th style="border:1px solid #000; padding:10px;">Take</th>
+                                            </tr>
+                                            <tbody id="male_medicine_suggestion_table_ipd">';                                           
+                                            $male_med_count_ipd = 1;
+                                            foreach($male_medicine_suggestion_list_ipd['male_medicine_suggestion_list'] as $key => $vals){//var_dump($vals);die;
+                                                    $male_take = isset($vals['male_medicine_take'])?$vals['male_medicine_take']:"";
+                                                $male_medicine_html_ipd .='<tr style="border:1px solid #000; width:40%;">   
+                                                                           <td style="border:1px solid #000; width:20%;">'.get_medicine_name($vals['male_medicine_name']).'</td>
+                                                                       
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_dosage'].'</td>
+                                                                        
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_when_start'].'</td>
+                                                                       
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_days'].'</td>
+                                                                        
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_route'].'</td>
+                                                                      
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_frequency'].'</td>
+                                                                       
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['male_medicine_timing'].'</td>
+                                                                       
+                                                                           <td style="border:1px solid #000; width:20%;">'.$male_take.'</td>
+                                                                        </tr>';
+                                            $male_med_count_ipd++;
+                                            }                                      
+    
+            $male_medicine_html_ipd .= '</tbody> </thead> </table>';    
+        }
+        if(!empty($female_medicine_suggestion_list_ipd)){
+            $female_medicine_html_ipd .= '<table style="width:40%; border:1px solid #000;" id="male_medicine_table_ipd" border="1">
+    
+                                        <thead>    
+                                        <tr>
+
+                                                <th style="border:1px solid #000; padding:10px;">Medicine</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Dosage</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Start on</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Days</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Route</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Frequency</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Timing</th>
+                                                <th style="border:1px solid #000; padding:10px;">Take</th>
+
+                                            </tr>
+                                            <tbody id="male_medicine_suggestion_table">';                                           
+                                            $fmale_med_count_ipd = 1;
+                                            foreach($female_medicine_suggestion_list_ipd['female_medicine_suggestion_list'] as $key => $vals){
+                                                $female_take = isset($vals['female_medicine_take'])?$vals['female_medicine_take']:"";
+                                                $female_medicine_html_ipd .='<tr style="border:1px solid #000; width:40%;">    
+                                                                           
+                                                                           <td style="border:1px solid #000; width:20%;">'.get_medicine_name($vals['female_medicine_name']).'</td>
+                                                                       
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_dosage'].'</td>
+                                                                        
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_when_start'].'</td>
+                                                                        
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_days'].'</td>
+                                                                        
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_route'].'</td>
+                                                                        
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_frequency'].'</td>
+                                                                        
+                                                                           <td style="border:1px solid #000; width:20%;">'.$vals['female_medicine_timing'].'</td>
+                                                                        
+                                                                           <td style="border:1px solid #000; width:20%;">'.$female_take.'</td>
+                                                                        </tr>';
+                                            $fmale_med_count_ipd++;    
+                                            }                                          
+    
+            $female_medicine_html_ipd .= '</tbody> </thead> </table>';
+    
+        }
     
     }
     
@@ -7806,91 +7993,42 @@ function print_patient_medical_info($patient_id){
     $male_investation_html = $female_investation_html = $male_minvestation_html = $female_minvestation_html = "";
     
     if($investation_suggestion == 1){        
-    
         $male_investigation_suggestion_list = unserialize($patient_result['male_investigation_suggestion_list']);
-    
         $female_investigation_suggestion_list = unserialize($patient_result['female_investigation_suggestion_list']);
-    
 		$male_minvestigation_suggestion_list = unserialize($patient_result['male_minvestigation_suggestion_list']);
-    
         $female_minvestigation_suggestion_list = unserialize($patient_result['female_minvestigation_suggestion_list']);
-    
         $male_investation_html = "<ul>";
-    
-        
-    
         if(!empty($male_investigation_suggestion_list)){
-    
             foreach($male_investigation_suggestion_list as $key => $vals){//var_dump($vals);die;
-    
                 $investigation_name = get_investigation_name($vals);
-    
                 $male_investation_html .= "<li>".$investigation_name."</li>";
-    
             }
-    
         }
-    
         $male_investation_html .= "</ul>";
-    
-    
-    
         $female_investation_html = "<ul>";
-    
-        
-    
         if(!empty($female_investigation_suggestion_list)){
-    
             foreach($female_investigation_suggestion_list as $key => $vals){
-    
                 $investigation_name = get_investigation_name($vals);
-    
                 $female_investation_html .= "<li>".$investigation_name."</li>";
-    
             }
-    
         }
-    
         $female_investation_html .= "</ul>";
-		
 		  $male_minvestation_html = "<ul>";
-    
-        
-    
         if(!empty($male_minvestigation_suggestion_list)){
-    
             foreach($male_minvestigation_suggestion_list as $key => $vals){//var_dump($vals);die;
-    
                 $investigation_name = get_master_investigation_name($vals);
-    
                 $male_minvestation_html .= "<li>".$investigation_name."</li>";
-    
             }
-    
         }
-    
         $male_minvestation_html .= "</ul>";
-    
-    
-    
         $female_minvestation_html = "<ul>";
-    
-        
-    
         if(!empty($female_minvestigation_suggestion_list)){
-    
             foreach($female_minvestigation_suggestion_list as $key => $vals){
-    
                 $investigation_name = get_master_investigation_name($vals);
-    
                 $female_minvestation_html .= "<li>".$investigation_name."</li>";
-    
             }
-    
         }
-    
         $female_minvestation_html .= "</ul>";
-    
     }
     
     
@@ -9417,7 +9555,7 @@ function print_patient_medical_info($patient_id){
     </tr>
     
     <tr style="border:1px solid #000; width:100%;">
-        <td style="border:1px solid #000; padding:10px;" colspan="3">Medicine</td>
+        <td style="border:1px solid #000; padding:10px;" colspan="3">Medicine Opd</td>
     </tr>
     
     <tr style="border:1px solid #000; width:100%;">
@@ -9428,6 +9566,19 @@ function print_patient_medical_info($patient_id){
     <tr style="border:1px solid #000; width:100%;">
         <td colspan="2">'.$female_medicine_html.'</td>
         <td>'.$male_medicine_html.'</td>
+    </tr>
+        <tr style="border:1px solid #000; width:100%;">
+        <td style="border:1px solid #000; padding:10px;" colspan="3">Medicine Ipd</td>
+    </tr>
+    
+    <tr style="border:1px solid #000; width:100%;">
+        <td style="border:1px solid #000; padding:10px;" colspan="2">Female</td>
+        <td style="border:1px solid #000; padding:10px">male</td>
+    </tr>
+    
+    <tr style="border:1px solid #000; width:100%;">
+        <td colspan="2">'.$female_medicine_html_ipd.'</td>
+        <td>'.$male_medicine_html_ipd.'</td>
     </tr>
 	
 	 <tr style="border:1px solid #000; width:100%;">
@@ -9575,14 +9726,14 @@ function patient_medical_info($patient_id){
 
 	//var_dump($medicine_suggestion = $patient_result['medicine_suggestion']);die;
 
-    $male_medicine_html = $female_medicine_html = "";
+    $male_medicine_html = $female_medicine_html = $male_medicine_html_ipd = $female_medicine_html_ipd = "";
 
     if($medicine_suggestion == 1){        
 
 	    $male_medicine_suggestion_list = unserialize($patient_result['male_medicine_suggestion_list']);
-
         $female_medicine_suggestion_list = unserialize($patient_result['female_medicine_suggestion_list']);
-
+        $male_medicine_suggestion_list_ipd=unserialize($patient_result['male_medicine_suggestion_list_ipd']);
+        $female_medicine_suggestion_list_ipd=unserialize($patient_result['female_medicine_suggestion_list_ipd']); 
         if(!empty($male_medicine_suggestion_list)){
 
             $male_medicine_html = '<table style="width:100%; border:1px solid #000;" id="male_medicine_table" border="1">
@@ -9621,9 +9772,6 @@ function patient_medical_info($patient_id){
            
 
         }
-
-
-
         if(!empty($female_medicine_suggestion_list)){
 
             $female_medicine_html .= '<table style="width:100%; border:1px solid #000;" id="male_medicine_table" border="1">
@@ -9677,11 +9825,74 @@ function patient_medical_info($patient_id){
             $female_medicine_html .= '</tbody> </thead> </table>';
 
         }
+        if(!empty($male_medicine_suggestion_list_ipd)){
+            $male_medicine_html_ipd = '<table style="width:100%; border:1px solid #000;" id="male_medicine_table_ipd" border="1">
+                                        <thead>
+                                            <tr>
+                                                <th style="border:1px solid #000; padding:10px;">Medicine</th>
+                                                <th style="border:1px solid #000; padding:10px;">Dosage</th>
+                                                <th style="border:1px solid #000; padding:10px;">Start on</th>
+                                                <th style="border:1px solid #000; padding:10px;">Days</th>
+                                                <th style="border:1px solid #000; padding:10px;">Route</th>
+                                                <th style="border:1px solid #000; padding:10px;">Frequency</th>
+                                                <th style="border:1px solid #000; padding:10px;">Timing</th>
+                                                <th style="border:1px solid #000; padding:10px;">Take</th>
+                                            </tr>
+                                            <tbody id="male_medicine_suggestion_table_ipd">';                                           
+                                            foreach($male_medicine_suggestion_list_ipd['male_medicine_suggestion_list'] as $key => $vals){//var_dump($vals);die;
+                                                $male_medicine_take = isset($vals['male_medicine_take'])?$vals['male_medicine_take']:"";
+                                                $male_medicine_html_ipd .= "<tr> <td style='border:1px solid #000; padding:10px;'>".get_medicine_name($vals['male_medicine_name'])."</td><td style='border:1px solid #000; padding:10px;'>".$vals['male_medicine_dosage']."</td><td style='border:1px solid #000; padding:10px;'>".$vals['male_medicine_when_start']."</td><td style='border:1px solid #000; padding:10px;'>".$vals['male_medicine_days']."</td><td style='border:1px solid #000; padding:10px;'>".$vals['male_medicine_route']."</td><td style='border:1px solid #000; padding:10px;'>".$vals['male_medicine_frequency']."</td><td style='border:1px solid #000; padding:10px;'>".$vals['male_medicine_timing']."</td><td style='border:1px solid #000; padding:10px;'>".$male_medicine_take."</td></tr>";
 
+                                            }                                      
+            $male_medicine_html_ipd .= '</tbody> </thead> </table>';
+        }
+         if(!empty($female_medicine_suggestion_list_ipd)){
+            $female_medicine_html_ipd .= '<table style="width:100%; border:1px solid #000;" id="male_medicine_table_ipd" border="1">
+                                        <thead>
+                                            <tr>
+                                                <th style="border:1px solid #000; padding:10px;">Medicine</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Dosage</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Start on</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Days</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Route</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Frequency</th>
+
+                                                <th style="border:1px solid #000; padding:10px;">Timing</th>
+                                                <th style="border:1px solid #000; padding:10px;">Take</th>
+
+                                            </tr>
+
+                                            <tbody id="male_medicine_suggestion_table_ipd">';                                           
+                                            foreach($female_medicine_suggestion_list_ipd['female_medicine_suggestion_list'] as $key => $vals){
+                                                $female_medicine_take = isset($vals['female_medicine_take'])?$vals['female_medicine_take']:"";
+                                                $female_medicine_html_ipd .= "<tr>
+                                                        <td style='border:1px solid #000; padding:10px;'>".get_medicine_name($vals['female_medicine_name'])."</td>
+
+                                                        <td style='border:1px solid #000; padding:10px;'>".$vals['female_medicine_dosage']."</td>
+
+                                                        <td style='border:1px solid #000; padding:10px;'>".$vals['female_medicine_when_start']."</td>
+
+                                                        <td style='border:1px solid #000; padding:10px;'>".$vals['female_medicine_days']."</td>
+
+                                                        <td style='border:1px solid #000; padding:10px;'>".$vals['female_medicine_route']."</td>
+
+                                                        <td style='border:1px solid #000; padding:10px;'>".$vals['female_medicine_frequency']."</td>
+
+                                                        <td style='border:1px solid #000; padding:10px;'>".$vals['female_medicine_timing']."</td>
+                                                        <td style='border:1px solid #000; padding:10px;'>".$female_medicine_take."</td>
+
+                                                    </tr>";
+
+                                            }                                          
+            $female_medicine_html_ipd .= '</tbody> </thead> </table>';
+
+        }
     }
-
-    
-
     $investation_suggestion = $patient_result['investation_suggestion'];
 
 	//var_dump($parent_proce$procedure_suggestiondure_data);die;
@@ -11985,14 +12196,21 @@ function patient_medical_info($patient_id){
 </tr>
 
 <tr style="border:1px solid #000; width:100%;">
-    <td style="border:1px solid #000; padding:10px;" colspan="3">Medicines</td>
+    <td style="border:1px solid #000; padding:10px;" colspan="3">Medicines Opd</td>
 </tr>
 
 <tr style="border:1px solid #000; width:100%;">
     <td colspan="2">'.$female_medicine_html.'</td>
     <td>'.$male_medicine_html.'</td>
 </tr>
+<tr style="border:1px solid #000; width:100%;">
+    <td style="border:1px solid #000; padding:10px;" colspan="3">Medicines Ipd</td>
+</tr>
 
+<tr style="border:1px solid #000; width:100%;">
+    <td colspan="2">'.$female_medicine_html_ipd.'</td>
+    <td>'.$male_medicine_html_ipd.'</td>
+</tr>
 <tr style="border:1px solid #000; width:100%;">
     <td style="border:1px solid #000; padding:10px;" colspan="3">IIC Investigations</td>
 </tr>

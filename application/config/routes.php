@@ -221,6 +221,14 @@ $route['consultation_done/(:any)'] = 'doctors/consultation_done/$1';
 
 $route['follow-up/(:any)'] = 'doctors/follow_up/$1';
 
+$route['follow-up-clean/(:any)'] = 'doctors/follow_up_clean/$1';
+
+$route['follow-up-form/(:any)'] = 'doctors/follow_up_form/$1';
+
+$route['follow-up-print/(:any)'] = 'doctors/follow_up_print/$1';
+
+$route['print-submitted-consultation/(:any)'] = 'doctors/print_submitted_consultation/$1';
+
 $route['procedure_reports/(:any)'] = 'doctors/procedure_reports/$1';
 
 $route['procedure_upload/(:any)/(:any)'] = 'doctors/procedure_upload/$1/$2';

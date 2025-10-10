@@ -364,7 +364,6 @@ class Stocks extends CI_Controller {
 	function ajax_product_brands(){
 		$response = array(); $brand_html = '';
 		$brand_html = '<option value="">-- Select --</option>';
-
 		$product_id = $_POST['product_id'];
 		$brands = $this->stock_model->get_product_brands($product_id);
 		if(!empty($brands)){
@@ -438,10 +437,8 @@ class Stocks extends CI_Controller {
 	{
 		$logg = checklogin();
 		if($logg['status'] == true){
-			
 			if(isset($_POST['action']) && isset($_POST['action']) && $_POST['action'] == 'add_item'){
 				unset($_POST['action']);
-				//var_dump($_POST);die;
 				$item_number = $_POST['item_number'];
 				$invoice_no = $_POST['invoice_no'];
 				$no_of_item = $_POST['no_of_item'];
@@ -452,6 +449,7 @@ class Stocks extends CI_Controller {
 				$vendor_number = $_POST['vendor_number'];
 				$batch_number = $_POST['batch_number'];
 				$vendor_price = $_POST['vendor_price'];
+				$medicine_type = $_POST['medicine_type'];
 				$hsn = $_POST['hsn'];
 				$pack_size = $_POST['pack_size'];
 				$pack = $_POST['pack'];
@@ -468,7 +466,7 @@ class Stocks extends CI_Controller {
 
 				$check_center_item = $this->stock_model->check_centeral_item($product_id, $brand_name, $vendor_number, $batch_number, $vendor_price, $hsn, $pack_size, $gstrate, $gstdivision, $expiry);
 				if($check_center_item > 0){
-					$data = $this->stock_model->update_item($_POST, $product_id, $invoice_no, $no_of_item, $brand_name, $vendor_number, $batch_number, $vendor_price, $hsn, $pack_size, $pack, $gstrate, $gstdivision, $expiry, $mrp, $date_of_purchase);
+					$data = $this->stock_model->update_item($_POST, $product_id, $invoice_no, $no_of_item, $brand_name, $vendor_number, $batch_number, $vendor_price, $hsn, $pack_size, $pack, $gstrate, $gstdivision, $expiry, $mrp, $date_of_purchase,$medicine_type);
 				}else{
 					$_POST['item_name'] = $this->get_product_name($product_id);
 					//$data = $this->stock_model->update_vendor_invoice($ID, $invoice_no, $qty);
@@ -521,8 +519,8 @@ class Stocks extends CI_Controller {
 					$vndr_bill['free_quantity'] = $_POST['free_quantity'];
 					$vndr_bill['total_purchase_value_excl_gst'] = $_POST['price'];
 					$vndr_bill['freight_forwarding_charges'] = $_POST['freight_forwarding_charges'];
+					$vndr_bill['medicine_type'] = $_POST['medicine_type'];
 					$vndr_bill['comment'] = $comment;
-					//var_dump($this->order_model->insert_vendor_billing($vndr_bill));die();
 					$data = $this->order_model->insert_vendor_billing($vndr_bill);
 				}	
 				if($data > 0){
@@ -4693,6 +4691,75 @@ public function center_audit_report() {
 			exit();
 		} else {
 			echo "Unauthorized access";
+		}
+	}
+	
+	// Update medicine type for individual item
+	public function update_medicine_type() {
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			$item_number = $this->input->post('item_number');
+			$medicine_type = $this->input->post('medicine_type');
+			
+			if(empty($item_number) || empty($medicine_type)) {
+				echo json_encode(['status' => 0, 'message' => 'Item number and medicine type are required']);
+				return;
+			}
+			
+			// Validate medicine type
+			if(!in_array($medicine_type, ['ipd', 'opd'])) {
+				echo json_encode(['status' => 0, 'message' => 'Invalid medicine type']);
+				return;
+			}
+			
+			// Update the medicine type in database
+			$sql = "UPDATE " . $this->config->item('db_prefix') . "stocks SET medicine_type = ? WHERE item_number = ?";
+			$result = $this->db->query($sql, [$medicine_type, $item_number]);
+			
+			if($result && $this->db->affected_rows() > 0) {
+				echo json_encode(['status' => 1, 'message' => 'Medicine type updated successfully']);
+			} else {
+				echo json_encode(['status' => 0, 'message' => 'Failed to update medicine type']);
+			}
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'Unauthorized access']);
+		}
+	}
+	
+	// Bulk update medicine type for selected items
+	public function bulk_update_medicine_type() {
+		$logg = checklogin();
+		if($logg['status'] == true) {
+			$item_numbers = $this->input->post('item_numbers');
+			$medicine_type = $this->input->post('medicine_type');
+			
+			if(empty($item_numbers) || !is_array($item_numbers) || empty($medicine_type)) {
+				echo json_encode(['status' => 0, 'message' => 'Item numbers and medicine type are required']);
+				return;
+			}
+			
+			// Validate medicine type
+			if(!in_array($medicine_type, ['ipd', 'opd'])) {
+				echo json_encode(['status' => 0, 'message' => 'Invalid medicine type']);
+				return;
+			}
+			
+			$updated_count = 0;
+			foreach($item_numbers as $item_number) {
+				$sql = "UPDATE " . $this->config->item('db_prefix') . "stocks SET medicine_type = ? WHERE item_number = ?";
+				$result = $this->db->query($sql, [$medicine_type, $item_number]);
+				if($result && $this->db->affected_rows() > 0) {
+					$updated_count++;
+				}
+			}
+			
+			if($updated_count > 0) {
+				echo json_encode(['status' => 1, 'message' => 'Updated ' . $updated_count . ' items successfully', 'updated' => $updated_count]);
+			} else {
+				echo json_encode(['status' => 0, 'message' => 'No items were updated']);
+			}
+		} else {
+			echo json_encode(['status' => 0, 'message' => 'Unauthorized access']);
 		}
 	}
 } 

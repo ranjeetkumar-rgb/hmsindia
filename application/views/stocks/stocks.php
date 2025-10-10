@@ -170,6 +170,7 @@
             <th class="col-quantity">Quantity</th>
             <th class="col-expiry">Expiry</th>
             <th class="col-safety-stock">Safety Stock</th>
+            <th class="col-medicine-type">Medicine Type</th>
             <th class="col-status">Status</th>
             <th class="col-actions">Actions</th>
           </tr>
@@ -251,6 +252,18 @@
               <td class="col-safety-stock">
                 <span class="safety-stock"><?php echo $vl['safety_stock']; ?></span>
               </td>
+              <td class="col-medicine-type">
+                <div class="medicine-type-container">
+                  <label class="medicine-type-toggle">
+                    <input type="checkbox" class="medicine-type-checkbox" 
+                           data-item-number="<?php echo $vl['item_number']; ?>"
+                           <?php echo (isset($vl['medicine_type']) && $vl['medicine_type'] == 'ipd') ? 'checked' : ''; ?>>
+                    <span class="toggle-label">
+                      <span class="toggle-text"><?php echo (isset($vl['medicine_type']) && $vl['medicine_type'] == 'ipd') ? 'IPD' : 'OPD'; ?></span>
+                    </span>
+                  </label>
+                </div>
+              </td>
               <td class="col-status">
                 <?php if($vl['status'] == '1'){ ?>
                   <span class="status-badge status-active">Active</span>
@@ -274,12 +287,18 @@
         </tbody>
       </table>
     </div>
-    <div class="bulk-actions" style="margin-top:10px; display:flex; gap:10px; justify-content:flex-start;">
+    <div class="bulk-actions" style="margin-top:10px; display:flex; gap:10px; justify-content:flex-start; flex-wrap: wrap;">
       <button type="button" id="bulk_activate" class="btn btn-search-modern" style="min-width:unset; padding:8px 16px;">
         <i class="fa fa-check"></i> Activate Selected
       </button>
       <button type="button" id="bulk_deactivate" class="btn btn-reset-modern" style="min-width:unset; padding:8px 16px;">
         <i class="fa fa-ban"></i> Deactivate Selected
+      </button>
+      <button type="button" id="bulk_set_ipd" class="btn btn-success" style="min-width:unset; padding:8px 16px;">
+        <i class="fa fa-hospital-o"></i> Set Selected to IPD
+      </button>
+      <button type="button" id="bulk_set_opd" class="btn btn-danger" style="min-width:unset; padding:8px 16px;">
+        <i class="fa fa-user-md"></i> Set Selected to OPD
       </button>
     </div>
     
@@ -401,6 +420,94 @@ $(function() {
   $('#bulk_deactivate').on('click', function(){ 
     console.log('Deactivate button clicked');
     bulkUpdateStatus(0); 
+  });
+
+  // Medicine type toggle functionality
+  $('.medicine-type-checkbox').on('change', function(){
+    var itemNumber = $(this).data('item-number');
+    var medicineType = $(this).is(':checked') ? 'ipd' : 'opd';
+    var toggleText = $(this).siblings('.toggle-label').find('.toggle-text');
+    
+    console.log('Medicine type changed for item:', itemNumber, 'to:', medicineType);
+    
+    // Update the toggle text immediately for better UX
+    toggleText.text(medicineType.toUpperCase());
+    
+    // Send AJAX request to update medicine type
+    $.ajax({
+      url: '<?php echo base_url(); ?>stocks/update_medicine_type',
+      type: 'POST',
+      dataType: 'json',
+      data: { 
+        item_number: itemNumber, 
+        medicine_type: medicineType 
+      },
+      success: function(response){
+        if(response.status == 1){
+          console.log('Medicine type updated successfully');
+          // Optional: Show success message
+          // alert('Medicine type updated successfully');
+        } else {
+          console.error('Failed to update medicine type:', response.message);
+          // Revert the toggle if update failed
+          $(this).prop('checked', !$(this).prop('checked'));
+          toggleText.text($(this).is(':checked') ? 'IPD' : 'OPD');
+          alert('Failed to update medicine type: ' + response.message);
+        }
+      },
+      error: function(xhr, status, error){
+        console.error('AJAX Error updating medicine type:', error);
+        // Revert the toggle if update failed
+        $(this).prop('checked', !$(this).prop('checked'));
+        toggleText.text($(this).is(':checked') ? 'IPD' : 'OPD');
+        alert('Request failed: ' + error);
+      }
+    });
+  });
+
+  // Bulk medicine type update functionality
+  function bulkUpdateMedicineType(medicineType){
+    var selected = collectSelectedItems();
+    if(selected.length === 0){
+      alert('Please select at least one item.');
+      return;
+    }
+    
+    console.log('Updating medicine type to:', medicineType, 'for items:', selected);
+    
+    $.ajax({
+      url: '<?php echo base_url(); ?>stocks/bulk_update_medicine_type',
+      type: 'POST',
+      dataType: 'json',
+      data: { 
+        item_numbers: selected, 
+        medicine_type: medicineType 
+      },
+      success: function(response){
+        console.log('Bulk medicine type update response:', response);
+        
+        if(response && response.status == 1){
+          alert('Successfully updated ' + response.updated + ' items to ' + medicineType.toUpperCase() + '.');
+          location.reload();
+        } else {
+          alert('Failed to update: ' + (response.message || 'Unknown error'));
+        }
+      },
+      error: function(xhr, status, error){
+        console.error('AJAX Error:', xhr.responseText);
+        alert('Request failed: ' + error);
+      }
+    });
+  }
+
+  $('#bulk_set_ipd').on('click', function(){ 
+    console.log('Bulk set IPD button clicked');
+    bulkUpdateMedicineType('ipd'); 
+  });
+  
+  $('#bulk_set_opd').on('click', function(){ 
+    console.log('Bulk set OPD button clicked');
+    bulkUpdateMedicineType('opd'); 
   });
 });
 </script>
@@ -743,6 +850,7 @@ $(function() {
 .col-quantity { width: 60px; }
 .col-expiry { width: 80px; }
 .col-safety-stock { width: 80px; }
+.col-medicine-type { width: 100px; }
 .col-status { width: 100px; }
 .col-actions { width: 80px; }
 
@@ -866,6 +974,72 @@ $(function() {
   border-radius: 3px;
   font-size: 11px;
   font-weight: 600;
+}
+
+/* Medicine Type Toggle Styles */
+.medicine-type-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.medicine-type-toggle {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 30px;
+  cursor: pointer;
+}
+
+.medicine-type-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-label {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #dc3545; /* OPD - Red */
+  border-radius: 15px;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toggle-label:before {
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.medicine-type-checkbox:checked + .toggle-label {
+  background-color: #28a745; /* IPD - Green */
+}
+
+.medicine-type-checkbox:checked + .toggle-label:before {
+  transform: translateX(30px);
+}
+
+.toggle-text {
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 1;
+  position: relative;
 }
 
 .status-badge {
@@ -993,6 +1167,31 @@ $(function() {
   color: white;
   border-color: #667eea;
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Bulk Action Buttons */
+.btn-success {
+  background: #28a745;
+  border-color: #28a745;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #218838;
+  border-color: #1e7e34;
+  color: white;
+}
+
+.btn-danger {
+  background: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c82333;
+  border-color: #bd2130;
+  color: white;
 }
 
 /* Responsive Design */

@@ -883,7 +883,6 @@ function get_purchase_orders_count($limit, $page, $start_date, $end_date, $item_
 	
 	function insert_vendor_billing($data){
 		$sql = "INSERT INTO `" . $this->config->item('db_prefix') . "vendor_billing` SET ";
-		//die();
 		$sqlArr = array();
 		foreach( $data as $key=> $value )
 		{

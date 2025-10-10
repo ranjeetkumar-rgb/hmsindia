@@ -11,26 +11,28 @@
           <div class="row">
 		    <div class="form-group col-sm-4 col-xs-12">
               <label for="company">Product name (Required)</label>
-			  
-			  <select id="consumables_product_id" class="select2 consumables_select cons-cls-1 form-control" required>
+		      	  <select id="consumables_product_id" class="select2 consumables_select cons-cls-1 form-control" required>
                     <option value="">-- Select --</option>
               	<?php foreach($medicines as $key => $value){ ?>
                 	<option value="<?php echo $value['ID']; ?>" company="<?php echo $value['company']; ?>" generic_name="<?php echo $value['generic_name']; ?>" pack_size="<?php echo $value['pack_size']; ?>" hsn="<?php echo $value['hsn']; ?>" vendor_price="<?php echo $value['vendor_price']; ?>" gstrate="<?php echo $value['gstrate']; ?>" mrp="<?php echo $value['mrp']; ?>" gstdivision="<?php echo $value['gstdivision']; ?>"><?php echo $value['name']; ?> - <?php echo $value['mrp']; ?></option>
 					
                 <?php } ?>
-                </select>
+              </select>
             </div>
 
             <div class="form-group col-sm-4 col-xs-12">
               <label for="company">Product name (Required)</label>
               <select id="product_id" name="product_id" class="select2 form-control" required>
-                    <option value="">-- Select --</option>
-              	<?php foreach($products as $key => $value){ ?>
-                	<option value="<?php echo $value['ID']; ?>"><?php echo $value['name']; ?> - <?php echo $value['price']; ?></option>
-                <?php } ?>
-                </select>
+                  <option value="">-- Select --</option>
+                  <?php foreach($products as $key => $value){ ?>
+                      <option value="<?php echo $value['ID']; ?>">
+                          <?php echo $value['name']; ?> - <?php echo isset($value['price']) ? $value['price'] : 'N/A'; ?>
+                      </option>
+                  <?php } ?>
+              </select>
               <p id="product_info"></p>
-            </div>
+          </div>
+
 
             <div class="form-group col-sm-4 col-xs-12">
               <label for="company">Invoice Number (Required)</label>
@@ -164,11 +166,19 @@
               </select>
             </div>
             <div class="form-group col-sm-6 col-xs-12">
+              <label for="medicine_type">Select Medicine Type</label>
+              <select name="medicine_type" class="form-control" required>
+              		<option value="">Select Medicine Type</option>
+              		<option value="ipd">IPD</option>
+              		<option value="opd">OPD </option>
+              </select>
+            </div>
+            <div class="form-group col-sm-6 col-xs-12">
               <label for="expiry">Vendor billing receipt</label>
               <input value="" placeholder="Vendor billing receipt" id="vendor_billing" name="vendor_billing" type="file" class="form-control">
             </div>
             <div class="form-group col-sm-6 col-xs-12">
-              <label for="statuss">Status(Required)</label><br/>
+              <label for="status">Status(Required)</label><br/>
                <input type="radio" name="status" value="1" class="statuss" checked> Active 
                <input type="radio" name="status" value="0" class="statuss"> Inactive
             </div>

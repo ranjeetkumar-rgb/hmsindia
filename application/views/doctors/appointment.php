@@ -63,15 +63,7 @@
               </thead>
               <tbody id="appointment_body">
               <?php $count = 1; foreach($appointments as $ky => $vl){ ?>
-
-                <?php
-                
-                // echo '<pre>';
-                // print_r($vl);
-                // echo '</pre>';
-                ?>
                 <?php 
-                //$patient_id = get_patient_by_number($vl['wife_phone']);
                 $patient_id = $vl['paitent_id'];
                 
                 ?>
@@ -99,7 +91,7 @@
                   <td class="role appint_td_<?php echo $vl['ID']?>">
                     <?php if(($vl['status'] == 'consultation' || $vl['status'] == 'visited') && $vl['billed'] == '1'){ ?>
                             <?php if($vl['follow_up_appointment'] == 1){?>
-                              <a class="btn btn-primary" href="<?php echo base_url('follow-up/'.$vl['ID']);?>">Follow up</a>
+                              <a class="btn btn-primary" href="<?php echo base_url('follow-up-form/'.$vl['ID']);?>">Follow up</a>
                             <?php }else { ?>
                               <a class="btn btn-primary" href="<?php echo base_url('consultation_done/'.$vl['ID']);?>">Initiate Consultation</a>
                             <?php } ?>
