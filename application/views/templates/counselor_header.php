@@ -37,6 +37,11 @@
       <img src="<?php echo base_url(); ?>assets/images/IndiaIVFClinic_logo.png" /></a>
     <div id="sideNav" href=""><i class="material-icons dp48">toc</i></div>
   </div>
+
+
+
+
+
   <?php $notice = get_center_notification(); ?>
   <ul class="nav navbar-top-links navbar-right">
     <li><a class="dropdown-button waves-effect waves-dark" href="#!" data-activates="dropdown4">
@@ -54,16 +59,32 @@
   <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a> </li> -->
   <li><a href="<?php echo base_url(); ?>logout?r=<?php echo base64_encode('logged_counselor'); ?>"><i class="fa fa-sign-out fa-fw"></i> Logout</a> </li>
 </ul>
+
 <ul id="dropdown4" class="dropdown-content dropdown-tasks w250 taskList notification_list">
 	 <?php //var_dump($notice);die;
 		if($notice['count'] > 0){
 			echo $notice['html'];
 		}
 	?>
+  
 </ul>
+
 <!--/. NAV TOP  -->
 <nav class="navbar-default navbar-side" style="overflow:scroll;height:100%" role="navigation">
   <div class="sidebar-collapse">
+    <select id="change_center" class="form-control">
+    <option value="">-- Select Center --</option>
+    <?php if(!empty($centers)): ?>
+        <?php foreach ($centers as $c): ?>
+            <option value="<?= $c['id']; ?>" <?= ($active_center == $c['id']) ? 'selected' : ''; ?>>
+                <?= htmlspecialchars($c['center_name']); ?>
+            </option>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <option value="">No Centers Found</option>
+    <?php endif; ?>
+</select>
+
     <ul class="nav" id="main-menu">
       <li> <a class="active-menu waves-effect waves-dark" href="<?php echo base_url(); ?>"><i class="fa fa-dashboard"></i> Dashboard</a> </li>
       <li> <a href="#" class="waves-effect waves-dark"><i class="fa fa-sitemap"></i>Manage Appointments<span class="fa arrow"></span></a>
@@ -153,3 +174,19 @@
 		echo '<div class="col-sm-12 col-xs-12 '.base64_decode($_GET['t']).'"><h4>'.base64_decode($_GET['m']).'</h4></div>';
 	}
 ?>
+
+<script>
+$('#change_center').on('change', function() {
+    var center_id = $(this).val();
+    if(center_id !== '') {
+        $.post("<?= base_url('Welcome/change_center'); ?>", {center_id: center_id}, function(resp) {
+            if(resp.status){
+                location.reload();
+            } else {
+                alert('Failed to switch center');
+            }
+        }, 'json');
+    }
+});
+
+</script>

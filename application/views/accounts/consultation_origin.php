@@ -94,25 +94,10 @@
           <div class="table-responsive">
             <table class="table table-sriped table-bordered table-hover" id="consultation_billing_list">
                <thead>  <tr>
-<?php
-$allowed_reasons = ['FIRST VISIT']; // add the ones you want
-?>
-
-<?php if (!empty($reason_counts) && is_array($reason_counts)): ?>
-   
-    <?php foreach ($reason_counts as $row): ?>
-        <?php
-            $reason = isset($row['reason_of_visit']) ? $row['reason_of_visit'] : 'Unknown';
-            $total  = isset($row['total']) ? (int)$row['total'] : 0;
-
-            if (in_array(strtoupper($reason), $allowed_reasons)) {
-                echo "<td>{$reason}: {$total}</td>";
-            }
-        ?>
-    <?php endforeach; ?>
-  
+<?php if (!empty($reason_counts['unique_first_patient_count'])): ?>
+    <td>First Visit: <?php echo $reason_counts['unique_first_patient_count']; ?></td>
 <?php else: ?>
-   
+    
 <?php endif; ?>
 
 <?php if (!empty($patient_counts['unique_patient_count'])): ?>

@@ -101,6 +101,7 @@ class Appointmentcontroller extends CI_Controller {
 			$data["crm_id"] = $crm_id;
 			$data["lead_source"] = $lead_source;
 			$data["lead_sources"] = $this->appointment_model->get_all_lead_sources();
+			$data["lead_sources"] = $this->appointment_model->get_counselors_grouped_by_center();
 			
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
@@ -1223,5 +1224,6 @@ class Appointmentcontroller extends CI_Controller {
 			die();
 		}
 	}
+
 	
 } 

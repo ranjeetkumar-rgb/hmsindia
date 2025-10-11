@@ -1,7 +1,7 @@
  <?php $all_method =&get_instance(); ?>
     <div class="col-md-12">
       <div class="card">
-	   <div class="card-action"><h3>SPatient Timeline</h3></div>
+	   <div class="card-action"><h3>Patient Timeline</h3></div>
        <div class="clearfix"></div>
 	    <form action=""<?php echo base_url().'patients/timeline_view'; ?>" method="get">
 		     <div class="col-sm-3 col-xs-12" style="margin-top:10px;">
@@ -17,7 +17,6 @@
                </a>
             </div>
         </form>
-      <h2>teat</h2>
 
 	    <div class="clearfix"></div>
         <div class="card-content">
@@ -25,11 +24,14 @@
             <table class="table table-striped table-bordered table-hover" id="procedure_billing_list">
               <thead>
                 <tr>
-				  <th>S.No.</th>
-                  <th>IIC ID</th>
+				          <th>S.No.</th>
+                  <th>CRM ID</th>
                   <th>Event Type</th>
                   <th>Agent</th>
                   <th>Date</th>
+                  <th>Event Type</th>
+                  <th>Updated Agent</th>
+                  <th>Updated Date</th>
 				</tr>
               </thead>
               <tbody id="semen_analysis_result">
@@ -39,10 +41,13 @@
                ?>
                 <tr class="odd gradeX">
                   <td><?php echo $count; ?></td>
-				  <td><a href="<?php echo $vl['patient_id']?>"><?php echo $vl['patient_id']?></a></td>
-				  <td><?php echo $vl['event_type']; ?></td>
-                   <td><?php echo $vl['agent']; ?></td>
-				  <td><?php echo $vl['event_date']?></td>
+				          <td><?php echo $vl['crm_id']?></td>
+				          <td><?php echo $vl['event_type']; ?></td>
+                  <td><?php echo $vl['agent']; ?></td>
+				          <td><?php echo $vl['event_date']?></td>
+                  <td><?php echo $vl['event_type']; ?></td>
+                  <td><?php echo $vl['agent']; ?></td>
+				          <td><?php echo $vl['event_date']?></td>
                 </tr>
               <?php $count++;} ?>
 			    <tr>

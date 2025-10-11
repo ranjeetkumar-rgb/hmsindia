@@ -593,4 +593,24 @@ class Appointment_model extends CI_Model
         ]);
         return $this->db->affected_rows() > 0;
     }
+
+    public function get_counselors_grouped_by_center()
+{
+    $this->db->select('center_id, id, name');
+    $this->db->from('hms_employees');
+    $this->db->where('role', 'counselor');
+    $this->db->where('status', '1');
+    $this->db->order_by('center_id, name');
+    $query = $this->db->get();
+
+    $result = $query->result_array();
+
+    // Group by center_id
+    $grouped = [];
+    foreach ($result as $row) {
+        $grouped[$row['center_id']][] = $row;
+    }
+    return $grouped;
+}
+
 }

@@ -1894,7 +1894,7 @@ public function procedure_reports(){
 			$start_date = $this->input->get('start_date', true);
 			$end_date = $this->input->get('end_date', true);
 			$patient_id = $this->input->get('iic_id', true);
-			$reason_of_visit = $this->input->get('reason_of_visit');
+			$reason_of_visit = $this->input->get('reason_of_visit', true);
 			$lead_source = $this->input->get('lead_source');
 			$export_billing = $this->input->get('export-billing', true);
 			$paid_amount = 0;
@@ -1960,7 +1960,7 @@ public function procedure_reports(){
 			
         	$data["links"] = $this->pagination->create_links();
 			$data['consultation_result'] = $this->accounts_model->patient_consultation_report_patination($config["per_page"], $per_page, $center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source);
-			$data['reason_counts'] = $this->accounts_model->patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source);
+			$data['reason_counts'] = $this->accounts_model->patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id, $lead_source);
 			$data['patient_counts'] = $this->accounts_model->patient_procedure_consultation_count($center, $start_date, $end_date, $patient_id,$reason_of_visit);
 			$data['lead_sources'] = $this->accounts_model->get_lead_source_dropdown_data();
 
@@ -1970,6 +1970,7 @@ public function procedure_reports(){
 			$data["patient_id"] = $patient_id;
 			$data["doctor_id"] = $doctor_id;
 			$data["lead_source"] = $lead_source;
+			$data["reason_of_visit"] = $reason_of_visit;
 			$template = get_header_template($logg['role']);
 			$this->load->view($template['header']);
 			$this->load->view('accounts/consultation_origin', $data);

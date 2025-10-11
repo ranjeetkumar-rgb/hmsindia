@@ -2733,38 +2733,7 @@ function export_investigation_data($start, $status, $end, $center, $type, $payme
         }    
 		return $response;
     }
-
-	/*function patient_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit,$doctor_id){
-		$consultation_result = array();
-		$conditions = '';
-		//if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
-		//	$conditions = ' and billing_at="'.$_SESSION['logged_accountant']['center'].'"'; 
-		//}
-        if (!empty($center)){
-			$conditions .= " and billing_at='$center'";
-		}
-		if (!empty($reason_of_visit)){
-			$conditions .= " and reason_of_visit='$reason_of_visit'";
-		}
-		if (!empty($patient_id)){
-			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($doctor_id)){
-			$conditions .= " and doctor_id='$doctor_id'";
-		}
-		if (!empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
-		}
-		else if (!empty($start_date) && empty($end_date)){
-			$conditions .= " and on_date='$start_date'";
-		}
-		else if (empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date='$end_date'";
-		}
-		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where 1 ".$conditions."";
-		$q = $this->db->query($consultation_sql);
-		return $q->num_rows();
-    }*/
+	
 	// Count function for pagination
 function patient_consultation_report_count($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id, $lead_source = ''){
     
@@ -2814,45 +2783,8 @@ function patient_consultation_report_count($center, $start_date, $end_date, $pat
     return $this->db->count_all_results();
 }	
 	
-	/*function patient_consultation_report_patination($limit, $page, $center, $start_date, $end_date, $patient_id, $reason_of_visit,$doctor_id){
-		$consultation_result = array();
-		$conditions = '';
-		if(empty($page)){
-			$offset = 0;
-		}else{
-			$offset = ($page - 1) * $limit;
-		}
-		//if(isset($_SESSION['logged_accountant']['center']) && !empty($_SESSION['logged_accountant']['center'])){ 
-		//	$conditions = ' and billing_at="'.$_SESSION['logged_accountant']['center'].'"'; 
-		//}
-		if (!empty($center)){
-			$conditions .= " and billing_at='$center'";
-		}
-		if (!empty($patient_id)){
-			$conditions .= " and patient_id='$patient_id'";
-		}
-		if (!empty($doctor_id)){
-			$conditions .= " and doctor_id='$doctor_id'";
-		}
-		if (!empty($reason_of_visit)){
-			$conditions .= " and reason_of_visit='$reason_of_visit'";
-		}
-		if (!empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date between '".$start_date."' AND '".$end_date."' ";
-		}
-		else if (!empty($start_date) && empty($end_date)){
-			$conditions .= " and on_date='$start_date'";
-		}
-		else if (empty($start_date) && !empty($end_date)){
-			$conditions .= " and on_date='$end_date'";
-		}
-		$consultation_sql = "Select * from ".$this->config->item('db_prefix')."consultation where 1".$conditions." order by on_date desc limit ". $limit." OFFSET ".$offset."";
-		$consultation_q = $this->db->query($consultation_sql);
-		$consultation_result = $consultation_q->result_array();
-		return $consultation_result;
-	}*/
 
-	function patient_consultation_report_patination($limit, $page, $center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id, $lead_source = ''){
+function patient_consultation_report_patination($limit, $page, $center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id, $lead_source = ''){
     $consultation_result = array();
     $conditions = '';
     
@@ -2924,7 +2856,7 @@ LIMIT $offset, $limit";
     return $consultation_result;
 }
 	
-function patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id,$lead_source){
+function patient_consultation_count_by_reason($center, $start_date, $end_date, $patient_id, $reason_of_visit, $doctor_id, $lead_source){
     $conditions = '';
     if (!empty($center)){
         $conditions .= " AND billing_at='$center'";
@@ -2945,17 +2877,51 @@ function patient_consultation_count_by_reason($center, $start_date, $end_date, $
         $conditions .= " AND on_date='$end_date'";
     }
 
-   echo $consultation_sql = "SELECT COUNT(DISTINCT T1.patient_id) AS unique_patient_count
-    FROM hms_patient_procedure AS T1
+   $consultation_sql = "SELECT COUNT(DISTINCT T1.paitent_id) AS unique_first_patient_count
+    FROM hms_appointments AS T1
     INNER JOIN (
         SELECT patient_id
         FROM hms_consultation
         WHERE 1 ".$conditions." ORDER BY on_date DESC
-    ) AS T2 ON T1.patient_id = T2.patient_id";
+    ) AS T2 ON T1.paitent_id = T2.patient_id";
 
     $q = $this->db->query($consultation_sql);
     return $q->row_array(); // returns array with both counts
 }
+
+ function patient_procedure_consultation_count($center, $start_date, $end_date, $patient_id, $reason_of_visit){
+        $conditions = '';
+
+        if (!empty($center)){
+            $conditions .= " AND billing_at='$center'";
+        }
+        if (!empty($patient_id)){
+            $conditions .= " AND patient_id='$patient_id'";
+        }
+        if (!empty($reason_of_visit)){
+            $conditions .= " AND reason_of_visit='$reason_of_visit'";
+        }
+        if (!empty($start_date) && !empty($end_date)){
+            $conditions .= " AND on_date BETWEEN '".$start_date."' AND '".$end_date."'";
+        }
+        else if (!empty($start_date) && empty($end_date)){
+            $conditions .= " AND on_date='$start_date'";
+        }
+        else if (empty($start_date) && !empty($end_date)){
+            $conditions .= " AND on_date='$end_date'";
+        }
+
+        $consultation_sql = "SELECT COUNT(DISTINCT T1.patient_id) AS unique_patient_count
+        FROM hms_patient_procedure AS T1
+        INNER JOIN (
+            SELECT patient_id
+            FROM hms_consultation
+            WHERE 1 ".$conditions." ORDER BY on_date DESC
+        ) AS T2 ON T1.patient_id = T2.patient_id";
+
+        $q = $this->db->query($consultation_sql);
+        return $q->row_array();
+    }
 
 public function get_lead_source_dropdown_data() {
     $this->db->select("mapped_bucket, GROUP_CONCAT(original_lead_source) as sources");

@@ -99,6 +99,8 @@
                      <th>Slot</th>
                      <th>Reason of visit</th>
                      <th>Lead Source</th>
+                     <th>Agent</th>
+                     <th>Counsellor</th>
                      <th>Status</th>
                      <th>Action</th>
                   </tr>
@@ -120,6 +122,8 @@
                      <td><?php echo $vl['appoitmented_slot']?></td>
                      <td><?php echo $vl['reason_of_visit']?></td>
                      <td><?php echo $vl['lead_source']?></td>
+                      <td><?php echo $vl['agent']?></td>
+                       <td><?php echo $vl['councellor']?></td>
                      <td class="role appint_td_<?php echo $vl['ID']?>">
                         <?php if($vl['status'] == 'consultation_done'){echo 'Consultation Done';}
                            else{ 
